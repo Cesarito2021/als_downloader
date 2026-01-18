@@ -113,7 +113,7 @@ ui <- dashboardPage(
               
               actionButton(
                 "run_search",
-                "2) Search LiDAR tiles for this AOI",
+                "Search LiDAR tiles for this AOI",
                 icon = icon("search"),
                 style = "color:#0b1120; background-color:#38bdf8; border-color:#38bdf8; width:100%;"
               ),
@@ -124,7 +124,7 @@ ui <- dashboardPage(
               
               actionButton(
                 "run_download",
-                "4) Download selected tiles to LAZ folder",
+                "Download selected tiles to LAZ folder",
                 icon = icon("download"),
                 style = "color: #0b1120; background-color: #22c55e; border-color: #22c55e; width:100%;"
               ),
@@ -275,7 +275,7 @@ server <- function(input, output, session) {
   output$year_selector_ui <- renderUI({
     # NOTE: this stays AFTER a search
     res <- res_lidar()
-    if (is.null(res) || nrow(res) == 0) return(helpText("Run the LiDAR search first."))
+    if (is.null(res) || nrow(res) == 0) return(helpText(""))
     
     yrs <- sort(unique(res$startYear))
     if (exists("allowed_years_download") && !is.null(allowed_years_download)) {
