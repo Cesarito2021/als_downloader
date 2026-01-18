@@ -83,7 +83,7 @@ ui <- dashboardPage(
               
               fileInput(
                 "aoi_file",
-                "1) Upload AOI (.zip shapefile or .gpkg/.geojson):",
+                "Upload AOI (.zip shapefile or .gpkg/.geojson):",
                 multiple = FALSE,
                 accept = c(".zip", ".gpkg", ".geojson")
               ),
