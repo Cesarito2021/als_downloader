@@ -124,86 +124,101 @@ shiny::runApp("app.R")
 
 # The app will now have access to your local CPU resources
 ```
-
 ## Workflow Tutorial
 
-This section describes the **step-by-step workflow** for discovering and downloading
-OpenTopography and USGS 3DEP data using `als_downloader`.  
+This section describes the **step-by-step workflow** for discovering and downloading  
+OpenTopography and USGS 3DEP ALS data using `als_downloader`.  
 The workflow guides users from **AOI definition** to **local LAZ data acquisition**.
 
 ---
 
-### 1. Study Area Input (AOI)
+### 1. API Key and ALS Source (left panel of the app)
+- Insert the API key provided by OpenTopography: https://opentopography.org/developers  
+- Select the ALS source from the available options.
+- 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ae10d7df-10b2-4591-99ca-55e4f72f0f83"
+       alt="API key and ALS source"
+       width="400">
+</p>
+
+---
+
+### 2. Study Area Input (AOI)
 
 Users define the Area of Interest by uploading one of the following formats:
 
-- a zipped Shapefile
-- a GeoPackage (`.gpkg`)
-- a GeoJSON file
+- a zipped Shapefile  
+- a GeoPackage (`.gpkg`)  
+- a GeoJSON file  
 
-If multiple polygons are present, users can select one or more features
+If multiple polygons are present, users can select one or more features  
 based on attribute values.
 
 ---
-### 2. Source 
 
-- OpenTopography
-- USGS 3DEP
+### 3. Data Source Selection
 
-### 3. Local Processing Configuration/ Local data verification
+- OpenTopography  
+- USGS 3DEP  
+
+---
+
+### 4. Local Processing Configuration / Local Data Verification
 
 This step controls download performance:
-- user specify the ALS source to be used
-- users specify the number of CPU cores to be used
-- parallel downloads significantly reduce acquisition time for large AOIs
+
+- users specify the ALS source to be used  
+- users specify the number of CPU cores to use  
+- parallel downloads significantly reduce acquisition time for large AOIs  
 
 ⚠️ This option is effective **only when running the app locally**.
 
 ---
 
-### 3. Output Configuration
+### 5. Output Configuration
 
 Users define:
 
-- the output directory on their local machine
-- the project folder name
+- the output directory on their local machine  
+- the project folder name  
 
-Downloaded LAZ files are automatically organized in a structured
+Downloaded LAZ files are automatically organized in a structured  
 folder hierarchy to support reproducible workflows.
 
 ---
 
-### 4. LiDAR Tile Discovery
+### 6. LiDAR Tile Discovery
 
 After configuring the AOI:
 
-- the app queries USGS 3DEP ALS metadata services
-- ALS tiles intersecting the AOI are identified
+- the app queries USGS 3DEP ALS metadata services  
+- ALS tiles intersecting the AOI are identified  
 
 Results are summarized by:
 
-- acquisition year
-- project/source
-- number of available tiles
+- acquisition year  
+- project/source  
+- number of available tiles  
 
 This step allows users to evaluate ALS availability before downloading data.
 
 ---
 
-### 5. ALS Data Download
+### 7. ALS Data Download
 
 Users can:
 
-- select specific acquisition years
-- select specific ALS projects
-- download only the required LAZ tiles
+- select specific acquisition years  
+- select specific ALS projects  
+- download only the required LAZ tiles  
 
 Downloaded files are saved locally and can be directly used in:
 
-- PDAL
-- lidR
-- CloudCompare
-- GIS software
+- PDAL  
+- lidR  
+- CloudCompare  
+- GIS software  
 
 ## Developers and Maintainers
 
