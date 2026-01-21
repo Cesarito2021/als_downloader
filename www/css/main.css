@@ -247,3 +247,59 @@ table.dataTable tbody tr:hover {
     height: 220px !important;
   }
 }
+/* =========================
+   LOGO (on screen) - resized
+   ========================= */
+
+/* container */
+.logo-wrap{
+  background-color: #020617;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  text-align: center;
+}
+
+/* image */
+.logo-screen{
+  width: auto;          /* non full width */
+  max-width: 100%;      /* resta nel pannello */
+  height: auto;
+  max-height: 600px;    /* <<< cambia qui (es. 100, 120, 160) */
+  object-fit: contain;  /* scala senza tagliare */
+  display: inline-block;
+}
+
+/* =========================
+   Custom buttons (match screenshot)
+   ========================= */
+
+.btn-als-search{
+  background-color: #38bdf8 !important; /* cyan */
+  border-color: #38bdf8 !important;
+  color: #0b1120 !important;
+  font-weight: 700;
+}
+
+.btn-als-search:hover,
+.btn-als-search:focus,
+.btn-als-search:active{
+  background-color: #0ea5e9 !important;
+  border-color: #0ea5e9 !important;
+  color: #0b1120 !important;
+}
+
+.btn-als-download{
+  background-color: #22c55e !important; /* green */
+  border-color: #22c55e !important;
+  color: #0b1120 !important;
+  font-weight: 700;
+}
+
+.btn-als-download:hover,
+.btn-als-download:focus,
+.btn-als-download:active{
+  background-color: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #0b1120 !important;
+}

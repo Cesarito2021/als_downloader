@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Shiny / local data
+data/
+rsconnect/
