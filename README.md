@@ -2,6 +2,8 @@
 
 ALS Downloader is a Shiny web application developed within the NSF-funded OpenForest4D project for searching, exploring, and downloading airborne LiDAR point-cloud datasets (.LAS/.LAZ) from OpenTopography and USGS 3D Elevation Program (3DEP) sources. The application allows users to query LiDAR data by area of interest and acquisition period, view summaries by product, explore data availability and spatial coverage, and download selected LAZ/LAS tiles locally. Multicore parallel processing enables efficient, scalable data retrieval.
 
+🔗 OpenForest4D: https://openforest4d.org
+
 🔗 OpenTopography: https://portal.opentopography.org/datasets
 
 🔗 USGS 3DEP datasets: https://www.usgs.gov/3d-elevation-program
