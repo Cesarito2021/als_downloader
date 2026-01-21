@@ -1,61 +1,54 @@
 # ALS downloader web-based shiny app
 
-ALS downloader is a Shiny web application developed within the **NSF-funded OpenForest4D project** for searching, exploring, and downloading **USGS 3DEP ALS (LiDAR) LAZ/LAS data** from **OpenTopography**. The application enables users to query LiDAR data by area of interest and acquisition year, explore data availability and spatial coverage, and download selected LAZ/LAS tiles locally while leveraging multicore parallel processing for efficient and scalable data retrieval.
+ALS Downloader is a Shiny web application developed within the NSF-funded OpenForest4D project for searching, exploring, and downloading airborne LiDAR point-cloud datasets (.LAS/.LAZ) from OpenTopography and USGS 3D Elevation Program (3DEP) sources. The application allows users to query LiDAR data by area of interest and acquisition period, view summaries by product, explore data availability and spatial coverage, and download selected LAZ/LAS tiles locally. Multicore parallel processing enables efficient, scalable data retrieval.
 
-🔗 USGS 3DEP datasets on OpenTopography:  
-https://portal.opentopography.org/datasets
+🔗 OpenTopography: https://portal.opentopography.org/datasets
 
-## User Interface
+🔗 USGS 3DEP datasets: https://www.usgs.gov/3d-elevation-program
 
+## Application Overview
 ![Application banner](www/logo/logo_300dpi.png)
 
 ## Overview and Access
+ALS downloader is a Shiny-based application designed to search, explore, and download Airborne Laser Scanning (ALS / LiDAR) data from the OpenTopography and USGS 3DEP program.
 
-ALS downloader is a Shiny-based application designed to search, explore, and download Airborne Laser Scanning (ALS / LiDAR) data from the USGS 3DEP program.
-
-The application allows users to define a study area (AOI), identify ALS tile availability across years and projects, and download selected LAZ tiles locally, leveraging multi-core parallel processing.
-
-[![Shiny App](https://img.shields.io/badge/Shiny-App-blue?logo=r)](https://d1kw4k-cesar0ivan-alvites0diaz.shinyapps.io/lidar_app/)
-
-⚠️ Important
-
-Due to cloud execution constraints, parallel downloads are only available when running the app locally.
-The hosted Shiny version is intended only for data discovery and availability assessment.
-
-## Application Architecture
-
+The application allows users to select source, define a study area (AOI), configurate app and identify ALS tile availability across years and projects, and download selected LAZ tiles locally, leveraging multi-core parallel processing.
 The interface is organized into the following functional components (see Figure below):
 
+## User Interface (UI) and Architecture
 A) Study Area Input (AOI)
-B) Local Processing Configuration
+B) Local Processing Configuration/ Local Data verification
 C) Output Configuration
 D) LiDAR Tile Discovery
 E) ALS Data Download
 F) Application Header and Project Context
 
-![Image](https://github.com/user-attachments/assets/ceb2b802-b167-4990-9c20-707e322fa83f)
+### OpenTopograhy User Interface (UI) and Architecture
+![Image](https://github.com/user-attachments/assets/86ea4433-b57c-4511-b2ed-ab6a2fcd3531)
+
+### USGS 3DEP User Interface (UI) and Architecture
+![Image](https://github.com/user-attachments/assets/1dc96cd2-d00e-4d18-99f8-e03eeb796610)
+
+⚠️ Important
+Due to cloud execution constraints, parallel downloads are only available when running the app locally.
+The hosted Shiny version is intended only for data discovery and availability assessment.
 
 ## Purpose and Use Cases
-
 ALS downloader is designed to support:
-
 - ALS data availability assessment for forest, environmental, and geomatics studies
-
 - Efficient local data acquisition for large AOIs using multi-core CPUs
-
 - The app is not intended for point cloud processing or visualization, but rather for data discovery and acquisition.
 
-
 ## Opportunities and Challenges
-
-The **ALS downloader** provides similar core opportunities in both **online** and **local** execution modes.  
-However, the **challenges (limitations)** differ depending on the execution environment.
+The ALS Downloader provides similar core functionality in both online and local execution modes.
+However, the associated challenges and limitations differ depending on the execution environment.
+- Note: The online version only supports exploration of ALS data availability from the USGS 3DEP source and does not provide access to OpenTopography datasets.
 
 ### Opportunities (common to Online and Local versions)
 
 | Opportunity | Description |
 |------------|-------------|
-| ALS availability assessment | Identify USGS 3DEP ALS data intersecting a user-defined AOI |
+| ALS availability assessment | Identify OpenTopography and USGS 3DEP ALS data intersecting a user-defined AOI |
 | Metadata exploration | Inspect available acquisition years, project sources, and tile counts |
 | Spatial coverage understanding | Understand the spatial distribution of ALS data within the AOI |
 | Data acquisition planning | Support informed planning prior to large-scale data downloads |
@@ -74,8 +67,8 @@ However, the **challenges (limitations)** differ depending on the execution envi
 
 **Summary**
 
-➡️ **Online execution** is best suited for exploring ALS availability and planning data acquisition.  
-➡️ **Local execution** is recommended for efficient, large-scale ALS (LAZ) downloads and operational workflows.
+- ➡️ Online execution is best suited for exploring ALS data availability and planning data acquisition from USGS 3DEP; it does not support OpenTopography access.
+- ➡️ Local execution is recommended for efficient, large-scale ALS (LAZ) downloads and operational workflows, and provides access to both OpenTopography and USGS 3DEP data sources.
 
 ## How to Configure the App Locally (Recommended for Downloading ALS Data)
 
@@ -86,7 +79,30 @@ To fully leverage the application, users should run it locally.
 - Download the repository as a ZIP file
 - Unzip it on your local machine
 
-### Step 2 – Open the Project
+### Step 2 – Download and install the data folder
+
+The data/ directory is not included in the GitHub repository and must be downloaded separately.
+1. Download the data folder
+Download the data folder from Google Drive:https://drive.google.com/drive/folders/1-MyjrJmtrLpQR1Dc0bU227yq9ID1rZoV?usp=drive_link .
+
+After downloading, move or copy the entire data/ folder into the root of the repository:
+```r
+ot_pc_app/
+├── app.R
+├── base.R
+├── data/
+│   └── * TileIndex_all/
+│       └── all .zip files
+├── www/
+│   └── css/
+│   │    └── main.css
+│   └── logo/
+│       └── logo_300dpi.png
+├── .gitignore
+└── README.md
+```
+
+### Step 3 – Open the Project
 
 - Open the project folder in RStudio
 - Ensure required R packages are installed (as listed in the project documentation)
@@ -100,7 +116,7 @@ To fully leverage the application, users should run it locally.
 
 # Set the working directory to the application folder
 # Replace the path below with the location where you unzipped the project
-setwd("path/to/lidar_app")
+setwd("path/to/ot_pc_app")
 
 # Verify that the app files are present
 list.files()
@@ -114,7 +130,7 @@ shiny::runApp("app.R")
 ## Workflow Tutorial
 
 This section describes the **step-by-step workflow** for discovering and downloading
-USGS 3DEP ALS (LiDAR) data using `lidar_app`.  
+OpenTopography and USGS 3DEP data using `als_downloader`.  
 The workflow guides users from **AOI definition** to **local LAZ data acquisition**.
 
 ---
@@ -131,11 +147,15 @@ If multiple polygons are present, users can select one or more features
 based on attribute values.
 
 ---
+### 2. Source 
 
-### 2. Local Processing Configuration
+- OpenTopography
+- USGS 3DEP
+
+### 3. Local Processing Configuration/ Local data verification
 
 This step controls download performance:
-
+- user specify the ALS source to be used
 - users specify the number of CPU cores to be used
 - parallel downloads significantly reduce acquisition time for large AOIs
 
