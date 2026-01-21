@@ -42,11 +42,10 @@ ALS downloader is designed to support:
 - The app is not intended for point cloud processing or visualization, but rather for data discovery and acquisition.
 
 ## Opportunities and Challenges
-The ALS Downloader provides similar core functionality in both online and local execution modes.
+The ALS Downloader provides similar core functionality in d local execution modes.
 However, the associated challenges and limitations differ depending on the execution environment.
-- Note: The online version only supports exploration of ALS data availability from the USGS 3DEP source and does not provide access to OpenTopography datasets.
 
-### Opportunities (common to Online and Local versions)
+### Opportunities 
 
 | Opportunity | Description |
 |------------|-------------|
@@ -62,14 +61,11 @@ However, the associated challenges and limitations differ depending on the execu
 
 | Execution Mode | Challenges / Limitations |
 |---------------|--------------------------|
-| **Online (Shiny deployment)** | No parallel downloads;<br>Limited execution time;<br>Not suitable for large-scale LAZ downloads;<br>Restricted access to local file system |
 | **Local (desktop execution)** | Download performance depends on local hardware;<br>Parallelization limited by available CPU cores;<br>Requires local setup (R environment and dependencies);<br>Requires sufficient disk space and network bandwidth |
 
 ---
 
 **Summary**
-
-- ➡️ Online execution is best suited for exploring ALS data availability and planning data acquisition from USGS 3DEP; it does not support OpenTopography access.
 - ➡️ Local execution is recommended for efficient, large-scale ALS (LAZ) downloads and operational workflows, and provides access to both OpenTopography and USGS 3DEP data sources.
 
 ## How to Configure the App Locally (Recommended for Downloading ALS Data)
