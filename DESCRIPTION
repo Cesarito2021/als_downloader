@@ -1,6 +1,6 @@
 Package: alsdownloader
 Title: Discover and Download Airborne Laser Scanning Data
-Version: 0.1.0.9000
+Version: 0.1.0.9001
 Authors@R: c(
     person("Cesar Ivan", "Alvites Diaz", role = c("aut", "cre"),
            email = "calvites1990@gmail.com"),

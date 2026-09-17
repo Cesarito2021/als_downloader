@@ -6,9 +6,10 @@ Completed locally:
 
 - GPL-3 package; Gmail maintainer and UF secondary contact.
 - Documented functions, offline tests, built vignette.
-- AOI discovery, full decoding, checksum restart for one sample in USA, Australia, Brazil, New Zealand, Taiwan; see validation.csv.
+- AOI discovery, full decoding, checksum restart for ALS samples in USA, Australia, Brazil and New Zealand; Taiwan transport sample is photogrammetric, not ALS. See validation.csv.
 - Background Shiny transfer and bounded preview through the browser.
-- Previous app preserved under legacy/; raw downloads and credentials excluded.
+- Current package application retained in the working tree; previous standalone app available in Git history. Raw downloads and credentials excluded.
+- All 45 source records reviewed on 2026-09-17; Canada header access and Swiss LAS decoding checked. See SOURCE_AUDIT.md.
 - Dataset suggestion form with reviewed inclusion.
 
 Required before a release proposal:
@@ -22,4 +23,4 @@ Required before a release proposal:
 - Complete current R release/devel checks on Windows, macOS, Linux; build the PDF manual with TeX.
 - Resolve check notes and obtain explicit submission authorization.
 
-No CRAN upload, repository visibility change or default-branch merge is included in this preview.
+No CRAN upload or repository visibility change is included. Updating GitHub's default branch does not imply a validated worldwide release.

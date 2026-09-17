@@ -40,9 +40,9 @@ for (i in seq_len(nrow(samples))) {
     if (is.null(cloud) || points < 1L) stop("Decoded sample is empty.")
     resume <- download_tiles(tile, destination, workers = 1L, retries = 0L)$status[1]
     if (resume != "verified_existing") stop("Checksum restart failed.")
-    data.frame(country = x$country, status = "pass", points = points,
+    data.frame(country = x$country, acquisition_method = x$acquisition_method, status = "pass", points = points,
       checksum = result$checksum[1], checked_on = as.character(Sys.Date()), message = "")
-  }, error = function(e) data.frame(country = x$country, status = "pending_or_failed",
+  }, error = function(e) data.frame(country = x$country, acquisition_method = x$acquisition_method, status = "pending_or_failed",
     points = NA_real_, checksum = NA_character_, checked_on = as.character(Sys.Date()), message = conditionMessage(e)))
   utils::write.csv(do.call(rbind, report[seq_len(i)]), file.path(args[2], "sample-report.csv"), row.names = FALSE)
 }

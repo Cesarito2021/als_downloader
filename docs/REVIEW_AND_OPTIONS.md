@@ -1,5 +1,9 @@
 # ALS Downloader review and development options
 
+Historical design notes from the first development review. For current source identity, access and implementation status,
+use [SOURCE_AUDIT.md](SOURCE_AUDIT.md) and the [README](../README.md). The Taiwan/China ALS assumptions below were corrected:
+the named OpenTopography datasets are photogrammetric. The next map stage is described in [MAP_ROADMAP.md](MAP_ROADMAP.md).
+
 Review date: 17 September 2026. Baseline: GitHub commit `25a7e2b`.
 
 ## Recommendation
