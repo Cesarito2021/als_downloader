@@ -197,9 +197,9 @@ The form does not send automatically or upload point clouds. Proposals undergo r
 
 ### 4. Submit a data source
 
-Before submitting, contributors can choose **Test connection and preview** using a direct public LAS/LAZ sample (up to 50 MB). The alligator advances through real technical stages toward the lake; 100% means the sample was accessed and decoded into a bounded 3D preview. It does not approve the license, aerial platform, footprint or full-dataset integration. The source remains pending maintainer approval.
+Before submitting, contributors can choose **Check connection and link compatibility**. The app checks the public HTTPS endpoint and its download headers, without transferring or plotting any point cloud. A vector alligator advances toward a flag as the checks complete. **100% means the connection check completed and the request is ready for maintainer review**, not that the data contents or integration have been approved. There is no sample-size limit because no LAS/LAZ file is downloaded.
 
-Provide a LAS/LAZ download or file-index link, storage location, explicit open-data license URL and whether access requires registration or owner permission. Registration and permission requirements are reported for manual review; only openly licensed data are eligible. Larger files or unsupported endpoints can be submitted without a successful preview. Do not include credentials or private signed links.
+Provide a LAS/LAZ download or file-index link, storage location, explicit open-data license URL and whether access requires registration or owner permission. The automatic check currently recognizes direct LAS/LAZ links and filenames declared in download headers. Portals, indexes, redirects and authenticated access can be submitted for manual integration review. Only openly licensed data are eligible. Do not include credentials or private signed links.
 
 [Observed source approval times](docs/APPROVAL_TIMES.md) are reported from GitHub approval events, with no invented average or promised deadline. After review, the maintainer applies the `source-approved` label to the dataset suggestion issue; the report updates automatically. Email-only requests are excluded from this calculation.
 

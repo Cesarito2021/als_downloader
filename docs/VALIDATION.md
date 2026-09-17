@@ -188,3 +188,8 @@ No new LiDAR download was needed, and the README still has exactly three figures
 The public lidR `MixedConifer.laz` example was fetched from its upstream GitHub raw URL, decoded and displayed in the submission modal: 0.25 MB and 18,828 sampled points. This was a technical test only, not a catalog addition or submission. Browser checks confirmed that changing the URL clears the successful result, private hosts are rejected, and no browser errors occurred. Tests also cover credentials, private/mixed DNS addresses and non-HTTPS URLs. The test pins a vetted public IPv4 address, disables redirects, and limits transfers to 50 MB with a known length.
 
 The approval-report calculation was checked with zero approvals and a synthetic 2.5-day approval. Real statistics are produced from GitHub issue approval labels; no synthetic approval is published. License declarations are collected, not legally validated by this technical test.
+
+
+## Link-only contributor check supersedes sample preview - 17 September 2026
+
+The submission pre-test now requests HTTP headers only. Cloud downloading, decoding and plotting were removed from this flow. The vector alligator indicates technical stages; 100% means ready for maintainer review. Unit checks cover a 9 GB declared file without transferring its body, unrecognized links and HTML responses. The earlier sample-preview validation records a superseded implementation. Approval statistics remain separate.

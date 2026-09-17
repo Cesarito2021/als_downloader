@@ -1,4 +1,4 @@
-# Technical preview of contributor-supplied public files; never grants approval.
+# Link-only connectivity check; no point-cloud transfer, decoding or plotting.
 public_sample_target <- function(url, resolver = function(host) curl::nslookup(host, ipv4 = TRUE)) {
   u <- httr::parse_url(url)
   if (!identical(u$scheme, "https") || is.null(u$hostname) ||
@@ -21,44 +21,41 @@ public_sample_target <- function(url, resolver = function(host) curl::nslookup(h
   list(host=u$hostname, ip=ips[1])
 }
 
-source_preflight <- function(url, directory) {
+source_preflight <- function(url, directory, head_request = function(url, config, handle) httr::HEAD(url, config, httr::timeout(20), handle=handle)) {
   progress <- function(n, message) writeLines(c(as.character(n), message), file.path(directory,"stage.txt"))
   progress(10,"Checking public HTTPS access")
   target <- public_sample_target(url)
   # Pin the vetted address and disallow redirects, cookies, authentication and proxies.
   config <- httr::config(resolve=paste0(target$host,":443:",target$ip), followlocation=FALSE, proxy="", netrc=0L)
   handle <- httr::handle(url)
-  head <- httr::HEAD(url, config, httr::timeout(20), handle=handle)
+  head <- head_request(url, config, handle)
   if (httr::status_code(head) != 200L) stop("Direct anonymous access failed. Use the final public file URL; portals, redirects and login pages need manual review.")
-  size <- suppressWarnings(as.numeric(httr::headers(head)[["content-length"]]))
-  cap <- 50 * 1024^2
-  if (length(size) != 1L || !is.finite(size) || size <= 0 || size > cap)
-    stop("Access responded, but preview needs a sample LAS/LAZ file with known size up to 50 MB. Provide a smaller representative sample; this does not reject the dataset.")
-  progress(35,"Downloading temporary sample (maximum 50 MB)")
-  path <- file.path(directory,"sample.laz")
-  on.exit(unlink(path),add=TRUE)
-  response <- httr::GET(url, config, httr::config(maxfilesize_large=cap), httr::timeout(90), httr::write_disk(path), handle=handle)
-  if (httr::status_code(response) != 200L || file.size(path) != size || !valid_las_header(path)) stop("The response is not a complete LAS/LAZ file.")
-  progress(70,"Decoding LAS/LAZ sample")
-  points <- read_preview(path, 30000L)
-  progress(90,"Preparing the 3D preview")
-  list(points=unname(as.matrix(points)), origin=unname(attr(points,"origin")),
-    summary=sprintf("Technical sample test passed: %s display points; %.2f MB. Public access and decoding checked. Platform, license, coverage and full-dataset integration still require review.",nrow(points),size/1024^2))
+  progress(60,"Checking the download-link response")
+  headers <- httr::headers(head)
+  type <- headers[["content-type"]]
+  disposition <- headers[["content-disposition"]]
+  path <- httr::parse_url(url)$path
+  named_file <- grepl("\\.(las|laz)$", path, ignore.case=TRUE) ||
+    (!is.null(disposition) && grepl("\\.(las|laz)([\"; ]|$)",disposition,ignore.case=TRUE))
+  if (!is.null(type) && grepl("text/html",type,ignore.case=TRUE))
+    stop("The link opens a web page. Provide a direct LAS/LAZ link, or submit the portal/index for manual integration review.")
+  if (!isTRUE(named_file)) stop("The endpoint responds, but its headers/path do not identify a LAS/LAZ download. Submit for manual review; no file was downloaded.")
+  progress(90,"Preparing the connection report")
+  list(summary="Connection check complete: public HTTPS endpoint responds and identifies a LAS/LAZ download. No point-cloud bytes downloaded, decoded or plotted. Ready for maintainer review; file contents, license and integration are not verified.")
 }
 
 source_preflight_ui <- function() shiny::tagList(
-  shiny::textInput("source_sample_url", "Public LAS/LAZ sample URL for testing", placeholder="Direct HTTPS file up to 50 MB; no private tokens"),
+  shiny::helpText("The check uses the dataset access/download link above. It requests HTTP headers only; file size does not limit this check."),
   shiny::selectInput("source_access", "Does access require registration or permission?", c("Choose access conditions"="", "Public: no account or permission"="public", "Free registration required"="registration", "Owner permission required"="permission")),
   shiny::textInput("source_license_url", "Open-data license URL *"),
   shiny::checkboxInput("source_open_license", "I confirm that an explicit open-data license permits reuse of these aerial LiDAR data.",FALSE),
-  shiny::actionButton("source_test", "Test connection and preview"),
+  shiny::actionButton("source_test", "Check connection and link compatibility"),
   shiny::actionButton("source_test_cancel", "Cancel test"),
   shiny::uiOutput("source_test_progress"),
-  shiny::tags$canvas(id="als-source-cloud",class="als-point-cloud",style="height:260px",tabindex="0",role="img",`aria-label`="Contributor sample preview: drag to rotate"),
-  shiny::helpText("100% means the technical sample test completed, not publication approval. Large files, login-based access and unsupported endpoints can still be submitted for manual review. No fixed approval deadline is promised."))
+  shiny::helpText("100% means the link checks completed and the request is ready for your review, not publication approval. Portals, indexes and login-based access may need manual integration. No point clouds are downloaded or displayed."))
 
 source_preflight_server <- function(input, output, session, state, mode, hosted_lock) {
-  check <- shiny::reactiveValues(job=NULL,directory=NULL,locked=FALSE,percent=0,message="Optional: test a small public aerial LAS/LAZ sample.",summary="Not tested")
+  check <- shiny::reactiveValues(job=NULL,directory=NULL,locked=FALSE,percent=0,message="Optional: check the source connection without downloading data.",summary="Not tested")
   cleanup <- function() {
     if (!is.null(check$job) && check$job$is_alive()) check$job$kill_tree()
     check$job <- NULL
@@ -68,11 +65,11 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
     check$locked <- FALSE
     state$source_test_busy <- FALSE
   }
-  reset <- function() {cleanup();check$percent <- 0;check$summary <- "Not tested";check$message <- "Test a public sample, or submit for manual review.";session$sendCustomMessage("als-points",list(target="als-source-cloud",points=list(),origin=c(0,0,0)))}
-  shiny::observeEvent(list(input$source_sample_url,input$source_url,input$source_platform,input$source_license_url,input$source_open_license,input$source_access), reset(),ignoreNULL=FALSE)
+  reset <- function() {cleanup();check$percent <- 0;check$summary <- "Not tested";check$message <- "Check the dataset link, or submit for manual review."}
+  shiny::observeEvent(list(input$source_url,input$source_platform,input$source_license_url,input$source_open_license,input$source_access), reset(),ignoreNULL=FALSE)
   shiny::observeEvent(input$source_test_cancel,reset())
   shiny::observeEvent(input$source_test, {
-    if (is.null(input$source_sample_url) || !nzchar(trimws(input$source_sample_url))) {check$message <- "Provide a direct public LAS/LAZ sample URL.";return()}
+    if (is.null(input$source_url) || !nzchar(trimws(input$source_url))) {check$message <- "Provide a public LAS/LAZ download link in the dataset link field.";return()}
     if (!isTRUE(input$source_open_license) || !nzchar(input$source_license_url) || !input$source_platform %in% c("Aircraft / helicopter ALS","UAV LiDAR","Mixed aerial laser platforms")) {check$message <- "Declare an aerial LiDAR platform and an open-data license first.";return()}
     if (isTRUE(state$comparison_busy) || isTRUE(state$source_test_busy) || (!is.null(state$job) && state$job$is_alive()) || (!is.null(state$preview_job) && state$preview_job$is_alive())) {check$message <- "Wait for the current transfer or preview.";return()}
     reset()
@@ -82,8 +79,8 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
         check$locked <- TRUE
       }
       check$directory <- tempfile("als-source-test-");dir.create(check$directory)
-      state$source_test_busy <- TRUE;check$percent <- 5;check$message <- "Starting sample test"
-      check$job <- callr::r_bg(function(url,directory) alsdownloader:::source_preflight(url,directory),args=list(trimws(input$source_sample_url),check$directory),supervise=TRUE)
+      state$source_test_busy <- TRUE;check$percent <- 5;check$message <- "Starting connection check"
+      check$job <- callr::r_bg(function(url,directory) alsdownloader:::source_preflight(url,directory),args=list(trimws(input$source_url),check$directory),supervise=TRUE)
     },error=function(e){cleanup();check$message <- conditionMessage(e)})
   })
   shiny::observe({
@@ -96,12 +93,14 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
     }
     tryCatch({
       result <- job$get_result();check$percent <- 100;check$summary <- result$summary;check$message <- result$summary
-      session$sendCustomMessage("als-points",list(target="als-source-cloud",points=result$points,origin=result$origin))
     },error=function(e){check$summary <- "Technical test incomplete; manual review required";check$message <- paste("Test incomplete:",conditionMessage(e))})
     cleanup()
   })
   output$source_test_progress <- shiny::renderUI(shiny::tagList(
-    shiny::div(class="source-test-track",shiny::span(class="source-test-gator",style=paste0("left:",check$percent,"%"),shiny::HTML("&#128010;")),shiny::span(class="source-test-lake",shiny::HTML("&#127754;"))),
+    shiny::div(class="source-test-track",
+      shiny::span(class=paste("source-test-gator",if(check$percent>0 && check$percent<100)"walking" else ""),
+        style=paste0("left:",check$percent,"%"),shiny::HTML('<svg viewBox="0 0 120 50" aria-hidden="true"><path d="M5 30 L25 14 L30 26 Q45 10 76 22 L111 22 Q118 24 112 29 L84 35 Q55 42 28 33 Z" fill="#71b57b" stroke="#173e32" stroke-width="2"/><path d="M38 17l5-6 5 5 6-7 5 7 6-4 5 6" fill="#388a61"/><circle cx="80" cy="20" r="6" fill="#71b57b"/><circle cx="82" cy="19" r="2" fill="#101f23"/><path d="M88 29h23" stroke="#173e32" stroke-width="2"/><g class="gator-legs" stroke="#71b57b" stroke-width="6" stroke-linecap="round"><path d="M40 34l-7 10h10M69 35l7 9h10"/></g></svg>')),
+      shiny::span(class="source-test-lake",shiny::HTML('<svg viewBox="0 0 44 50" aria-hidden="true"><path d="M12 46V4" stroke="#dbe7e9" stroke-width="3"/><path d="M14 5h25L27 14l12 9H14Z" fill="#e88455"/><ellipse cx="20" cy="47" rx="17" ry="3" fill="#397997"/></svg>'))),
     shiny::tags$progress(value=check$percent,max=100,`aria-label`="Technical test progress"),
     shiny::p(role="status",paste0(check$percent,"% - ",check$message))))
   session$onSessionEnded(function()shiny::isolate(cleanup()))

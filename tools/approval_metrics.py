@@ -45,7 +45,7 @@ def main():
         text += f"Approved requests: **{len(durations)}**. Mean: **{statistics.mean(durations):.1f} calendar days**. Median: **{statistics.median(durations):.1f} calendar days**.\n\n"
     else:
         text += "**No recorded approvals yet; an average is not available.**\n\n"
-    text += "Observed turnaround is not a deadline or guarantee. Approval is a maintainer decision; a successful sample test does not approve or publish a source.\n"
+    text += "Observed turnaround is not a deadline or guarantee. Approval is a maintainer decision; a successful connection check does not approve or publish a source.\n"
     Path("docs/APPROVAL_TIMES.md").write_text(text, encoding="utf-8")
 
 

@@ -8,15 +8,31 @@ test_that("sample access rejects private networks and URL credentials before dow
   expect_error(public_sample_target("https://data.example/a.laz",resolve(c("8.8.8.8","10.0.0.1"))),"publicly routable")
 })
 
-test_that("sample UI separates technical completion from approval", {
+test_that("connection UI separates technical completion from approval", {
   ui <- as.character(source_preflight_ui())
   expect_match(ui,"not publication approval")
-  expect_match(ui,"50 MB")
+  expect_false(grepl("canvas|source_url|50 MB",ui))
   expect_match(ui,"source_license_url")
   shiny::testServer(als_app(), {
-    session$setInputs(source_test=1,source_sample_url="")
-    expect_match(as.character(output$source_test_progress$html),"Provide a direct")
-    session$setInputs(source_sample_url="https://data.example/a.laz",source_open_license=FALSE,source_test=2)
+    session$setInputs(source_test=1,source_url="")
+    expect_match(as.character(output$source_test_progress$html),"Provide a public")
+    session$setInputs(source_url="https://data.example/a.laz",source_open_license=FALSE,source_test=2)
     expect_match(as.character(output$source_test_progress$html),"Declare an aerial")
   })
+})
+
+
+test_that("connection check only requests headers, regardless of cloud size", {
+  dir <- tempfile();dir.create(dir);on.exit(unlink(dir,recursive=TRUE))
+  local_mocked_bindings(public_sample_target=function(...)list(host="data.example",ip="8.8.8.8"),.package="alsdownloader")
+  calls <- 0L
+  head <- function(...) {calls <<- calls+1L;structure(list(status_code=200L,headers=list("content-type"="application/octet-stream","content-length"="9000000000")),class="response")}
+  r <- source_preflight("https://data.example/cloud.laz",dir,head)
+  expect_equal(calls,1L)
+  expect_match(r$summary,"No point-cloud bytes")
+  expect_false(any(c("points","origin") %in% names(r)))
+  expect_equal(list.files(dir),"stage.txt")
+  expect_error(source_preflight("https://data.example/index",dir,head),"manual review")
+  html <- function(...)structure(list(status_code=200L,headers=list("content-type"="text/html")),class="response")
+  expect_error(source_preflight("https://data.example/cloud.laz",dir,html),"web page")
 })

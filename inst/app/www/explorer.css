@@ -8,6 +8,5 @@
 .als-main{overflow-x:clip}
 #compare_status,#compare_gate,#difference_summary{padding:10px 0;overflow-wrap:anywhere}#compare_metadata{white-space:pre-wrap;overflow-wrap:anywhere;background:#14232e;color:#e0eaf0}.selectize-input{overflow-wrap:anywhere}
 
-.source-test-track{position:relative;width:90%;height:40px;margin:12px 14px}.source-test-gator{position:absolute;transition:left .4s ease;font-size:26px;transform:translateX(-50%)}.source-test-lake{position:absolute;right:-28px;font-size:28px}
-
+.source-test-track{position:relative;width:calc(100% - 110px);height:64px;margin:12px 60px 12px 30px;border-bottom:2px dashed #397997}.source-test-gator{position:absolute;top:16px;width:80px;transform:translateX(-50%);transition:left .4s ease}.source-test-lake{position:absolute;right:-30px;top:3px;width:36px}.source-test-gator.walking .gator-legs{transform-origin:center;animation:gator-step .3s ease-in-out infinite alternate}@keyframes gator-step{to{transform:translateY(-3px) rotate(4deg)}}@media(prefers-reduced-motion:reduce){.source-test-gator{transition:none}.source-test-gator.walking .gator-legs{animation:none}}
 #source_test_progress progress{width:100%;height:10px}

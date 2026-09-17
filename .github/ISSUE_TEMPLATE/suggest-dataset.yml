@@ -5,7 +5,7 @@ labels: []
 body:
   - type: markdown
     attributes:
-      value: "Thank you for contributing. We review access, licensing, metadata and a sample before enabling a dataset. Do not include passwords, API keys or signed private URLs."
+      value: "Thank you for contributing. We review access, licensing, metadata and integration requirements before enabling a dataset. Do not include passwords, API keys or signed private URLs."
   - type: input
     id: dataset
     attributes:
@@ -89,7 +89,7 @@ body:
   - type: input
     id: sample
     attributes:
-      label: Direct public LAS/LAZ sample URL and technical test report
+      label: Connection-check report (optional; no point-cloud upload)
   - type: checkboxes
     id: terms
     attributes:

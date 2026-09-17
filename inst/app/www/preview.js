@@ -13,7 +13,6 @@
     let groups=[],paletteB='Magma',showA=true,showB=true;
     let initialPitch=1.08,pointSize=1.8;
     if(comparison){palette='Grey';paletteB='Black';exag=1;}
-    if(c.id==='als-source-cloud'){exag=1;initialPitch=1.38;}
     function draw() {
       if (!c.clientWidth) return;
       const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
@@ -21,7 +20,7 @@
       const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
       if(comparison){ctx.fillStyle='#ffffff';ctx.fillRect(0,0,w,h);}
       ctx.fillStyle=comparison?'#424242':'#adbeca';ctx.font='12px system-ui';
-      if(!points.length){ctx.fillText(comparison?'Choose two overlapping clouds to view together.':c.id==='als-source-cloud'?'Test a public LAS/LAZ sample to see its point cloud here.':'Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
+      if(!points.length){ctx.fillText(comparison?'Choose two overlapping clouds to view together.':'Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
       const co=Math.cos(yaw),si=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
       let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
       const ordered=points.map((p,index)=>{
@@ -90,15 +89,7 @@
     const compact=matchMedia('(max-width:850px)');
     function layout(){const sidebar=document.querySelector('.als-sidebar');if(sidebar)sidebar.open=!compact.matches;}
     compact.addEventListener('change',layout);layout();
-    let sourceCanvas=null;
-    Shiny.addCustomMessageHandler('als-points',data=>{
-      const id=data.target||'als-cloud';
-      if(id==='als-source-cloud'){
-        const c=document.getElementById(id);
-        if(c!==sourceCanvas){views[id]?.dispose();delete views[id];sourceCanvas=c;if(c)views[id]=viewer(c);}
-      }
-      views[id]?.load(data);
-    });
+    Shiny.addCustomMessageHandler('als-points',data=>views[data.target||'als-cloud']?.load(data));
     Shiny.addCustomMessageHandler('als-view',data=>views[data.target]?.update(data));
   });
 })();

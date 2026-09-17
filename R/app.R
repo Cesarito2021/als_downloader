@@ -133,7 +133,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         shiny::textInput("source_contact", "Your name / contact (optional)"),
         shiny::checkboxInput("source_review", "I understand that this is a suggestion and requires review before inclusion.", FALSE),
         shiny::uiOutput("source_submission"),
-        shiny::helpText("Prepare email opens your email application: review and send it there. GitHub opens a public draft and requires an account. Nothing is sent automatically. Test samples are temporary and removed after testing; source datasets are not hosted."),
+        shiny::helpText("Prepare email opens your email application: review and send it there. GitHub opens a public draft and requires an account. Nothing is sent automatically. The connection check reads headers only; point-cloud files are not downloaded or hosted."),
         footer = shiny::modalButton("Close")))
     })
     source_proposal <- shiny::reactive({
@@ -150,8 +150,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         paste("Contributor contact:", optional("source_contact", 150L)),
         paste("Access conditions:", optional("source_access", 100L)),
         paste("Open-data license:", optional("source_license_url", 400L)),
-        paste("Sample URL:", optional("source_sample_url", 400L)),
-        paste("Technical sample check:", source_check_summary()),
+        paste("Connection check:", source_check_summary()),
         "Submitted for review; inclusion and automatic downloads are not yet approved.", sep = "\n\n"))
     })
     output$source_submission <- shiny::renderUI({
