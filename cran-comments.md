@@ -12,4 +12,4 @@ The full --as-cran run, including PDF and HTML manuals, reports 0 errors, 0 warn
 - New submission.
 - Unable to verify current time in the local environment.
 
-Current-R cross-platform CI must be recorded before using these comments for a submission. See docs/CRAN_READINESS.md. Examples and tests do not make network requests; the app and network workflows run only when explicitly invoked.
+GitHub Actions run 35271083291 (commit 1309077) passed Windows, macOS and Linux with R release and Linux with R-devel using --as-cran --no-manual, with warnings treated as failures. See docs/CRAN_READINESS.md for the remaining maintainer confirmations. Examples and tests do not make network requests; the app and network workflows run only when explicitly invoked.
