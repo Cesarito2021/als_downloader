@@ -37,7 +37,15 @@ Requires R >= 4.1. Install `lidR` for point-cloud previews. USGS searches requir
 
 The search figure is a Utah example. Collection dates come from provider acquisition metadata; the **final collection date** represents an interval. Missing dates remain unknown. Publication dates and filename years are not substituted. Source imagery may have a different date from the LiDAR.
 
-Optional **Compare campaigns** overlays two surveys on black with contrasting colours. Draw a line to open a point-cloud profile below the view, then download either figure or both as PNG. This is visual inspection of sampled points, without alignment, fitted curves or calculated changes. [Visual comparison guide](docs/TEMPORAL_COMPARISON.md).
+## 3. Compare campaigns and view a profile
+
+![Two overlapping survey clouds on black, with their coloured elevation profiles below](docs/images/interface-compare-campaigns.png)
+
+Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km. The default colours are light purple and pale yellow on black; red and blue are also available.
+
+Click **Draw profile line** to switch to a top-down view, then click two endpoints or drag a segment in any direction. A profile of both sampled clouds appears below, using their colours and original elevations. Adjust the strip width, show/hide either campaign, return to 3D, or download the cloud, profile or both as PNG.
+
+The profile does not require height normalization. Both clouds must have compatible coordinate references; the app does not align them, fit curves or calculate changes. [Visual comparison guide](docs/TEMPORAL_COMPARISON.md).
 
 ## Active sources
 
