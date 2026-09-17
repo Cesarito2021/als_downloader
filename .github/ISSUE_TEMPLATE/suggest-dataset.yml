@@ -53,6 +53,11 @@ body:
     attributes:
       label: Acquisition dates, CRS, vertical datum, density and classification
   - type: input
+    id: paper
+    attributes:
+      label: Related paper, preprint or DOI (optional)
+      description: "Link to the research publication as well as the data deposit; a paper alone may not provide downloadable point clouds."
+  - type: input
     id: sample
     attributes:
       label: Public sample tile or small test area

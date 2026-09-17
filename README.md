@@ -157,6 +157,18 @@ These features are **planned**, and country fills must not be interpreted as mea
 
 ## Reporting issues and suggesting data
 
+The **Submit a data source** button is always available in the application header.
+It opens a form for the dataset name, producer/repository, public URL or DOI, aerial platform,
+country/site, acquisition years, license/access details and an optional paper or preprint.
+Complete the required fields and acknowledge review to reveal the submission options.
+**Prepare email** opens a draft addressed to the maintainer; send it from your email application.
+Alternatively, open a **public GitHub draft** or save the proposal as text if no email client is configured.
+The form does not send automatically or upload point clouds. Proposals undergo review before catalog inclusion and adapter development.
+
+![Live source submission form populated with illustrative metadata; no proposal was sent](docs/images/interface-submit-source.png)
+
+Live interface capture, 17 September 2026; the dataset values shown are examples.
+
 Use [GitHub Issues](https://github.com/Cesarito2021/als_downloader/issues), or contact **Cesar Ivan Alvites Diaz** at
 [calvites1990@gmail.com](mailto:calvites1990@gmail.com) / [c.alvitesdiaz@ufl.edu](mailto:c.alvitesdiaz@ufl.edu).
 For bugs, include the version, provider, error message and a small reproducible AOI when possible. Do not post credentials.

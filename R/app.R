@@ -46,7 +46,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       shiny::tags$link(rel = "stylesheet", href = "als-assets/explorer.css"),
       shiny::tags$script(src = "als-assets/preview.js")),
     shiny::div(class = "als-header", shiny::div(shiny::h1("ALS DOWNLOADER"),
-      shiny::span("Global point cloud explorer")), shiny::span(class = "mode-label", paste(toupper(mode), "MODE"))),
+      shiny::span("Global point cloud explorer")),
+      shiny::div(class = "als-header-actions",
+        shiny::actionButton("suggest_source", "Submit a data source"),
+        shiny::span(class = "mode-label", paste(toupper(mode), "MODE")))),
     shiny::div(class = "als-layout",
       shiny::tags$details(class = "als-sidebar", open = "open",
         shiny::tags$summary("Study area and downloads"),
@@ -82,10 +85,59 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 4, step = 1),
             shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Viridis colors show source elevation, not canopy height.")),
           shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Zenodo entries are complementary research deposits, not official national coverage. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have a search adapter. Verify dataset terms and citations before downloading."),
-            shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?title=Dataset%20suggestion", target = "_blank", rel = "noopener noreferrer", "Suggest a dataset"),
+            shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
             DT::DTOutput("sources")))))
   )
   server <- function(input, output, session) {
+    shiny::observeEvent(input$suggest_source, {
+      shiny::showModal(shiny::modalDialog(
+        title = "Submit a data source", size = "l", easyClose = FALSE,
+        shiny::p("Help expand the aerial LiDAR catalog. Share links to existing sources; do not upload point clouds. Suggestions are reviewed before integration."),
+        shiny::textInput("source_name", "Dataset or product name *"),
+        shiny::textInput("source_owner", "Producer / institution and hosting repository *", placeholder = "Who collected it? Where is it hosted?"),
+        shiny::textInput("source_url", "Public dataset URL or DOI *"),
+        shiny::selectInput("source_platform", "Laser acquisition platform *", c("Choose a platform" = "", "Aircraft / helicopter ALS", "UAV LiDAR", "Mixed aerial laser platforms", "Unknown — needs review")),
+        shiny::helpText("Only aerial laser scanning is eligible. Terrestrial, spaceborne and photogrammetric acquisitions are outside scope."),
+        shiny::textInput("source_area", "Country / site and acquisition years *"),
+        shiny::textInput("source_paper", "Related paper, preprint or DOI (optional)"),
+        shiny::textAreaInput("source_details", "License, access and spatial metadata *", rows = 3,
+          placeholder = "License/citation; LAS/LAZ files; download or login requirements; footprint/index URL; CRS. Identify aerial files in mixed deposits. Write unknown where needed."),
+        shiny::textInput("source_contact", "Your name / contact (optional)"),
+        shiny::checkboxInput("source_review", "I understand that this is a suggestion and requires review before inclusion.", FALSE),
+        shiny::uiOutput("source_submission"),
+        shiny::helpText("Prepare email opens your email application: review and send it there. GitHub opens a public draft and requires an account. Nothing is sent automatically; no dataset files are stored by this form."),
+        footer = shiny::modalButton("Close")))
+    })
+    source_proposal <- shiny::reactive({
+      required <- c("source_name", "source_owner", "source_url", "source_platform", "source_area", "source_details")
+      values <- vapply(required, function(id) if (is.null(input[[id]])) "" else trimws(input[[id]]), character(1))
+      shiny::req(all(nzchar(values)), isTRUE(input$source_review))
+      # Bound outgoing proposal text to keep draft links manageable.
+      limits <- c(150L, 200L, 400L, 80L, 250L, 1400L)
+      values <- mapply(substr, values, 1L, limits, USE.NAMES = TRUE)
+      optional <- function(id, limit) if (is.null(input[[id]])) "" else substr(trimws(input[[id]]), 1L, limit)
+      list(title = paste("Dataset suggestion:", values[[1]]), body = paste(
+        paste(c("Dataset", "Producer / repository", "Dataset URL / DOI", "Platform", "Country / site / acquisition years", "License / access / spatial metadata"), values, sep = ": ", collapse = "\n\n"),
+        paste("Paper / preprint:", optional("source_paper", 400L)),
+        paste("Contributor contact:", optional("source_contact", 150L)),
+        "Submitted for review; inclusion and automatic downloads are not yet approved.", sep = "\n\n"))
+    })
+    output$source_submission <- shiny::renderUI({
+      proposal <- source_proposal()
+      encode <- function(x) utils::URLencode(enc2utf8(x), reserved = TRUE)
+      shiny::tagList(
+        shiny::tags$a(class = "btn als-primary", href = paste0("mailto:calvites1990@gmail.com?subject=", encode(proposal$title), "&body=", encode(proposal$body)), "Prepare email"),
+        " ", shiny::tags$a(class = "btn", target = "_blank", rel = "noopener noreferrer",
+          href = paste0("https://github.com/Cesarito2021/als_downloader/issues/new?title=", encode(proposal$title), "&body=", encode(proposal$body)), "Open public GitHub draft"),
+        shiny::downloadButton("source_proposal_file", "Save proposal (.txt)"),
+        shiny::tags$details(shiny::tags$summary("Review proposal text"), shiny::tags$pre(proposal$body)))
+    })
+    output$source_proposal_file <- shiny::downloadHandler(
+      filename = function() "als-source-proposal.txt",
+      content = function(file) {
+        proposal <- source_proposal()
+        writeLines(enc2utf8(c(proposal$title, "", proposal$body)), file, useBytes = TRUE)
+      }, contentType = "text/plain; charset=utf-8")
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "Draw or upload a study area to begin.",
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
       preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE)

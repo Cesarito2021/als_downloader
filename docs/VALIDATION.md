@@ -46,6 +46,12 @@ Two HTTP byte ranges from the original July 2019 ALS file returned 94,208 bytes;
 This is a bounded sample check, not complete-file validation. See [ITALY_PULETTI.md](ITALY_PULETTI.md).
 # Aerial-only Zenodo scope update — 17 September 2026
 
+Source submission UI update: the 59 existing package assertions passed and local installation succeeded.
+Live Edge checks verified required fields, review acknowledgement, Unicode and embedded-URL encoding in
+email/GitHub drafts, text export, 390 px mobile width and access from another tab. No email or issue was sent.
+The [form capture](images/interface-submit-source.png) uses illustrative metadata. Delivery through an external
+email client and GitHub submission were not exercised; no direct email service is configured.
+
 The complementary research selection now includes Sila, Tree-LiMS and EBA; all Zenodo adapters remain disabled.
 Known Taiwan photogrammetry was removed from the active catalog but retained in the historical validation/audit records.
 The package's 59 existing assertions passed again and the updated package installed locally.

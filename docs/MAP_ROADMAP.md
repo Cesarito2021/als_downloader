@@ -2,6 +2,14 @@
 
 These features are proposed, not implemented in this documentation update.
 
+The application now provides a persistent **Submit a data source** form for community suggestions,
+with email/GitHub drafts and a text export. It connects to existing deposits; it does not host point clouds.
+The next map stage should expose a product information card with title, producer, repository, acquisition
+platform and interval, DOI/paper/preprint, license, access conditions and reviewed coverage.
+Keep research publication links distinct from actual downloadable datasets. A proposed record must pass
+review before it becomes a map entry, and a mapped entry needs a working AOI adapter before downloads are enabled.
+Small study areas can intersect large source tiles: show known file sizes before transfer and retain the existing hosted limits.
+
 Prefer native provider footprints whenever available: they preserve actual survey/tile geometry and identifiers.
 Canada exposes project and tile indexes; Swiss STAC exposes item geometry; AHN documents version-dependent sheet grids;
 Poland documents WFS indexes and WMS file lookup. Each source still needs an adapter and real AOI tests.
