@@ -10,7 +10,7 @@
   function viewer(c) {
     const comparison=c.id==='als-compare-cloud';
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=1.08,exag=2,zoom=1,drag=null,palette='Viridis';
-    let groups=[],paletteB='Magma',showA=true,showB=true;
+    let groups=[],paletteB='Magma',showA=true,showB=true,focusCentral=true;
     let initialPitch=1.08,pointSize=1.8;
     if(comparison){palette='Grey';paletteB='Black';exag=1;}
     function draw() {
@@ -29,6 +29,13 @@
         xmin=Math.min(xmin,rx);xmax=Math.max(xmax,rx);ymin=Math.min(ymin,py);ymax=Math.max(ymax,py);
         return [rx,py,ry*sp+z*cp,p[2],groups[index]||0];
       }).sort((a,b)=>a[2]-b[2]);
+      // Camera framing only: retain every point, but let users avoid extreme
+      // returns compressing the whole cloud into a tiny area of the viewport.
+      if(comparison && focusCentral && ordered.length>100){
+        const xs=ordered.map(p=>p[0]).sort((a,b)=>a-b),ys=ordered.map(p=>p[1]).sort((a,b)=>a-b);
+        const lo=Math.floor((ordered.length-1)*.01),hi=Math.ceil((ordered.length-1)*.99);
+        xmin=xs[lo];xmax=xs[hi];ymin=ys[lo];ymax=ys[hi];
+      }
       // Fit projected bounds to the landscape canvas, with room for the legend.
       const scale=Math.min((w-60)/Math.max(xmax-xmin,1),(h-110)/Math.max(ymax-ymin,1))*zoom;
       const colors=palettes[palette];
@@ -78,7 +85,7 @@
       const n=points.length||1;
       initialYaw=-.5*Math.atan2(2*(sxy-sx*sy/n),sxx-sx*sx/n-syy+sy*sy/n);
       fit();},
-      update(data){if(data.exaggeration!=null)exag=data.exaggeration;if(palettes[data.palette])palette=data.palette;
+      update(data){if(data.focusCentral!=null)focusCentral=data.focusCentral;if(data.exaggeration!=null)exag=data.exaggeration;if(palettes[data.palette])palette=data.palette;
         if(data.pointSize!=null)pointSize=Math.max(.7,Math.min(3,data.pointSize));
         if(data.pose){initialPitch=data.pose==='forest'?1.38:1.08;fit();}
         if(palettes[data.paletteB])paletteB=data.paletteB;if(data.showA!=null)showA=data.showA;if(data.showB!=null)showB=data.showB;

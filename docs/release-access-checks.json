@@ -1,0 +1,83 @@
+[
+  {
+    "source": "usgs",
+    "url": "https://usgslidareuwest.blob.core.windows.net/usgs-3dep-copc/usgs-copc/UT_StatewideSouth_1_2020/copc/USGS_LPC_UT_StatewideSouth_2020_A20_12SUH7021.copc.laz",
+    "status": 206,
+    "signature": "4c415346",
+    "bytes_read": 1024,
+    "accessible": true
+  },
+  {
+    "source": "Australia",
+    "url": "https://opentopography.s3.sdsc.edu/pc-bulk/AUS11_Victor/ot_SAcoastalLidar2011-C2-AHD_2956074_54.laz",
+    "status": 206,
+    "signature": "4c415346",
+    "bytes_read": 1024,
+    "accessible": true
+  },
+  {
+    "source": "Brazil",
+    "url": "https://opentopography.s3.sdsc.edu/pc-bulk/BR17_SaoPaulo/MDS_color_3334-334.laz",
+    "status": 206,
+    "signature": "4c415346",
+    "bytes_read": 1024,
+    "accessible": true
+  },
+  {
+    "source": "New_Zealand",
+    "url": "https://opentopography.s3.sdsc.edu/pc-bulk/Auckland_2013/ot_RPC_AZ31_1026_2013.laz",
+    "status": 206,
+    "signature": "4c415346",
+    "bytes_read": 1024,
+    "accessible": true
+  },
+  {
+    "source": "Canada",
+    "url": "https://canelevation-lidar-point-clouds.s3.ca-central-1.amazonaws.com/pointclouds_nuagespoints/AB/Athabasca_2018/pc_083I11NE41NE_20181006.copc.laz",
+    "status": 206,
+    "signature": "4c415346",
+    "bytes_read": 1024,
+    "accessible": true
+  },
+  {
+    "source": "Switzerland",
+    "url": "https://data.geo.admin.ch/ch.swisstopo.swisssurface3d/swisssurface3d_2015_2494-1140/swisssurface3d_2015_2494-1140_2056_5728.las.zip",
+    "status": 206,
+    "signature": "504b0304",
+    "bytes_read": 1024,
+    "accessible": true
+  },
+  {
+    "source": "Sila",
+    "url": "https://zenodo.org/api/records/3633629/files/merged.las/content",
+    "status": 206,
+    "signature": "4c415346",
+    "bytes_read": 1024,
+    "accessible": true,
+    "doi": "10.5281/zenodo.3633629",
+    "license": "cc-by-4.0",
+    "file": "merged.las"
+  },
+  {
+    "source": "Tree-LiMS",
+    "url": "https://zenodo.org/api/records/17492219/files/las_singletree_data.zip/content",
+    "status": 206,
+    "signature": "504b0304",
+    "bytes_read": 1024,
+    "accessible": true,
+    "doi": "10.5281/zenodo.17492219",
+    "license": "cc-by-4.0",
+    "file": "las_singletree_data.zip"
+  },
+  {
+    "source": "EBA",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20para%20p5.zip/content",
+    "status": 206,
+    "signature": "504b0304",
+    "bytes_read": 1024,
+    "accessible": true,
+    "doi": "10.5281/zenodo.7636454",
+    "license": "cc-by-4.0",
+    "file": "transectos para p5.zip"
+  }
+]

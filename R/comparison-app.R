@@ -17,6 +17,7 @@ comparison_ui <- function() {
     shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A color / palette", c("Grey", "Black", "Cyan", "Orange", "Viridis", "Magma", "Plasma", "Cividis"))),
       shiny::column(4, shiny::selectInput("compare_palette_b", "B color / palette", c("Black", "Grey", "Orange", "Cyan", "Magma", "Viridis", "Plasma", "Cividis"))),
       shiny::column(4, shiny::sliderInput("compare_exaggeration", "Vertical exaggeration", 1, 12, 1, step = 1))),
+    shiny::checkboxInput("compare_focus", "Focus camera on central 98% (display only; turn off to fit all points)", TRUE),
     shiny::checkboxInput("compare_show_a", "Show A", TRUE), shiny::checkboxInput("compare_show_b", "Show B", TRUE),
     shiny::helpText("One shared origin, camera and elevation scale. Up to 50,000 display points per cloud. No calculated differences, analysis or exports. Provider footprints may contain gaps in actual point coverage."),
     shiny::tags$details(shiny::tags$summary("Source and display information"), shiny::verbatimTextOutput("compare_metadata")))
@@ -91,9 +92,9 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
       cmp$dates <- NULL
       cmp$files <- NULL
       state$comparison_busy <- TRUE; cmp$status <- "Loading both clouds inside the overlapping area..."
-      cmp$job <- callr::r_bg(function(a, b, aoi, directory)
-        alsdownloader:::compare_campaigns(a, b, aoi, directory),
-        args = list(a, b, overlap, cmp$directory), supervise = TRUE)
+      cmp$job <- callr::r_bg(function(compare, a, b, aoi, directory)
+        compare(a, b, aoi, directory),
+        args = list(compare_campaigns, a, b, overlap, cmp$directory), supervise = TRUE)
     }, error = function(e) {cmp$status <- conditionMessage(e); cleanup()})
   })
   shiny::observe({
@@ -121,9 +122,9 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   shiny::observeEvent(input$compare_cancel, {stop_job(); cmp$status <- "Comparison cancelled."})
   output$compare_status <- shiny::renderText(cmp$status)
   output$compare_metadata <- shiny::renderText({shiny::req(cmp$result); paste(paste(c("A", "B"), cmp$labels, collapse = "\n"), cmp$result$method, cmp$result$crs, sep = "\n\n")})
-  shiny::observeEvent(list(input$compare_palette_a, input$compare_palette_b, input$compare_exaggeration, input$compare_show_a, input$compare_show_b),
+  shiny::observeEvent(list(input$compare_palette_a, input$compare_palette_b, input$compare_exaggeration, input$compare_show_a, input$compare_show_b, input$compare_focus),
     session$sendCustomMessage("als-view", list(target = "als-compare-cloud", palette = input$compare_palette_a,
-      paletteB = input$compare_palette_b, exaggeration = input$compare_exaggeration, showA = input$compare_show_a, showB = input$compare_show_b)))
+      paletteB = input$compare_palette_b, exaggeration = input$compare_exaggeration, showA = input$compare_show_a, showB = input$compare_show_b, focusCentral = input$compare_focus)))
   session$onSessionEnded(function() shiny::isolate(stop_job()))
   invisible(cmp)
 }

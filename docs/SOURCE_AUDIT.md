@@ -1,4 +1,6 @@
-# Source and access review
+# Historical source and access review
+
+The current visible catalog is defined in [ACTIVE_SOURCES.md](ACTIVE_SOURCES.md). This document preserves the earlier candidate review and is not a list of enabled datasets.
 
 Reviewed on **17 September 2026**. All 45 original supplied records were considered, including repeated entries.
 The subsequent Nicola Puletti search adds one Italian ALS source, bringing the current inventory to **46 records**; see [Italy details](ITALY_PULETTI.md).

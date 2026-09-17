@@ -46,16 +46,13 @@ source_preflight <- function(url, directory, head_request = function(url, config
 
 source_preflight_ui <- function() shiny::tagList(
   shiny::helpText("The check uses the dataset access/download link above. It requests HTTP headers only; file size does not limit this check."),
-  shiny::selectInput("source_access", "Does access require registration or permission?", c("Choose access conditions"="", "Public: no account or permission"="public", "Free registration required"="registration", "Owner permission required"="permission")),
-  shiny::textInput("source_license_url", "Open-data license URL *"),
-  shiny::checkboxInput("source_open_license", "I confirm that an explicit open-data license permits reuse of these aerial LiDAR data.",FALSE),
-  shiny::actionButton("source_test", "Check connection and link compatibility"),
+  shiny::actionButton("source_test", "Check compatibility"),
   shiny::actionButton("source_test_cancel", "Cancel test"),
   shiny::uiOutput("source_test_progress"),
-  shiny::helpText("100% means the link checks completed and the request is ready for your review, not publication approval. Portals, indexes and login-based access may need manual integration. No point clouds are downloaded or displayed."))
+  shiny::helpText("100% means the link checks completed and the request is ready for your review, not publication approval. No point clouds are downloaded or displayed."))
 
 source_preflight_server <- function(input, output, session, state, mode, hosted_lock) {
-  check <- shiny::reactiveValues(job=NULL,directory=NULL,locked=FALSE,percent=0,message="Optional: check the source connection without downloading data.",summary="Not tested")
+  check <- shiny::reactiveValues(job=NULL,directory=NULL,locked=FALSE,percent=0,message="Optional: check the source connection without downloading data.",summary="Not tested",ready=FALSE)
   cleanup <- function() {
     if (!is.null(check$job) && check$job$is_alive()) check$job$kill_tree()
     check$job <- NULL
@@ -65,12 +62,13 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
     check$locked <- FALSE
     state$source_test_busy <- FALSE
   }
-  reset <- function() {cleanup();check$percent <- 0;check$summary <- "Not tested";check$message <- "Check the dataset link, or submit for manual review."}
-  shiny::observeEvent(list(input$source_url,input$source_platform,input$source_license_url,input$source_open_license,input$source_access), reset(),ignoreNULL=FALSE)
+  reset <- function() {cleanup();check$ready <- FALSE;check$percent <- 0;check$summary <- "Not tested";check$message <- "Check the dataset link, or submit for manual review."}
+  shiny::observeEvent(lapply(c("source_name","source_email","source_description","source_origin","source_year","source_platform","source_url","source_license_url","source_access","source_notes","source_open_license"),function(id)input[[id]]), reset(),ignoreNULL=FALSE)
   shiny::observeEvent(input$source_test_cancel,reset())
   shiny::observeEvent(input$source_test, {
-    if (is.null(input$source_url) || !nzchar(trimws(input$source_url))) {check$message <- "Provide a public LAS/LAZ download link in the dataset link field.";return()}
-    if (!isTRUE(input$source_open_license) || !nzchar(input$source_license_url) || !input$source_platform %in% c("Aircraft / helicopter ALS","UAV LiDAR","Mixed aerial laser platforms")) {check$message <- "Declare an aerial LiDAR platform and an open-data license first.";return()}
+    request <- source_request(input)
+    if(!request$valid){check$message <- request$message;return()}
+    if(!identical(input$source_access,"public")){check$message <- "Automatic connection requires public access without registration or owner permission.";return()}
     if (isTRUE(state$comparison_busy) || isTRUE(state$source_test_busy) || (!is.null(state$job) && state$job$is_alive()) || (!is.null(state$preview_job) && state$preview_job$is_alive())) {check$message <- "Wait for the current transfer or preview.";return()}
     reset()
     tryCatch({
@@ -80,7 +78,7 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
       }
       check$directory <- tempfile("als-source-test-");dir.create(check$directory)
       state$source_test_busy <- TRUE;check$percent <- 5;check$message <- "Starting connection check"
-      check$job <- callr::r_bg(function(url,directory) alsdownloader:::source_preflight(url,directory),args=list(trimws(input$source_url),check$directory),supervise=TRUE)
+      check$job <- callr::r_bg(function(check_link,url,directory) check_link(url,directory),args=list(source_preflight,trimws(input$source_url),check$directory),supervise=TRUE)
     },error=function(e){cleanup();check$message <- conditionMessage(e)})
   })
   shiny::observe({
@@ -92,7 +90,7 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
       return()
     }
     tryCatch({
-      result <- job$get_result();check$percent <- 100;check$summary <- result$summary;check$message <- result$summary
+      result <- job$get_result();check$ready <- TRUE;check$percent <- 100;check$summary <- result$summary;check$message <- result$summary
     },error=function(e){check$summary <- "Technical test incomplete; manual review required";check$message <- paste("Test incomplete:",conditionMessage(e))})
     cleanup()
   })
@@ -104,5 +102,5 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
     shiny::tags$progress(value=check$percent,max=100,`aria-label`="Technical test progress"),
     shiny::p(role="status",paste0(check$percent,"% - ",check$message))))
   session$onSessionEnded(function()shiny::isolate(cleanup()))
-  shiny::reactive(check$summary)
+  shiny::reactive(list(summary=check$summary,ready=check$ready))
 }

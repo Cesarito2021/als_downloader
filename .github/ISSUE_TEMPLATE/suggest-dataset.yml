@@ -1,101 +1,14 @@
-name: Suggest a dataset
-description: Propose an airborne laser scanning dataset for review.
+name: Dataset integration follow-up
+description: Public metadata only. Submit private contact information through the app email draft.
 title: "Dataset suggestion: "
-labels: []
 body:
   - type: markdown
     attributes:
-      value: "Thank you for contributing. We review access, licensing, metadata and integration requirements before enabling a dataset. Do not include passwords, API keys or signed private URLs."
-  - type: input
-    id: dataset
-    attributes:
-      label: Dataset name and provider
-    validations:
-      required: true
-  - type: dropdown
-    id: platform
-    attributes:
-      label: Aerial laser acquisition platform
-      description: "Only aerial laser scanning is in scope. Exclude terrestrial/mobile ground scanning, satellite LiDAR and photogrammetry. For mixed deposits, identify the aerial files below."
-      options:
-        - Aircraft or helicopter LiDAR
-        - UAV LiDAR
-        - Mixed aerial laser platforms
-    validations:
-      required: true
-  - type: input
-    id: location
-    attributes:
-      label: Country and coverage area
-    validations:
-      required: true
-  - type: input
-    id: source
-    attributes:
-      label: Dataset access or download link
-      description: "Public file, catalog, API or download page URL."
-    validations:
-      required: true
-  - type: input
-    id: storage
-    attributes:
-      label: Storage host and public location
-      description: "Where are the files stored? Include the host and public location, e.g. Zenodo record, AWS bucket or institutional repository."
-    validations:
-      required: true
+      value: "Use the app: complete ten short fields, Check compatibility, then Submit your request. Email is required there and is kept out of public issues. This public form is for follow-up metadata only."
   - type: textarea
-    id: description
+    id: request
     attributes:
-      label: Short dataset description
-      description: "One or two sentences about the aerial LiDAR data and coverage."
+      label: Public dataset information
+      description: "Dataset name, DOI, aerial platform, collection year, short description, data link and license link. Do not include your contact email, passwords or signed private URLs."
     validations:
       required: true
-  - type: textarea
-    id: acknowledgement
-    attributes:
-      label: Short required acknowledgement
-      description: "Preferred credit text for the data producer or project. Write None if none is requested."
-    validations:
-      required: true
-  - type: input
-    id: origin
-    attributes:
-      label: Dataset DOI or original platform link
-      description: "Persistent DOI or original provider's dataset landing page; a related paper can be supplied separately below."
-    validations:
-      required: true
-  - type: textarea
-    id: access
-    attributes:
-      label: Download method, format and authentication requirements
-      description: "Provide a LAS/LAZ file or file-index link. State whether access is public, requires free registration, or needs owner permission. Do not include private tokens."
-    validations:
-      required: true
-  - type: textarea
-    id: license
-    attributes:
-      label: Open-data license URL, required attribution and citation or DOI
-    validations:
-      required: true
-  - type: textarea
-    id: metadata
-    attributes:
-      label: Acquisition dates, CRS, vertical datum, density and classification
-  - type: input
-    id: paper
-    attributes:
-      label: Related paper, preprint or DOI (optional)
-      description: "Link to the research publication as well as the data deposit; a paper alone may not provide downloadable point clouds."
-  - type: input
-    id: sample
-    attributes:
-      label: Connection-check report (optional; no point-cloud upload)
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Review
-      options:
-        - label: "I confirm these aerial LiDAR data have an explicit open-data license permitting reuse."
-          required: true
-        - label: "I understand this is a suggestion and inclusion requires validation."
-          required: true

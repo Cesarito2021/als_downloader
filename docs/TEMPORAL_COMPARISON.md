@@ -29,3 +29,5 @@ These limits can require a smaller area even when overlap is below 1 km².
 The normal download workflow remains separate and saves the original provider files.
 
 Earlier validation records referring to P95 differences document a superseded feature, which has been removed.
+
+The comparison camera fits the central 98% of projected display coordinates by default, so isolated extreme returns do not compress the entire view. This changes camera framing only: no source or sampled points are deleted. Turn off **Focus camera on central 98%** to fit all points.

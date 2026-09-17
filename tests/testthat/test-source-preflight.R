@@ -12,12 +12,11 @@ test_that("connection UI separates technical completion from approval", {
   ui <- as.character(source_preflight_ui())
   expect_match(ui,"not publication approval")
   expect_false(grepl("canvas|source_url|50 MB",ui))
-  expect_match(ui,"source_license_url")
+  expect_match(as.character(source_submission_ui()),"source_email")
   shiny::testServer(als_app(), {
     session$setInputs(source_test=1,source_url="")
-    expect_match(as.character(output$source_test_progress$html),"Provide a public")
-    session$setInputs(source_url="https://data.example/a.laz",source_open_license=FALSE,source_test=2)
-    expect_match(as.character(output$source_test_progress$html),"Declare an aerial")
+    expect_match(as.character(output$source_test_progress$html),"Complete the nine")
+    expect_match(as.character(output$source_submission$html),"disabled")
   })
 })
 
@@ -35,4 +34,13 @@ test_that("connection check only requests headers, regardless of cloud size", {
   expect_error(source_preflight("https://data.example/index",dir,head),"manual review")
   html <- function(...)structure(list(status_code=200L,headers=list("content-type"="text/html")),class="response")
   expect_error(source_preflight("https://data.example/cloud.laz",dir,html),"web page")
+})
+
+
+test_that("submission requires private contact, concise description and a real DOI", {
+  x <- list(source_name="Forest",source_email="contact@example.org",source_description="Aerial laser survey.",source_origin="10.5281/zenodo.3633629",source_year="2018-2020",source_platform="Aircraft / helicopter ALS",source_url="https://example.org/forest.laz",source_license_url="https://creativecommons.org/licenses/by/4.0/",source_access="public",source_notes="Sensor model",source_open_license=TRUE)
+  expect_true(source_request(x)$valid)
+  x$source_email <- "missing";expect_false(source_request(x)$valid)
+  x$source_email <- "contact@example.org";x$source_description <- paste(rep("word",51),collapse=" ");expect_false(source_request(x)$valid)
+  x$source_description <- "Short";x$source_origin <- "https://example.org";expect_false(source_request(x)$valid)
 })

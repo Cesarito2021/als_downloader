@@ -5,7 +5,7 @@ included in the new package.
 world-countries.geojson is generated from world-atlas 2.0.2 countries-110m.json,
 https://github.com/topojson/world-atlas, derived from Natural Earth public-domain
 map data (https://www.naturalearthdata.com/about/terms-of-use/).
-World Atlas code is Copyright 2013-2019 Mike Bostock under the ISC license:
+World Atlas code is Copyright 2013-2019 Michael Bostock under the ISC license:
 Permission to use, copy, modify, and/or distribute this software for any purpose
 with or without fee is hereby granted, provided that the above copyright notice
 and this permission notice appear in all copies.

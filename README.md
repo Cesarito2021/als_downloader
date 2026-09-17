@@ -1,255 +1,87 @@
 # ALS Downloader
 
-**Discover airborne LiDAR, download source tiles, and inspect point clouds.**
-
-An R package and Shiny application developed within [OpenForest4D](https://openforest4d.org).
-Draw or upload a study area, search available surveys, select LAS/LAZ tiles and save them locally.
-
-[Install](#install-and-launch) · [Interface guide](#user-interface) · [Data sources](#data-sources) · [Validation](docs/SOURCE_AUDIT.md) · [Report an issue](https://github.com/Cesarito2021/als_downloader/issues)
-
-**Development preview 0.1.0.9001.** USGS 3DEP and local OpenTopography tile indexes are integrated.
-Other sources are reviewed links for discovery; they do not yet have download adapters. Not submitted to CRAN.
-
-## User interface
-
-### 1. Welcome globe
-
-![Welcome globe with red catalog-country highlights and red boxes W1-W3 identifying globe, coverage explanation and map entry](docs/images/interface-globe.png)
-
-The opening globe uses bundled Natural Earth cartography. Red country shading indicates catalog sources, not measured LiDAR coverage.
-
-| Section | What to do |
-|---|---|
-| **W1 - Globe** | Drag or use arrow keys to rotate; use **Reset globe** to return. |
-| **W2 - Catalog presence** | Read the coverage explanation: red indicates countries with catalog sources. |
-| **W3 - Open map** | Enter the map to define an AOI and search for tiles. |
-
-### 2. Search example: define an area, find tiles and download
-
-![Satellite map and real USGS search, with red boxes A–F identifying the main controls](docs/images/interface-rgb-tile.png)
-
-Use the layer switcher for **Satellite RGB** or **Terrain relief**. Imagery is visual context and may have a different date from the LiDAR survey. Returned tile footprints are translucent and map attribution stays visible.
-Click a footprint or select exactly one table result, then choose **Plot selected tile in 3D**. This opens **3D preview** automatically; there is one shared point-cloud viewer for selected tiles and local files.
-
-| Section | What it does | What to do |
-|---|---|---|
-| **A · Application header** | Identifies the application and execution mode. | Use local mode for large transfers. |
-| **B · Study area** | Navigates countries and accepts an area of interest (AOI). | Draw a polygon/rectangle, or upload a spatial file. |
-| **C · Data discovery** | Selects the provider and acquisition interval. | Configure tile indexes for OpenTopography, then choose **Find intersecting tiles**. |
-| **D · Download configuration** | Sets the output folder and worker count; reports progress. | Select table rows, choose a folder, then download. |
-| **E · Interactive map** | Shows the AOI, country context and returned tile footprints. | Zoom, draw and toggle layers. Country shading is not survey coverage. |
-| **F · Results and metadata** | Lists files, datasets, dates and known sizes. | Select rows or export tile metadata before downloading. |
-
-Live application capture, 17 September 2026: a small Utah AOI with seven USGS results.
-Output paths shown are examples. Missing sizes remain blank; unknown dates are retained in searches.
-The satellite and terrain backdrops depend on external map services; the welcome globe uses bundled cartography.
-
-### 3. Inspect a selected tile or local point cloud
-
-![Actual LAS/LAZ preview with red boxes G–I around upload controls, the point cloud and vertical exaggeration](docs/images/interface-preview.png)
-
-| Section | What it does | What to do |
-|---|---|---|
-| **G · Preview input** | Reads an uploaded LAS/LAZ file into a bounded sample. | Upload one tile, configure **Forest close-up and display sampling**, then **Build bounded preview**. Requires `lidR`. |
-| **H · 3D view** | Displays source elevation with a Viridis color scale. | Drag or use arrow keys to rotate; scroll or `+`/`-` to zoom; `0` resets. |
-| **I · Vertical exaggeration** | Changes the visual height scale. | Adjust for inspection; the original file remains unchanged. |
-
-For a map tile, adjust the shared sampling controls and choose **Rebuild selected map tile**. Alternatively, upload a local LAS/LAZ file and choose **Build bounded preview**.
-Remote preview downloads one complete source tile up to 200 MB temporarily; its reader pool is capped at 750,000 points and the displayed sample at 150,000. This is not COPC range streaming. Requires a known file size and `lidR`; temporary files are cleaned up after processing or session exit.
-
-The example displays **58,648 points** from the supplied biomass forest exercise: a **2%** reader sample, a central window covering **25% of each XY axis**, and vertical scale **1:1**. No denoising or height normalization is applied. [Capture settings](docs/images/forest-capture-provenance.json).
-Use **Forest close-up and display sampling** to adjust the window, point density and camera.
-The comparison uses a **100 m square by default**, with 250 m, 500 m and 1 km side options. Only shared coverage inside the AOI is displayed. Draw a smaller AOI to choose the location. Source tiles may still be downloaded in full temporarily before cropping.
-
-Comparison is optional. When the same AOI has **two or more point-cloud campaigns**, the user can opt in and choose two. **View overlapping clouds** is enabled only for a distinct pair with shared coverage inside that AOI, limited to **1 km²**. The first cloud defaults to **solid grey**, the latest to **solid black**, on a white background. The user chooses the order. There are no calculated differences, statistics or analysis exports. See the [visual comparison limits](docs/TEMPORAL_COMPARISON.md).
-Colors show source elevation, **not canopy height**. Confirm coordinate units and vertical datum.
-
-The representative date is the **final collection date** declared by the provider; the original acquisition interval is retained. Publication, upload, file-creation dates and filename years are not substituted. Generic STAC `datetime` values are not treated as acquisition dates without source-specific confirmation. Missing collection dates remain unknown and do not block visualization.
-
-## Data sources
-
-Link review: **17 September 2026**. A working page, a readable file and an integrated adapter are different checks.
-The discovery scope is aircraft, helicopter and UAV **laser scanning**; terrestrial, spaceborne and photogrammetric acquisitions are excluded.
-The complete [source review](docs/SOURCE_AUDIT.md) includes country-specific findings, access restrictions and corrections.
-
-| Source / region | Access | Current application support |
-|---|---|---|
-| [USGS 3DEP · United States](https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc) | Public catalog; signed COPC assets | **Integrated.** AOI search and representative decoded download checked. |
-| [OpenTopography · multiple countries](https://opentopography.org/node/3598) | Local `*_TileIndex.zip` archives; dataset-specific terms | **Integrated.** ALS samples checked for Australia, Brazil and New Zealand. |
-| [CanElevation · Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Public COPC and tile indexes | File header checked; adapter pending. |
-| [swissSURFACE3D · Switzerland](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Public STAC, LAS/COPC | Small LAS sample decoded; adapter pending. |
-| [IGN · France](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD), [PNOA · Spain](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga) | Official product catalogs | Links reviewed; native downloads pending. |
-| [AHN · Netherlands](https://www.ahn.nl/dataroom), [Kartverket · Norway](https://www.kartverket.no/api-og-data/terrengdata), [Estonia](https://geoportaal.maaamet.ee/eng/Spatial-Data-p58.html), [Poland](https://www.geoportal.gov.pl/en/data/lidar-measurements-lidar/) | National point-cloud portals and indexes | Access workflows reviewed; adapters pending. |
-| [Sweden](https://www2.lantmateriet.se/en/geodata/our-products/product-list/laser-data-download-forest/), [Finland](https://www.maanmittauslaitos.fi/en/maps-and-spatial-data/datasets-and-interfaces/product-descriptions/laser-scanning-data) | Product-specific download services | Official product pages reviewed; native downloads pending. |
-| [Scottish Public Sector LiDAR](https://registry.opendata.aws/scottish-lidar/) | Public AWS bucket; campaign-specific licenses | Bucket checked; adapter pending. |
-| [NEON · United States](https://data.neonscience.org/data-products/DP1.30003.001) | Account and API token for downloads | Product verified; authenticated download and adapter pending. |
-| [ORNL Brazil](https://doi.org/10.3334/ORNLDAAC/1644), [ORNL Indonesia](https://doi.org/10.3334/ORNLDAAC/1518) | Earthdata or public archives | Records reviewed; full downloads and adapters pending. |
-| [Paracou · French Guiana](https://catalogue.ceda.ac.uk/uuid/1d554ff41c104491ac3661c6f6f52aab/), [ForestGEO · Panama](https://doi.org/10.60635/C3F593) | Public point-cloud directories | Directories checked; adapters pending. |
-| [ForestScan · Gabon / Malaysia](https://doi.org/10.5285/88a8620229014e0ebacf0606b302112d), [Kruger · South Africa](https://data-search.nerc.ac.uk/geonetwork/srv/api/records/a2e82c7f92dc4f389a7fb7e4e6629c9e) | Mixed scanning methods; some CEDA data require registration | Collection/site limitations documented; ALS access must be checked per dataset. |
-| [LINZ · New Zealand](https://www.linz.govt.nz/products-services/data/types-linz-data/elevation-data/access-elevation-data), [ELVIS · Australia](https://elevation.fsdf.org.au/) | National discovery services | Reviewed access pages; direct national adapters pending. |
-
-### Complementary research datasets on Zenodo
-
-Zenodo is a repository for author/project deposits, **not an official national data provider**.
-Our [initial aerial LiDAR overview](docs/ZENODO_AERIAL.md) separates eligible aerial files from other products in mixed deposits.
-
-| Dataset / country | Platform | Current evidence |
-|---|---|---|
-| [Sila · Italy](https://zenodo.org/records/3633629) | Aircraft ALS, July 2019 | Public LAS sample decoded; live source connection and direct browser link; terrestrial files excluded. |
-| [Tree-LiMS · Italy](https://zenodo.org/records/17492219) | UAV LiDAR | Record and single-tree LAS archive listing checked; point decoding pending. |
-| [EBA — Ometto and collaborators · Brazil](https://zenodo.org/records/7636454) | Aircraft ALS, 2016–2018 campaigns | Acquisition description and archive listing reviewed; point decoding pending. |
-
-These are local research datasets, not country-wide coverage, and have no Zenodo AOI-search adapter yet.
-In **Sources and access**, choose **Connect to Zenodo** to retrieve Sila's current file metadata and enable a direct browser download of the original aerial `merged.las` (6.82 GB). The app connects to the source and does not store this file. Terrestrial files and processed derivatives are excluded. This source connection does not provide AOI search, clipping or an in-app preview of the large file. [Dataset citation and bounded access evidence](docs/ITALY_PULETTI.md).
-
-
-Multifordiv remains pending platform verification. Cite each dataset's authors and DOI; all three selected deposits list CC BY 4.0.
-
-**Inventory corrections:** the East Helanshan and Taiwan `TW18_Carr` point clouds are photogrammetric, not ALS.
-AfriSAR DOI `1681` provides biomass maps, and ORNL DOI `2481` provides forest-structure metrics/maps rather than a verified LAS/LAZ archive for every listed country.
-These records remain in the [46-row reviewed inventory](docs/dataset-candidates.csv) with explicit classifications.
-The earlier Taiwan download test proves file transport and decoding, not laser acquisition.
+Discover aerial LiDAR sources, download original LAS/LAZ files and inspect overlapping point clouds. R package and Shiny application by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
 
 ## Install and launch
 
-Requires **R ≥ 4.1** and the system dependencies of `sf`.
-
 ```r
 install.packages("remotes")
-remotes::install_github("Cesarito2021/als_downloader", ref = "main")
-install.packages("lidR") # optional: LAS/LAZ preview
+remotes::install_github("Cesarito2021/als_downloader")
 alsdownloader::launch_app()
 ```
 
-Alternatively, [download ALS Downloader as a ZIP](https://github.com/Cesarito2021/als_downloader/archive/refs/heads/main.zip) from the main branch and extract it.
-From a downloaded or cloned repository, run `remotes::install_local(".")`, then `alsdownloader::launch_app()`.
-The root `app.R` also starts Shiny after package installation. Installation is explicit; startup does not install packages.
+Requires R >= 4.1. Install `lidR` for point-cloud previews. USGS searches require internet access; OpenTopography discovery requires local TileIndex archives. See the [workflow guide](vignettes/als-workflow.Rmd).
 
-For OpenTopography, obtain the [provider tile indexes](https://opentopography.org/node/3598) and place the `*_TileIndex.zip` archives in one folder:
+## 1. Explore sources
 
-```r
-alsdownloader::launch_app(tile_index_dir = "C:/data/TileIndex_all")
-```
+![Welcome globe with annotated navigation and catalog presence](docs/images/interface-globe.png)
 
-Indexes and point clouds are not bundled. The adapter follows public file URLs embedded in the indexes;
-it does not submit OpenTopography area-processing jobs or assume a universal area limit.
-
-## Workflow
-
-1. **Define the AOI.** Draw a polygon or rectangle, or upload GeoJSON, GeoPackage, FlatGeobuf or a zipped Shapefile containing its companion files. Inputs need a CRS; select a layer for multilayer GeoPackages.
-2. **Search.** Choose an integrated provider and an acquisition interval. Inspect the returned footprints and dates; a country selection only navigates the map.
-3. **Select.** Choose tile rows in the results table. A tile may extend beyond the AOI: downloading does not clip the source cloud.
-4. **Download.** Set the local output directory and worker count. Check `manifest.csv`, `CITATIONS.txt` and checksum sidecars. Restarting verifies completed files; interrupted files restart in full.
-5. **Inspect.** Open **3D preview**, upload one LAS/LAZ tile and build the bounded sample. Use specialist tools for processing or scientific analysis.
-
-### Use the same workflow from R
-
-```r
-library(alsdownloader)
-aoi <- read_aoi("study-area.gpkg", layer = "boundary")
-aoi_area(aoi) # square kilometres; overlapping polygons counted once
-tiles <- find_tiles(aoi, provider = "usgs3dep")
-result <- download_tiles(tiles, "selected-tiles", workers = 2)
-points <- read_preview(result$path[1], max_points = 50000)
-```
-
-## Local and hosted use
-
-| Mode | Suitable for | Controls and limits |
-|---|---|---|
-| **Local computer** | Discovery, large transfers and local previews | Adjustable workers and output folder; concurrency also respects the provider ceiling, initially two. |
-| **Hosted Shiny** | Discovery and small browser-delivered batches | One worker; at most 10 tiles / 500 MB with known sizes; uploads up to 200 MB. |
-
-Local mode recommends `min(10, max(1, available cores - 4))` workers. Background downloads and previews keep Shiny responsive;
-tile searches are currently synchronous. Provider terms, connection speed and available disk space still apply.
-
-The layout adapts to desktop, tablet and phone widths. Workers run on the hosting computer.
-Physical-device acceptance testing and production hosting remain pending.
-[Hosting configuration and technical limits](docs/OPERATIONS.md).
-
-## Validation and development status
-
-| Check | Evidence |
+| Control | Purpose |
 |---|---|
-| USGS, Australia, Brazil and New Zealand ALS samples | One decoded tile each, checksum and restart checked on 16 September: [sample records](docs/validation.csv). |
-| Taiwan photogrammetric sample | Transport/decoding passed; corrected acquisition classification on 17 September. |
-| Additional provider access | Canada LAS header, Switzerland decoded sample and Italy bounded ALS sample: [file checks](docs/file-access-checks.csv). |
-| Catalog review | 45 original records plus the verified Sila source for Italy reviewed; [HTTP checks](docs/link-checks.csv) distinguish errors from missing datasets. |
-| Package and UI checks | [Validation record](docs/VALIDATION.md) and [release checklist](docs/RELEASE_CHECKLIST.md). |
+| W1 - Globe | Rotate to explore countries represented in the active catalog. |
+| W2 - Red shading | Indicates source presence, not complete national survey coverage. |
+| W3 - Open map | Open the map to draw or upload an area of interest. |
 
-Sample success does not establish complete country coverage. This is a development preview, not a CRAN release or independent scientific validation.
+## 2. Search, download and plot
 
-The next visualization stage will investigate clickable provider footprints, optional summary grids and an acquisition-year color scale on a dark map.
-These features are **planned**, and country fills must not be interpreted as measured coverage.
-[Map design notes](docs/MAP_ROADMAP.md).
+![Annotated search example showing study area, source tiles and download controls](docs/images/interface-rgb-tile.png)
 
-## Reporting issues and suggesting data
+| Control | Purpose |
+|---|---|
+| A - Header | Application and local/hosted mode. |
+| B - Study area | Draw a polygon/rectangle or upload GeoJSON, GeoPackage or a zipped Shapefile. |
+| C - Search | Select a provider and acquisition interval; find intersecting tiles. |
+| D - Download | Select files and download originals to your chosen folder. |
+| E - Map | Inspect the study area and returned tile footprints. |
+| F - Results | Review metadata; select one tile and click **Plot selected tile in 3D**. |
 
-The **Submit a data source** button is always available in the application header.
-It opens a form requiring the dataset name and producer, access/download link, **storage host and public location**,
-**short description**, **short required acknowledgement** (or "None"), and **dataset DOI or original platform link**.
-It also asks for the aerial platform, country/site, acquisition years and license/access details; a related paper or preprint is optional.
-These fields are included in the email draft, GitHub draft and exported proposal text, and in the GitHub suggestion template.
-Complete the required fields and acknowledge review to reveal the submission options.
-**Prepare email** opens a draft addressed to the maintainer; send it from your email application.
-Alternatively, open a **public GitHub draft** or save the proposal as text if no email client is configured.
-The form does not send automatically or upload point clouds. Proposals undergo review before catalog inclusion and adapter development.
+The search figure is a Utah example. Collection dates come from provider acquisition metadata; the **final collection date** represents an interval. Missing dates remain unknown. Publication dates and filename years are not substituted. Source imagery may have a different date from the LiDAR.
 
-### 4. Submit a data source
+## 3. Compare two surveys visually
 
-Before submitting, contributors can choose **Check connection and link compatibility**. The app checks the public HTTPS endpoint and its download headers, without transferring or plotting any point cloud. A vector alligator advances toward a flag as the checks complete. **100% means the connection check completed and the request is ready for maintainer review**, not that the data contents or integration have been approved. There is no sample-size limit because no LAS/LAZ file is downloaded.
+![Two overlapping survey point clouds: first survey grey, second survey black](docs/images/interface-compare-campaigns.png)
 
-Provide a LAS/LAZ download or file-index link, storage location, explicit open-data license URL and whether access requires registration or owner permission. The automatic check currently recognizes direct LAS/LAZ links and filenames declared in download headers. Portals, indexes, redirects and authenticated access can be submitted for manual integration review. Only openly licensed data are eligible. Do not include credentials or private signed links.
+Choose two campaigns covering the same AOI, opt into comparison and select a square side of **100 m** (default), 250 m, 500 m or 1 km. The view is clipped to their shared footprint. Set the earlier survey as A (grey) and the later survey as B (black); rotate and hide/show either cloud.
 
-[Observed source approval times](docs/APPROVAL_TIMES.md) are reported from GitHub approval events, with no invented average or promised deadline. After review, the maintainer applies the `source-approved` label to the dataset suggestion issue; the report updates automatically. Email-only requests are excluded from this calculation.
+This is a visual overlay, with no automatic alignment, difference statistics or change estimates. Matching projected coordinates in metres are required. Up to 50,000 points per cloud are displayed. Original downloads stay separate. [Limits and coordinate requirements](docs/TEMPORAL_COMPARISON.md).
 
+## Active sources
 
-![Live source submission form populated with illustrative metadata; no proposal was sent](docs/images/interface-submit-source.png)
+**10 catalog entries**, including one general index service; this is not a count of individual survey datasets. The current review checked nine representative file endpoints. A successful sample access does not guarantee all files or an AOI adapter. [Access evidence and removed entries](docs/ACTIVE_SOURCES.md).
 
-Live interface capture, 17 September 2026; the dataset values shown are examples.
+| Source / product | Official resource | Available workflow |
+|---|---|---|
+| USGS 3DEP | [USGS via Planetary Computer](https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc) | AOI search, original download, bounded preview. |
+| OpenTopography index service | [OpenTopography](https://opentopography.org/node/3598) | Local TileIndex files; dataset-specific access and terms. |
+| AUS11_Victor, Australia | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
+| BR17_SaoPaulo, Brazil | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
+| Auckland_2013, New Zealand | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
+| CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Source link; representative COPC access checked; no AOI adapter. |
+| swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Source link; representative LAS archive access checked; no AOI adapter. |
+| Sila, Italy | [Puletti / Zenodo DOI](https://doi.org/10.5281/zenodo.3633629) | Contribution example: original aerial LAS. |
+| Tree-LiMS, Italy | [Zenodo DOI](https://doi.org/10.5281/zenodo.17492219) | Contribution example: UAV laser archive. |
+| EBA, Brazil | [Ometto et al. / Zenodo DOI](https://doi.org/10.5281/zenodo.7636454) | Contribution example: aircraft laser archive. |
 
-Use [GitHub Issues](https://github.com/Cesarito2021/als_downloader/issues), or contact **Cesar Ivan Alvites Diaz** at
-[calvites1990@gmail.com](mailto:calvites1990@gmail.com) / [c.alvitesdiaz@ufl.edu](mailto:c.alvitesdiaz@ufl.edu).
-For bugs, include the version, provider, error message and a small reproducible AOI when possible. Do not post credentials.
+Only aircraft, helicopter and UAV **laser scanning** are in scope. Terrestrial/mobile ground scanning, spaceborne LiDAR and photogrammetry are excluded. Zenodo examples retain CC BY 4.0 attribution and link to the original files; the app does not host them.
 
-[Suggest a dataset](https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml): include its country/site,
-landing page or DOI, acquisition method, dates, format, coverage index, license, citation and access requirements.
-Suggestions are reviewed before integration. New adapters need reliable AOI-to-file discovery and decoded sample checks.
+## Submit your dataset
 
-## Author and maintainer
+Ten short fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI, collection year(s), aerial platform, LAS/LAZ or index link, license link, access requirements and optional sensor/location notes.
 
-**Cesar Alvites** · University of Florida.
+Complete the form, click **Check compatibility**, then **Submit your request** when the vector alligator reaches 100%. The check reads connection headers only; no point cloud is downloaded or plotted. A successful check enables a private email draft to the maintainer. You review and send it in your email application. Editing the request resets compatibility. Portals, indexes and authentication-based access currently need manual discussion with the maintainer.
 
-## Acknowledgements
+Your contact email is for review and acceptance replies and is not included in public GitHub issues. Inclusion requires maintainer approval. No automatic email delivery service is configured. [Contact handling and acceptance reply](docs/CONTRIBUTOR_PRIVACY.md). [Observed approval times](docs/APPROVAL_TIMES.md) count only public metadata-only GitHub requests marked `source-approved`; private email requests are excluded.
 
-Developed within the [OpenForest4D](https://openforest4d.org) cyberinfrastructure initiative.
-We acknowledge the data producers, research teams and public agencies that collect and share airborne LiDAR,
-and the OpenTopography and USGS communities supporting access to these data.
+## Contact and citation
 
-The application builds on the R and Shiny ecosystems, including `sf`, Leaflet, DT and `lidR`.
-The forest-view controls follow the sampling, point-size and camera ideas in Cesar Alvites's supplied biomass visualization scripts (`export_lidar_html`).
-Country outlines derive from Natural Earth via World Atlas. Satellite imagery and terrain basemaps are provided by Esri and the contributors credited on the map.
-See [Esri basemap attribution guidance](https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040).
-See [third-party notices](inst/NOTICE). Dataset inclusion does not imply provider endorsement.
+**Cesar Alvites — developer and maintainer:** [calvites1990@gmail.com](mailto:calvites1990@gmail.com). Report reproducible software problems through [GitHub Issues](https://github.com/Cesarito2021/als_downloader/issues). Cite the package with `citation("alsdownloader")` and cite each dataset's DOI and producer separately.
 
-## Citing ALS Downloader
+## Acknowledgement
 
-Alvites, C. I. (2026). *ALS Downloader: Discover and Download Airborne Laser Scanning Data*. R software.
-[github.com/Cesarito2021/als_downloader](https://github.com/Cesarito2021/als_downloader).
-Include the version or commit used and the access date. In R, run `citation("alsdownloader")`.
-
-Cite each source dataset separately using its DOI, producer credit and required acknowledgement.
-The exported `CITATIONS.txt` records provenance; missing dataset licenses and DOIs must be resolved before publication.
-[OpenTopography citation guidance](https://opentopography.org/citations).
+Developed within [OpenForest4D](https://openforest4d.org), funded by NSF awards **2409885, 2409886 and 2409887**.
 
 ## License and disclaimer
 
-ALS Downloader is distributed under **GNU GPL version 3**. Third-party components retain their [license notices](inst/NOTICE);
-source datasets retain their own licenses and access conditions.
+Software: **GPL-3**, without warranty. Data retain their own licenses and attribution requirements; inclusion implies no provider endorsement. Natural Earth supplies public-domain globe outlines; basemap credits remain visible. [Third-party notices](inst/NOTICE). Source availability, spatial coverage and coordinate compatibility are not guaranteed.
 
-**The software is provided without warranty, including any guarantee of accuracy, availability or fitness for a particular purpose.**
-To the extent permitted by applicable law, the authors and copyright holders accept no liability for its use.
-See the [GNU GPL v3 terms](https://www.gnu.org/licenses/gpl-3.0.html).
-
-Users are responsible for checking survey provenance, acquisition method, CRS, vertical datum, data quality and permitted use.
-Catalog entries and map context are discovery aids; they do not certify coverage, download eligibility or scientific suitability.
+[Release checks and outstanding CRAN considerations](docs/CRAN_READINESS.md).

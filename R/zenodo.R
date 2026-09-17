@@ -18,12 +18,13 @@ sila_source <- function(record) {
 }
 
 zenodo_source_ui <- function() {
-  shiny::tagList(shiny::h3("Zenodo | aerial source access"),
-    shiny::p("Sila National Park, Italy: original airborne laser scanning, July 2019."),
-    shiny::tags$a(href = "https://zenodo.org/records/3633629", target = "_blank", rel = "noopener noreferrer", "Open source record"),
-    shiny::p("Connect to retrieve current file metadata. Only the reviewed original aerial file is offered; terrestrial scans and processed derivatives are excluded."),
-    shiny::actionButton("connect_zenodo", "Connect to Zenodo"),
-    shiny::uiOutput("zenodo_access"))
+  shiny::tagList(shiny::h3("Dataset contribution examples"),
+    shiny::p("Public aerial LiDAR deposits linked at their original source. Each example retains its DOI and CC BY 4.0 attribution. Files download in full from the provider; no AOI clipping is offered here."),
+    shiny::tags$ul(
+      shiny::tags$li(shiny::tags$a(href="https://doi.org/10.5281/zenodo.3633629",target="_blank",rel="noopener noreferrer","Sila / Puletti (2020)")," - original aerial LAS; ",shiny::tags$a(href="https://zenodo.org/api/records/3633629/files/merged.las/content","Download")),
+      shiny::tags$li(shiny::tags$a(href="https://doi.org/10.5281/zenodo.17492219",target="_blank",rel="noopener noreferrer","Tree-LiMS / Puletti and collaborators")," - UAV LiDAR archive; ",shiny::tags$a(href="https://zenodo.org/api/records/17492219/files/las_singletree_data.zip/content","Download")),
+      shiny::tags$li(shiny::tags$a(href="https://doi.org/10.5281/zenodo.7636454",target="_blank",rel="noopener noreferrer","EBA / Ometto and collaborators")," - aircraft LiDAR archive; ",shiny::tags$a(href="https://zenodo.org/api/records/7636454/files/transectos%20para%20p5.zip/content","Download"))),
+    shiny::tags$a(href="https://creativecommons.org/licenses/by/4.0/","CC BY 4.0: credit the dataset authors and indicate modifications."))
 }
 
 zenodo_source_server <- function(input, output, session) {
