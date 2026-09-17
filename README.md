@@ -45,13 +45,13 @@ Colors show source elevation, **not canopy height**. Confirm coordinate units an
 ## Data sources
 
 Link review: **17 September 2026**. A working page, a readable file and an integrated adapter are different checks.
+The discovery scope is aircraft, helicopter and UAV **laser scanning**; terrestrial, spaceborne and photogrammetric acquisitions are excluded.
 The complete [source review](docs/SOURCE_AUDIT.md) includes country-specific findings, access restrictions and corrections.
 
 | Source / region | Access | Current application support |
 |---|---|---|
 | [USGS 3DEP · United States](https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc) | Public catalog; signed COPC assets | **Integrated.** AOI search and representative decoded download checked. |
 | [OpenTopography · multiple countries](https://opentopography.org/node/3598) | Local `*_TileIndex.zip` archives; dataset-specific terms | **Integrated.** ALS samples checked for Australia, Brazil and New Zealand. |
-| [Sila National Park · Italy](https://zenodo.org/records/3633629) | Nicola Puletti / CREA; July 2019 ALS; CC BY 4.0 | Public LAS access and 1,024 point records checked; AOI adapter pending. [Details](docs/ITALY_PULETTI.md). |
 | [CanElevation · Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Public COPC and tile indexes | File header checked; adapter pending. |
 | [swissSURFACE3D · Switzerland](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Public STAC, LAS/COPC | Small LAS sample decoded; adapter pending. |
 | [IGN · France](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD), [PNOA · Spain](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga) | Official product catalogs | Links reviewed; native downloads pending. |
@@ -59,10 +59,24 @@ The complete [source review](docs/SOURCE_AUDIT.md) includes country-specific fin
 | [Sweden](https://www2.lantmateriet.se/en/geodata/our-products/product-list/laser-data-download-forest/), [Finland](https://www.maanmittauslaitos.fi/en/maps-and-spatial-data/datasets-and-interfaces/product-descriptions/laser-scanning-data) | Product-specific download services | Official product pages reviewed; native downloads pending. |
 | [Scottish Public Sector LiDAR](https://registry.opendata.aws/scottish-lidar/) | Public AWS bucket; campaign-specific licenses | Bucket checked; adapter pending. |
 | [NEON · United States](https://data.neonscience.org/data-products/DP1.30003.001) | Account and API token for downloads | Product verified; authenticated download and adapter pending. |
-| [ORNL Brazil](https://doi.org/10.3334/ORNLDAAC/1644), [ORNL Indonesia](https://doi.org/10.3334/ORNLDAAC/1518), [EBA Brazil](https://zenodo.org/records/7636454) | Earthdata or public archives | Records reviewed; full downloads and adapters pending. |
+| [ORNL Brazil](https://doi.org/10.3334/ORNLDAAC/1644), [ORNL Indonesia](https://doi.org/10.3334/ORNLDAAC/1518) | Earthdata or public archives | Records reviewed; full downloads and adapters pending. |
 | [Paracou · French Guiana](https://catalogue.ceda.ac.uk/uuid/1d554ff41c104491ac3661c6f6f52aab/), [ForestGEO · Panama](https://doi.org/10.60635/C3F593) | Public point-cloud directories | Directories checked; adapters pending. |
 | [ForestScan · Gabon / Malaysia](https://doi.org/10.5285/88a8620229014e0ebacf0606b302112d), [Kruger · South Africa](https://data-search.nerc.ac.uk/geonetwork/srv/api/records/a2e82c7f92dc4f389a7fb7e4e6629c9e) | Mixed scanning methods; some CEDA data require registration | Collection/site limitations documented; ALS access must be checked per dataset. |
 | [LINZ · New Zealand](https://www.linz.govt.nz/products-services/data/types-linz-data/elevation-data/access-elevation-data), [ELVIS · Australia](https://elevation.fsdf.org.au/) | National discovery services | Reviewed access pages; direct national adapters pending. |
+
+### Complementary research datasets on Zenodo
+
+Zenodo is a repository for author/project deposits, **not an official national data provider**.
+Our [initial aerial LiDAR overview](docs/ZENODO_AERIAL.md) separates eligible aerial files from other products in mixed deposits.
+
+| Dataset / country | Platform | Current evidence |
+|---|---|---|
+| [Sila — Nicola Puletti / CREA · Italy](https://zenodo.org/records/3633629) | Aircraft ALS, July 2019 | Public LAS sample decoded; terrestrial files excluded. |
+| [Tree-LiMS — Puletti and collaborators · Italy](https://zenodo.org/records/17492219) | UAV LiDAR | Record and single-tree LAS archive listing checked; point decoding pending. |
+| [EBA — Ometto and collaborators · Brazil](https://zenodo.org/records/7636454) | Aircraft ALS, 2016–2018 campaigns | Acquisition description and archive listing reviewed; point decoding pending. |
+
+These are local research datasets, not country-wide coverage, and have no Zenodo search/download adapter yet.
+Multifordiv remains pending platform verification. Cite each dataset's authors and DOI; all three selected deposits list CC BY 4.0.
 
 **Inventory corrections:** the East Helanshan and Taiwan `TW18_Carr` point clouds are photogrammetric, not ALS.
 AfriSAR DOI `1681` provides biomass maps, and ORNL DOI `2481` provides forest-structure metrics/maps rather than a verified LAS/LAZ archive for every listed country.

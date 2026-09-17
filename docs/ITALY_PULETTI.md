@@ -11,7 +11,7 @@ It represents a study area in Sila, Calabria, not national Italian coverage.
 |---|---|---|
 | `merged.las` | Original ALS, collected in late July 2019 | Primary airborne dataset; 6,822,549,289 bytes. |
 | `myLas_norm_lt22.las` | Normalized ALS, truncated at 22 m above ground | Processed subset; not equivalent to the complete vertical structure. |
-| `ID_*.las` | Mobile terrestrial scanning, August 2019; normalized plots | Keep separate from ALS. |
+| `ID_*.las` | Mobile terrestrial scanning, August 2019; normalized plots | **Excluded: terrestrial acquisition.** |
 | `GPSpoints_EPSG_32633.*` | Surveyed plot centers and Shapefile companions | Plot locations, not airborne tile footprints. |
 
 ## Actual access check
@@ -30,16 +30,14 @@ Italy now appears in the application's country/source catalog with **Implemented
 Automatic AOI discovery still requires verified spatial footprints, CRS and a Zenodo adapter.
 The GPS Shapefile name alone does not establish the LAS coordinate reference system.
 
-## Other records found
+## Related aerial records and pending qualification
 
 | Dataset | Classification | Assessment |
 |---|---|---|
 | [Multifordiv](https://zenodo.org/records/17227385) | Five LAS files; keywords `lidar`, `uav` | CC BY 4.0. Sparse metadata: acquisition dates, sensor and georeferenced coverage need clarification. |
 | [Tree-LiMS, Alpe di Catenaia](https://zenodo.org/records/17492219) | UAV LiDAR and multispectral, single-tree dataset | CC BY 4.0. The concept record `14650937` resolved to version record `17492219`; single-tree LAS ZIP is listed. |
-| [Catenaia beech plots](https://zenodo.org/records/4297218) | Terrestrial LiDAR; listed downloads are `.Rdata` | CC BY 4.0. Not an ALS tile source or a direct LAS/LAZ upload workflow. |
-| [Adamello Brenta understory](https://zenodo.org/records/5653007) | Mobile terrestrial LiDAR, June 2021 | CC BY 4.0. Ten normalized plot LAZ files; not airborne coverage. |
 
-Only Sila was added as the primary Italian ALS source. Related entries were checked at metadata level; their files were not downloaded.
+Sila and Tree-LiMS are discovery entries in the [aerial-only Zenodo overview](ZENODO_AERIAL.md). Multifordiv remains outside the eligible catalog pending platform verification. Related files were not downloaded. Terrestrial-only records are excluded; the metadata audit retains them for traceability.
 
 ## Citation and acknowledgement
 

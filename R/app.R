@@ -81,7 +81,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::tags$canvas(id = "als-cloud", role = "img", tabindex = "0", `aria-label` = "Interactive point-cloud preview. Arrow keys rotate; plus and minus zoom; zero resets."),
             shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 4, step = 1),
             shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Viridis colors show source elevation, not canopy height.")),
-          shiny::tabPanel("Sources and access", shiny::p("Only providers marked Implemented have a search adapter. Verify dataset terms and citations before downloading."),
+          shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Zenodo entries are complementary research deposits, not official national coverage. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have a search adapter. Verify dataset terms and citations before downloading."),
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?title=Dataset%20suggestion", target = "_blank", rel = "noopener noreferrer", "Suggest a dataset"),
             DT::DTOutput("sources")))))
   )

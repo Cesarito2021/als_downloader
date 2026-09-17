@@ -4,7 +4,6 @@ opentopography,OpenTopography,0,Global,TRUE,Local TileIndex archives; license an
 opentopography,OpenTopography AUS11_Victor,36,Australia,TRUE,One sample validated; requires supplied TileIndex and dataset terms review,https://opentopography.org/node/3598,2026-09-17
 opentopography,OpenTopography BR17_SaoPaulo,76,Brazil,TRUE,One sample validated; requires supplied TileIndex and dataset terms review,https://opentopography.org/node/3598,2026-09-17
 opentopography,OpenTopography Auckland_2013,554,New Zealand,TRUE,One sample validated; requires supplied TileIndex and dataset terms review,https://opentopography.org/node/3598,2026-09-17
-opentopography,OpenTopography TW18_Carr (photogrammetry; not ALS),158,Taiwan,TRUE,"File transport validated; UAV photogrammetry, not laser-scanned ALS coverage",https://portal.opentopography.org/lidarDataset?opentopoID=OTLAS.062023.32651.1,2026-09-17
 neon,NEON AOP,840,United States,FALSE,Account and download token required; attribution applies,https://data.neonscience.org/data-products/DP1.30003.001,2026-09-17
 canelevation,CanElevation,124,Canada,FALSE,Public COPC header verified; Open Government Licence Canada; adapter pending,https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947,2026-09-17
 ignfr,IGN LiDAR HD,250,France,FALSE,COPC product; confirm current catalog terms,https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD,2026-09-17
@@ -14,7 +13,9 @@ nls,NLS 0.5 p,246,Finland,FALSE,Open data with attribution; 5 p is a separate li
 swisstopo,swissSURFACE3D,756,Switzerland,FALSE,Public STAC sample decoded (930 points); attribution applies; adapter pending,https://www.swisstopo.admin.ch/en/height-model-swisssurface3d,2026-09-17
 scotland,Scottish Public Sector LiDAR,826,United Kingdom,FALSE,Public AWS bucket; OGL v3 except phase-2 LAZ non-commercial terms; adapter pending,https://registry.opendata.aws/scottish-lidar/,2026-09-17
 ornl,ORNL Amazon ALS,76,Brazil,FALSE,Earthdata access and dataset citation must be verified,https://doi.org/10.3334/ORNLDAAC/1644,2026-09-17
-forestscan,ForestScan,266,Gabon,FALSE,Mixed TLS/UAV-LS/ALS collection; Lope archive lists TLS and UAV-LS; conventional ALS sample not verified,https://doi.org/10.5285/88a8620229014e0ebacf0606b302112d,2026-09-17
+forestscan,ForestScan Lope - UAV laser scanning subset,266,Gabon,FALSE,Research collection; aerial UAV-LS subset only; TLS excluded; point sample and adapter pending,https://doi.org/10.5285/88a8620229014e0ebacf0606b302112d,2026-09-17
 linz,LINZ,554,New Zealand,FALSE,Open point clouds; collection adapter pending,https://www.linz.govt.nz/products-services/data/types-linz-data/elevation-data/access-elevation-data,2026-09-17
 elvis,ELVIS,36,Australia,FALSE,Portal ordering workflow; adapter pending,https://elevation.fsdf.org.au/,2026-09-17
-sila_zenodo,Sila National Park ALS - Nicola Puletti / CREA,380,Italy,FALSE,Zenodo CC BY 4.0; original July 2019 ALS sample records verified; local study only; AOI adapter pending,https://zenodo.org/records/3633629,2026-09-17
+sila_zenodo,Zenodo research: Sila ALS - Nicola Puletti / CREA,380,Italy,FALSE,Research deposit; CC BY 4.0; July 2019 ALS sample verified; terrestrial files excluded; local study; adapter pending,https://zenodo.org/records/3633629,2026-09-17
+treelims_zenodo,Zenodo research: Tree-LiMS - Puletti and collaborators,380,Italy,FALSE,UAV LiDAR single-tree LAS archive; CC BY 4.0; metadata only; decoding and AOI adapter pending,https://zenodo.org/records/17492219,2026-09-17
+eba_zenodo,Zenodo research: EBA L1A - Ometto and collaborators,76,Brazil,FALSE,Aircraft ALS transects 2016-2018; CC BY 4.0; metadata only; decoding and AOI adapter pending,https://zenodo.org/records/7636454,2026-09-17

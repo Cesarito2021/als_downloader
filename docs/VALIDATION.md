@@ -44,3 +44,9 @@ Consult the latest Actions run for the newly published commit; the preceding res
 Italian source supplement: the public Sila record (Nicola Puletti / CREA) was verified via Zenodo API.
 Two HTTP byte ranges from the original July 2019 ALS file returned 94,208 bytes; 1,024 point coordinates were decoded.
 This is a bounded sample check, not complete-file validation. See [ITALY_PULETTI.md](ITALY_PULETTI.md).
+# Aerial-only Zenodo scope update — 17 September 2026
+
+The complementary research selection now includes Sila, Tree-LiMS and EBA; all Zenodo adapters remain disabled.
+Known Taiwan photogrammetry was removed from the active catalog but retained in the historical validation/audit records.
+The package's 59 existing assertions passed again and the updated package installed locally.
+Relative documentation links and image assets passed validation. No additional full dataset download was performed.

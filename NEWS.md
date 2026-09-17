@@ -1,5 +1,7 @@
 # alsdownloader 0.1.0.9001
 
+* Separate complementary Zenodo research deposits from national sources; curate aircraft/UAV laser datasets and exclude known photogrammetry from the active catalog.
+
 * Add Nicola Puletti / CREA Sila National Park as the Italian ALS catalog source, with CC BY 4.0 attribution and bounded file-access evidence.
 
 * Reorganize the README around annotated live UI captures and a concise workflow.

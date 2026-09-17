@@ -12,6 +12,17 @@ body:
       label: Dataset name and provider
     validations:
       required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Aerial laser acquisition platform
+      description: "Only aerial laser scanning is in scope. Exclude terrestrial/mobile ground scanning, satellite LiDAR and photogrammetry. For mixed deposits, identify the aerial files below."
+      options:
+        - Aircraft or helicopter LiDAR
+        - UAV LiDAR
+        - Mixed aerial laser platforms
+    validations:
+      required: true
   - type: input
     id: location
     attributes:
