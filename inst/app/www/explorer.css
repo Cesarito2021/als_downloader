@@ -7,3 +7,7 @@
 .als-globe-intro{text-align:center;padding:20px 12px;background:#050b12;border:1px solid #20313e;border-radius:16px}.als-globe-intro h2{font-size:26px}.als-globe-intro p{max-width:720px;margin:12px auto;color:#adbeca}#als-globe{display:block;width:100%;max-width:900px;height:520px;margin:auto;touch-action:none;cursor:grab}#als-globe:focus{outline:1px solid #85ddcb}@media(max-width:850px){#als-globe{height:340px}.als-globe-intro h2{font-size:21px}}
 .als-main{overflow-x:clip}
 #compare_status,#compare_gate,#difference_summary{padding:10px 0;overflow-wrap:anywhere}#compare_metadata{white-space:pre-wrap;overflow-wrap:anywhere;background:#14232e;color:#e0eaf0}.selectize-input{overflow-wrap:anywhere}
+
+.source-test-track{position:relative;width:90%;height:40px;margin:12px 14px}.source-test-gator{position:absolute;transition:left .4s ease;font-size:26px;transform:translateX(-50%)}.source-test-lake{position:absolute;right:-28px;font-size:28px}
+
+#source_test_progress progress{width:100%;height:10px}

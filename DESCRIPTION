@@ -18,7 +18,7 @@ License: GPL-3
 Contact: Cesar Ivan Alvites Diaz <c.alvitesdiaz@ufl.edu>
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
-Imports: sf, s2, httr, jsonlite, digest, parallelly, future, future.apply,
+Imports: sf, s2, httr, curl, jsonlite, digest, parallelly, future, future.apply,
     shiny (>= 1.8.0), leaflet, leaflet.extras, DT, callr, zip
 Suggests: lidR, testthat (>= 3.0.0), knitr, rmarkdown
 VignetteBuilder: knitr

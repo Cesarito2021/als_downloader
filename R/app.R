@@ -118,7 +118,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         shiny::p("Help expand the aerial LiDAR catalog. Share links to existing sources; do not upload point clouds. Suggestions are reviewed before integration."),
         shiny::textInput("source_name", "Dataset or product name *"),
         shiny::textInput("source_owner", "Data producer / institution *", placeholder = "Who collected the LiDAR data?"),
-        shiny::textInput("source_url", "Dataset access or download link *", placeholder = "Public file, catalog, API or download page URL"),
+        shiny::textInput("source_url", "Dataset access or download link *", placeholder = "Link to LAS/LAZ files or their downloadable file index"),
         shiny::textInput("source_storage", "Where are the files stored? *", placeholder = "Host and public location: Zenodo record, AWS bucket, institutional repository, etc."),
         shiny::textAreaInput("source_description", "Short dataset description *", rows = 2, placeholder = "One or two sentences about the aerial LiDAR data and coverage."),
         shiny::textAreaInput("source_acknowledgement", "Short required acknowledgement *", rows = 2, placeholder = "Preferred credit text for the data producer or project; write None if none is requested."),
@@ -129,16 +129,17 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         shiny::textInput("source_paper", "Related paper, preprint or DOI (optional)"),
         shiny::textAreaInput("source_details", "License, access and spatial metadata *", rows = 3,
           placeholder = "License/citation; LAS/LAZ files; download or login requirements; footprint/index URL; CRS. Identify aerial files in mixed deposits. Write unknown where needed."),
+        source_preflight_ui(),
         shiny::textInput("source_contact", "Your name / contact (optional)"),
         shiny::checkboxInput("source_review", "I understand that this is a suggestion and requires review before inclusion.", FALSE),
         shiny::uiOutput("source_submission"),
-        shiny::helpText("Prepare email opens your email application: review and send it there. GitHub opens a public draft and requires an account. Nothing is sent automatically; no dataset files are stored by this form."),
+        shiny::helpText("Prepare email opens your email application: review and send it there. GitHub opens a public draft and requires an account. Nothing is sent automatically. Test samples are temporary and removed after testing; source datasets are not hosted."),
         footer = shiny::modalButton("Close")))
     })
     source_proposal <- shiny::reactive({
       required <- c("source_name", "source_owner", "source_url", "source_storage", "source_description", "source_acknowledgement", "source_origin", "source_platform", "source_area", "source_details")
       values <- vapply(required, function(id) if (is.null(input[[id]])) "" else trimws(input[[id]]), character(1))
-      shiny::req(all(nzchar(values)), isTRUE(input$source_review))
+      shiny::req(all(nzchar(values)), isTRUE(input$source_review), isTRUE(input$source_open_license), nzchar(input$source_license_url), nzchar(input$source_access))
       # Bound outgoing proposal text to keep draft links manageable.
       limits <- c(150L, 200L, 400L, 400L, 500L, 400L, 400L, 80L, 250L, 1400L)
       values <- mapply(substr, values, 1L, limits, USE.NAMES = TRUE)
@@ -147,6 +148,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         paste(c("Dataset", "Data producer / institution", "Dataset access / download link", "Storage host / public location", "Short description", "Required acknowledgement", "Dataset DOI / original platform", "Platform", "Country / site / acquisition years", "License / access / spatial metadata"), values, sep = ": ", collapse = "\n\n"),
         paste("Paper / preprint:", optional("source_paper", 400L)),
         paste("Contributor contact:", optional("source_contact", 150L)),
+        paste("Access conditions:", optional("source_access", 100L)),
+        paste("Open-data license:", optional("source_license_url", 400L)),
+        paste("Sample URL:", optional("source_sample_url", 400L)),
+        paste("Technical sample check:", source_check_summary()),
         "Submitted for review; inclusion and automatic downloads are not yet approved.", sep = "\n\n"))
     })
     output$source_submission <- shiny::renderUI({
@@ -170,6 +175,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
       preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE)
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
+    source_check_summary <- source_preflight_server(input, output, session, state, mode, hosted_lock)
     comparison_server(input, output, session, state, mode, hosted_lock)
     output$map <- leaflet::renderLeaflet({
       world$catalog <- world$code %in% catalog$country_code
@@ -276,7 +282,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         unlink(lock, recursive = TRUE)
     }
     shiny::observeEvent(input$download, {
-      if (isTRUE(state$comparison_busy)) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
+      if ((isTRUE(state$comparison_busy) || isTRUE(state$source_test_busy))) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) {
         shiny::showNotification("Wait for the tile preview before starting another transfer."); return()
       }
@@ -342,7 +348,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       zip::zipr(file, files, root = state$destination)
     })
     shiny::observeEvent(input$preview, {
-      if (isTRUE(state$comparison_busy)) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
+      if ((isTRUE(state$comparison_busy) || isTRUE(state$source_test_busy))) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
       shiny::req(input$point_file)
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) return()
       state$preview_target <- "als-cloud"
@@ -357,7 +363,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       }, args = list(preview_path, input$local_percent, as.numeric(input$local_window), input$local_center_x, input$local_center_y, as.numeric(input$local_voxel)), supervise = TRUE)
     })
     shiny::observeEvent(c(input$plot_tile, input$replot_tile), ignoreInit = TRUE, {
-      if (isTRUE(state$comparison_busy)) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
+      if ((isTRUE(state$comparison_busy) || isTRUE(state$source_test_busy))) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
       if (!is.null(state$job) && state$job$is_alive()) {
         shiny::showNotification("Wait for the current download before plotting a remote tile."); return()
       }

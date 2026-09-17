@@ -181,3 +181,10 @@ cloud to A and latest to B; no automatic chronology or difference calculation is
 A labelled synthetic browser fixture verified actual grey/black/white rendered pixels and hiding B,
 without JavaScript errors. The existing 103 package assertions passed with the previously recorded warning.
 No new LiDAR download was needed, and the README still has exactly three figures.
+
+
+## Contributor technical pre-test - 17 September 2026
+
+The public lidR `MixedConifer.laz` example was fetched from its upstream GitHub raw URL, decoded and displayed in the submission modal: 0.25 MB and 18,828 sampled points. This was a technical test only, not a catalog addition or submission. Browser checks confirmed that changing the URL clears the successful result, private hosts are rejected, and no browser errors occurred. Tests also cover credentials, private/mixed DNS addresses and non-HTTPS URLs. The test pins a vetted public IPv4 address, disables redirects, and limits transfers to 50 MB with a known length.
+
+The approval-report calculation was checked with zero approvals and a synthetic 2.5-day approval. Real statistics are produced from GitHub issue approval labels; no synthetic approval is published. License declarations are collected, not legally validated by this technical test.

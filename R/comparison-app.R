@@ -68,7 +68,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   shiny::observeEvent(input$download_epoch_b, choose_download(input$epoch_b))
   shiny::observeEvent(input$compare_load, {
     if (!isTRUE(availability()$ready)) {shiny::showNotification(availability()$message); return()}
-    if (isTRUE(state$comparison_busy) || (!is.null(state$job) && state$job$is_alive()) ||
+    if (isTRUE(state$source_test_busy) || isTRUE(state$comparison_busy) || (!is.null(state$job) && state$job$is_alive()) ||
         (!is.null(state$preview_job) && state$preview_job$is_alive())) {
       shiny::showNotification("Wait for the current download or preview."); return()
     }

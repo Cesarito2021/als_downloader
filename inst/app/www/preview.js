@@ -13,6 +13,7 @@
     let groups=[],paletteB='Magma',showA=true,showB=true;
     let initialPitch=1.08,pointSize=1.8;
     if(comparison){palette='Grey';paletteB='Black';exag=1;}
+    if(c.id==='als-source-cloud'){exag=1;initialPitch=1.38;}
     function draw() {
       if (!c.clientWidth) return;
       const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
@@ -20,7 +21,7 @@
       const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
       if(comparison){ctx.fillStyle='#ffffff';ctx.fillRect(0,0,w,h);}
       ctx.fillStyle=comparison?'#424242':'#adbeca';ctx.font='12px system-ui';
-      if(!points.length){ctx.fillText(comparison?'Choose two overlapping clouds to view together.':'Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
+      if(!points.length){ctx.fillText(comparison?'Choose two overlapping clouds to view together.':c.id==='als-source-cloud'?'Test a public LAS/LAZ sample to see its point cloud here.':'Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
       const co=Math.cos(yaw),si=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
       let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
       const ordered=points.map((p,index)=>{
@@ -70,8 +71,8 @@
       if(e.key==='ArrowUp')pitch=Math.min(1.5,pitch+.1);if(e.key==='ArrowDown')pitch=Math.max(.1,pitch-.1);
       if(e.key==='+'||e.key==='=')zoom=Math.min(8,zoom*1.15);if(e.key==='-')zoom=Math.max(.4,zoom/1.15);draw();
     };
-    new ResizeObserver(draw).observe(c);draw();
-    return {load(data){
+    const observer=new ResizeObserver(draw);observer.observe(c);draw();
+    return {dispose(){observer.disconnect();},load(data){
       points=data.points;origin=data.origin;groups=data.groups||[];extent=[0,0,0];
       let sx=0,sy=0,sxx=0,syy=0,sxy=0;
       for(const p of points){for(let j=0;j<3;j++)extent[j]=Math.max(extent[j],p[j]);sx+=p[0];sy+=p[1];sxx+=p[0]*p[0];syy+=p[1]*p[1];sxy+=p[0]*p[1];}
@@ -89,7 +90,15 @@
     const compact=matchMedia('(max-width:850px)');
     function layout(){const sidebar=document.querySelector('.als-sidebar');if(sidebar)sidebar.open=!compact.matches;}
     compact.addEventListener('change',layout);layout();
-    Shiny.addCustomMessageHandler('als-points',data=>views[data.target||'als-cloud']?.load(data));
+    let sourceCanvas=null;
+    Shiny.addCustomMessageHandler('als-points',data=>{
+      const id=data.target||'als-cloud';
+      if(id==='als-source-cloud'){
+        const c=document.getElementById(id);
+        if(c!==sourceCanvas){views[id]?.dispose();delete views[id];sourceCanvas=c;if(c)views[id]=viewer(c);}
+      }
+      views[id]?.load(data);
+    });
     Shiny.addCustomMessageHandler('als-view',data=>views[data.target]?.update(data));
   });
 })();

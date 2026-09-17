@@ -68,13 +68,13 @@ body:
     id: access
     attributes:
       label: Download method, format and authentication requirements
-      description: "For example: COPC, LAZ, LAS, EPT; API, tile index or portal."
+      description: "Provide a LAS/LAZ file or file-index link. State whether access is public, requires free registration, or needs owner permission. Do not include private tokens."
     validations:
       required: true
   - type: textarea
     id: license
     attributes:
-      label: License, required attribution and citation or DOI
+      label: Open-data license URL, required attribution and citation or DOI
     validations:
       required: true
   - type: textarea
@@ -89,11 +89,13 @@ body:
   - type: input
     id: sample
     attributes:
-      label: Public sample tile or small test area
+      label: Direct public LAS/LAZ sample URL and technical test report
   - type: checkboxes
     id: terms
     attributes:
       label: Review
       options:
+        - label: "I confirm these aerial LiDAR data have an explicit open-data license permitting reuse."
+          required: true
         - label: "I understand this is a suggestion and inclusion requires validation."
           required: true

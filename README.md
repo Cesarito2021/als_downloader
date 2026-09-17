@@ -197,6 +197,13 @@ The form does not send automatically or upload point clouds. Proposals undergo r
 
 ### 4. Submit a data source
 
+Before submitting, contributors can choose **Test connection and preview** using a direct public LAS/LAZ sample (up to 50 MB). The alligator advances through real technical stages toward the lake; 100% means the sample was accessed and decoded into a bounded 3D preview. It does not approve the license, aerial platform, footprint or full-dataset integration. The source remains pending maintainer approval.
+
+Provide a LAS/LAZ download or file-index link, storage location, explicit open-data license URL and whether access requires registration or owner permission. Registration and permission requirements are reported for manual review; only openly licensed data are eligible. Larger files or unsupported endpoints can be submitted without a successful preview. Do not include credentials or private signed links.
+
+[Observed source approval times](docs/APPROVAL_TIMES.md) are reported from GitHub approval events, with no invented average or promised deadline. After review, the maintainer applies the `source-approved` label to the dataset suggestion issue; the report updates automatically. Email-only requests are excluded from this calculation.
+
+
 ![Live source submission form populated with illustrative metadata; no proposal was sent](docs/images/interface-submit-source.png)
 
 Live interface capture, 17 September 2026; the dataset values shown are examples.
