@@ -67,3 +67,20 @@ This verifies a representative remote preview, not all provider datasets. Hosted
 Screenshots: [map and plot](images/interface-rgb-tile.png), [Viridis](images/tile-viridis.png), [Magma](images/tile-magma.png).
 These are actual app renders, not illustrative point clouds. Full remote files are limited to 200 MB before sampling;
 the viewer does not implement COPC range streaming. RGB imagery dates are independent of LiDAR dates.
+# Campaign comparison — 17 September 2026
+
+The package suite passed **91 assertions**, including shared-grid +3 m, -2 m and zero differences,
+missing/undersampled coverage, shared display origins, CRS rejection, date eligibility, vertical-reference gating and app startup without campaigns.
+The installed Shiny dependency emits a build-version warning (built under R 4.4.3); tests otherwise passed and local package installation succeeded.
+
+Live Edge test: the small Utah AOI returned three tiles each from `UT_KaneCo_2019` and `UT_StatewideSouth_1_2020`.
+The comparison processed **12,525 A points and 24,390 B points** inside the AOI. Overlay, independent palettes,
+show/hide controls, campaign-only download selection and 390 px layout passed without JavaScript errors.
+The source reports A's interval as **2020-01-01 to 2019-12-31**; the app flags it and correctly leaves temporal-difference output unavailable.
+This is evidence of real-source access and overlay, **not** evidence of forest change or a validated interannual difference.
+One earlier provider request failed; later access checks and the complete browser run succeeded.
+
+A separately labelled synthetic browser fixture verified the known +3/-2 m grid, the difference plot,
+CSV export, parseable provenance JSON and disabling exports after a vertical-reference mismatch.
+The synthetic fixture is a test, not an actual dataset included in the catalog.
+[Comparison method and limits](TEMPORAL_COMPARISON.md). Hosted multi-session comparison was not browser-tested.

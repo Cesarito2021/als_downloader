@@ -1,5 +1,8 @@
 # alsdownloader 0.1.0.9001
 
+* Add campaign-specific download selection, AOI-clipped dual-cloud overlays and independent palettes.
+* Add exploratory shared-grid P95 elevation differences with date/CRS/vertical-reference checks and CSV/JSON export; missing coverage never becomes zero change.
+
 * Add Esri RGB imagery with translucent footprints and a selected-tile 3D panel in Explore; fit the landscape automatically with Viridis/Magma palettes and explicit vertical exaggeration.
 * Bound temporary remote previews to one known-size tile up to 200 MB and at most 100,000 displayed points.
 

@@ -96,6 +96,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::selectInput("palette", "Elevation palette", c("Viridis", "Magma")),
             shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 2, step = 1),
             shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Colors show source elevation, not canopy height.")),
+          comparison_ui(),
           shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Zenodo entries are complementary research deposits, not official national coverage. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have a search adapter. Verify dataset terms and citations before downloading."),
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
             DT::DTOutput("sources")))))
@@ -155,6 +156,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
       preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE)
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
+    comparison_server(input, output, session, state, mode, hosted_lock)
     output$map <- leaflet::renderLeaflet({
       world$catalog <- world$code %in% catalog$country_code
       leaflet::leaflet(world) |>
@@ -216,7 +218,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       }
       if (!is.null(id) && id %in% world$id) navigate(as.character(id))
     })
-    output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else sprintf("Study area: %.2f km^2", aoi_area(state$aoi)))
+    output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else sprintf("Study area: %.4f km^2", aoi_area(state$aoi)))
     shiny::observeEvent(input$search, {
       shiny::req(state$aoi)
       state$tiles <- NULL; leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles")
@@ -259,6 +261,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         unlink(lock, recursive = TRUE)
     }
     shiny::observeEvent(input$download, {
+      if (isTRUE(state$comparison_busy)) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
       if (!is.null(state$preview_job) && state$preview_job$is_alive() && state$preview_target == "als-tile-cloud") {
         shiny::showNotification("Wait for the tile preview before starting another transfer."); return()
       }
@@ -324,6 +327,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       zip::zipr(file, files, root = state$destination)
     })
     shiny::observeEvent(input$preview, {
+      if (isTRUE(state$comparison_busy)) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
       shiny::req(input$point_file)
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) return()
       state$preview_target <- "als-cloud"
@@ -337,6 +341,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       }, args = list(preview_path), supervise = TRUE)
     })
     shiny::observeEvent(input$plot_tile, {
+      if (isTRUE(state$comparison_busy)) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
       if (!is.null(state$job) && state$job$is_alive()) {
         shiny::showNotification("Wait for the current download before plotting a remote tile."); return()
       }

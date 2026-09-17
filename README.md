@@ -12,6 +12,23 @@ Other sources are reviewed links for discovery; they do not yet have download ad
 
 ## User interface
 
+### Compare campaigns and download each separately
+
+After an AOI search, open **Compare campaigns** and choose reference **A** and later **B**.
+Superpose their AOI-clipped clouds with independent colors/palettes and show/hide controls.
+After verifying compatible vertical references and acquisition intervals, inspect an exploratory
+**P95 elevation difference, B − A**, on a shared grid; export the grid and its provenance.
+Use **Select A/B tiles for download** to download each campaign separately.
+
+The difference is not automatically canopy growth, forest loss or statistically significant change.
+This bounded preview downloads source files temporarily and supports AOIs up to **0.25 km²**.
+[Workflow, assumptions, resource limits and validation](docs/TEMPORAL_COMPARISON.md).
+
+![Real two-campaign AOI overlay; the source's invalid acquisition interval is flagged and temporal differencing remains unavailable](docs/images/interface-compare-campaigns.png)
+
+Live USGS example: 12,525 points in A and 24,390 in B. This demonstrates overlay and campaign selection,
+not a validated change between years: the provider reports an invalid date interval for A.
+
 ### Satellite context and a selected tile in 3D
 
 ![Live Esri satellite basemap with translucent USGS footprints and the selected tile plotted below](docs/images/interface-rgb-tile.png)

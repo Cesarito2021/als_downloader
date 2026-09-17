@@ -25,3 +25,11 @@ It downloads the complete source file temporarily and samples at most 100,000 po
 this is not a remote range/COPC streaming service. `lidR` is required. Temporary files are removed after processing or session shutdown.
 In hosted mode, remote previews share the existing transfer lock with downloads; a session cannot begin a download and remote preview concurrently.
 RGB imagery is requested directly by the browser from Esri and retains the map attribution and provider terms.
+# Campaign comparison limits
+
+The Compare campaigns tab uses a separate background worker and shares the hosted transfer lock.
+It downloads sequentially, permits four tiles/200 MB per campaign (100 MB each) and clips to an AOI of at most 0.25 km².
+Reader and accumulated AOI point limits and a grid-cell budget bound processing; display sampling does not replace the analysis points.
+Cancelling, changing the AOI/campaign/grid, or closing the session stops the worker and removes its temporary directory.
+Downloads and other previews in that session wait until comparison processing finishes or is cancelled.
+[Scientific interpretation, eligibility and limits](TEMPORAL_COMPARISON.md).
