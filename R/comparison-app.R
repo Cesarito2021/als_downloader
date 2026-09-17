@@ -2,7 +2,7 @@ comparison_ui <- function() {
   shiny::tabPanel("Compare campaigns",
     shiny::h3("Two point clouds, overlapping area only"),
     shiny::checkboxInput("compare_opt_in", "I want to compare two point clouds in this study area", FALSE),
-    shiny::p("Search an AOI in Explore, then choose two campaigns. Dates are displayed as supplied by the provider, without independent year verification or correction. The overlay is for visualization only. Downloads remain separate."),
+    shiny::p("Search an AOI in Explore, then choose two campaigns. Collection dates are supplied by the provider; the final acquisition date represents a multi-date survey. Publication dates and filename dates are not substituted. The overlay is for visualization only. Downloads remain separate."),
     shiny::fluidRow(shiny::column(6, shiny::selectInput("epoch_a", "A | first / earlier cloud", choices = character()),
       shiny::actionButton("download_epoch_a", "Select A tiles for download")),
       shiny::column(6, shiny::selectInput("epoch_b", "B | latest cloud", choices = character()),

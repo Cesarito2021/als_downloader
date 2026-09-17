@@ -81,3 +81,16 @@ test_that("OpenTopography accepts polygon indexes with measured coordinates", {
   expect_true(is.na(tiles$license_url))
   expect_equal(sf::st_crs(tiles)$epsg,4326)
 })
+
+
+test_that("collection dates do not fall back to publication or nominal dates", {
+  p <- list(start_datetime="2018-10-24T00:00:00Z", end_datetime="2018-11-04T00:00:00Z",
+    datetime="2020-01-01T00:00:00Z", created="2021-01-01", published="2022-01-01")
+  expect_equal(stac_acquisition_period(p), c(start="2018-10-24",end="2018-11-04"))
+  p$end_datetime <- NULL
+  expect_true(is.na(stac_acquisition_period(p)["end"]))
+  p$start_datetime <- NULL
+  expect_true(all(is.na(stac_acquisition_period(p))))
+  p$start_datetime <- p$end_datetime <- "2019-07-01T00:00:00Z"
+  expect_equal(unname(stac_acquisition_period(p)), rep("2019-07-01",2))
+})

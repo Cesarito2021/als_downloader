@@ -71,6 +71,12 @@ find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography"),
   tiles
 }
 
+# Keep the provider's acquisition interval; generic catalog timestamps may be nominal.
+stac_acquisition_period <- function(properties) {
+  date <- function(x) if (is.null(x) || !length(x) || is.na(x[1]) || !nzchar(x[1])) NA_character_ else substr(x[1], 1, 10)
+  c(start = date(properties$start_datetime), end = date(properties$end_datetime))
+}
+
 search_3dep <- function(aoi, max_items) {
   url <- "https://planetarycomputer.microsoft.com/api/stac/v1/search"
   body <- list(collections = list("3dep-lidar-copc"), intersects = aoi_geometry(aoi), limit = 500L)
@@ -97,14 +103,11 @@ search_3dep <- function(aoi, max_items) {
     asset <- f$assets$data
     if (is.null(asset$href) || is.null(f$geometry)) return(NULL)
     p <- f$properties
-    start <- p$start_datetime; end <- p$end_datetime
-    if (is.null(start)) start <- p$datetime
-    if (is.null(end)) end <- p$datetime
-    date <- function(x) if (is.null(x)) NA_character_ else substr(x, 1, 10)
+    period <- stac_acquisition_period(p)
     g <- sf::st_read(jsonlite::toJSON(list(type = "Feature", properties = list(), geometry = f$geometry), auto_unbox = TRUE), quiet = TRUE)
     sf::st_sf(tile_id = f$id, provider = "usgs3dep", dataset = f$collection,
       filename = basename(sub("\\?.*$", "", asset$href)), url = sub("\\?.*$", "", asset$href),
-      acquired_start = date(start), acquired_end = date(end),
+      acquired_start = unname(period['start']), acquired_end = unname(period['end']),
       size_bytes = if (is.null(asset[["file:size"]])) NA_real_ else as.numeric(asset[["file:size"]]),
       license_url = "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
       citation = paste("USGS 3DEP;", f$id, "; distributed through Microsoft Planetary Computer. Consult survey metadata for acquisition and producer credits."),

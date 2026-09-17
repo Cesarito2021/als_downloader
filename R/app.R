@@ -251,7 +251,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     output$search_status <- shiny::renderText(state$search)
     output$tiles <- DT::renderDT({
       if (is.null(state$tiles)) return(DT::datatable(data.frame(Status = "No search results yet."), rownames = FALSE))
-      DT::datatable(sf::st_drop_geometry(state$tiles)[c("filename", "dataset", "acquired_start", "acquired_end", "size_bytes")],
+      DT::datatable(sf::st_drop_geometry(state$tiles)[c("filename", "dataset", "acquired_end", "acquired_start", "size_bytes")],
+        colnames = c("File", "Dataset", "Collection date (end)", "Collection start", "Size (bytes)"),
         rownames = FALSE, selection = "multiple", options = list(scrollX = TRUE, pageLength = 8))
     })
     output$sources <- DT::renderDT(DT::datatable(catalog, rownames = FALSE, options = list(scrollX = TRUE, pageLength = 15)))

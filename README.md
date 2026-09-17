@@ -55,7 +55,7 @@ The comparison uses a **100 m square by default**, with 250 m, 500 m and 1 km si
 Comparison is optional. When the same AOI has **two or more point-cloud campaigns**, the user can opt in and choose two. **View overlapping clouds** is enabled only for a distinct pair with shared coverage inside that AOI, limited to **1 km²**. The first cloud defaults to **solid grey**, the latest to **solid black**, on a white background. The user chooses the order. There are no calculated differences, statistics or analysis exports. See the [visual comparison limits](docs/TEMPORAL_COMPARISON.md).
 Colors show source elevation, **not canopy height**. Confirm coordinate units and vertical datum.
 
-Dates are shown as supplied by each provider, without independent year verification or correction. Unknown, overlapping or inconsistent dates do not block visualization.
+The representative date is the **final collection date** declared by the provider; the original acquisition interval is retained. Publication, upload, file-creation dates and filename years are not substituted. Generic STAC `datetime` values are not treated as acquisition dates without source-specific confirmation. Missing collection dates remain unknown and do not block visualization.
 
 ## Data sources
 

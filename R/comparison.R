@@ -6,7 +6,7 @@ campaign_groups <- function(tiles) {
   project[usgs] <- basename(dirname(dirname(redact_url(tiles$url[usgs]))))
   date <- function(x) ifelse(is.na(x) | !nzchar(x), "unknown", x)
   interval <- paste0(date(tiles$acquired_start), " to ", date(tiles$acquired_end))
-  label <- paste(project, interval, sep = " | ")
+  label <- paste(project, paste0("Collection end: ", date(tiles$acquired_end)), interval, sep = " | ")
   split(seq_len(nrow(tiles)), label)
 }
 
