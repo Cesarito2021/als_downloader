@@ -37,6 +37,8 @@ Requires R >= 4.1. Install `lidR` for point-cloud previews. USGS searches requir
 
 The search figure is a Utah example. Collection dates come from provider acquisition metadata; the **final collection date** represents an interval. Missing dates remain unknown. Publication dates and filename years are not substituted. Source imagery may have a different date from the LiDAR.
 
+Optional **Compare campaigns** overlays two surveys on black with contrasting colours. Draw a line to open a point-cloud profile below the view, then download either figure or both as PNG. This is visual inspection of sampled points, without alignment, fitted curves or calculated changes. [Visual comparison guide](docs/TEMPORAL_COMPARISON.md).
+
 ## Active sources
 
 **10 catalog entries**, including one general index service; this is not a count of individual survey datasets. The current review checked nine representative file endpoints. A successful sample access does not guarantee all files or an AOI adapter. [Access evidence and removed entries](docs/ACTIVE_SOURCES.md).

@@ -45,6 +45,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
   ui <- shiny::fluidPage(
     shiny::tags$head(shiny::tags$meta(name = "viewport", content = "width=device-width, initial-scale=1"),
       shiny::tags$link(rel = "stylesheet", href = "als-assets/explorer.css"),
+      shiny::tags$script(src = "als-assets/profile.js"),
       shiny::tags$script(src = "als-assets/preview.js"),
       shiny::tags$script(src = "als-assets/globe.js")),
     shiny::div(class = "als-header", shiny::div(shiny::h1("ALS DOWNLOADER"),

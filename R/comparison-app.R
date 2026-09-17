@@ -13,13 +13,27 @@ comparison_ui <- function() {
     shiny::textOutput("compare_availability"), shiny::uiOutput("compare_load_control"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
     shiny::tags$canvas(id = "als-compare-cloud", class = "als-point-cloud", role = "img", tabindex = "0", `aria-label` = "Two georeferenced campaign point clouds. Drag to rotate; plus/minus to zoom; zero to fit."),
-    shiny::helpText("Choose the first/earlier cloud as A (solid grey) and the latest as B (solid black). These colours identify clouds, not measured change. You choose the order using the provider information."),
-    shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A color / palette", c("Grey", "Black", "Cyan", "Orange", "Viridis", "Magma", "Plasma", "Cividis"))),
-      shiny::column(4, shiny::selectInput("compare_palette_b", "B color / palette", c("Black", "Grey", "Orange", "Cyan", "Magma", "Viridis", "Plasma", "Cividis"))),
+    shiny::tags$div(class="als-profile-tools",
+      shiny::tags$button(id="profile_draw",type="button",class="btn btn-default",disabled=TRUE,"Draw profile line"),
+      shiny::tags$button(id="profile_3d",type="button",class="btn btn-default",disabled=TRUE,"Return to 3D"),
+      shiny::tags$button(id="profile_clear",type="button",class="btn btn-default",disabled=TRUE,"Clear profile"),
+      shiny::tags$label(`for`="profile_width","Profile strip width (m)"),
+      shiny::tags$input(id="profile_width",type="number",min=0.2,max=100,step=0.2,value=2),
+      shiny::tags$button(id="export_cloud",type="button",class="btn btn-default",disabled=TRUE,"Download cloud figure")),
+    shiny::tags$p(id="profile_hint",role="status",`aria-live`="polite","Load two clouds to draw a profile. Drawing switches to a plan view: click the start and end, or drag a line in any direction. Escape cancels drawing."),
+    shiny::tags$div(id="profile_panel",hidden=NA,
+      shiny::h4("Profile along the selected line"),
+      shiny::tags$canvas(id="als-compare-profile",class="als-profile-canvas",role="img",`aria-label`="Distance and elevation profile of sampled points from both campaigns"),
+      shiny::tags$div(class="als-profile-tools",
+        shiny::tags$button(id="export_profile",type="button",class="btn btn-default",disabled=TRUE,"Download profile figure"),
+        shiny::tags$button(id="export_combined",type="button",class="btn btn-default",disabled=TRUE,"Download both figures"))),
+    shiny::helpText("A (earlier) is light purple and B (later) is pale yellow on black. Colours identify campaigns, not measured change. Profiles show sampled points within the chosen strip, without fitted curves or calculated differences."),
+    shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A color / palette", c("Light purple", "Pale yellow", "Blue", "Red", "Grey", "Cyan", "Orange", "Viridis", "Magma", "Plasma", "Cividis"))),
+      shiny::column(4, shiny::selectInput("compare_palette_b", "B color / palette", c("Pale yellow", "Light purple", "Red", "Blue", "Grey", "Orange", "Cyan", "Magma", "Viridis", "Plasma", "Cividis"))),
       shiny::column(4, shiny::sliderInput("compare_exaggeration", "Vertical exaggeration", 1, 12, 1, step = 1))),
     shiny::checkboxInput("compare_focus", "Focus camera on central 98% (display only; turn off to fit all points)", TRUE),
     shiny::checkboxInput("compare_show_a", "Show A", TRUE), shiny::checkboxInput("compare_show_b", "Show B", TRUE),
-    shiny::helpText("One shared origin, camera and elevation scale. Up to 50,000 display points per cloud. No calculated differences, analysis or exports. Provider footprints may contain gaps in actual point coverage."),
+    shiny::helpText("One shared origin, camera and elevation scale. Up to 50,000 display points per cloud. PNG exports contain figures only, not analytical results. Provider footprints may contain gaps in actual point coverage."),
     shiny::tags$details(shiny::tags$summary("Source and display information"), shiny::verbatimTextOutput("compare_metadata")))
 }
 
@@ -113,9 +127,12 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
     tryCatch({
       cmp$result <- job$get_result()
       r <- cmp$result
+      reference <- sf::st_crs(r$crs)
+      crs_label <- if (!is.na(reference$epsg)) paste0("EPSG:", reference$epsg) else reference$Name
       cmp$status <- sprintf("A: %s overlap points | B: %s overlap points | %.4f km2. Overlay ready for visualization only.", r$counts[1], r$counts[2], r$overlap_km2)
       session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = rbind(r$a, r$b),
-        groups = c(rep(0L, nrow(r$a)), rep(1L, nrow(r$b))), origin = r$origin))
+        groups = c(rep(0L, nrow(r$a)), rep(1L, nrow(r$b))), origin = r$origin, labels = cmp$labels,
+        crs = crs_label))
     }, error = function(e) {cmp$status <- paste("Comparison could not be completed:", conditionMessage(e))})
     cleanup()
   })
