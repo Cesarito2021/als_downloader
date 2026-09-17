@@ -1,0 +1,16 @@
+source(file.path("R", "download_policy.R"))
+stopifnot(download_worker_policy("hosted", 32, requested=20)$effective == 1)
+stopifnot(download_worker_policy("local", 16)$recommended == 10)
+stopifnot(download_worker_policy("local", 8)$effective == 4)
+stopifnot(download_worker_policy("local", 4)$effective == 1)
+stopifnot(download_worker_policy("local", 2)$effective == 1)
+stopifnot(download_worker_policy("local", NA_integer_)$effective == 1)
+stopifnot(download_worker_policy("local", 32, requested=18)$effective == 18)
+stopifnot(download_worker_policy("local", 16, requested=30)$effective == 12)
+stopifnot(download_worker_policy("local", 32, requested=18, provider_limit=2)$effective == 2)
+stopifnot(download_worker_policy("local", 32, jobs=3)$effective == 3)
+stopifnot(download_worker_policy("local", 32, jobs=0)$effective == 0)
+for (bad in list(0, -1, NA_real_, Inf, 1.5, "4", numeric())) {
+  stopifnot(inherits(try(download_worker_policy("local",16,requested=bad),silent=TRUE),"try-error"))
+}
+cat("Download policy: all checks passed.\n")
