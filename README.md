@@ -12,6 +12,24 @@ Other sources are reviewed links for discovery; they do not yet have download ad
 
 ## User interface
 
+### Satellite context and a selected tile in 3D
+
+![Live Esri satellite basemap with translucent USGS footprints and the selected tile plotted below](docs/images/interface-rgb-tile.png)
+
+Use the layer switcher to choose **Satellite RGB** or **Terrain relief**. Imagery is visual context;
+its capture date can differ from the LiDAR survey. Footprints remain translucent and attribution stays visible.
+Click a footprint or select exactly one result, check its filename, then choose **Plot selected tile**.
+The plot appears below the results in the same Explore tab.
+
+![Real USGS tile displayed as an oblique landscape with Viridis source-elevation colors](docs/images/tile-viridis.png)
+
+The viewer fits and orients the point sample automatically. Drag to orbit, scroll to zoom, or use **Fit landscape**.
+Choose **Viridis** or **Magma** and adjust the explicitly labelled vertical exaggeration (initially 2×).
+Colors represent source elevation, not normalized tree height; vegetation detail depends on the source and sampling.
+This preview temporarily downloads **one complete source tile up to 200 MB**, then reads at most **100,000 points**;
+it is not a remote COPC streaming viewer. Known file size and `lidR` are required. Temporary files are cleaned up after processing/session exit.
+The local upload preview remains available in **3D preview**. The earlier annotated screenshots below document the same core workflow before this map update.
+
 ### Explore → define an area → find tiles → download
 
 ![ALS Downloader running a real USGS search, with red boxes A–F identifying the main controls](docs/images/interface-explore.png)
@@ -196,7 +214,8 @@ For the Italian Sila dataset, we acknowledge **Nicola Puletti / CREA** and the A
 [Dataset citation and access evidence](docs/ITALY_PULETTI.md).
 
 The application builds on the R and Shiny ecosystems, including `sf`, Leaflet, DT and `lidR`.
-Country outlines derive from Natural Earth via World Atlas; the optional terrain backdrop is provided by Esri and its credited contributors.
+Country outlines derive from Natural Earth via World Atlas. Satellite imagery and terrain basemaps are provided by Esri and the contributors credited on the map.
+See [Esri basemap attribution guidance](https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040).
 See [third-party notices](inst/NOTICE). Dataset inclusion does not imply provider endorsement.
 
 ## Citing ALS Downloader

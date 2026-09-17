@@ -76,14 +76,26 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
           shiny::tabPanel("Explore", leaflet::leafletOutput("map", height = "60vh"),
             shiny::div(class = "map-caption", "Country shading indicates catalog candidates, not continuous survey coverage. Search results show source tile footprints."),
             shiny::textOutput("search_status"), DT::DTOutput("tiles"),
-            shiny::downloadButton("export_manifest", "Export tile metadata")),
+            shiny::downloadButton("export_manifest", "Export tile metadata"),
+            shiny::div(class = "als-tile-preview",
+              shiny::h3("Selected tile | 3D landscape"),
+              shiny::helpText("Click a tile footprint or select one table row, then plot it. Preview downloads one source file (up to 200 MB) temporarily; source elevation is not canopy height."),
+              shiny::actionButton("plot_tile", "Plot selected tile", class = "als-primary"),
+              shiny::textOutput("tile_selection"),
+              shiny::textOutput("tile_preview_status"),
+              shiny::tags$canvas(id = "als-tile-cloud", class = "als-point-cloud", role = "img", tabindex = "0", `aria-label` = "Selected tile point cloud. Arrow keys rotate; plus and minus zoom; zero fits the view."),
+              shiny::fluidRow(shiny::column(4, shiny::selectInput("tile_palette", "Elevation palette", c("Viridis", "Magma"))),
+                shiny::column(4, shiny::sliderInput("tile_exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 2, step = 1)),
+                shiny::column(4, shiny::actionButton("tile_fit", "Fit landscape"))),
+              shiny::div(class = "map-caption", "Drag to orbit | scroll to zoom | double-click to fit. Display sample only; source files are unchanged."))),
           shiny::tabPanel("3D preview", shiny::fileInput("point_file", "Upload a local LAS/LAZ tile (up to 200 MB)", accept = c(".las", ".laz")),
             shiny::actionButton("preview", "Build bounded preview"),
             shiny::helpText("Preview decimation does not alter your source file. Large local tiles can also be read with read_preview() in R."),
             shiny::textOutput("preview_status"),
             shiny::tags$canvas(id = "als-cloud", role = "img", tabindex = "0", `aria-label` = "Interactive point-cloud preview. Arrow keys rotate; plus and minus zoom; zero resets."),
-            shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 4, step = 1),
-            shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Viridis colors show source elevation, not canopy height.")),
+            shiny::selectInput("palette", "Elevation palette", c("Viridis", "Magma")),
+            shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 2, step = 1),
+            shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Colors show source elevation, not canopy height.")),
           shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Zenodo entries are complementary research deposits, not official national coverage. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have a search adapter. Verify dataset terms and citations before downloading."),
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
             DT::DTOutput("sources")))))
@@ -96,7 +108,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         shiny::textInput("source_name", "Dataset or product name *"),
         shiny::textInput("source_owner", "Producer / institution and hosting repository *", placeholder = "Who collected it? Where is it hosted?"),
         shiny::textInput("source_url", "Public dataset URL or DOI *"),
-        shiny::selectInput("source_platform", "Laser acquisition platform *", c("Choose a platform" = "", "Aircraft / helicopter ALS", "UAV LiDAR", "Mixed aerial laser platforms", "Unknown — needs review")),
+        shiny::selectInput("source_platform", "Laser acquisition platform *", c("Choose a platform" = "", "Aircraft / helicopter ALS", "UAV LiDAR", "Mixed aerial laser platforms", "Unknown - needs review")),
         shiny::helpText("Only aerial laser scanning is eligible. Terrestrial, spaceborne and photogrammetric acquisitions are outside scope."),
         shiny::textInput("source_area", "Country / site and acquisition years *"),
         shiny::textInput("source_paper", "Related paper, preprint or DOI (optional)"),
@@ -140,21 +152,24 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       }, contentType = "text/plain; charset=utf-8")
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "Draw or upload a study area to begin.",
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
-      preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE)
+      preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
+      preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE)
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
     output$map <- leaflet::renderLeaflet({
       world$catalog <- world$code %in% catalog$country_code
       leaflet::leaflet(world) |>
+        leaflet::addProviderTiles("Esri.WorldImagery", group = "Satellite RGB") |>
         leaflet::addTiles("https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
           group = "Terrain relief", attribution = "Terrain: Esri, Airbus DS, USGS, NGA, NASA, CGIAR, NLS, OS, NMA, Geodatastyrelsen, GSA, GSI and GIS User Community",
           options = leaflet::tileOptions(maxZoom = 16, className = "als-relief-tiles")) |>
         leaflet::addPolygons(layerId = ~id, group = "Countries", color = "#60717c", weight = .5,
-          fillColor = ~ifelse(catalog, "#2c7565", "#25313c"), fillOpacity = .3, label = ~name) |>
+          fillColor = ~ifelse(catalog, "#2c7565", "#25313c"), fillOpacity = .06, label = ~name) |>
         leaflet.extras::addDrawToolbar(targetGroup = "Study area", polygonOptions = leaflet.extras::drawPolygonOptions(showArea = TRUE),
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
           editOptions = leaflet.extras::editToolbarOptions()) |>
-        leaflet::addLayersControl(overlayGroups = c("Terrain relief", "Countries", "Study area", "Tiles")) |>
+        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = c("Countries", "Study area", "Tiles")) |>
+        leaflet::hideGroup("Terrain relief") |>
         leaflet::setView(0, 20, 2)
     })
     set_aoi <- function(x) {
@@ -193,6 +208,12 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     shiny::observeEvent(input$country, navigate(input$country))
     shiny::observeEvent(input$map_shape_click, {
       id <- input$map_shape_click$id
+      if (!is.null(id) && startsWith(as.character(id), "tile:")) {
+        index <- suppressWarnings(as.integer(sub("^tile:", "", id)))
+        if (!is.null(state$tiles) && !is.na(index) && index >= 1L && index <= nrow(state$tiles))
+          DT::selectRows(DT::dataTableProxy("tiles"), index)
+        return()
+      }
       if (!is.null(id) && id %in% world$id) navigate(as.character(id))
     })
     output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else sprintf("Study area: %.2f km^2", aoi_area(state$aoi)))
@@ -208,7 +229,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         state$tiles <- result
         state$search <- paste(nrow(result), "intersecting tiles. Select rows below; acquisition dates may be unknown.")
         if (nrow(result)) leaflet::leafletProxy("map") |> leaflet::addPolygons(data = result, group = "Tiles",
-          color = "#7bdfcd", weight = 1, fillOpacity = .15, label = ~filename)
+          layerId = paste0("tile:", seq_len(nrow(result))), color = "#7bdfcd", weight = 1.5, fillOpacity = .10, label = ~filename)
       }, error = function(e) {state$search <- conditionMessage(e); notify(e)})
     })
     output$search_status <- shiny::renderText(state$search)
@@ -218,6 +239,12 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         rownames = FALSE, selection = "multiple", options = list(scrollX = TRUE, pageLength = 8))
     })
     output$sources <- DT::renderDT(DT::datatable(catalog, rownames = FALSE, options = list(scrollX = TRUE, pageLength = 15)))
+    output$tile_selection <- shiny::renderText({
+      selected <- input$tiles_rows_selected
+      if (is.null(state$tiles) || length(selected) != 1L || !selected %in% seq_len(nrow(state$tiles)))
+        "Select exactly one result for the 3D preview."
+      else paste("Selected:", state$tiles$filename[selected])
+    })
     output$export_manifest <- shiny::downloadHandler(filename = "tile-metadata.csv", content = function(file) {
       shiny::req(state$tiles)
       df <- sf::st_drop_geometry(state$tiles); df$url <- redact_url(df$url)
@@ -232,6 +259,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         unlink(lock, recursive = TRUE)
     }
     shiny::observeEvent(input$download, {
+      if (!is.null(state$preview_job) && state$preview_job$is_alive() && state$preview_target == "als-tile-cloud") {
+        shiny::showNotification("Wait for the tile preview before starting another transfer."); return()
+      }
       if (!is.null(state$job) && state$job$is_alive()) {shiny::showNotification("A download is already running."); return()}
       shiny::req(state$tiles, input$tiles_rows_selected)
       rows <- state$tiles[input$tiles_rows_selected, , drop = FALSE]
@@ -280,6 +310,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       }
     })
     shiny::observeEvent(input$cancel, {
+      if (isTRUE(state$preview_locked)) {
+        shiny::showNotification("The preview is using the transfer slot; wait for it to finish."); return()
+      }
       if (!is.null(state$job) && state$job$is_alive()) state$job$kill_tree()
       state$finished <- TRUE; state$jobtext <- "Canceled. Completed local tiles can be resumed."; release_lock(); release_output_lock()
     })
@@ -293,28 +326,73 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     shiny::observeEvent(input$preview, {
       shiny::req(input$point_file)
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) return()
+      state$preview_target <- "als-cloud"
       state$previewtext <- "Reading a bounded point sample..."
       preview_path <- tempfile(fileext = paste0(".", tools::file_ext(input$point_file$name)))
+      state$preview_path <- preview_path
       file.copy(input$point_file$datapath, preview_path)
       state$preview_job <- callr::r_bg(function(path) {
         on.exit(unlink(path))
         alsdownloader::read_preview(path, 50000L)
       }, args = list(preview_path), supervise = TRUE)
     })
+    shiny::observeEvent(input$plot_tile, {
+      if (!is.null(state$job) && state$job$is_alive()) {
+        shiny::showNotification("Wait for the current download before plotting a remote tile."); return()
+      }
+      if (!is.null(state$preview_job) && state$preview_job$is_alive()) {
+        shiny::showNotification("A preview is already running."); return()
+      }
+      selected <- input$tiles_rows_selected
+      if (is.null(state$tiles) || length(selected) != 1L || !selected %in% seq_len(nrow(state$tiles))) {
+        shiny::showNotification("Select exactly one tile in the table or click its footprint."); return()
+      }
+      tile <- sf::st_drop_geometry(state$tiles[selected, , drop = FALSE])
+      if (mode == "hosted") {
+        if (!dir.create(hosted_lock, showWarnings = FALSE)) {
+          shiny::showNotification("Another hosted transfer is running. Try again later."); return()
+        }
+        state$lock_owned <- TRUE; state$preview_locked <- TRUE
+      }
+      state$preview_target <- "als-tile-cloud"
+      state$preview_label <- tile$filename[[1]]
+      state$tiletext <- paste("Downloading and sampling:", state$preview_label)
+      session$sendCustomMessage("als-points", list(target = "als-tile-cloud", points = list(), origin = c(0, 0, 0)))
+      state$preview_path <- tempfile(fileext = ".laz")
+      tryCatch({state$preview_job <- callr::r_bg(function(tile, path) alsdownloader:::preview_remote_tile(tile, path = path),
+        args = list(tile, state$preview_path), supervise = TRUE)}, error = function(e) {
+          if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
+          state$tiletext <- "Could not start the preview process."
+        })
+    })
     shiny::observe({
       shiny::invalidateLater(500, session)
       job <- state$preview_job
       if (is.null(job) || job$is_alive()) return()
       state$preview_job <- NULL
-      tryCatch({p <- job$get_result(); state$previewtext <- paste(nrow(p), "preview points. Elevation uses source coordinate units; confirm the CRS and vertical datum.")
-        session$sendCustomMessage("als-points", list(points = unname(as.matrix(p)), origin = unname(attr(p, "origin"))))},
-        error = function(e) {state$previewtext <- "Preview failed. Check the LAS/LAZ file and lidR installation."})
+      if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
+      if (!is.null(state$preview_path)) unlink(state$preview_path)
+      tryCatch({p <- job$get_result()
+        caption <- paste(nrow(p), "preview points. Elevation uses source units; confirm CRS and vertical datum.")
+        if (state$preview_target == "als-cloud") state$previewtext <- caption
+        else state$tiletext <- paste(state$preview_label, "-", caption)
+        session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), origin = unname(attr(p, "origin"))))},
+        error = function(e) {
+          message <- "Preview failed: check provider access, known file size (up to 200 MB), LAS/LAZ format and lidR installation."
+          if (state$preview_target == "als-cloud") state$previewtext <- message else state$tiletext <- message
+        })
     })
     output$preview_status <- shiny::renderText(state$previewtext)
-    shiny::observeEvent(input$exaggeration, session$sendCustomMessage("als-exaggeration", input$exaggeration))
+    output$tile_preview_status <- shiny::renderText(state$tiletext)
+    shiny::observeEvent(input$exaggeration, session$sendCustomMessage("als-view", list(target = "als-cloud", exaggeration = input$exaggeration)))
+    shiny::observeEvent(input$tile_exaggeration, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", exaggeration = input$tile_exaggeration)))
+    shiny::observeEvent(input$palette, session$sendCustomMessage("als-view", list(target = "als-cloud", palette = input$palette)))
+    shiny::observeEvent(input$tile_palette, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", palette = input$tile_palette)))
+    shiny::observeEvent(input$tile_fit, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", fit = TRUE)))
     session$onSessionEnded(function() shiny::isolate({
       if (!is.null(state$job) && state$job$is_alive()) state$job$kill_tree()
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) state$preview_job$kill_tree()
+      if (!is.null(state$preview_path)) unlink(state$preview_path)
       release_lock()
       release_output_lock()
       if (!is.null(state$jobdir)) unlink(state$jobdir, recursive = TRUE)

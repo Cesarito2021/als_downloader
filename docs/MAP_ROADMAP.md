@@ -1,6 +1,7 @@
 # Informational coverage map — next stage
 
-These features are proposed, not implemented in this documentation update.
+Implemented: Esri RGB/terrain basemap switching, translucent search footprints and a selected-tile 3D preview beneath the results, with Viridis/Magma colors and automatic landscape fitting.
+The acquisition-year coverage map and summary-grid features below remain proposed.
 
 The application now provides a persistent **Submit a data source** form for community suggestions,
 with email/GitHub drafts and a text export. It connects to existing deposits; it does not host point clouds.

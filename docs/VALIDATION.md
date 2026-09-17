@@ -56,3 +56,14 @@ The complementary research selection now includes Sila, Tree-LiMS and EBA; all Z
 Known Taiwan photogrammetry was removed from the active catalog but retained in the historical validation/audit records.
 The package's 59 existing assertions passed again and the updated package installed locally.
 Relative documentation links and image assets passed validation. No additional full dataset download was performed.
+# RGB basemap and selected-tile preview — 17 September 2026
+
+The package suite passed **63 assertions**, including four checks rejecting unknown/zero/oversized remote previews and non-HTTPS URLs.
+Local installation succeeded. A live Edge run searched the Utah AOI and downloaded
+`USGS_LPC_UT_StatewideSouth_2020_A20_12SUH7020.copc.laz` through the new temporary preview path.
+The plot displayed **98,758 sampled points**. RGB image tiles loaded; Viridis/Magma switching,
+keyboard zoom, fit reset, empty-selection rejection and 390 px mobile layout passed.
+This verifies a representative remote preview, not all provider datasets. Hosted multi-session operation was not browser-tested in this update.
+Screenshots: [map and plot](images/interface-rgb-tile.png), [Viridis](images/tile-viridis.png), [Magma](images/tile-magma.png).
+These are actual app renders, not illustrative point clouds. Full remote files are limited to 200 MB before sampling;
+the viewer does not implement COPC range streaming. RGB imagery dates are independent of LiDAR dates.

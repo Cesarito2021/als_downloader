@@ -20,3 +20,9 @@ SOFTWARE.
 Basemap tiles are requested only by the launched application. Leaflet displays
 provider attribution. Esri terrain tiles retain their provider terms. The bundled country outlines
 remain usable when the remote terrain service is unavailable.
+
+The optional RGB basemap uses Esri World Imagery via Leaflet's provider tiles.
+Imagery credits include Esri and the imagery contributors displayed on the map.
+Attribution must remain visible in map captures; imagery retains its source terms.
+https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040
+Imagery dates are independent of LiDAR acquisition dates.

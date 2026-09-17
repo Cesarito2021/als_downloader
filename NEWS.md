@@ -1,5 +1,8 @@
 # alsdownloader 0.1.0.9001
 
+* Add Esri RGB imagery with translucent footprints and a selected-tile 3D panel in Explore; fit the landscape automatically with Viridis/Magma palettes and explicit vertical exaggeration.
+* Bound temporary remote previews to one known-size tile up to 200 MB and at most 100,000 displayed points.
+
 * Add a persistent source-submission button with a review form, email/GitHub drafts and text export; no point-cloud hosting or automatic publication.
 
 * Separate complementary Zenodo research deposits from national sources; curate aircraft/UAV laser datasets and exclude known photogrammetry from the active catalog.
