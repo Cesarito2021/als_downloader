@@ -37,6 +37,8 @@ Requires R >= 4.1. Install `lidR` for point-cloud previews. USGS searches requir
 
 The search figure is a Utah example. Collection dates come from provider acquisition metadata; the **final collection date** represents an interval. Missing dates remain unknown. Publication dates and filename years are not substituted. Source imagery may have a different date from the LiDAR.
 
+The OpenTopography adapter follows the tile-index selection and download workflow described in OpenTopography's official tutorial, [*Programmatic Access to OpenTopography's Point Cloud Data with Tile Indexes*](https://opentopography.org/node/3598) (24 November 2025): intersect supplied tile indexes with the study area and download the selected original LAS/LAZ files.
+
 ## 3. Compare campaigns and view a profile
 
 ![Two overlapping survey clouds on black, with their coloured elevation profiles below](docs/images/interface-compare-campaigns.png)
