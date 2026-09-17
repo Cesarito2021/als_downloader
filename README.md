@@ -1,6 +1,6 @@
 # ALS Downloader
 
-Discover aerial LiDAR sources, download original LAS/LAZ files and inspect overlapping point clouds. R package and Shiny application by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
+Discover aerial LiDAR sources, download original LAS/LAZ files and preview individual point-cloud tiles. R package and Shiny application by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
 
 ## Install and launch
 
@@ -36,14 +36,6 @@ Requires R >= 4.1. Install `lidR` for point-cloud previews. USGS searches requir
 | F - Results | Review metadata; select one tile and click **Plot selected tile in 3D**. |
 
 The search figure is a Utah example. Collection dates come from provider acquisition metadata; the **final collection date** represents an interval. Missing dates remain unknown. Publication dates and filename years are not substituted. Source imagery may have a different date from the LiDAR.
-
-## 3. Compare two surveys visually
-
-![Two overlapping survey point clouds: first survey grey, second survey black](docs/images/interface-compare-campaigns.png)
-
-Choose two campaigns covering the same AOI, opt into comparison and select a square side of **100 m** (default), 250 m, 500 m or 1 km. The view is clipped to their shared footprint. Set the earlier survey as A (grey) and the later survey as B (black); rotate and hide/show either cloud.
-
-This is a visual overlay, with no automatic alignment, difference statistics or change estimates. Matching projected coordinates in metres are required. Up to 50,000 points per cloud are displayed. Original downloads stay separate. [Limits and coordinate requirements](docs/TEMPORAL_COMPARISON.md).
 
 ## Active sources
 
