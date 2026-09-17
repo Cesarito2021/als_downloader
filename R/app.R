@@ -110,8 +110,12 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         title = "Submit a data source", size = "l", easyClose = FALSE,
         shiny::p("Help expand the aerial LiDAR catalog. Share links to existing sources; do not upload point clouds. Suggestions are reviewed before integration."),
         shiny::textInput("source_name", "Dataset or product name *"),
-        shiny::textInput("source_owner", "Producer / institution and hosting repository *", placeholder = "Who collected it? Where is it hosted?"),
-        shiny::textInput("source_url", "Public dataset URL or DOI *"),
+        shiny::textInput("source_owner", "Data producer / institution *", placeholder = "Who collected the LiDAR data?"),
+        shiny::textInput("source_url", "Dataset access or download link *", placeholder = "Public file, catalog, API or download page URL"),
+        shiny::textInput("source_storage", "Where are the files stored? *", placeholder = "Host and public location: Zenodo record, AWS bucket, institutional repository, etc."),
+        shiny::textAreaInput("source_description", "Short dataset description *", rows = 2, placeholder = "One or two sentences about the aerial LiDAR data and coverage."),
+        shiny::textAreaInput("source_acknowledgement", "Short required acknowledgement *", rows = 2, placeholder = "Preferred credit text for the data producer or project; write None if none is requested."),
+        shiny::textInput("source_origin", "Dataset DOI or original platform link *", placeholder = "Persistent DOI or original provider's dataset landing page"),
         shiny::selectInput("source_platform", "Laser acquisition platform *", c("Choose a platform" = "", "Aircraft / helicopter ALS", "UAV LiDAR", "Mixed aerial laser platforms", "Unknown - needs review")),
         shiny::helpText("Only aerial laser scanning is eligible. Terrestrial, spaceborne and photogrammetric acquisitions are outside scope."),
         shiny::textInput("source_area", "Country / site and acquisition years *"),
@@ -125,15 +129,15 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         footer = shiny::modalButton("Close")))
     })
     source_proposal <- shiny::reactive({
-      required <- c("source_name", "source_owner", "source_url", "source_platform", "source_area", "source_details")
+      required <- c("source_name", "source_owner", "source_url", "source_storage", "source_description", "source_acknowledgement", "source_origin", "source_platform", "source_area", "source_details")
       values <- vapply(required, function(id) if (is.null(input[[id]])) "" else trimws(input[[id]]), character(1))
       shiny::req(all(nzchar(values)), isTRUE(input$source_review))
       # Bound outgoing proposal text to keep draft links manageable.
-      limits <- c(150L, 200L, 400L, 80L, 250L, 1400L)
+      limits <- c(150L, 200L, 400L, 400L, 500L, 400L, 400L, 80L, 250L, 1400L)
       values <- mapply(substr, values, 1L, limits, USE.NAMES = TRUE)
       optional <- function(id, limit) if (is.null(input[[id]])) "" else substr(trimws(input[[id]]), 1L, limit)
       list(title = paste("Dataset suggestion:", values[[1]]), body = paste(
-        paste(c("Dataset", "Producer / repository", "Dataset URL / DOI", "Platform", "Country / site / acquisition years", "License / access / spatial metadata"), values, sep = ": ", collapse = "\n\n"),
+        paste(c("Dataset", "Data producer / institution", "Dataset access / download link", "Storage host / public location", "Short description", "Required acknowledgement", "Dataset DOI / original platform", "Platform", "Country / site / acquisition years", "License / access / spatial metadata"), values, sep = ": ", collapse = "\n\n"),
         paste("Paper / preprint:", optional("source_paper", 400L)),
         paste("Contributor contact:", optional("source_contact", 150L)),
         "Submitted for review; inclusion and automatic downloads are not yet approved.", sep = "\n\n"))

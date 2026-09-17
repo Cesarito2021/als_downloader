@@ -1,5 +1,7 @@
 # alsdownloader 0.1.0.9001
 
+* Require separate source proposal fields for the access link, storage host/location, short description, acknowledgement and dataset DOI/original platform in Shiny and the GitHub template; include them in all proposal drafts and text exports.
+
 * Add display-only forest windows, adjustable reader sampling (2% target by default), optional voxel thinning, point size and a silhouette camera at 1:1 vertical scale; replace the representative preview with a real forest close-up from the supplied biomass example.
 
 * Add campaign-specific download selection, AOI-clipped dual-cloud overlays and independent palettes.

@@ -32,7 +32,36 @@ body:
   - type: input
     id: source
     attributes:
-      label: Public catalog or dataset URL
+      label: Dataset access or download link
+      description: "Public file, catalog, API or download page URL."
+    validations:
+      required: true
+  - type: input
+    id: storage
+    attributes:
+      label: Storage host and public location
+      description: "Where are the files stored? Include the host and public location, e.g. Zenodo record, AWS bucket or institutional repository."
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Short dataset description
+      description: "One or two sentences about the aerial LiDAR data and coverage."
+    validations:
+      required: true
+  - type: textarea
+    id: acknowledgement
+    attributes:
+      label: Short required acknowledgement
+      description: "Preferred credit text for the data producer or project. Write None if none is requested."
+    validations:
+      required: true
+  - type: input
+    id: origin
+    attributes:
+      label: Dataset DOI or original platform link
+      description: "Persistent DOI or original provider's dataset landing page; a related paper can be supplied separately below."
     validations:
       required: true
   - type: textarea

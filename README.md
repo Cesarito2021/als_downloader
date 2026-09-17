@@ -211,8 +211,10 @@ These features are **planned**, and country fills must not be interpreted as mea
 ## Reporting issues and suggesting data
 
 The **Submit a data source** button is always available in the application header.
-It opens a form for the dataset name, producer/repository, public URL or DOI, aerial platform,
-country/site, acquisition years, license/access details and an optional paper or preprint.
+It opens a form requiring the dataset name and producer, access/download link, **storage host and public location**,
+**short description**, **short required acknowledgement** (or "None"), and **dataset DOI or original platform link**.
+It also asks for the aerial platform, country/site, acquisition years and license/access details; a related paper or preprint is optional.
+These fields are included in the email draft, GitHub draft and exported proposal text, and in the GitHub suggestion template.
 Complete the required fields and acknowledge review to reveal the submission options.
 **Prepare email** opens a draft addressed to the maintainer; send it from your email application.
 Alternatively, open a **public GitHub draft** or save the proposal as text if no email client is configured.
