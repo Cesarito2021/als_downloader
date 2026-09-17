@@ -33,6 +33,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
   mode <- match.arg(mode, c("local", "hosted"))
   assets <- system.file("app", "www", package = "alsdownloader")
   shiny::addResourcePath("als-assets", assets)
+  shiny::addResourcePath("als-data", system.file("extdata", package = "alsdownloader"))
   catalog <- provider_catalog()
   cores <- as.numeric(parallelly::availableCores())
   policy <- download_worker_policy(mode, cores)
@@ -44,7 +45,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
   ui <- shiny::fluidPage(
     shiny::tags$head(shiny::tags$meta(name = "viewport", content = "width=device-width, initial-scale=1"),
       shiny::tags$link(rel = "stylesheet", href = "als-assets/explorer.css"),
-      shiny::tags$script(src = "als-assets/preview.js")),
+      shiny::tags$script(src = "als-assets/preview.js"),
+      shiny::tags$script(src = "als-assets/globe.js")),
     shiny::div(class = "als-header", shiny::div(shiny::h1("ALS DOWNLOADER"),
       shiny::span("Global point cloud explorer")),
       shiny::div(class = "als-header-actions",
@@ -73,23 +75,27 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         shiny::textOutput("job_status"), shiny::uiOutput("bundle_control")),
       shiny::div(class = "als-main",
         shiny::tabsetPanel(id = "view",
-          shiny::tabPanel("Explore", leaflet::leafletOutput("map", height = "60vh"),
+          shiny::tabPanel("Explore",
+            shiny::conditionalPanel("input.enter_map == 0",
+              shiny::div(class = "als-globe-intro",
+                shiny::h2("Explore aerial LiDAR around the world"),
+                shiny::p("Discover sources. Define your study area. Find and inspect tiles."),
+                shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Rotatable world globe. Drag or use arrow keys to rotate.", `data-countries` = paste(unique(catalog$country_code), collapse = ",")),
+                shiny::p(id = "globe_status", "Drag or use arrow keys to rotate. Dark green marks countries with catalog sources (opacity 0.10), not measured survey coverage."),
+                shiny::actionButton("enter_map", "Open map", class = "als-primary"),
+                shiny::p(shiny::tags$a(href = "https://www.naturalearthdata.com/about/terms-of-use/", "Made with Natural Earth - public-domain cartography")))),
+            shiny::conditionalPanel("input.enter_map > 0", leaflet::leafletOutput("map", height = "60vh"),
             shiny::div(class = "map-caption", "Country shading indicates catalog candidates, not continuous survey coverage. Search results show source tile footprints."),
             shiny::textOutput("search_status"), DT::DTOutput("tiles"),
             shiny::downloadButton("export_manifest", "Export tile metadata"),
             shiny::div(class = "als-tile-preview",
-              shiny::h3("Selected tile | 3D landscape"),
-              shiny::helpText("Click a tile footprint or select one table row, then plot it. Preview downloads one source file (up to 200 MB) temporarily; source elevation is not canopy height."),
-              shiny::actionButton("plot_tile", "Plot selected tile", class = "als-primary"),
-              forest_preview_controls("tile_"),
               shiny::textOutput("tile_selection"),
-              shiny::textOutput("tile_preview_status"),
-              shiny::tags$canvas(id = "als-tile-cloud", class = "als-point-cloud", role = "img", tabindex = "0", `aria-label` = "Selected tile point cloud. Arrow keys rotate; plus and minus zoom; zero fits the view."),
-              shiny::fluidRow(shiny::column(4, shiny::selectInput("tile_palette", "Elevation palette", c("Viridis", "Magma"))),
-                shiny::column(4, shiny::sliderInput("tile_exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 1, step = 1)),
-                shiny::column(4, shiny::actionButton("tile_fit", "Fit landscape"))),
-              shiny::div(class = "map-caption", "Drag to orbit | scroll to zoom | double-click to fit. Display sample only; source files are unchanged."))),
-          shiny::tabPanel("3D preview", shiny::fileInput("point_file", "Upload a local LAS/LAZ tile (up to 200 MB)", accept = c(".las", ".laz")),
+              shiny::actionButton("plot_tile", "Plot selected tile in 3D", class = "als-primary"),
+              shiny::helpText("Select one footprint or result. Plot opens the shared 3D preview; one source file up to 200 MB is downloaded temporarily.")))),
+          shiny::tabPanel("3D preview",
+            shiny::p("One viewer for the tile selected in Explore or a local LAS/LAZ file."),
+            shiny::actionButton("replot_tile", "Rebuild selected map tile"),
+            shiny::fileInput("point_file", "Upload a local LAS/LAZ tile (up to 200 MB)", accept = c(".las", ".laz")),
             forest_preview_controls("local_"),
             shiny::actionButton("preview", "Build bounded preview"),
             shiny::helpText("Preview decimation does not alter your source file. Large local tiles can also be read with read_preview() in R."),
@@ -172,7 +178,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
           group = "Terrain relief", attribution = "Terrain: Esri, Airbus DS, USGS, NGA, NASA, CGIAR, NLS, OS, NMA, Geodatastyrelsen, GSA, GSI and GIS User Community",
           options = leaflet::tileOptions(maxZoom = 16, className = "als-relief-tiles")) |>
         leaflet::addPolygons(layerId = ~id, group = "Countries", color = "#60717c", weight = .5,
-          fillColor = ~ifelse(catalog, "#2c7565", "#25313c"), fillOpacity = .06, label = ~name) |>
+          fillColor = ~ifelse(catalog, "#2c7565", "#25313c"), fillOpacity = ~ifelse(catalog, .10, 0), label = ~name) |>
         leaflet.extras::addDrawToolbar(targetGroup = "Study area", polygonOptions = leaflet.extras::drawPolygonOptions(showArea = TRUE),
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
@@ -269,7 +275,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     }
     shiny::observeEvent(input$download, {
       if (isTRUE(state$comparison_busy)) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
-      if (!is.null(state$preview_job) && state$preview_job$is_alive() && state$preview_target == "als-tile-cloud") {
+      if (!is.null(state$preview_job) && state$preview_job$is_alive()) {
         shiny::showNotification("Wait for the tile preview before starting another transfer."); return()
       }
       if (!is.null(state$job) && state$job$is_alive()) {shiny::showNotification("A download is already running."); return()}
@@ -338,6 +344,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       shiny::req(input$point_file)
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) return()
       state$preview_target <- "als-cloud"
+      state$preview_label <- input$point_file$name
       state$previewtext <- "Reading a bounded point sample..."
       preview_path <- tempfile(fileext = paste0(".", tools::file_ext(input$point_file$name)))
       state$preview_path <- preview_path
@@ -347,7 +354,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         alsdownloader:::read_forest_preview(path, percent, window, x, y, voxel)
       }, args = list(preview_path, input$local_percent, as.numeric(input$local_window), input$local_center_x, input$local_center_y, as.numeric(input$local_voxel)), supervise = TRUE)
     })
-    shiny::observeEvent(input$plot_tile, {
+    shiny::observeEvent(c(input$plot_tile, input$replot_tile), ignoreInit = TRUE, {
       if (isTRUE(state$comparison_busy)) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
       if (!is.null(state$job) && state$job$is_alive()) {
         shiny::showNotification("Wait for the current download before plotting a remote tile."); return()
@@ -366,16 +373,17 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         }
         state$lock_owned <- TRUE; state$preview_locked <- TRUE
       }
-      state$preview_target <- "als-tile-cloud"
+      state$preview_target <- "als-cloud"
+      shiny::updateTabsetPanel(session, "view", selected = "3D preview")
       state$preview_label <- tile$filename[[1]]
-      state$tiletext <- paste("Downloading and sampling:", state$preview_label)
-      session$sendCustomMessage("als-points", list(target = "als-tile-cloud", points = list(), origin = c(0, 0, 0)))
+      state$previewtext <- paste("Downloading and sampling:", state$preview_label)
+      session$sendCustomMessage("als-points", list(target = "als-cloud", points = list(), origin = c(0, 0, 0)))
       state$preview_path <- tempfile(fileext = ".laz")
       tryCatch({state$preview_job <- callr::r_bg(function(tile, path, percent, window, x, y, voxel)
         alsdownloader:::preview_remote_tile(tile, path = path, reader = function(file) alsdownloader:::read_forest_preview(file, percent, window, x, y, voxel)),
-        args = list(tile, state$preview_path, input$tile_percent, as.numeric(input$tile_window), input$tile_center_x, input$tile_center_y, as.numeric(input$tile_voxel)), supervise = TRUE)}, error = function(e) {
+        args = list(tile, state$preview_path, input$local_percent, as.numeric(input$local_window), input$local_center_x, input$local_center_y, as.numeric(input$local_voxel)), supervise = TRUE)}, error = function(e) {
           if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
-          state$tiletext <- "Could not start the preview process."
+          state$previewtext <- "Could not start the preview process."
         })
     })
     shiny::observe({
@@ -388,7 +396,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       tryCatch({p <- job$get_result()
         caption <- paste(nrow(p), "preview points. Elevation uses source units; confirm CRS and vertical datum.")
         if (!is.null(attr(p, "display_note"))) caption <- paste(caption, attr(p, "display_note"))
-        if (state$preview_target == "als-cloud") state$previewtext <- caption
+        if (state$preview_target == "als-cloud") state$previewtext <- paste(state$preview_label, "-", caption)
         else state$tiletext <- paste(state$preview_label, "-", caption)
         session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), origin = unname(attr(p, "origin"))))},
         error = function(e) {
@@ -399,14 +407,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     output$preview_status <- shiny::renderText(state$previewtext)
     output$tile_preview_status <- shiny::renderText(state$tiletext)
     shiny::observeEvent(input$local_pose, session$sendCustomMessage("als-view", list(target = "als-cloud", pose = input$local_pose)))
-    shiny::observeEvent(input$tile_pose, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", pose = input$tile_pose)))
     shiny::observeEvent(input$local_point_size, session$sendCustomMessage("als-view", list(target = "als-cloud", pointSize = input$local_point_size)))
-    shiny::observeEvent(input$tile_point_size, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", pointSize = input$tile_point_size)))
     shiny::observeEvent(input$exaggeration, session$sendCustomMessage("als-view", list(target = "als-cloud", exaggeration = input$exaggeration)))
-    shiny::observeEvent(input$tile_exaggeration, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", exaggeration = input$tile_exaggeration)))
     shiny::observeEvent(input$palette, session$sendCustomMessage("als-view", list(target = "als-cloud", palette = input$palette)))
-    shiny::observeEvent(input$tile_palette, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", palette = input$tile_palette)))
-    shiny::observeEvent(input$tile_fit, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", fit = TRUE)))
     session$onSessionEnded(function() shiny::isolate({
       if (!is.null(state$job) && state$job$is_alive()) state$job$kill_tree()
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) state$preview_job$kill_tree()

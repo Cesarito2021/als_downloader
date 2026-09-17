@@ -26,3 +26,7 @@ Imagery credits include Esri and the imagery contributors displayed on the map.
 Attribution must remain visible in map captures; imagery retains its source terms.
 https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040
 Imagery dates are independent of LiDAR acquisition dates.
+
+The welcome globe is an original canvas rendering of the bundled Natural Earth /
+World Atlas country outlines. It uses no Apple imagery or proprietary globe tiles.
+Its country tint indicates catalog presence only, not measured LiDAR coverage.

@@ -125,3 +125,14 @@ alongside the access link and existing fields. All new values survived Unicode/U
 GitHub drafts and the downloaded text proposal. Review gating, access from another tab and 390 px layout passed
 without JavaScript errors. No email or GitHub issue was sent. The GitHub suggestion template requests the same
 metadata; its hosted submission flow was not exercised. The README form screenshot was refreshed.
+
+## Welcome globe and shared preview — 17 September 2026
+
+The existing 105 package assertions passed; installation succeeded with the known locale and Shiny build warnings.
+Live Edge verified the initial globe, keyboard rotation, opening the map, rejected empty selection, seven-tile
+USGS search, and automatic navigation from Plot selected tile to the single 3D preview. The real remote tile
+`USGS_LPC_UT_StatewideSouth_2020_A20_12SUH7020.copc.laz` displayed 61,230 sampled points at the 2% reader target.
+Palette switching and 390 px layouts passed without JavaScript errors. Country shading is catalog presence,
+not survey coverage. The globe uses bundled Natural Earth / World Atlas outlines with an original canvas
+renderer; the basemap still requires its external imagery service. The duplicate map figure was removed
+from the README and replaced by one refreshed satellite capture with A–F annotations.

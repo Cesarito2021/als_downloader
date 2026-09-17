@@ -21,7 +21,7 @@ The reader retains approximately **2%** of its 33,845,306 records; a central win
 The camera is set to **Forest silhouette**, with vertical scale **1:1**. No denoising, terrain normalization or synthetic trees were applied.
 It is a visualization example, not a newly verified geographic data source. [Capture settings](docs/images/forest-capture-provenance.json).
 
-Open **Forest close-up and display sampling** in either preview workflow to change the reader percentage,
+Open **Forest close-up and display sampling** in the shared **3D preview** to change the reader percentage,
 window size/position, optional voxel spacing, camera preset and point size. Rebuild after changing sampling or the window.
 Camera and point-size changes are immediate. The bounded reader pool can reduce the requested percentage on very large files;
 the status reports the effective sampling and the display contains at most 150,000 points.
@@ -44,25 +44,19 @@ This bounded preview downloads source files temporarily and supports AOIs up to 
 Live USGS example: 12,525 points in A and 24,390 in B. This demonstrates overlay and campaign selection,
 not a validated change between years: the provider reports an invalid date interval for A.
 
-### Satellite context and a selected tile in 3D
+### Start with a world view
 
-![Live Esri satellite basemap with translucent USGS footprints and the selected tile plotted below](docs/images/interface-rgb-tile.png)
+![Interactive welcome globe using Natural Earth cartography](docs/images/interface-globe.png)
 
-Use the layer switcher to choose **Satellite RGB** or **Terrain relief**. Imagery is visual context;
-its capture date can differ from the LiDAR survey. Footprints remain translucent and attribution stays visible.
-Click a footprint or select exactly one result, check its filename, then choose **Plot selected tile**.
-The plot appears below the results in the same Explore tab.
-
-The viewer fits and orients the point sample automatically. Drag to orbit, scroll to zoom, or use **Fit landscape**.
-Choose **Viridis** or **Magma** and adjust the explicitly labelled vertical exaggeration (initially 1×).
-Colors represent source elevation, not normalized tree height; vegetation detail depends on the source and sampling.
-This preview temporarily downloads **one complete source tile up to 200 MB**, builds a reader pool of at most **750,000 points**, then displays at most **150,000 points**;
-it is not a remote COPC streaming viewer. Known file size and `lidR` are required. Temporary files are cleaned up after processing/session exit.
-The local upload preview remains available in **3D preview**. The earlier annotated screenshots below document the same core workflow before this map update.
+The opening globe uses bundled [Natural Earth public-domain cartography](https://www.naturalearthdata.com/about/terms-of-use/), rendered locally without Apple imagery. Drag or use arrow keys to rotate, then choose **Open map**.
+Dark green at **0.10 opacity** marks countries with catalog sources, including discovery-only entries; it does not represent measured coverage or nationwide download availability.
 
 ### Explore → define an area → find tiles → download
 
-![ALS Downloader running a real USGS search, with red boxes A–F identifying the main controls](docs/images/interface-explore.png)
+![Satellite map and real USGS search, with red boxes A–F identifying the main controls](docs/images/interface-rgb-tile.png)
+
+Use the layer switcher for **Satellite RGB** or **Terrain relief**. Imagery is visual context and may have a different date from the LiDAR survey. Returned tile footprints are translucent and map attribution stays visible.
+Click a footprint or select exactly one table result, then choose **Plot selected tile in 3D**. This opens **3D preview** automatically; there is one shared point-cloud viewer for selected tiles and local files.
 
 | Section | What it does | What to do |
 |---|---|---|
@@ -75,9 +69,9 @@ The local upload preview remains available in **3D preview**. The earlier annota
 
 Live application capture, 17 September 2026: a small Utah AOI with seven USGS results.
 Output paths shown are examples. Missing sizes remain blank; unknown dates are retained in searches.
-The optional terrain backdrop depends on an external map service.
+The satellite and terrain backdrops depend on external map services; the welcome globe uses bundled cartography.
 
-### Inspect a local point cloud
+### Inspect a selected tile or local point cloud
 
 ![Actual LAS/LAZ preview with red boxes G–I around upload controls, the point cloud and vertical exaggeration](docs/images/interface-preview.png)
 
@@ -86,6 +80,9 @@ The optional terrain backdrop depends on an external map service.
 | **G · Preview input** | Reads an uploaded LAS/LAZ file into a bounded sample. | Upload one tile, configure **Forest close-up and display sampling**, then **Build bounded preview**. Requires `lidR`. |
 | **H · 3D view** | Displays source elevation with a Viridis color scale. | Drag or use arrow keys to rotate; scroll or `+`/`-` to zoom; `0` resets. |
 | **I · Vertical exaggeration** | Changes the visual height scale. | Adjust for inspection; the original file remains unchanged. |
+
+For a map tile, adjust the shared sampling controls and choose **Rebuild selected map tile**. Alternatively, upload a local LAS/LAZ file and choose **Build bounded preview**.
+Remote preview downloads one complete source tile up to 200 MB temporarily; its reader pool is capped at 750,000 points and the displayed sample at 150,000. This is not COPC range streaming. Requires a known file size and `lidR`; temporary files are cleaned up after processing or session exit.
 
 The example displays 58,648 points from the supplied biomass forest exercise file, using the settings described above.
 Colors show source elevation, **not canopy height**. Confirm coordinate units and vertical datum.

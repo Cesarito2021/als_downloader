@@ -1,5 +1,8 @@
 # alsdownloader 0.1.0.9001
 
+* Add a rotatable welcome globe rendered from bundled Natural Earth cartography; catalog countries use a dark-green 0.10-opacity tint. Open map continues to AOI discovery.
+* Route selected map tiles to the shared 3D preview instead of a duplicate viewer under Explore. Consolidate the README map guide into one annotated satellite capture.
+
 * Require separate source proposal fields for the access link, storage host/location, short description, acknowledgement and dataset DOI/original platform in Shiny and the GitHub template; include them in all proposal drafts and text exports.
 
 * Add display-only forest windows, adjustable reader sampling (2% target by default), optional voxel thinning, point size and a silhouette camera at 1:1 vertical scale; replace the representative preview with a real forest close-up from the supplied biomass example.
