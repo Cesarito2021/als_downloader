@@ -137,11 +137,12 @@ Requires **R ≥ 4.1** and the system dependencies of `sf`.
 
 ```r
 install.packages("remotes")
-remotes::install_github("Cesarito2021/als_downloader")
+remotes::install_github("Cesarito2021/als_downloader", ref = "main")
 install.packages("lidR") # optional: LAS/LAZ preview
 alsdownloader::launch_app()
 ```
 
+Alternatively, [download ALS Downloader as a ZIP](https://github.com/Cesarito2021/als_downloader/archive/refs/heads/main.zip) from the main branch and extract it.
 From a downloaded or cloned repository, run `remotes::install_local(".")`, then `alsdownloader::launch_app()`.
 The root `app.R` also starts Shiny after package installation. Installation is explicit; startup does not install packages.
 
