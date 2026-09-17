@@ -21,7 +21,7 @@ The active repository contains the current package application. Previous standal
 # Temporary tile previews
 
 The Explore preview accepts one selected LAS/LAZ result with a known HTTP file size up to 200 MB.
-It downloads the complete source file temporarily and samples at most 100,000 points in a background process;
+It downloads the complete source file temporarily, reads a pool of at most 750,000 points and displays at most 150,000 points in a background process;
 this is not a remote range/COPC streaming service. `lidR` is required. Temporary files are removed after processing or session shutdown.
 In hosted mode, remote previews share the existing transfer lock with downloads; a session cannot begin a download and remote preview concurrently.
 RGB imagery is requested directly by the browser from Esri and retains the map attribution and provider terms.

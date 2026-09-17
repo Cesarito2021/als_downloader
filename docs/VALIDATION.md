@@ -84,3 +84,21 @@ A separately labelled synthetic browser fixture verified the known +3/-2 m grid,
 CSV export, parseable provenance JSON and disabling exports after a vertical-reference mismatch.
 The synthetic fixture is a test, not an actual dataset included in the catalog.
 [Comparison method and limits](TEMPORAL_COMPARISON.md). Hosted multi-session comparison was not browser-tested.
+
+## Forest close-up preview — 17 September 2026
+
+The package suite passed **99 assertions**, including XY cropping, input preservation, selection of actual
+returns during voxel thinning, retention of an explicit elevation outlier without thinning, and display limits.
+Local installation succeeded; the existing Shiny build-version and locale warnings remain.
+
+The display design draws on the user's biomass `export_lidar_html` scripts. Live Edge checks loaded the
+user-supplied `03_04_exercise__laz.laz` forest exercise (33,845,306 source points). A reader target of 2%,
+a central window covering 25% of each XY axis, no voxel thinning and vertical exaggeration 1 produced
+**58,648 displayed points**. Viridis/Magma, camera controls and 390 px layout passed without JavaScript errors.
+No denoising or height normalization was applied. The file lacks usable CRS metadata and is an illustrative
+forest example, not a newly verified geographic source or evidence of interannual change.
+
+The README now uses the actual forest render and a newly annotated interface capture.
+[Capture settings and provenance](images/forest-capture-provenance.json).
+Display sampling is bounded at 750,000 reader points and 150,000 plotted points; source downloads and
+the separate campaign-comparison calculations are unchanged.

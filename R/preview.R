@@ -72,3 +72,63 @@ preview_remote_tile <- function(tile, max_bytes = 200 * 1024^2, path = tempfile(
     stop("Incomplete or invalid LAS/LAZ preview download.")
   reader(path)
 }
+
+# Display-only sampling inspired by the supplied biomass viewer. Source files and
+# comparison-analysis points are never rewritten or filtered by these controls.
+forest_display_sample <- function(points, window = 100, center_x = 50, center_y = 50,
+                                  voxel = 0, max_points = 150000L) {
+  p <- as.data.frame(points)[c("X", "Y", "Z")]
+  p <- p[is.finite(p$X) & is.finite(p$Y) & is.finite(p$Z), , drop = FALSE]
+  if (!nrow(p)) stop("No finite display points.")
+  if (!is.finite(window) || window < 5 || window > 100 ||
+      any(!is.finite(c(center_x, center_y))) || any(c(center_x, center_y) < 0 | c(center_x, center_y) > 100))
+    stop("Invalid display window or center.")
+  if (!is.finite(voxel) || voxel < 0) stop("Invalid display voxel size.")
+  if (window < 100) {
+    axis_bounds <- function(x, center) {
+      extent <- range(x); width <- diff(extent) * window / 100
+      low <- min(max(extent[1], extent[1] + diff(extent) * center / 100 - width / 2), extent[2] - width)
+      c(low, low + width)
+    }
+    xb <- axis_bounds(p$X, center_x); yb <- axis_bounds(p$Y, center_y)
+    p <- p[p$X >= xb[1] & p$X <= xb[2] & p$Y >= yb[1] & p$Y <= yb[2], , drop = FALSE]
+  }
+  if (!nrow(p)) stop("The display window has no sampled points. Move its center or increase the reader percentage.")
+  if (voxel > 0) {
+    key <- paste(floor(p$X / voxel), floor(p$Y / voxel), floor(p$Z / voxel), sep = ":")
+    # A real return per occupied voxel; coordinates are never averaged or shifted.
+    p <- p[!duplicated(key), , drop = FALSE]
+  }
+  preview_points(p, max_points)
+}
+
+read_forest_preview <- function(path, percent = 2, window = 100, center_x = 50, center_y = 50,
+                                voxel = 0) {
+  if (!requireNamespace("lidR", quietly = TRUE)) stop("Install lidR to preview LAS/LAZ files.")
+  if (!is.finite(percent) || percent < .1 || percent > 100) stop("Choose a display percentage between 0.1 and 100.")
+  h <- lidR::readLASheader(path)
+  n <- h@PHB[["Extended Number of point records"]]
+  if (is.null(n) || n == 0) n <- h@PHB[["Number of point records"]]
+  if (is.null(n) || !is.finite(n) || n < 1) stop("Missing LAS point count.")
+  every <- max(1, ceiling(100 / percent), ceiling(n / 750000))
+  las <- lidR::readLAS(path, select = "xyz", filter = paste("-keep_every_nth", every))
+  if (is.null(las) || !nrow(las@data)) stop("No points read for display.")
+  out <- forest_display_sample(las@data, window, center_x, center_y, voxel)
+  attr(out, "display_note") <- sprintf("%s source points; reader retains about %.2f%% (bounded pool); XY window %.0f%% of each axis; %s. No denoising or height normalization.",
+    format(n, scientific = FALSE, trim = TRUE), 100 / every, window,
+    if (voxel > 0) paste("one sampled return per", voxel, "source-unit voxel") else "no voxel thinning")
+  out
+}
+
+forest_preview_controls <- function(prefix) {
+  shiny::tags$details(shiny::tags$summary("Forest close-up and display sampling"),
+    shiny::helpText("Choose a small wooded window to see crown silhouettes. These controls affect the preview only; no noise removal, normalization or changes to downloaded files. Rebuild the preview after changes."),
+    shiny::numericInput(paste0(prefix, "percent"), "Reader sampling target (%)", 2, min = .1, max = 100, step = .5),
+    shiny::selectInput(paste0(prefix, "window"), "XY display window", c("Full tile" = 100, "Close-up: 25% of each axis" = 25, "Detail: 10% of each axis" = 10), selected = 100),
+    shiny::sliderInput(paste0(prefix, "center_x"), "Window center X (%)", 0, 100, 50),
+    shiny::sliderInput(paste0(prefix, "center_y"), "Window center Y (%)", 0, 100, 50),
+    shiny::selectInput(paste0(prefix, "voxel"), "Optional spatial thinning (source coordinate units)", c("None" = 0, "0.5-unit voxels" = .5, "1-unit voxels" = 1, "2-unit voxels" = 2)),
+    shiny::selectInput(paste0(prefix, "pose"), "Camera", c("Forest silhouette" = "forest", "Oblique overview" = "overview")),
+    shiny::sliderInput(paste0(prefix, "point_size"), "Display point size", .7, 3, 1.5, step = .1),
+    shiny::helpText("Reader pool: at most 750,000 points; display: at most 150,000. Very large files may retain less than the requested percentage. This is not automatic forest detection."))
+}

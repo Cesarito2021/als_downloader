@@ -1,0 +1,18 @@
+{
+  "captured": "2026-09-17T17:00:26.887Z",
+  "source": "User-supplied biomass_app/app/data/03_04_exercise__laz.laz",
+  "status": "58648 preview points. Elevation uses source units; confirm CRS and vertical datum. 33845306 source points; reader retains about 2.00% (bounded pool); XY window 25% of each axis; no voxel thinning. No denoising or height normalization.",
+  "settings": {
+    "readerPercent": 2,
+    "windowEachXYAxisPercent": 25,
+    "center": [
+      50,
+      50
+    ],
+    "voxel": 0,
+    "exaggeration": 1,
+    "pose": "forest",
+    "pointSize": 1.5
+  },
+  "errors": []
+}

@@ -9,6 +9,7 @@
   function viewer(c) {
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=1.08,exag=2,zoom=1,drag=null,palette='Viridis';
     let groups=[],paletteB='Magma',showA=true,showB=true;
+    let initialPitch=1.08,pointSize=1.8;
     function draw() {
       if (!c.clientWidth) return;
       const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
@@ -35,7 +36,7 @@
       for(const p of ordered){
         if((p[4]===0&&!showA)||(p[4]===1&&!showB))continue;
         ctx.fillStyle=(p[4]===1?lutB:lut)[Math.round(255*p[3]/(extent[2]||1))];
-        ctx.fillRect((p[0]-(xmin+xmax)/2)*scale+w/2,(p[1]-(ymin+ymax)/2)*scale+(h-45)/2,1.8,1.8);
+        ctx.fillRect((p[0]-(xmin+xmax)/2)*scale+w/2,(p[1]-(ymin+ymax)/2)*scale+(h-45)/2,pointSize,pointSize);
       }
       function legend(name,x,width,label){
         ctx.textAlign='left';const stops=palettes[name];const gradient=ctx.createLinearGradient(x,0,x+width,0);
@@ -51,7 +52,7 @@
       if(groups.length)legend(paletteB,w-20-legendWidth,legendWidth,'B');
       if(groups.length){ctx.textAlign='left';ctx.fillStyle='#e0eaf0';ctx.fillText('A: '+palette+(showA?'':' (hidden)')+' | B: '+paletteB+(showB?'':' (hidden)'),20,20);}
     }
-    function fit(){yaw=initialYaw;pitch=1.08;zoom=1;draw();}
+    function fit(){yaw=initialYaw;pitch=initialPitch;zoom=1;draw();}
     c.onpointerdown=e=>{drag=[e.clientX,e.clientY];c.setPointerCapture(e.pointerId);c.focus();};
     c.onpointermove=e=>{if(!drag)return;yaw+=(e.clientX-drag[0])*.008;pitch=Math.max(.1,Math.min(1.5,pitch+(e.clientY-drag[1])*.008));drag=[e.clientX,e.clientY];draw();};
     c.onpointerup=c.onpointercancel=()=>drag=null;
@@ -73,6 +74,8 @@
       initialYaw=-.5*Math.atan2(2*(sxy-sx*sy/n),sxx-sx*sx/n-syy+sy*sy/n);
       fit();},
       update(data){if(data.exaggeration!=null)exag=data.exaggeration;if(palettes[data.palette])palette=data.palette;
+        if(data.pointSize!=null)pointSize=Math.max(.7,Math.min(3,data.pointSize));
+        if(data.pose){initialPitch=data.pose==='forest'?1.38:1.08;fit();}
         if(palettes[data.paletteB])paletteB=data.paletteB;if(data.showA!=null)showA=data.showA;if(data.showB!=null)showB=data.showB;
         if(data.fit)fit();else draw();}};
   }

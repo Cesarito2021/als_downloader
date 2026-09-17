@@ -8,7 +8,6 @@
   "errors": [],
   "annotations": "Red HTML overlays identifying controls; application data and controls are unmodified. Example directory inputs set through the UI.",
   "files": [
-    "interface-explore.png",
-    "interface-preview.png"
+    "interface-explore.png"
   ]
 }

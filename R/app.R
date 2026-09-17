@@ -81,20 +81,22 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
               shiny::h3("Selected tile | 3D landscape"),
               shiny::helpText("Click a tile footprint or select one table row, then plot it. Preview downloads one source file (up to 200 MB) temporarily; source elevation is not canopy height."),
               shiny::actionButton("plot_tile", "Plot selected tile", class = "als-primary"),
+              forest_preview_controls("tile_"),
               shiny::textOutput("tile_selection"),
               shiny::textOutput("tile_preview_status"),
               shiny::tags$canvas(id = "als-tile-cloud", class = "als-point-cloud", role = "img", tabindex = "0", `aria-label` = "Selected tile point cloud. Arrow keys rotate; plus and minus zoom; zero fits the view."),
               shiny::fluidRow(shiny::column(4, shiny::selectInput("tile_palette", "Elevation palette", c("Viridis", "Magma"))),
-                shiny::column(4, shiny::sliderInput("tile_exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 2, step = 1)),
+                shiny::column(4, shiny::sliderInput("tile_exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 1, step = 1)),
                 shiny::column(4, shiny::actionButton("tile_fit", "Fit landscape"))),
               shiny::div(class = "map-caption", "Drag to orbit | scroll to zoom | double-click to fit. Display sample only; source files are unchanged."))),
           shiny::tabPanel("3D preview", shiny::fileInput("point_file", "Upload a local LAS/LAZ tile (up to 200 MB)", accept = c(".las", ".laz")),
+            forest_preview_controls("local_"),
             shiny::actionButton("preview", "Build bounded preview"),
             shiny::helpText("Preview decimation does not alter your source file. Large local tiles can also be read with read_preview() in R."),
             shiny::textOutput("preview_status"),
             shiny::tags$canvas(id = "als-cloud", role = "img", tabindex = "0", `aria-label` = "Interactive point-cloud preview. Arrow keys rotate; plus and minus zoom; zero resets."),
             shiny::selectInput("palette", "Elevation palette", c("Viridis", "Magma")),
-            shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 2, step = 1),
+            shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 1, step = 1),
             shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Colors show source elevation, not canopy height.")),
           comparison_ui(),
           shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Zenodo entries are complementary research deposits, not official national coverage. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have a search adapter. Verify dataset terms and citations before downloading."),
@@ -335,10 +337,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       preview_path <- tempfile(fileext = paste0(".", tools::file_ext(input$point_file$name)))
       state$preview_path <- preview_path
       file.copy(input$point_file$datapath, preview_path)
-      state$preview_job <- callr::r_bg(function(path) {
+      state$preview_job <- callr::r_bg(function(path, percent, window, x, y, voxel) {
         on.exit(unlink(path))
-        alsdownloader::read_preview(path, 50000L)
-      }, args = list(preview_path), supervise = TRUE)
+        alsdownloader:::read_forest_preview(path, percent, window, x, y, voxel)
+      }, args = list(preview_path, input$local_percent, as.numeric(input$local_window), input$local_center_x, input$local_center_y, as.numeric(input$local_voxel)), supervise = TRUE)
     })
     shiny::observeEvent(input$plot_tile, {
       if (isTRUE(state$comparison_busy)) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
@@ -364,8 +366,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       state$tiletext <- paste("Downloading and sampling:", state$preview_label)
       session$sendCustomMessage("als-points", list(target = "als-tile-cloud", points = list(), origin = c(0, 0, 0)))
       state$preview_path <- tempfile(fileext = ".laz")
-      tryCatch({state$preview_job <- callr::r_bg(function(tile, path) alsdownloader:::preview_remote_tile(tile, path = path),
-        args = list(tile, state$preview_path), supervise = TRUE)}, error = function(e) {
+      tryCatch({state$preview_job <- callr::r_bg(function(tile, path, percent, window, x, y, voxel)
+        alsdownloader:::preview_remote_tile(tile, path = path, reader = function(file) alsdownloader:::read_forest_preview(file, percent, window, x, y, voxel)),
+        args = list(tile, state$preview_path, input$tile_percent, as.numeric(input$tile_window), input$tile_center_x, input$tile_center_y, as.numeric(input$tile_voxel)), supervise = TRUE)}, error = function(e) {
           if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
           state$tiletext <- "Could not start the preview process."
         })
@@ -379,6 +382,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       if (!is.null(state$preview_path)) unlink(state$preview_path)
       tryCatch({p <- job$get_result()
         caption <- paste(nrow(p), "preview points. Elevation uses source units; confirm CRS and vertical datum.")
+        if (!is.null(attr(p, "display_note"))) caption <- paste(caption, attr(p, "display_note"))
         if (state$preview_target == "als-cloud") state$previewtext <- caption
         else state$tiletext <- paste(state$preview_label, "-", caption)
         session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), origin = unname(attr(p, "origin"))))},
@@ -389,6 +393,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     })
     output$preview_status <- shiny::renderText(state$previewtext)
     output$tile_preview_status <- shiny::renderText(state$tiletext)
+    shiny::observeEvent(input$local_pose, session$sendCustomMessage("als-view", list(target = "als-cloud", pose = input$local_pose)))
+    shiny::observeEvent(input$tile_pose, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", pose = input$tile_pose)))
+    shiny::observeEvent(input$local_point_size, session$sendCustomMessage("als-view", list(target = "als-cloud", pointSize = input$local_point_size)))
+    shiny::observeEvent(input$tile_point_size, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", pointSize = input$tile_point_size)))
     shiny::observeEvent(input$exaggeration, session$sendCustomMessage("als-view", list(target = "als-cloud", exaggeration = input$exaggeration)))
     shiny::observeEvent(input$tile_exaggeration, session$sendCustomMessage("als-view", list(target = "als-tile-cloud", exaggeration = input$tile_exaggeration)))
     shiny::observeEvent(input$palette, session$sendCustomMessage("als-view", list(target = "als-cloud", palette = input$palette)))

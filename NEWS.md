@@ -1,5 +1,7 @@
 # alsdownloader 0.1.0.9001
 
+* Add display-only forest windows, adjustable reader sampling (2% target by default), optional voxel thinning, point size and a silhouette camera at 1:1 vertical scale; replace the representative preview with a real forest close-up from the supplied biomass example.
+
 * Add campaign-specific download selection, AOI-clipped dual-cloud overlays and independent palettes.
 * Add exploratory shared-grid P95 elevation differences with date/CRS/vertical-reference checks and CSV/JSON export; missing coverage never becomes zero change.
 

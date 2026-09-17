@@ -1,0 +1,18 @@
+test_that("display crop and voxel thinning keep actual source coordinates", {
+  points <- expand.grid(X=0:20,Y=0:20,Z=0:4)
+  original <- points
+  crop <- alsdownloader:::forest_display_sample(points,25,50,50,0)
+  restored <- as.data.frame(Map(`+`,crop,attr(crop,'origin')))
+  expect_true(all(restored$X>=7.5 & restored$X<=12.5))
+  expect_true(all(restored$Y>=7.5 & restored$Y<=12.5))
+  expect_equal(points,original)
+  voxel <- alsdownloader:::forest_display_sample(points,100,50,50,2)
+  coordinates <- as.data.frame(Map(`+`,voxel,attr(voxel,'origin')))
+  expect_lt(nrow(voxel),nrow(points))
+  expect_true(all(paste(coordinates$X,coordinates$Y,coordinates$Z) %in% paste(points$X,points$Y,points$Z)))
+  extreme <- rbind(points,data.frame(X=10,Y=10,Z=999))
+  full <- alsdownloader:::forest_display_sample(extreme)
+  expect_equal(max(full$Z)+attr(full,'origin')[['Z']],999)
+  expect_lte(nrow(alsdownloader:::forest_display_sample(points,max_points=100)),100)
+  expect_error(alsdownloader:::forest_display_sample(points,window=0),'Invalid')
+})

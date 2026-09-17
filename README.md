@@ -12,6 +12,21 @@ Other sources are reviewed links for discovery; they do not yet have download ad
 
 ## User interface
 
+### A close-up of the forest canopy
+
+![Forest crown silhouettes in a real point-cloud preview, with Viridis elevation colors and no vertical exaggeration](docs/images/forest-closeup-viridis.png)
+
+This example uses the forest exercise file supplied with the maintainer's biomass application.
+The reader retains approximately **2%** of its 33,845,306 records; a central window spanning **25% of each XY axis** shows **58,648 points**.
+The camera is set to **Forest silhouette**, with vertical scale **1:1**. No denoising, terrain normalization or synthetic trees were applied.
+It is a visualization example, not a newly verified geographic data source. [Capture settings](docs/images/forest-capture-provenance.json).
+
+Open **Forest close-up and display sampling** in either preview workflow to change the reader percentage,
+window size/position, optional voxel spacing, camera preset and point size. Rebuild after changing sampling or the window.
+Camera and point-size changes are immediate. The bounded reader pool can reduce the requested percentage on very large files;
+the status reports the effective sampling and the display contains at most 150,000 points.
+Downloads and temporal-comparison calculations are unaffected by these display controls.
+
 ### Compare campaigns and download each separately
 
 After an AOI search, open **Compare campaigns** and choose reference **A** and later **B**.
@@ -38,12 +53,10 @@ its capture date can differ from the LiDAR survey. Footprints remain translucent
 Click a footprint or select exactly one result, check its filename, then choose **Plot selected tile**.
 The plot appears below the results in the same Explore tab.
 
-![Real USGS tile displayed as an oblique landscape with Viridis source-elevation colors](docs/images/tile-viridis.png)
-
 The viewer fits and orients the point sample automatically. Drag to orbit, scroll to zoom, or use **Fit landscape**.
-Choose **Viridis** or **Magma** and adjust the explicitly labelled vertical exaggeration (initially 2×).
+Choose **Viridis** or **Magma** and adjust the explicitly labelled vertical exaggeration (initially 1×).
 Colors represent source elevation, not normalized tree height; vegetation detail depends on the source and sampling.
-This preview temporarily downloads **one complete source tile up to 200 MB**, then reads at most **100,000 points**;
+This preview temporarily downloads **one complete source tile up to 200 MB**, builds a reader pool of at most **750,000 points**, then displays at most **150,000 points**;
 it is not a remote COPC streaming viewer. Known file size and `lidR` are required. Temporary files are cleaned up after processing/session exit.
 The local upload preview remains available in **3D preview**. The earlier annotated screenshots below document the same core workflow before this map update.
 
@@ -70,11 +83,11 @@ The optional terrain backdrop depends on an external map service.
 
 | Section | What it does | What to do |
 |---|---|---|
-| **G · Preview input** | Reads an uploaded LAS/LAZ file into a bounded sample. | Upload one tile and choose **Build bounded preview**. Requires `lidR`. |
+| **G · Preview input** | Reads an uploaded LAS/LAZ file into a bounded sample. | Upload one tile, configure **Forest close-up and display sampling**, then **Build bounded preview**. Requires `lidR`. |
 | **H · 3D view** | Displays source elevation with a Viridis color scale. | Drag or use arrow keys to rotate; scroll or `+`/`-` to zoom; `0` resets. |
 | **I · Vertical exaggeration** | Changes the visual height scale. | Adjust for inspection; the original file remains unchanged. |
 
-The example displays 47,020 sampled points from the downloaded USGS tile.
+The example displays 58,648 points from the supplied biomass forest exercise file, using the settings described above.
 Colors show source elevation, **not canopy height**. Confirm coordinate units and vertical datum.
 
 ## Data sources
@@ -231,6 +244,7 @@ For the Italian Sila dataset, we acknowledge **Nicola Puletti / CREA** and the A
 [Dataset citation and access evidence](docs/ITALY_PULETTI.md).
 
 The application builds on the R and Shiny ecosystems, including `sf`, Leaflet, DT and `lidR`.
+The forest-view controls follow the sampling, point-size and camera ideas in Cesar Alvites's supplied biomass visualization scripts (`export_lidar_html`).
 Country outlines derive from Natural Earth via World Atlas. Satellite imagery and terrain basemaps are provided by Esri and the contributors credited on the map.
 See [Esri basemap attribution guidance](https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040).
 See [third-party notices](inst/NOTICE). Dataset inclusion does not imply provider endorsement.
