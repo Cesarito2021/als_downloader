@@ -1,5 +1,7 @@
 # alsdownloader 0.1.0.9001
 
+* Default visual cloud overlays to solid grey for A and solid black for B on a white background, with cloud-identity legends and no elevation numbers for solid colours.
+
 * Make comparison opt-in with no default pair. Enable visualization only when the current AOI contains at least two campaigns and the chosen pair has eligible overlap up to 1 km².
 
 * Restrict comparison to visualization of two clouds within their shared footprint/AOI intersection, at most 1 km². Remove P95 grids, statistics, analysis exports and analytical preprocessing; retain display sampling and separate original-file downloads.

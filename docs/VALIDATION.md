@@ -172,3 +172,12 @@ There is no default pair. Opting out cancels the worker and clears the preview.
 The package suite passed 103 assertions. Live Edge verified the disabled initial state, selection
 without opt-in, enabling an eligible pair, opting out, and rejecting the same campaign twice.
 No point-cloud download was started by that browser check; no JavaScript errors occurred.
+
+## Grey/black visual overlay — 17 September 2026
+
+Comparison defaults to solid grey A and solid black B on a white canvas. Solid-colour legends identify
+clouds without an elevation ramp or numerical elevation bounds. The user assigns the first/earlier
+cloud to A and latest to B; no automatic chronology or difference calculation is introduced.
+A labelled synthetic browser fixture verified actual grey/black/white rendered pixels and hiding B,
+without JavaScript errors. The existing 103 package assertions passed with the previously recorded warning.
+No new LiDAR download was needed, and the README still has exactly three figures.

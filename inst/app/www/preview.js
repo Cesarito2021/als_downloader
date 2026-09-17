@@ -4,19 +4,23 @@
     Magma: [[0,0,4],[28,16,68],[79,18,123],[129,37,129],[181,54,122],[229,80,100],[251,135,97],[254,194,135],[252,253,191]],
     Plasma: [[13,8,135],[126,3,168],[204,71,120],[248,149,64],[240,249,33]],
     Cividis: [[0,34,78],[67,78,108],[125,124,120],[188,173,108],[254,232,56]],
+    Grey: [[150,150,150],[150,150,150]], Black: [[0,0,0],[0,0,0]],
     Cyan: [[0,220,240],[0,220,240]], Orange: [[255,150,50],[255,150,50]]
   };
   function viewer(c) {
+    const comparison=c.id==='als-compare-cloud';
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=1.08,exag=2,zoom=1,drag=null,palette='Viridis';
     let groups=[],paletteB='Magma',showA=true,showB=true;
     let initialPitch=1.08,pointSize=1.8;
+    if(comparison){palette='Grey';paletteB='Black';exag=1;}
     function draw() {
       if (!c.clientWidth) return;
       const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
       c.width=w*dpr;c.height=h*dpr;
       const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
-      ctx.fillStyle='#adbeca';ctx.font='12px system-ui';
-      if(!points.length){ctx.fillText('Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
+      if(comparison){ctx.fillStyle='#ffffff';ctx.fillRect(0,0,w,h);}
+      ctx.fillStyle=comparison?'#424242':'#adbeca';ctx.font='12px system-ui';
+      if(!points.length){ctx.fillText(comparison?'Choose two overlapping clouds to view together.':'Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
       const co=Math.cos(yaw),si=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
       let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
       const ordered=points.map((p,index)=>{
@@ -41,16 +45,17 @@
       function legend(name,x,width,label){
         ctx.textAlign='left';const stops=palettes[name];const gradient=ctx.createLinearGradient(x,0,x+width,0);
         stops.forEach((p,i)=>gradient.addColorStop(i/(stops.length-1),'rgb('+p.join(',')+')'));
-        ctx.fillStyle='rgba(8,14,20,.9)';ctx.fillRect(x-10,h-70,width+20,65);
+        ctx.fillStyle=comparison?'rgba(255,255,255,.95)':'rgba(8,14,20,.9)';ctx.fillRect(x-10,h-70,width+20,65);
         ctx.fillStyle=gradient;ctx.fillRect(x,h-40,width,7);
-        ctx.fillStyle='#c7d6df';ctx.fillText(label+' '+name+' · Z ×'+exag,x,h-50);
+        ctx.fillStyle=comparison?'#333333':'#c7d6df';ctx.fillText(label+' '+name+' · Z ×'+exag,x,h-50);
+        if(stops.every(p=>p.every((v,i)=>v===stops[0][i])))return;
         ctx.fillText(Number(origin[2]).toFixed(1),x,h-15);
         ctx.textAlign='right';ctx.fillText((Number(origin[2])+extent[2]).toFixed(1),x+width,h-15);
       }
       const legendWidth=groups.length?Math.min(180,(w-60)/2):180;
       legend(palette,20,legendWidth,groups.length?'A':'Elevation');
       if(groups.length)legend(paletteB,w-20-legendWidth,legendWidth,'B');
-      if(groups.length){ctx.textAlign='left';ctx.fillStyle='#e0eaf0';ctx.fillText('A: '+palette+(showA?'':' (hidden)')+' | B: '+paletteB+(showB?'':' (hidden)'),20,20);}
+      if(groups.length){ctx.textAlign='left';ctx.fillStyle=comparison?'#333333':'#e0eaf0';ctx.fillText('A: '+palette+(showA?'':' (hidden)')+' | B: '+paletteB+(showB?'':' (hidden)'),20,20);}
     }
     function fit(){yaw=initialYaw;pitch=initialPitch;zoom=1;draw();}
     c.onpointerdown=e=>{drag=[e.clientX,e.clientY];c.setPointerCapture(e.pointerId);c.focus();};
