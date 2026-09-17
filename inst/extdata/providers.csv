@@ -17,3 +17,4 @@ ornl,ORNL Amazon ALS,76,Brazil,FALSE,Earthdata access and dataset citation must 
 forestscan,ForestScan,266,Gabon,FALSE,Mixed TLS/UAV-LS/ALS collection; Lope archive lists TLS and UAV-LS; conventional ALS sample not verified,https://doi.org/10.5285/88a8620229014e0ebacf0606b302112d,2026-09-17
 linz,LINZ,554,New Zealand,FALSE,Open point clouds; collection adapter pending,https://www.linz.govt.nz/products-services/data/types-linz-data/elevation-data/access-elevation-data,2026-09-17
 elvis,ELVIS,36,Australia,FALSE,Portal ordering workflow; adapter pending,https://elevation.fsdf.org.au/,2026-09-17
+sila_zenodo,Sila National Park ALS - Nicola Puletti / CREA,380,Italy,FALSE,Zenodo CC BY 4.0; original July 2019 ALS sample records verified; local study only; AOI adapter pending,https://zenodo.org/records/3633629,2026-09-17

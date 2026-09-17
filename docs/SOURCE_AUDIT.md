@@ -1,15 +1,16 @@
 # Source and access review
 
-Reviewed on **17 September 2026**. All 45 supplied records were considered, including repeated entries.
+Reviewed on **17 September 2026**. All 45 original supplied records were considered, including repeated entries.
+The subsequent Nicola Puletti search adds one Italian ALS source, bringing the current inventory to **46 records**; see [Italy details](ITALY_PULETTI.md).
 Original country labels, descriptions and URLs are preserved for traceability in
 [dataset-candidates.csv](dataset-candidates.csv); use the added review columns as the current assessment.
 Repeated records do not establish additional coverage. No new national download adapter was enabled by this review.
 
 ## What was checked
 
-* **HTTP reachability:** bounded GET requests, redirects and titles, with TLS verification enabled. Final sweep: 48 URLs, 43 HTTP 200 responses, two HTTP 403 responses, two NEON certificate failures and one EMBRAPA timeout. Results in [link-checks.csv](link-checks.csv).
+* **HTTP reachability:** bounded GET requests, redirects and titles, with TLS verification enabled. Original sweep plus the Italian record/API checks: 50 URLs, 45 HTTP 200 responses, two HTTP 403 responses, two NEON certificate failures and one EMBRAPA timeout. Results in [link-checks.csv](link-checks.csv).
 * **Identity and scope:** official product pages, dataset metadata, DOI registries and provider documentation. A homepage or DOI resolving successfully does not prove a point-cloud download.
-* **File access:** Canadian COPC header read anonymously; Swiss ZIP downloaded and 930 LAS points decoded using `lidR`. Results and SHA-256 in [file-access-checks.csv](file-access-checks.csv).
+* **File access:** Canadian COPC header read anonymously; Swiss ZIP downloaded and 930 LAS points decoded using `lidR`; 1,024 original Italian ALS point records decoded from bounded HTTP ranges. Results and SHA-256 in [file-access-checks.csv](file-access-checks.csv).
 * **Earlier integrated samples:** USGS, Australia, Brazil and New Zealand ALS files were decoded on 16 September. Taiwan was also decoded but is photogrammetry. See [validation.csv](validation.csv).
 
 HTTP failures remain explicit. Initial requests failed certificate verification for Sweden, Finland, Poland and NEON. Sweden, Finland and Poland subsequently returned HTTP 200 with verification enabled; two NEON website pages still failed. The NEON product portal returned HTTP 200 and its official tutorial was reviewed through web search. Certificates were not bypassed.
@@ -33,6 +34,7 @@ The table groups exact duplicate submissions; country/site variants remain expli
 
 | Country / region | Reviewed source | Product / status | Finding and access limitation |
 |---|---|---|---|
+| Italy — Sila National Park | [Zenodo / Nicola Puletti](https://zenodo.org/records/3633629) | ALS plus separate mobile TLS; bounded original ALS sample verified | CC BY 4.0; July 2019 ALS. Two ranges, 94,208 bytes read, 1,024 XYZ records decoded; full file/checksum and AOI adapter pending. [Details](ITALY_PULETTI.md). |
 | Brazil (Mato Grosso, Amazonas, Pará) | [Source](https://zenodo.org/records/7636454) | ALS point clouds in ZIP; Metadata and file listing verified | EBA transects; record credits Ometto et al.; CC BY 4.0. Large archives listed; full download not tested. |
 | Brazil (multiple biomes) | [Source](https://www.embrapa.br/en/busca-de-noticias/-/noticia/15706279/web-system-offers-lidar-data-on-brazilian-biomes) | Discovery/news; Landing page only | News page is reachable but displays an election-period content restriction. This is not a file endpoint; use the ORNL Brazil record for documented data. Final recheck timed out; initial HTTP 200 content inspection only. |
 | French Guiana | [Source](https://catalogue.ceda.ac.uk/uuid/1d554ff41c104491ac3661c6f6f52aab/) | ALS LAZ; Public file directory verified | Paracou November 2019; CC BY 4.0; public LAZ directory reachable. Full point-stream decoding not tested. |

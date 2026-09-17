@@ -1,5 +1,7 @@
 # alsdownloader 0.1.0.9001
 
+* Add Nicola Puletti / CREA Sila National Park as the Italian ALS catalog source, with CC BY 4.0 attribution and bounded file-access evidence.
+
 * Reorganize the README around annotated live UI captures and a concise workflow.
 * Review all 45 supplied source records; record HTTP checks, access limits and corrected links.
 * Correct Taiwan and East Helanshan photogrammetry and distinguish derived AfriSAR/GEDI products from raw ALS.

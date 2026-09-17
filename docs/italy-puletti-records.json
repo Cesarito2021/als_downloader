@@ -1,0 +1,623 @@
+[
+  {
+    "requested_record": "3633629",
+    "record_id": 3633629,
+    "doi": "10.5281/zenodo.3633629",
+    "title": "Sila National Park - 3D Point cloud data",
+    "license": "cc-by-4.0",
+    "creators": [
+      {
+        "name": "Puletti, Nicola",
+        "affiliation": "CREA",
+        "orcid": "0000-0002-2142-959X"
+      }
+    ],
+    "keywords": [
+      "Airborne Laser Scanner",
+      "Terrestrial Laser Scanner",
+      "Point clouds",
+      "TLS",
+      "ALS",
+      "Forest Inventory"
+    ],
+    "description": "<p>This dataset contains&nbsp;3 types of data.</p>\n\n<ul>\n\t<li>GPS data (the ones starting with <em>&quot;GPS&quot;</em>) of sampling plot centers collected with a Trimble GPS and post processed to ensure positioning errors lower than 2 meters.</li>\n\t<li>TLS data, (the ones starting with <em>&quot;ID_&quot;</em>): such data were collected in the end of August 2019 with a mobile terrestrial laser scanner (mobile ZEB TLS) in a squared area of approximatively 30x30m. Data have been normalized using TreeLS package in R.</li>\n\t<li>ALS data collected in the end of July 2019. For the entire study area, we upload 2 different ALS data: &quot;<em>merged.las</em>&quot; is the original point cloud; &quot;<em>myLas_norm_lt22.las</em>&quot; is the normalised point cloud, cut at 22 meters from the ground in order to perform specific analysis (i.e. paper under submission).</li>\n</ul>\n\n<p>Data collection was founded by the <em>AGRIDIGIT Selvicoltura</em> project.</p>",
+    "files": [
+      {
+        "name": "GPSpoints_EPSG_32633.shp",
+        "bytes": 772,
+        "checksum": "md5:e130f32d77d247704bf11824b12983cc"
+      },
+      {
+        "name": "ID_F011_crop30m_norm.las",
+        "bytes": 196270119,
+        "checksum": "md5:9d4bce36682853eda7c02e4c0a97269c"
+      },
+      {
+        "name": "ID_F007_crop30m_norm.las",
+        "bytes": 326367331,
+        "checksum": "md5:4f4552ecf4bd7bfa52cabb4159852837"
+      },
+      {
+        "name": "ID_F008_crop30m_norm.las",
+        "bytes": 244279843,
+        "checksum": "md5:465621a6d184d52dafd399ffab931ccd"
+      },
+      {
+        "name": "ID_F006_crop30m_norm.las",
+        "bytes": 148858615,
+        "checksum": "md5:08967011890b147c2e4d249d91f060e7"
+      },
+      {
+        "name": "ID_F009_crop30m_norm.las",
+        "bytes": 313809975,
+        "checksum": "md5:9b893b3fac63efb10f3964bdf45d8f3a"
+      },
+      {
+        "name": "ID_F005_crop30m_norm.las",
+        "bytes": 203828299,
+        "checksum": "md5:fdd0b7bf6206eb0a587dc0b9954ea324"
+      },
+      {
+        "name": "ID_F012_crop30m_norm.las",
+        "bytes": 202934455,
+        "checksum": "md5:648c17624ca3c3e9baa8935de6d0b2c2"
+      },
+      {
+        "name": "ID_F010_crop30m_norm.las",
+        "bytes": 226705475,
+        "checksum": "md5:f4f2043f495581618735a65c11673491"
+      },
+      {
+        "name": "ID_P001_crop30m_norm.las",
+        "bytes": 152107343,
+        "checksum": "md5:a2bed960e558dc6dd724fb479fe546ba"
+      },
+      {
+        "name": "ID_P011_crop30m_norm.las",
+        "bytes": 67357867,
+        "checksum": "md5:10367abfc18d3644da0d9bc2cc12464c"
+      },
+      {
+        "name": "ID_P002_crop30m_norm.las",
+        "bytes": 139541867,
+        "checksum": "md5:d8fa97d77b49a09f82f100e29ddc9544"
+      },
+      {
+        "name": "ID_P003_crop30m_norm.las",
+        "bytes": 214018423,
+        "checksum": "md5:be86e19a4fa6997065e1082dba49c6c2"
+      },
+      {
+        "name": "ID_P010_crop30m_norm.las",
+        "bytes": 143486507,
+        "checksum": "md5:0655818c270afaeaad397356b0561692"
+      },
+      {
+        "name": "ID_P012_crop30m_norm.las",
+        "bytes": 241417627,
+        "checksum": "md5:75350713f64eb8324acf2fe9151cb653"
+      },
+      {
+        "name": "ID_F004_crop30m_norm.las",
+        "bytes": 262334047,
+        "checksum": "md5:2b3d22c7e7ebb05dd8ec32402afd8d98"
+      },
+      {
+        "name": "merged.las",
+        "bytes": 6822549289,
+        "checksum": "md5:53866498e8214cddcbf286239870c618"
+      },
+      {
+        "name": "ID_F003_crop30m_norm.las",
+        "bytes": 241224483,
+        "checksum": "md5:35a7ebcf0f8c001b20f5253beb601bc7"
+      },
+      {
+        "name": "ID_F002_crop30m_norm.las",
+        "bytes": 302693275,
+        "checksum": "md5:b87cef9fb67231b3e167e827ab644978"
+      },
+      {
+        "name": "ID_P009_crop30m_norm.las",
+        "bytes": 228508647,
+        "checksum": "md5:914a6cd20114ee4dcf001d36c1048059"
+      },
+      {
+        "name": "ID_F001_crop30m_norm.las",
+        "bytes": 262677131,
+        "checksum": "md5:304a37194159123957699125b05f92ba"
+      },
+      {
+        "name": "ID_P006_crop30m_norm.las",
+        "bytes": 159178631,
+        "checksum": "md5:fd935f5988ef0195903a34e6af588a66"
+      },
+      {
+        "name": "GPSpoints_EPSG_32633.shx",
+        "bytes": 292,
+        "checksum": "md5:8dd18049e48f6fdc3268867145fe2356"
+      },
+      {
+        "name": "myLas_norm_lt22.las",
+        "bytes": 4197552985,
+        "checksum": "md5:5ea7ee3ffecd66dec2574f33be0533a3"
+      },
+      {
+        "name": "GPSpoints_EPSG_32633.qpj",
+        "bytes": 598,
+        "checksum": "md5:4d26b1b15cc7707275882ef1af8314f7"
+      },
+      {
+        "name": "ID_P004_crop30m_norm.las",
+        "bytes": 270299795,
+        "checksum": "md5:6e117c751b2237ef4a754cd8eb75d0b4"
+      },
+      {
+        "name": "ID_P008_crop30m_norm.las",
+        "bytes": 168371675,
+        "checksum": "md5:2464e717ea981a0b162ab94754332277"
+      },
+      {
+        "name": "GPSpoints_EPSG_32633.prj",
+        "bytes": 389,
+        "checksum": "md5:6db75023f617b78bca6d2cce9bff5b25"
+      },
+      {
+        "name": "ID_P007_crop30m_norm.las",
+        "bytes": 183383203,
+        "checksum": "md5:6094ed4ec5afbc3e30e87e60473cc52f"
+      },
+      {
+        "name": "GPSpoints_EPSG_32633.dbf",
+        "bytes": 4970,
+        "checksum": "md5:c3ba31372091ca741243eda663026d43"
+      },
+      {
+        "name": "GPSpoints_EPSG_32633.cpg",
+        "bytes": 5,
+        "checksum": "md5:ae3b3df9970b49b6523e608759bc957d"
+      },
+      {
+        "name": "ID_P005_crop30m_norm.las",
+        "bytes": 216051783,
+        "checksum": "md5:b49483856b2da5cdb2ef277c974ac34f"
+      }
+    ]
+  },
+  {
+    "requested_record": "17227385",
+    "record_id": 17227385,
+    "doi": "10.5281/zenodo.17227385",
+    "title": "Multifordiv - dataset dati las",
+    "license": "cc-by-4.0",
+    "creators": [
+      {
+        "name": "Puletti, Nicola",
+        "affiliation": "Consiglio per la ricerca in agricoltura e l'analisi dell'economia agraria",
+        "orcid": "0000-0002-2142-959X"
+      },
+      {
+        "name": "Chianucci, Francesco",
+        "affiliation": "Consiglio per la ricerca in agricoltura e l'analisi dell'economia agraria",
+        "orcid": "0000-0002-5688-2060"
+      }
+    ],
+    "keywords": [
+      "lidar",
+      "uav"
+    ],
+    "description": "",
+    "files": [
+      {
+        "name": "clipNorm_LAZ01.las",
+        "bytes": 217413020,
+        "checksum": "md5:f1e56d991f3ec43a5ebd3b287ae840ad"
+      },
+      {
+        "name": "clipNorm_VEN02.las",
+        "bytes": 102387484,
+        "checksum": "md5:28f83bb303386a71f47e43351f4eef6b"
+      },
+      {
+        "name": "clipNorm_VEN01.las",
+        "bytes": 204383268,
+        "checksum": "md5:6a7a3431d810e1a6b30f006c9d51b58f"
+      },
+      {
+        "name": "clipNorm_TOS02.las",
+        "bytes": 185788634,
+        "checksum": "md5:eca07429777bdd4904962e47e0b2d28e"
+      },
+      {
+        "name": "clipNorm_EMI01.las",
+        "bytes": 855304428,
+        "checksum": "md5:e1ae0ea4cb2c288de6bcdcf4a042c3fb"
+      }
+    ]
+  },
+  {
+    "requested_record": "4297218",
+    "record_id": 4297218,
+    "doi": "10.5281/zenodo.4297218",
+    "title": "Beech high-forest circular plots at Catenaia, Arezzo",
+    "license": "cc-by-4.0",
+    "creators": [
+      {
+        "name": "Puletti, Nicola",
+        "affiliation": "CREA",
+        "orcid": "0000-0002-2142-959X"
+      }
+    ],
+    "keywords": [
+      "terrestrial laser scanner",
+      "beech forest",
+      "Point clouds",
+      "TLS"
+    ],
+    "description": "<p>Collection of las files derived from TLS scans acquired in 47 forest compartments of Catenaia forest. Las files were managed (i.e. imported and&nbsp;normalized) using the R package &quot;TreeLS&quot; and then clipped within a circular radius of 15 meters.</p>",
+    "files": [
+      {
+        "name": "2020-11-09_12-35-23_ts_clip15m.Rdata",
+        "bytes": 13580098,
+        "checksum": "md5:080c1063b2470d7c7600789d76c319d0"
+      },
+      {
+        "name": "2020-11-05_09-06-29_ts_clip15m.Rdata",
+        "bytes": 15659091,
+        "checksum": "md5:c05ea45f963d2fc91dd92a3ac1e8de44"
+      },
+      {
+        "name": "2020-10-30_14-38-53_ts_clip15m.Rdata",
+        "bytes": 12721924,
+        "checksum": "md5:4da456fa51bd7315c07fe9cd53f90bd9"
+      },
+      {
+        "name": "2020-11-05_08-45-42_ts_clip15m.Rdata",
+        "bytes": 11228090,
+        "checksum": "md5:95f6eaa212ff867e5428921b464e9982"
+      },
+      {
+        "name": "2020-11-02_12-06-16_ts_clip15m.Rdata",
+        "bytes": 18551671,
+        "checksum": "md5:fb298b00cf39ce6042ed76c1d01d922a"
+      },
+      {
+        "name": "2020-11-25_14-08-22_ts_clip15m.Rdata",
+        "bytes": 9329653,
+        "checksum": "md5:1a2e73d3c44bf3fcfef7b019da383516"
+      },
+      {
+        "name": "2020-11-25_13-54-14_ts_clip15m.Rdata",
+        "bytes": 9783287,
+        "checksum": "md5:458a5eb8c63718ec5742408d9aed31bd"
+      },
+      {
+        "name": "2020-11-25_13-15-54_ts_clip15m.Rdata",
+        "bytes": 14650491,
+        "checksum": "md5:7bda040b8cf0a00c284383d363c33301"
+      },
+      {
+        "name": "2020-11-25_11-24-39_ts_clip15m.Rdata",
+        "bytes": 11528842,
+        "checksum": "md5:1d6d08c20a338927429c237d0b5baa66"
+      },
+      {
+        "name": "2020-11-25_11-02-45_ts_clip15m.Rdata",
+        "bytes": 10250870,
+        "checksum": "md5:9a11397fda9982eaaa400bf58ad6ada0"
+      },
+      {
+        "name": "2020-11-25_10-52-35_ts_clip15m.Rdata",
+        "bytes": 9793311,
+        "checksum": "md5:bf504e85176a240de795af3405235c53"
+      },
+      {
+        "name": "2020-11-25_10-26-44_ts_clip15m.Rdata",
+        "bytes": 10919003,
+        "checksum": "md5:a7f02cd1ff8c7d2704e03a99b021dc6b"
+      },
+      {
+        "name": "2020-11-02_11-32-57_ts_clip15m.Rdata",
+        "bytes": 14571961,
+        "checksum": "md5:8fa21232f98863c821098fcf609ee281"
+      },
+      {
+        "name": "2020-10-30_14-21-41_ts_clip15m.Rdata",
+        "bytes": 15409612,
+        "checksum": "md5:390e69d42c3ff558bc9962e22579841b"
+      },
+      {
+        "name": "2020-10-30_14-05-56_ts_clip15m.Rdata",
+        "bytes": 16445768,
+        "checksum": "md5:df65ca9283b034e9c5cae4d0515ac9c7"
+      },
+      {
+        "name": "2020-10-30_13-21-46_ts_clip15m.Rdata",
+        "bytes": 9715871,
+        "checksum": "md5:b1044fcf584936d34d62c1a2417ce8bd"
+      },
+      {
+        "name": "2020-11-02_11-06-30_ts_clip15m.Rdata",
+        "bytes": 17536114,
+        "checksum": "md5:130b9d5e8013250fcd60bc1ebac059f7"
+      },
+      {
+        "name": "2020-11-25_10-08-00_ts_clip15m.Rdata",
+        "bytes": 12801022,
+        "checksum": "md5:40e68e4cb654d30303b7aa6bce216fed"
+      },
+      {
+        "name": "2020-10-29_12-56-55_ts_clip15m.Rdata",
+        "bytes": 19533509,
+        "checksum": "md5:1e465f7a97383207f24a8f3137f54a37"
+      },
+      {
+        "name": "2020-11-25_09-41-36_ts_clip15m.Rdata",
+        "bytes": 11977799,
+        "checksum": "md5:8b841afabd2db5923626e8625dd0d52e"
+      },
+      {
+        "name": "2020-11-25_09-25-52_ts_clip15m.Rdata",
+        "bytes": 10953305,
+        "checksum": "md5:41543c93bab04cdd339b37b5fe6c3fcf"
+      },
+      {
+        "name": "2020-10-30_12-32-34_ts_clip15m.Rdata",
+        "bytes": 17317792,
+        "checksum": "md5:d4d28b316c578f2361eef9af5ffae894"
+      },
+      {
+        "name": "2020-10-30_11-56-43_ts_clip15m.Rdata",
+        "bytes": 14990792,
+        "checksum": "md5:01295c693d3f8742175349dc8d909680"
+      },
+      {
+        "name": "2020-10-29_13-21-35_ts_clip15m.Rdata",
+        "bytes": 21744268,
+        "checksum": "md5:277407deb32ee5a764207976aee05224"
+      },
+      {
+        "name": "2020-11-05_10-17-26_ts_clip15m.Rdata",
+        "bytes": 13537778,
+        "checksum": "md5:74ba479d4a5c95f70ed538c8b6028f5b"
+      },
+      {
+        "name": "2020-11-06_09-38-35_ts_clip15m.Rdata",
+        "bytes": 14585831,
+        "checksum": "md5:27e272a87c05d5aa6542163f1c312f89"
+      },
+      {
+        "name": "2020-11-06_10-21-29_ts_clip15m.Rdata",
+        "bytes": 9326598,
+        "checksum": "md5:9e30e0461e5ffb8c405e58707f38bab6"
+      },
+      {
+        "name": "2020-11-06_10-35-29_ts_clip15m.Rdata",
+        "bytes": 9802354,
+        "checksum": "md5:dc2191f4f7f70c6f4b69d1ef9a3e1606"
+      },
+      {
+        "name": "2020-11-06_11-04-24_ts_clip15m.Rdata",
+        "bytes": 13087061,
+        "checksum": "md5:d1c64b300efddc9e0d889c2274d15782"
+      },
+      {
+        "name": "2020-10-30_15-05-58_ts_clip15m.Rdata",
+        "bytes": 16390130,
+        "checksum": "md5:f31c42a10144e2ceccbd742e78f3c9f3"
+      },
+      {
+        "name": "2020-11-06_11-27-34_ts_clip15m.Rdata",
+        "bytes": 11705315,
+        "checksum": "md5:e1e3b1cab9ec3c498a73c74a1c4145ea"
+      },
+      {
+        "name": "2020-11-06_11-55-53_ts_clip15m.Rdata",
+        "bytes": 11279213,
+        "checksum": "md5:60a664104a79a7a1f48fa655b2367aae"
+      },
+      {
+        "name": "2020-11-09_09-31-29_ts_clip15m.Rdata",
+        "bytes": 10704483,
+        "checksum": "md5:8b90446e0680e9770814e42871e160fc"
+      },
+      {
+        "name": "2020-11-09_10-04-06_ts_clip15m.Rdata",
+        "bytes": 16862475,
+        "checksum": "md5:ecd100cf67e55912e3fcfcf2764e9a72"
+      },
+      {
+        "name": "2020-11-09_10-27-38_ts_clip15m.Rdata",
+        "bytes": 14283036,
+        "checksum": "md5:7314867102116c5c68ed195ea30b4124"
+      },
+      {
+        "name": "2020-11-09_10-49-43_ts_clip15m.Rdata",
+        "bytes": 12969046,
+        "checksum": "md5:3373e5bc629dbf5f72c2f2f9076b9741"
+      },
+      {
+        "name": "2020-11-09_13-01-26_ts_clip15m.Rdata",
+        "bytes": 11731615,
+        "checksum": "md5:77cb836a19c039717f55902b4132df6d"
+      },
+      {
+        "name": "2020-11-09_13-20-07_ts_clip15m.Rdata",
+        "bytes": 11010374,
+        "checksum": "md5:f5b9673fdcea91e9d79d203261e3efa9"
+      },
+      {
+        "name": "2020-11-09_13-36-01_ts_clip15m.Rdata",
+        "bytes": 11206547,
+        "checksum": "md5:3238e0c45298fbdf3cbd876130258c92"
+      },
+      {
+        "name": "2020-11-24_11-19-08_ts_clip15m.Rdata",
+        "bytes": 11364261,
+        "checksum": "md5:48bd808548b6b5b797e6135abcee41f0"
+      },
+      {
+        "name": "2020-11-24_10-25-37_ts_clip15m.Rdata",
+        "bytes": 14800688,
+        "checksum": "md5:35c59306a3b3116027349efffc84d2ce"
+      },
+      {
+        "name": "2020-11-09_14-01-47_ts_clip15m.Rdata",
+        "bytes": 8992107,
+        "checksum": "md5:524208cefe94fde7086e218917b0cb0f"
+      },
+      {
+        "name": "2020-11-24_10-05-09_ts_clip15m.Rdata",
+        "bytes": 13649547,
+        "checksum": "md5:f50bc872c9315501fd0b35be6ecf615a"
+      },
+      {
+        "name": "2020-11-24_11-03-11_ts_clip15m.Rdata",
+        "bytes": 13354835,
+        "checksum": "md5:142ffadad0a2cb7925a9a77e412ed35c"
+      },
+      {
+        "name": "2020-11-24_10-51-14_ts_clip15m.Rdata",
+        "bytes": 10064632,
+        "checksum": "md5:1fa74afde29db97c6533caae5ed6600c"
+      },
+      {
+        "name": "2020-11-05_09-55-17_ts_clip15m.Rdata",
+        "bytes": 14937703,
+        "checksum": "md5:f128cb5a057208ee48d5e0fb588c44a6"
+      }
+    ]
+  },
+  {
+    "requested_record": "14650937",
+    "record_id": 17492219,
+    "doi": "10.5281/zenodo.17492219",
+    "title": "Tree-LiMS: a dataset of multi-temporal UAV LiDAR and multispectral data at single-tree level in European beech (Fagus sylvatica L.) forests of the Alpe di Catenaia, Italy",
+    "license": "cc-by-4.0",
+    "creators": [
+      {
+        "name": "Puletti, Nicola",
+        "affiliation": "Consiglio per la ricerca in agricoltura e l'analisi dell'economia agraria",
+        "orcid": "0000-0002-2142-959X"
+      },
+      {
+        "name": "Guasti, Matteo",
+        "affiliation": "Consiglio per la ricerca in agricoltura e l'analisi dell'economia agraria",
+        "orcid": "0000-0002-0352-0760"
+      },
+      {
+        "name": "Innocenti, Simone",
+        "affiliation": "Consiglio per la ricerca in agricoltura e l'analisi dell'economia agraria",
+        "orcid": "0000-0002-2251-8535"
+      },
+      {
+        "name": "Botticelli, Davide",
+        "affiliation": "Consiglio per la ricerca in agricoltura e l'analisi dell'economia agraria",
+        "orcid": "0000-0001-6336-9735"
+      }
+    ],
+    "keywords": [
+      "UAV",
+      "multispectral",
+      "lidar",
+      "phenology",
+      "forest"
+    ],
+    "description": "",
+    "files": [
+      {
+        "name": "PlantArchTraits.Rdata",
+        "bytes": 313980,
+        "checksum": "md5:ed973dfae13946824d90fb8ca865de0b"
+      },
+      {
+        "name": "HowToUseDataset_DB.R",
+        "bytes": 3054,
+        "checksum": "md5:2543c9411280af7e219a687a54c498b3"
+      },
+      {
+        "name": "las_singletree_data.zip",
+        "bytes": 204230292,
+        "checksum": "md5:75f1819b5d7b2773a31c6a8073debd23"
+      },
+      {
+        "name": "PlantPhenoTraits.Rdata",
+        "bytes": 10651637,
+        "checksum": "md5:539b38e0e214a1e089a599f037616f88"
+      }
+    ]
+  },
+  {
+    "requested_record": "5653007",
+    "record_id": 5653007,
+    "doi": "10.5281/zenodo.5653007",
+    "title": "Dataset for TLS understory characterization: an exploratory study on hazel grouse in Italian Alps",
+    "license": "cc-by-4.0",
+    "creators": [
+      {
+        "name": "Puletti, Nicola",
+        "affiliation": "CREA Research centre for forestry and wood",
+        "orcid": "0000-0002-2142-959X"
+      },
+      {
+        "name": "Galluzzi, Marta",
+        "affiliation": "CREA Research centre for forestry and wood",
+        "orcid": "0000-0003-1066-9923"
+      }
+    ],
+    "keywords": [],
+    "description": "<p>This dataset contains data collected in the middle of June 2021 with a mobile terrestrial laser scanner (mobile ZEB TLS) in 10 squared areas, of approximatively 20x20m each, in Adamello Brenta National Park. Data have been normalized using TreeLS package in R.</p>\n\n<p>This research was funded with the contribution of the&nbsp;Italian Ministry of Agricultural, Food, and Forestry Policies (MiPAAF)&nbsp;sub-project &ldquo;Precision Forestry&rdquo; (AgriDigit program) (DM 36503.7305.2018 of 20/12/2018).</p>",
+    "files": [
+      {
+        "name": "2021-06-16_09-14-09_20x20.laz",
+        "bytes": 93618158,
+        "checksum": "md5:10c50f44c33abdac3dc5f2bebfe034a6"
+      },
+      {
+        "name": "2021-06-16_12-07-07_20x20.laz",
+        "bytes": 61136262,
+        "checksum": "md5:b700c737afab1a5e167543024a3a9c9d"
+      },
+      {
+        "name": "2021-06-16_10-22-44_20x20.laz",
+        "bytes": 67295664,
+        "checksum": "md5:6a1532c64d71a5d419632acdcfabe0c3"
+      },
+      {
+        "name": "2021-06-16_09-52-00_20x20.laz",
+        "bytes": 55803779,
+        "checksum": "md5:f551f34afc651dc3c7a96eb5a73dd70a"
+      },
+      {
+        "name": "2021-06-15_16-03-35_20x20.laz",
+        "bytes": 64290034,
+        "checksum": "md5:7e8e31a4ed23b3721e4cdfc8084d0a64"
+      },
+      {
+        "name": "2021-06-15_14-35-02_20x20.laz",
+        "bytes": 77502070,
+        "checksum": "md5:9ebde5f987a49bf0a8ecc27d7f932d78"
+      },
+      {
+        "name": "2021-06-15_10-29-12_20x20.laz",
+        "bytes": 47835955,
+        "checksum": "md5:64514e85d7bf628914d418dbb3106edd"
+      },
+      {
+        "name": "2021-06-15_09-09-09_20x20.laz",
+        "bytes": 76565743,
+        "checksum": "md5:cb4eda5e63ac8099ce977c8286c9af03"
+      },
+      {
+        "name": "2021-06-14_17-16-04_20x20.laz",
+        "bytes": 35682609,
+        "checksum": "md5:dc17dcd920d519f90ef2394a90e2ce46"
+      },
+      {
+        "name": "2021-06-14_15-35-08_20x20.laz",
+        "bytes": 21295926,
+        "checksum": "md5:512e47e3aba88eabe044726cb9d3a21a"
+      }
+    ]
+  }
+]

@@ -40,3 +40,7 @@ The updated package installed and loaded successfully as 0.1.0.9001.
 Inspection of the preceding GitHub run (`a485c72`) showed successful Windows, Linux release and Linux-devel checks;
 macOS failed while installing dependencies, before the package check. This is not a macOS pass.
 Consult the latest Actions run for the newly published commit; the preceding results do not certify it.
+
+Italian source supplement: the public Sila record (Nicola Puletti / CREA) was verified via Zenodo API.
+Two HTTP byte ranges from the original July 2019 ALS file returned 94,208 bytes; 1,024 point coordinates were decoded.
+This is a bounded sample check, not complete-file validation. See [ITALY_PULETTI.md](ITALY_PULETTI.md).

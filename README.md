@@ -51,6 +51,7 @@ The complete [source review](docs/SOURCE_AUDIT.md) includes country-specific fin
 |---|---|---|
 | [USGS 3DEP · United States](https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc) | Public catalog; signed COPC assets | **Integrated.** AOI search and representative decoded download checked. |
 | [OpenTopography · multiple countries](https://opentopography.org/node/3598) | Local `*_TileIndex.zip` archives; dataset-specific terms | **Integrated.** ALS samples checked for Australia, Brazil and New Zealand. |
+| [Sila National Park · Italy](https://zenodo.org/records/3633629) | Nicola Puletti / CREA; July 2019 ALS; CC BY 4.0 | Public LAS access and 1,024 point records checked; AOI adapter pending. [Details](docs/ITALY_PULETTI.md). |
 | [CanElevation · Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Public COPC and tile indexes | File header checked; adapter pending. |
 | [swissSURFACE3D · Switzerland](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Public STAC, LAS/COPC | Small LAS sample decoded; adapter pending. |
 | [IGN · France](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD), [PNOA · Spain](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga) | Official product catalogs | Links reviewed; native downloads pending. |
@@ -65,7 +66,7 @@ The complete [source review](docs/SOURCE_AUDIT.md) includes country-specific fin
 
 **Inventory corrections:** the East Helanshan and Taiwan `TW18_Carr` point clouds are photogrammetric, not ALS.
 AfriSAR DOI `1681` provides biomass maps, and ORNL DOI `2481` provides forest-structure metrics/maps rather than a verified LAS/LAZ archive for every listed country.
-These records remain in the [45-row reviewed inventory](docs/dataset-candidates.csv) with explicit classifications.
+These records remain in the [46-row reviewed inventory](docs/dataset-candidates.csv) with explicit classifications.
 The earlier Taiwan download test proves file transport and decoding, not laser acquisition.
 
 ## Install and launch
@@ -130,8 +131,8 @@ Physical-device acceptance testing and production hosting remain pending.
 |---|---|
 | USGS, Australia, Brazil and New Zealand ALS samples | One decoded tile each, checksum and restart checked on 16 September: [sample records](docs/validation.csv). |
 | Taiwan photogrammetric sample | Transport/decoding passed; corrected acquisition classification on 17 September. |
-| Additional provider access | Canada LAS header and Switzerland decoded sample: [file checks](docs/file-access-checks.csv). |
-| Catalog review | All 45 supplied records reviewed; [HTTP checks](docs/link-checks.csv) distinguish errors from missing datasets. |
+| Additional provider access | Canada LAS header, Switzerland decoded sample and Italy bounded ALS sample: [file checks](docs/file-access-checks.csv). |
+| Catalog review | 45 original records plus the verified Sila source for Italy reviewed; [HTTP checks](docs/link-checks.csv) distinguish errors from missing datasets. |
 | Package and UI checks | [Validation record](docs/VALIDATION.md) and [release checklist](docs/RELEASE_CHECKLIST.md). |
 
 Sample success does not establish complete country coverage. This is a development preview, not a CRAN release or independent scientific validation.
@@ -165,6 +166,8 @@ Suggestions are reviewed before integration. New adapters need reliable AOI-to-f
 Developed within the [OpenForest4D](https://openforest4d.org) cyberinfrastructure initiative.
 We acknowledge the data producers, research teams and public agencies that collect and share airborne LiDAR,
 and the OpenTopography and USGS communities supporting access to these data.
+For the Italian Sila dataset, we acknowledge **Nicola Puletti / CREA** and the AGRIDIGIT Selvicoltura project credited by the source.
+[Dataset citation and access evidence](docs/ITALY_PULETTI.md).
 
 The application builds on the R and Shiny ecosystems, including `sf`, Leaflet, DT and `lidR`.
 Country outlines derive from Natural Earth via World Atlas; the optional terrain backdrop is provided by Esri and its credited contributors.

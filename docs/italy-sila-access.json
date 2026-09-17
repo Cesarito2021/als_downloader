@@ -1,0 +1,34 @@
+{
+  "checked_at_utc": "2026-09-17T14:57:01.194411+00:00",
+  "record_url": "https://zenodo.org/records/3633629",
+  "doi": "10.5281/zenodo.3633629",
+  "creator": "Nicola Puletti (CREA)",
+  "license": "cc-by-4.0",
+  "file": "merged.las",
+  "url": "https://zenodo.org/api/records/3633629/files/merged.las/content",
+  "published_file_bytes": 6822549289,
+  "published_md5": "md5:53866498e8214cddcbf286239870c618",
+  "full_file_checksum_verified": false,
+  "http_status": 206,
+  "header_content_range": "bytes 0-65535/6822549289",
+  "points_content_range": "bytes 297-28968/6822549289",
+  "bytes_read": 94208,
+  "las_version": "1.2",
+  "point_format": 1,
+  "point_record_length": 28,
+  "header_point_count": 243662464,
+  "decoded_sample_points": 1024,
+  "sample_xyz_min": [
+    635947.2099863753,
+    4326167.9202000005,
+    1216.75
+  ],
+  "sample_xyz_max": [
+    635999.9499863753,
+    4326182.000200001,
+    1269.64
+  ],
+  "header_sha256": "4cfd82c7ff7bc67dea16a67e164416dffe3952aab2b3c64388cd6b30e4e33904",
+  "sample_sha256": "2758173316b56288f38799dd5f9f9960c9f0ee5c1231bad72f3a43fe0ee21bf2",
+  "limitation": "Two bounded HTTP ranges, not a complete tile download or full-file validation. XYZ decoded from the first 1024 uncompressed LAS point records. CRS not assumed from GPS filename."
+}
