@@ -5,12 +5,12 @@ It does not calculate changes, differences, statistics or analysis exports.
 
 1. Draw or upload a study area and search the provider catalog.
 2. If the same AOI has at least two campaigns, open **Compare campaigns**, tick **I want to compare two point clouds in this study area**, and choose two distinct campaigns. Nothing is selected or loaded automatically. Provider dates are displayed unchanged.
-3. Choose **View overlapping clouds**. Both clouds are clipped to the intersection of their provider footprints and your AOI.
+3. Choose a square side: **100 m** (default), **250 m**, **500 m**, or **1 km**. Choose **View overlapping clouds**. A window is placed inside the largest shared footprint and clipped to shared coverage and the AOI; near boundaries its visible area can be smaller. Draw a smaller AOI in Explore to choose the location. The automatic location is not guaranteed to be ecologically representative.
 4. View the first/earlier cloud in **solid grey** and the latest in **solid black**, on a white background. The user chooses this ordering from provider information. Rotate or zoom, change colours if desired, and show/hide either cloud. Solid colours identify the clouds; they do not encode calculated change.
 
-The app rejects empty overlap or overlap above 1 km² before downloading comparison files.
+The app rejects empty overlap before downloading comparison files. Only the viewing window is displayed.
 The visualization button remains disabled until the user opts in and selects an eligible pair. With more than two campaigns available, the user chooses which two to view. Opting out clears the view and cancels any comparison worker.
-A larger study area is acceptable only when its intersecting shared footprint is at most 1 km².
+A larger study area is accepted: comparison is cropped to the selected window. Source files may still need to be downloaded in full temporarily before cropping.
 Provider footprints may include internal gaps: their intersection does not certify that every location has points in both surveys.
 No overlap is fabricated from country outlines or by moving either cloud. If either cloud has no points within the overlap, visualization stops.
 

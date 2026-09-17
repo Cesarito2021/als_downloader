@@ -7,7 +7,9 @@ comparison_ui <- function() {
       shiny::actionButton("download_epoch_a", "Select A tiles for download")),
       shiny::column(6, shiny::selectInput("epoch_b", "B | latest cloud", choices = character()),
       shiny::actionButton("download_epoch_b", "Select B tiles for download"))),
-    shiny::helpText("Visualization only: overlapping area up to 1 km2, limited to the intersection of both provider footprints and your AOI. At most four tiles and 200 MB per campaign, 100 MB per tile. Both clouds require the same embedded projected CRS in metres."),
+    shiny::selectInput("compare_side_m", "Preview square side", choices = c("100 m (default)" = 100, "250 m" = 250, "500 m" = 500, "1 km" = 1000), selected = 100),
+    shiny::helpText("A small window is placed in the largest shared footprint and clipped to your AOI. Draw a smaller AOI in Explore to choose its location. The automatic location is not guaranteed to represent the forest."),
+    shiny::helpText("Visualization only: square side 100 m to 1 km (100 m = 0.01 km2; 1 km = 1 km2). At most four tiles and 200 MB per campaign, 100 MB per tile. Both clouds require the same embedded projected CRS in metres."),
     shiny::textOutput("compare_availability"), shiny::uiOutput("compare_load_control"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
     shiny::tags$canvas(id = "als-compare-cloud", class = "als-point-cloud", role = "img", tabindex = "0", `aria-label` = "Two georeferenced campaign point clouds. Drag to rotate; plus/minus to zoom; zero to fit."),
@@ -35,7 +37,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   }
   stop_job <- function() {if (!is.null(cmp$job) && cmp$job$is_alive()) cmp$job$kill_tree(); cmp$job <- NULL; cleanup()}
   groups <- shiny::reactive(campaign_groups(state$tiles))
-  availability <- shiny::reactive(comparison_availability(state$tiles, state$aoi, input$epoch_a, input$epoch_b, input$compare_opt_in))
+  availability <- shiny::reactive(comparison_availability(state$tiles, state$aoi, input$epoch_a, input$epoch_b, input$compare_opt_in, if (is.null(input$compare_side_m)) 100 else input$compare_side_m))
   output$compare_availability <- shiny::renderText(availability()$message)
   output$compare_load_control <- shiny::renderUI({
     available <- availability()
@@ -48,7 +50,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
     shiny::updateSelectInput(session, "epoch_a", choices = choices, selected = "")
     shiny::updateSelectInput(session, "epoch_b", choices = choices, selected = "")
   }, ignoreNULL = FALSE)
-  shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b, input$compare_opt_in), {
+  shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b, input$compare_opt_in, input$compare_side_m), {
     stop_job(); cmp$result <- NULL; cmp$status <- "Choose two campaigns, then load the AOI comparison."
     session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = list(), origin = c(0, 0, 0)))
   }, ignoreNULL = FALSE)
@@ -77,14 +79,14 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
       ia <- g[[input$epoch_a]]; ib <- g[[input$epoch_b]]
       if (!length(ia) || !length(ib) || identical(input$epoch_a, input$epoch_b)) stop("Choose two distinct campaigns.")
       if (is.null(state$aoi)) stop("Draw/upload an AOI first.")
-      overlap <- comparison_overlap(state$tiles[ia, ], state$tiles[ib, ], state$aoi)
-      if (length(ia) > 4 || length(ib) > 4) stop("Reduce the AOI to at most four intersecting tiles per campaign.")
+      region <- comparison_region(state$tiles[ia, ], state$tiles[ib, ], state$aoi, input$compare_side_m)
+      overlap <- region$overlap
       if (mode == "hosted") {
         if (!dir.create(hosted_lock, showWarnings = FALSE)) stop("Another hosted transfer is running. Try again later.")
         cmp$locked <- TRUE
       }
       cmp$directory <- tempfile("als-comparison-"); dir.create(cmp$directory)
-      a <- state$tiles[ia, , drop = FALSE]; b <- state$tiles[ib, , drop = FALSE]
+      a <- region$a; b <- region$b
       cmp$labels <- c(input$epoch_a, input$epoch_b)
       cmp$dates <- NULL
       cmp$files <- NULL

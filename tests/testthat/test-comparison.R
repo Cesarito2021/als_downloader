@@ -1,5 +1,19 @@
 box_cloud <- function(x=0,y=0,width=1000,height=1000) sf::st_sf(geometry=sf::st_sfc(sf::st_polygon(list(matrix(c(x,y,x+width,y,x+width,y+height,x,y+height,x,y),ncol=2,byrow=TRUE))),crs=32631))
 
+test_that("comparison windows crop large AOIs to the requested side", {
+  a <- box_cloud(width=3000,height=3000)
+  small <- comparison_region(a,a,a,100)
+  large <- comparison_region(a,a,a,1000)
+  expect_equal(aoi_area(small$overlap), .01, tolerance=.0001)
+  expect_equal(aoi_area(large$overlap), 1, tolerance=.001)
+  expect_error(comparison_region(a,a,a,1001), "between 100 and 1000")
+  expect_error(comparison_region(a,a,a,NA), "between 100 and 1000")
+  narrow <- box_cloud(width=40,height=40)
+  expect_lt(aoi_area(comparison_region(a,a,narrow,100)$overlap), .002)
+  distant <- rbind(a,box_cloud(x=6000))
+  expect_equal(nrow(comparison_region(distant,a,a,100)$a),1L)
+})
+
 test_that("visual overlap clips both footprints and enforces the one km2 limit", {
   a <- box_cloud(); b <- box_cloud(500); roi <- box_cloud(width=3000,height=3000)
   overlap <- comparison_overlap(a,b,roi)

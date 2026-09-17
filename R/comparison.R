@@ -10,7 +10,7 @@ campaign_groups <- function(tiles) {
   split(seq_len(nrow(tiles)), label)
 }
 
-comparison_availability <- function(tiles, aoi, a, b, opted_in = FALSE) {
+comparison_availability <- function(tiles, aoi, a, b, opted_in = FALSE, side_m = 100) {
   unavailable <- function(message) list(ready = FALSE, message = message)
   groups <- campaign_groups(tiles)
   if (is.null(aoi) || length(groups) < 2L)
@@ -18,15 +18,13 @@ comparison_availability <- function(tiles, aoi, a, b, opted_in = FALSE) {
   if (!isTRUE(opted_in)) return(unavailable("Comparison is optional. Tick the checkbox to choose two clouds."))
   if (is.null(a) || is.null(b) || !a %in% names(groups) || !b %in% names(groups) || identical(a, b))
     return(unavailable("Choose two different point-cloud campaigns from this AOI."))
-  if (length(groups[[a]]) > 4L || length(groups[[b]]) > 4L)
-    return(unavailable("Reduce the AOI to at most four tiles per selected campaign."))
   tryCatch({
-    overlap <- comparison_overlap(tiles[groups[[a]], ], tiles[groups[[b]], ], aoi)
-    list(ready = TRUE, message = sprintf("Ready: two clouds share %.4f km2 inside this AOI (maximum 1 km2). Visualization only.", aoi_area(overlap)))
+    region <- comparison_region(tiles[groups[[a]], ], tiles[groups[[b]], ], aoi, side_m)
+    list(ready = TRUE, message = sprintf("Ready: %s m square window, clipped to shared coverage (%.4f km2). Visualization only.", side_m, aoi_area(region$overlap)))
   }, error = function(e) unavailable(conditionMessage(e)))
 }
 
-comparison_overlap <- function(a, b, aoi) {
+comparison_overlap <- function(a, b, aoi, max_km2 = 1) {
   if (!inherits(a, "sf") || !inherits(b, "sf")) stop("Both clouds require provider footprints.")
   footprint <- function(x) sf::st_union(sf::st_geometry(read_aoi(x)))
   overlap <- suppressWarnings(sf::st_intersection(footprint(a), footprint(b)))
@@ -34,8 +32,31 @@ comparison_overlap <- function(a, b, aoi) {
   if (!length(overlap) || all(sf::st_is_empty(overlap))) stop("The two clouds have no overlapping area inside the AOI.")
   area <- sum(as.numeric(sf::st_area(overlap))) / 1e6
   if (!is.finite(area) || area <= 0) stop("The two clouds have no overlapping area inside the AOI.")
-  if (area > 1) stop("The overlapping area exceeds 1 km2. Draw a smaller AOI.")
+  if (area > max_km2) stop("The overlapping area exceeds 1 km2. Draw a smaller AOI.")
   sf::st_sf(geometry = overlap)
+}
+
+# A small viewing window, not a claim of ecological representativeness.
+comparison_region <- function(a, b, aoi, side_m = 100) {
+  side_m <- suppressWarnings(as.numeric(side_m))
+  if (length(side_m) != 1L || !is.finite(side_m) || side_m < 100 || side_m > 1000)
+    stop("Choose a window side between 100 and 1000 metres.")
+  overlap <- comparison_overlap(a, b, aoi, max_km2 = Inf)
+  bb <- sf::st_bbox(sf::st_transform(overlap, 4326))
+  local_crs <- sprintf("+proj=aeqd +lat_0=%.8f +lon_0=%.8f +R=6371010 +units=m", (bb[2]+bb[4])/2, (bb[1]+bb[3])/2)
+  local <- sf::st_transform(overlap, local_crs)
+  parts <- suppressWarnings(sf::st_cast(sf::st_geometry(local), "POLYGON"))
+  largest <- parts[which.max(as.numeric(sf::st_area(parts)))]
+  center <- sf::st_coordinates(sf::st_point_on_surface(largest))[1, 1:2]
+  half <- side_m / 2
+  window <- sf::st_as_sfc(sf::st_bbox(c(xmin=unname(center[1]-half), ymin=unname(center[2]-half),
+    xmax=unname(center[1]+half), ymax=unname(center[2]+half)), crs=sf::st_crs(local)))
+  crop <- suppressWarnings(sf::st_intersection(sf::st_geometry(local), window))
+  crop <- sf::st_transform(sf::st_sf(geometry=crop), sf::st_crs(overlap))
+  select <- function(x) x[lengths(sf::st_intersects(x, sf::st_transform(crop, sf::st_crs(x)))) > 0, , drop=FALSE]
+  a <- select(a); b <- select(b)
+  if (nrow(a) > 4L || nrow(b) > 4L) stop("Choose a smaller window: at most four tiles per campaign can be previewed.")
+  list(a=a, b=b, overlap=crop)
 }
 
 read_comparison_cloud <- function(path, aoi) {
