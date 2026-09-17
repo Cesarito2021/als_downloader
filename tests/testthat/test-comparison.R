@@ -40,7 +40,7 @@ test_that("comparison samples share an origin and reject mismatched CRS", {
   expect_error(alsdownloader:::compare_campaigns(a, b, aoi, 20, 5, directory), "CRS definitions differ")
   expect_error(alsdownloader:::compare_campaigns(a[rep(1, 5), , drop = FALSE], b, aoi, 20, 5, directory), "at most four")
 })
-test_that("difference gate requires chronological surveys and verified vertical references", {
+test_that("difference gate uses provider dates without chronological restrictions", {
   dates <- list(a = data.frame(acquired_start = "2018-01-01", acquired_end = "2018-12-31"),
                 b = data.frame(acquired_start = "2024-01-01", acquired_end = "2024-12-31"))
   result <- list(grid = data.frame(eligible = TRUE))
@@ -50,12 +50,12 @@ test_that("difference gate requires chronological surveys and verified vertical 
   expect_match(gate(result, dates, TRUE, "", ""), "Verify matching")
   expect_match(gate(result, dates, TRUE, "NAVD88", "navd88"), "Exploratory difference enabled")
   bad_dates <- dates; bad_dates$a$acquired_start <- "2019-01-01"
-  expect_match(gate(result, bad_dates, TRUE, "NAVD88", "NAVD88"), "Invalid acquisition interval")
+  expect_match(gate(result, bad_dates, TRUE, "NAVD88", "NAVD88"), "Exploratory difference enabled")
   expect_match(gate(list(grid = data.frame(eligible = FALSE)), dates, TRUE, "NAVD88", "NAVD88"), "No shared")
   dates$b$acquired_start <- "2018-01-01"
-  expect_match(gate(result, dates, TRUE, "NAVD88", "NAVD88"), "non-overlapping")
+  expect_match(gate(result, dates, TRUE, "NAVD88", "NAVD88"), "Exploratory difference enabled")
   dates$b$acquired_start <- NA_character_
-  expect_match(gate(result, dates, TRUE, "NAVD88", "NAVD88"), "unknown")
+  expect_match(gate(result, dates, TRUE, "NAVD88", "NAVD88"), "Exploratory difference enabled")
 })
 test_that("app comparison starts safely without a search or campaigns", {
   shiny::testServer(als_app(), {

@@ -53,7 +53,7 @@ Use **Forest close-up and display sampling** to adjust the window, point density
 For two epochs, use **Compare campaigns**; see the [comparison method and limitations](docs/TEMPORAL_COMPARISON.md).
 Colors show source elevation, **not canopy height**. Confirm coordinate units and vertical datum.
 
-Dates in search results are provider-reported metadata. Acquisition dates, file creation dates and publication dates can differ. A [coastal Hurricane Michael tile check](docs/HURRICANE_MICHAEL.md) verified a NOAA point sample from **24 October 2018** and documented an unresolved date discrepancy in a separate USGS catalog tile.
+Dates are shown as supplied by each provider, without independent year verification or correction. Unknown, overlapping or inconsistent provider dates do not block comparison; the difference is always **B minus A** in the order selected by the user.
 
 ## Data sources
 

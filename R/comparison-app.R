@@ -1,7 +1,7 @@
 comparison_ui <- function() {
   shiny::tabPanel("Compare campaigns",
     shiny::h3("Two campaigns, one study area"),
-    shiny::p("Search an AOI in Explore, then choose two acquisition campaigns. Campaign dates are survey intervals, not publication years. Downloads remain separate."),
+    shiny::p("Search an AOI in Explore, then choose two campaigns. Dates are displayed as supplied by the provider, without independent year verification or correction. Differences follow your selection: B minus A. Downloads remain separate."),
     shiny::fluidRow(shiny::column(6, shiny::selectInput("epoch_a", "A | reference campaign", choices = character()),
       shiny::actionButton("download_epoch_a", "Select A tiles for download")),
       shiny::column(6, shiny::selectInput("epoch_b", "B | comparison campaign", choices = character()),

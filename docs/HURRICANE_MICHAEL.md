@@ -2,6 +2,8 @@
 
 Checked 17 September 2026 near Mexico Beach, Florida, at longitude -85.418, latitude 29.948.
 
+This is a historical, one-off investigation. The application uses provider dates unchanged and does not independently verify or correct years or block comparison because of date inconsistencies.
+
 ## Verified post-event aerial tile
 
 The [NOAA / USACE source record](https://www.fisheries.noaa.gov/inport/item/54682) identifies an airborne CZMIL topobathymetric survey acquired **24 October–4 November 2018**. This is laser scanning, including land and seabed points.
@@ -31,4 +33,4 @@ Neither the project-name year nor this single-day catalog value has been indepen
 Do not label this tile pre-/post-Michael from its filename or catalog timestamp alone. This is a different survey from the NOAA tile above; no date correction was inferred or applied.
 [Recorded catalog response](michael-stac-check.json).
 
-The app currently displays provider-reported dates. A syntactically valid interval is not independent acquisition-date verification. Source survey metadata and, where available, correctly interpreted point GPS time must be checked before an event-based comparison.
+The app displays provider-reported dates. This historical investigation does not create an acquisition-date verification requirement in the app; interpretation of the selected campaigns remains with the user.

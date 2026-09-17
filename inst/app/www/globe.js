@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const ctx=canvas.getContext('2d'), W=2048,H=1024;
   const texture=document.createElement('canvas');texture.width=W;texture.height=H;
   const t=texture.getContext('2d');t.fillStyle='#307fa2';t.fillRect(0,0,W,H);
+  // A subtle geographic grid gives rotation a readable geographic frame.
+  t.strokeStyle='rgba(184,223,238,0.15)';t.lineWidth=1;t.beginPath();
+  for(let x=0;x<W;x+=W/12){t.moveTo(x,0);t.lineTo(x,H);}
+  for(let y=H/6;y<H;y+=H/6){t.moveTo(0,y);t.lineTo(W,y);}t.stroke();
   const countries=new Set(canvas.dataset.countries.split(',').map(Number));
   let pixels,lon=-65,lat=18,drag=null,pending=false;
   function ring(coords,shift){
@@ -18,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const world=await response.json();
     for(const f of world.features){
       const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
-      for(const poly of polys)for(const shift of [-360,0,360]){t.beginPath();poly.forEach(coords=>ring(coords,shift));t.fillStyle='#bac6a7';t.fill('evenodd');
+      for(const poly of polys)for(const shift of [-360,0,360]){t.beginPath();poly.forEach(coords=>ring(coords,shift));t.fillStyle='#c4d5b7';t.fill('evenodd');
         if(countries.has(Number(f.id))){t.fillStyle='rgba(0,64,32,0.10)';t.fill('evenodd');}
         t.strokeStyle='#6c958b';t.lineWidth=.65;t.stroke();}
     }
@@ -45,6 +49,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   canvas.onpointerdown=e=>{drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);canvas.focus();};
   canvas.onpointermove=e=>{if(!drag)return;lon-=(e.clientX-drag[0])*.35;lat=Math.max(-75,Math.min(75,lat+(e.clientY-drag[1])*.25));drag=[e.clientX,e.clientY];redraw();};
   canvas.onpointerup=canvas.onpointercancel=()=>drag=null;
-  canvas.onkeydown=e=>{if(!e.key.startsWith('Arrow'))return;e.preventDefault();lon+=e.key==='ArrowLeft'?-10:e.key==='ArrowRight'?10:0;lat=Math.max(-75,Math.min(75,lat+(e.key==='ArrowUp'?10:e.key==='ArrowDown'?-10:0)));redraw();};
+  function reset(){lon=-65;lat=18;redraw();}
+  document.getElementById('globe_reset').onclick=reset;
+  canvas.onkeydown=e=>{if(e.key==='0'){e.preventDefault();reset();return;}if(!e.key.startsWith('Arrow'))return;e.preventDefault();lon+=e.key==='ArrowLeft'?-10:e.key==='ArrowRight'?10:0;lat=Math.max(-75,Math.min(75,lat+(e.key==='ArrowUp'?10:e.key==='ArrowDown'?-10:0)));redraw();};
   new ResizeObserver(redraw).observe(canvas);
 });

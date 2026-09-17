@@ -1,5 +1,8 @@
 # alsdownloader 0.1.0.9001
 
+* Use provider dates unchanged without independent year verification or chronological restrictions on B-minus-A comparisons; retain spatial compatibility checks.
+* Refine the globe colors and geographic grid, and add button/keyboard reset controls. The README retains exactly three figures.
+
 * Limit the README to three figures: annotated main map, 3D preview and source submission form. Record a decoded coastal post-Michael tile and distinguish acquisition, file creation and catalog dates.
 
 * Add a rotatable welcome globe rendered from bundled Natural Earth cartography; catalog countries use a dark-green 0.10-opacity tint. Open map continues to AOI discovery.

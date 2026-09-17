@@ -6,8 +6,6 @@ campaign_groups <- function(tiles) {
   project[usgs] <- basename(dirname(dirname(redact_url(tiles$url[usgs]))))
   date <- function(x) ifelse(is.na(x) | !nzchar(x), "unknown", x)
   interval <- paste0(date(tiles$acquired_start), " to ", date(tiles$acquired_end))
-  invalid <- !is.na(tiles$acquired_start) & !is.na(tiles$acquired_end) & tiles$acquired_start > tiles$acquired_end
-  interval[invalid] <- paste(interval[invalid], "[invalid source interval]")
   label <- paste(project, interval, sep = " | ")
   split(seq_len(nrow(tiles)), label)
 }
@@ -102,13 +100,6 @@ compare_campaigns <- function(a, b, aoi, resolution, min_points, directory) {
 
 comparison_gate <- function(result, dates, verified, vertical_a, vertical_b) {
   if (is.null(result)) return("Load two campaigns to begin.")
-  if (anyNA(unlist(dates)) || any(!nzchar(unlist(dates)))) return("Acquisition dates are unknown; temporal differences remain unavailable.")
-  values <- unlist(dates, use.names = FALSE)
-  if (any(!grepl("^\\d{4}-\\d{2}-\\d{2}$", values)) || anyNA(as.Date(values, format = "%Y-%m-%d")))
-    return("Invalid acquisition interval in source metadata; temporal differences remain unavailable until the source dates are corrected.")
-  if (any(dates$a$acquired_start > dates$a$acquired_end) || any(dates$b$acquired_start > dates$b$acquired_end))
-    return("Invalid acquisition interval in source metadata; temporal differences remain unavailable until the source dates are corrected.")
-  if (max(dates$a$acquired_end) >= min(dates$b$acquired_start)) return("For temporal differences, choose A entirely before B with non-overlapping acquisition intervals.")
   if (!isTRUE(verified) || is.null(vertical_a) || is.null(vertical_b) || !nzchar(trimws(vertical_a)) ||
       tolower(trimws(vertical_a)) != tolower(trimws(vertical_b)))
     return("Verify matching vertical references and metre Z units before interpreting a difference.")

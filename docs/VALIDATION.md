@@ -136,3 +136,13 @@ Palette switching and 390 px layouts passed without JavaScript errors. Country s
 not survey coverage. The globe uses bundled Natural Earth / World Atlas outlines with an original canvas
 renderer; the basemap still requires its external imagery service. The duplicate map figure was removed
 from the README and replaced by one refreshed satellite capture with A–F annotations.
+
+## Provider dates and globe refinement — 17 September 2026
+
+The application now displays provider dates unchanged and does not independently validate years.
+The previous chronological comparison gate is removed: unknown, inconsistent and overlapping intervals
+no longer block B-minus-A output. Spatial/vertical compatibility and point-count checks remain.
+The 105 package assertions passed, including updated date-policy checks, with the existing dependency warnings.
+Browser checks verified globe rotation, button and keyboard reset, mobile width and the provider-date
+explanation without page errors. The README still contains exactly three figures; the globe screenshot
+is retained only as a separate documentation asset.

@@ -6,9 +6,9 @@ The application links existing source archives; it does not publish or permanent
 ## Workflow
 
 1. Draw/upload a small AOI and search a date interval that includes both surveys.
-2. Open **Compare campaigns**. Choose **A** as the reference and **B** as the later campaign.
+2. Open **Compare campaigns**. Choose reference **A** and comparison **B**. B need not be later than A.
    The options identify the source project, acquisition interval and number of intersecting tiles.
-   Unknown dates and invalid source intervals remain explicit; project-name years are not substituted for acquisition metadata.
+   Provider dates are displayed unchanged; project-name years are not substituted. The app does not independently validate or correct acquisition years.
 3. Choose the grid resolution and the minimum point count per cell in each campaign, then **Load and compare AOI**.
 4. Inspect the overlaid clouds. Set A and B independently to Cyan, Orange, Viridis, Magma, Plasma or Cividis;
    hide either cloud, orbit, zoom and adjust the explicitly labelled vertical exaggeration.
@@ -49,7 +49,7 @@ and the metadata for the particular surveys.
 
 | Check | Current behavior |
 |---|---|
-| Dates | Unknown, invalid or overlapping acquisition intervals prevent temporal-difference output. A must finish before B starts. |
+| Dates | Provider metadata is displayed unchanged. Missing, inconsistent, overlapping or reversed intervals do not block B-minus-A differences. The user chooses the campaign order. |
 | Vertical reference | Explicit matching user-entered references and verification are required; this acknowledgement is not automated verification. |
 | AOI | Maximum 0.25 km². |
 | Transfers | At most four tiles and 200 MB per campaign; maximum 100 MB per tile, known HTTP size required. Sequential downloads, shared hosted transfer lock. |
@@ -64,6 +64,6 @@ point counts, AOI geometry, software version and export time. Keep it with the C
 ## Validation
 
 Controlled tests cover known +3 m, −2 m and zero differences, missing coverage, low point counts, shared-origin preservation,
-different CRS definitions, invalid/unknown dates, date overlap and unverified/mismatched vertical references.
+different CRS definitions and unverified/mismatched vertical references. Tests confirm that inconsistent/unknown dates and date overlap do not block differences.
 A clearly labelled synthetic browser fixture verifies the difference plot, CSV/JSON export and invalidation when the vertical reference changes.
 Synthetic offsets are not evidence of real landscape change. See [validation history](VALIDATION.md) for live-provider checks and limitations.
