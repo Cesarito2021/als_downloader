@@ -12,10 +12,19 @@ Other sources are reviewed links for discovery; they do not yet have download ad
 
 ## User interface
 
-The opening globe uses bundled Natural Earth cartography. Choose **Open map** to begin.
-Green country shading indicates catalog sources, not measured LiDAR coverage.
+### 1. Welcome globe
 
-### Explore → define an area → find tiles → download
+![Welcome globe with red catalog-country highlights and red boxes W1-W3 identifying globe, coverage explanation and map entry](docs/images/interface-globe.png)
+
+The opening globe uses bundled Natural Earth cartography. Red country shading indicates catalog sources, not measured LiDAR coverage.
+
+| Section | What to do |
+|---|---|
+| **W1 - Globe** | Drag or use arrow keys to rotate; use **Reset globe** to return. |
+| **W2 - Catalog presence** | Read the coverage explanation: red indicates countries with catalog sources. |
+| **W3 - Open map** | Enter the map to define an AOI and search for tiles. |
+
+### 2. Search example: define an area, find tiles and download
 
 ![Satellite map and real USGS search, with red boxes A–F identifying the main controls](docs/images/interface-rgb-tile.png)
 
@@ -35,7 +44,7 @@ Live application capture, 17 September 2026: a small Utah AOI with seven USGS re
 Output paths shown are examples. Missing sizes remain blank; unknown dates are retained in searches.
 The satellite and terrain backdrops depend on external map services; the welcome globe uses bundled cartography.
 
-### Inspect a selected tile or local point cloud
+### 3. Inspect a selected tile or local point cloud
 
 ![Actual LAS/LAZ preview with red boxes G–I around upload controls, the point cloud and vertical exaggeration](docs/images/interface-preview.png)
 
@@ -185,6 +194,8 @@ Complete the required fields and acknowledge review to reveal the submission opt
 **Prepare email** opens a draft addressed to the maintainer; send it from your email application.
 Alternatively, open a **public GitHub draft** or save the proposal as text if no email client is configured.
 The form does not send automatically or upload point clouds. Proposals undergo review before catalog inclusion and adapter development.
+
+### 4. Submit a data source
 
 ![Live source submission form populated with illustrative metadata; no proposal was sent](docs/images/interface-submit-source.png)
 
