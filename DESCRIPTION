@@ -1,13 +1,8 @@
 Package: alsdownloader
 Title: Discover and Download Airborne Laser Scanning Data
 Version: 0.1.0
-Authors@R: c(
-    person("Cesar Ivan", "Alvites Diaz", role = c("aut", "cre"),
-           email = "calvites1990@gmail.com"),
-    person("Carlos Alberto", "Silva", role = "ctb"),
-    person("Viswanath", "Nandigam", role = "ctb"),
-    person("Chelsea", "Scott", role = "ctb"),
-    person("Inacio", "Bueno", role = "ctb"))
+Authors@R: person("Cesar Ivan", "Alvites Diaz", role = c("aut", "cre"),
+    email = "calvites1990@gmail.com")
 Description: Search airborne laser scanning point-cloud tiles by polygon,
     inspect acquisition metadata, and download selected assets with resumable
     transfer records. Supports the USGS 3D Elevation Program through

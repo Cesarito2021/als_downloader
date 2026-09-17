@@ -14,7 +14,7 @@ No submission has been made to CRAN. Passing local checks does not guarantee acc
 
 ## Before submission
 
-1. Confirm the existing DESCRIPTION contributor roles with the maintainer: Carlos Alberto Silva, Viswanath Nandigam, Chelsea Scott and Inacio Bueno are still recorded as `ctb`; Cesar Ivan Alvites Diaz is the sole `aut`/`cre`. Their roles were not silently removed. The maintainer must confirm accurate authorship and permission to distribute contributions.
+1. Authorship confirmed by the maintainer: the project collaborators did not contribute to this application and have been removed from DESCRIPTION. Cesar Ivan Alvites Diaz is the sole package author and maintainer (`aut`/`cre`). The brief OpenForest4D project acknowledgement remains in the README. This metadata correction follows the linked release checks.
 2. Re-run the successful cross-platform matrix if package code or metadata change before submission. Local R 4.4.0 checks include the full PDF manual; current-R and R-devel checks are covered by the linked CI run.
 3. Review the linked dataset licenses and third-party notices; access checks do not grant rights. CC BY examples retain DOI credit; national products retain provider terms. The app never claims complete national coverage from country shading.
 4. Decide the operational email process. The app prepares private drafts; automated confirmations require a separately configured mail service. The public approval metric excludes email-only requests.
