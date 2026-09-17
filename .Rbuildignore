@@ -1,0 +1,15 @@
+^\.git$
+^\.github$
+^\.gitignore$
+^.*\.Rproj$
+^\.Rproj\.user$
+^app\.R$
+^base\.R$
+^www$
+^rsconnect$
+^legacy$
+^docs$
+^tools$
+^cran-comments\.md$
+^.*\.Rcheck$
+^.*\.tar\.gz$

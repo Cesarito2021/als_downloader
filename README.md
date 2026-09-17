@@ -1,233 +1,102 @@
-# ALS downloader web-based shiny app
+# ALS Downloader
 
-ALS Downloader is a Shiny web application developed within the NSF-funded OpenForest4D project for searching, exploring, and downloading airborne LiDAR point-cloud datasets (.LAS/.LAZ) from OpenTopography and USGS 3D Elevation Program (3DEP) sources. The application allows users to query LiDAR data by area of interest and acquisition period, view summaries by product, explore data availability and spatial coverage, and download selected LAZ/LAS tiles locally. Multicore parallel processing enables efficient, scalable data retrieval.
+An R package and Shiny application to discover and download airborne laser scanning point clouds. Draw or upload a study area, find source tiles, download a selection, and inspect a bounded 3D preview.
 
-🔗 OpenForest4D: https://openforest4d.org
+**Development preview 0.1.0.9000 — not submitted to CRAN.** Working adapters: USGS 3DEP through Microsoft Planetary Computer, and OpenTopography through local TileIndex archives. Other catalog entries are candidates awaiting integration.
 
-🔗 OpenTopography: https://portal.opentopography.org/datasets
+Developed within [OpenForest4D](https://openforest4d.org). Maintainer: Cesar Ivan Alvites Diaz, **calvites1990@gmail.com**. Secondary contact: **c.alvitesdiaz@ufl.edu**. Software: **GPL-3**. Datasets retain their own licenses.
 
-🔗 USGS 3DEP datasets: https://www.usgs.gov/3d-elevation-program
+## Install and launch
 
-## Application Overview
-![Application banner](www/logo/logo_300dpi.png)
-
-## Overview and Access
-ALS downloader is a Shiny-based application designed to search, explore, and download Airborne Laser Scanning (ALS / LiDAR) data from the OpenTopography and USGS 3DEP program.
-
-The application allows users to select source, define a study area (AOI), configurate app and identify ALS tile availability across years and projects, and download selected LAZ tiles locally, leveraging multi-core parallel processing.
-The interface is organized into the following functional components (see Figure below):
-
-## User Interface (UI) and Architecture
-A) Study Area Input (AOI)
-B) Local Processing Configuration/ Local Data verification
-C) Output Configuration
-D) LiDAR Tile Discovery
-E) ALS Data Download
-F) Application Header and Project Context
-
-### OpenTopograhy User Interface (UI) and Architecture
-![Image](https://github.com/user-attachments/assets/86ea4433-b57c-4511-b2ed-ab6a2fcd3531)
-
-### USGS 3DEP User Interface (UI) and Architecture
-![Image](https://github.com/user-attachments/assets/1dc96cd2-d00e-4d18-99f8-e03eeb796610)
-
-⚠️ Important
-Due to cloud execution constraints, parallel downloads are only available when running the app locally.
-The hosted Shiny version is intended only for data discovery and availability assessment.
-
-## Purpose and Use Cases
-ALS downloader is designed to support:
-- ALS data availability assessment for forest, environmental, and geomatics studies
-- Efficient local data acquisition for large AOIs using multi-core CPUs
-- The app is not intended for point cloud processing or visualization, but rather for data discovery and acquisition.
-
-## Opportunities and Challenges
-The ALS Downloader provides similar core functionality in d local execution modes.
-However, the associated challenges and limitations differ depending on the execution environment.
-
-### Opportunities 
-
-| Opportunity | Description |
-|------------|-------------|
-| ALS availability assessment | Identify OpenTopography and USGS 3DEP ALS data intersecting a user-defined AOI |
-| Metadata exploration | Inspect available acquisition years, project sources, and tile counts |
-| Spatial coverage understanding | Understand the spatial distribution of ALS data within the AOI |
-| Data acquisition planning | Support informed planning prior to large-scale data downloads |
-| Reproducible workflows | Enable consistent AOI-based data discovery across environments |
-
----
-
-### Challenges / Limitations (by execution mode)
-
-| Execution Mode | Challenges / Limitations |
-|---------------|--------------------------|
-| **Local (desktop execution)** | Download performance depends on local hardware;<br>Parallelization limited by available CPU cores;<br>Requires local setup (R environment and dependencies);<br>Requires sufficient disk space and network bandwidth |
-
----
-
-**Summary**
-- ➡️ Local execution is recommended for efficient, large-scale ALS (LAZ) downloads and operational workflows, and provides access to both OpenTopography and USGS 3DEP data sources.
-
-## How to Configure the App Locally (Recommended for Downloading ALS Data)
-
-To fully leverage the application, users should run it locally.
-
-### Step 1 – Download the Application
-
-- Download the repository as a ZIP file
-- Unzip it on your local machine
-
-### Step 2 – Download and install the data folder
-
-The data/ directory is not included in the GitHub repository and must be downloaded separately.
-1. Download the data folder
-Download the data folder from Google Drive:https://drive.google.com/drive/folders/1-MyjrJmtrLpQR1Dc0bU227yq9ID1rZoV?usp=drive_link .
-
-After downloading, move or copy the entire data/ folder into the root of the repository:
-```r
-ot_pc_app/
-├── app.R
-├── base.R
-├── data/
-│   └── * TileIndex_all/
-│       └── all .zip files
-├── www/
-│   └── css/
-│   │    └── main.css
-│   └── logo/
-│       └── logo_300dpi.png
-├── .gitignore
-└── README.md
-```
-
-### Step 3 – Open the Project
-
-- Open the project folder in RStudio
-- Ensure required R packages are installed (as listed in the project documentation)
-
-### Step 3 – Run the Application
+Requires R >= 4.1 and the spatial dependencies of `sf`. Installation is explicit; the app never installs packages at startup.
 
 ```r
-# ============================
-# Run lidar_app locally
-# ============================
-
-# Set the working directory to the application folder
-# Replace the path below with the location where you unzipped the project
-setwd("path/to/ot_pc_app")
-
-# Verify that the app files are present
-list.files()
-
-# Run the Shiny application
-shiny::runApp("app.R")
-
-# The app will now have access to your local CPU resources
+install.packages("remotes")
+remotes::install_github("Cesarito2021/als_downloader", ref = "codex/shiny-r-package")
+install.packages("lidR") # optional LAS/LAZ preview
+alsdownloader::launch_app()
 ```
-## Workflow Tutorial
 
-This section describes the **step-by-step workflow** for discovering and downloading  
-OpenTopography and USGS 3DEP ALS data using `als_downloader`.  
-The workflow guides users from **AOI definition** to **local LAZ data acquisition**.
+From a clone, use `remotes::install_local(".")` and then `alsdownloader::launch_app()`. The root `app.R` is also a Shiny entry point after installation. The previous application is preserved under `legacy/` for comparison and is not loaded by the package.
 
----
+For OpenTopography, obtain [provider tile indexes](https://opentopography.org/node/3598) and configure a folder of `*_TileIndex.zip` archives. Indexes and point clouds are not bundled.
 
-### 1. API Key and ALS Source (left panel of the app)
-- Insert the API key provided by OpenTopography: https://opentopography.org/developers  
-- Select the ALS source from the available options.
-- 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/ae10d7df-10b2-4591-99ca-55e4f72f0f83"
-       alt="API key and ALS source"
-       width="400">
-</p>
+```r
+alsdownloader::launch_app(tile_index_dir = "C:/data/TileIndex_all")
+```
 
----
+## Use the app or R functions
 
-### 2. Study Area Input (AOI)
+1. Navigate the map. Country shading indicates catalog candidates, not continuous survey coverage.
+2. Draw a polygon/rectangle or upload GeoJSON, GeoPackage, FlatGeobuf, or a zipped Shapefile with companion files. Inputs need a CRS; multilayer GeoPackages need a layer selection.
+3. Search an implemented provider and inspect tile footprints and dates. Unknown dates remain visible. Incomplete searches fail explicitly.
+4. Select rows and an output folder. Downloads produce `manifest.csv`, `CITATIONS.txt`, and checksum sidecars. Restarting verifies completed files before skipping them; interrupted tiles restart in full.
+5. Open **3D preview**, upload LAS/LAZ, and rotate the bounded sample. Colors represent source elevation, not canopy height. Check source units and vertical datum.
 
-Users define the Area of Interest by uploading one of the following formats:
+```r
+library(alsdownloader)
+aoi <- read_aoi("study-area.gpkg", layer = "boundary")
+aoi_area(aoi) # square kilometres, overlaps counted once
+tiles <- find_tiles(aoi, provider = "usgs3dep")
+result <- download_tiles(tiles, "selected-tiles", workers = 2)
+points <- read_preview(result$path[1], max_points = 50000)
+```
 
-- a zipped Shapefile  
-- a GeoPackage (`.gpkg`)  
-- a GeoJSON file  
+## Workers, hosting, and devices
 
-If multiple polygons are present, users can select one or more features  
-based on attribute values.
+Local mode recommends `min(10, max(1, available cores - 4))` workers, adjustable up to the machine allowance. Effective concurrency also respects tile count and the configured provider ceiling, initially two. Raise `provider_limit` after checking applicable service terms. `future.apply::future_lapply()` handles transfers inside a background process, keeping Shiny responsive during downloads and previews.
 
----
+Hosted mode uses one download worker, at most 10 tiles / 500 MB per batch with known sizes, and 200 MB uploads. These are application controls, not universal Shiny limits. Large transfers belong in local mode.
 
-### 3. Data Source Selection
+```r
+alsdownloader::launch_app(mode = "hosted", tile_index_dir = "/srv/als/indexes")
+```
 
-- OpenTopography  
-- USGS 3DEP  
+The repository entry point accepts `ALS_MODE` and `ALS_TILE_INDEX_DIR`. Multiple server processes must share `ALS_HOST_LOCK_DIR`; administrators must configure storage quotas and cleanup. This is not a distributed scheduler. Tile searches are currently synchronous and large index collections can take time.
 
----
+The layout adapts to desktop, tablet, and phone widths. Touch rotation and collapsible controls are included. Physical mobile-browser acceptance testing and hosted deployment remain pending. Workers run on the hosting computer, not the phone.
 
-### 4. Local Processing Configuration / Local Data Verification
+## Countries and sample validation
 
-This step controls download performance:
+Each passed row resolved an AOI, downloaded one representative tile, decoded it with `lidR`, and verified checksum restart on 2026-09-16. **A sample pass is not national coverage validation.** Exact URLs, sizes, checksums and point counts: [validation.csv](docs/validation.csv).
 
-- users specify the ALS source to be used  
-- users specify the number of CPU cores to use  
-- parallel downloads significantly reduce acquisition time for large AOIs  
+| Country / region | Dataset / source | Status |
+|---|---|---|
+| United States | USGS 3DEP, Utah Statewide South 2020 | Passed: 1 tile, 376,166 points |
+| Australia | OpenTopography AUS11_Victor | Passed: 1 tile, 3,145,273 points; ELVIS pending |
+| Brazil | OpenTopography BR17_SaoPaulo | Passed: 1 tile, 4,564,257 points; ORNL/Zenodo/EMBRAPA pending |
+| New Zealand | OpenTopography Auckland_2013 | Passed: 1 tile, 1,772,379 points; direct LINZ pending |
+| Taiwan | OpenTopography TW18_Carr | Passed: 1 tile, 474,929 points |
+| United States | NEON AOP | Candidate; account/token integration pending |
+| Canada | CanElevation | Candidate; native adapter and sample pending |
+| France | IGN LiDAR HD | Candidate; native adapter and sample pending |
+| Spain | PNOA LiDAR | Candidate; native adapter and attribution review pending |
+| Sweden | Laserdata Skog | Existing local LAS preview checked; remote download pending |
+| Finland | NLS | Candidate; distinguish open 0.5 p from licensed 5 p |
+| Switzerland / Liechtenstein | swisstopo / supplied inventory | Candidate; access and adapter pending |
+| United Kingdom / Scotland | Scottish Public Sector LiDAR | Candidate; campaign license and adapter pending |
+| Gabon | ForestScan / AfriSAR | Candidate; distinguish point clouds from waveform products |
+| French Guiana | ForestScan, Paracou | Candidate; geometry and remote sample pending |
+| Malaysia | ForestScan / NERC-ARF, Sabah | Candidate; access and sample pending |
+| Indonesia | Kalimantan research data | Candidate; access and sample pending |
+| Panama | Research data in supplied inventory | Candidate; access and sample pending |
+| China / Ningxia | Research data in supplied inventory | Candidate; access and sample pending |
+| South Africa | Research data in supplied inventory | Candidate; access and sample pending |
+| Netherlands, Norway, Estonia, Poland | National datasets in supplied inventory | Candidates; access and adapters pending |
+| Central Africa | Regional research collections | Candidate region; individual country/file coverage not established |
 
-⚠️ This option is effective **only when running the app locally**.
+The [candidate inventory](docs/dataset-candidates.csv) retains 45 supplied records, including overlapping and regional records. Their descriptions are not verified current terms. `provider_catalog()` returns curated provider links and implementation flags, not an exhaustive global inventory.
 
----
+OpenTopography uses URLs embedded in supplied indexes, not area-processing requests. There is no assumed universal 5 km limit: restrictions depend on endpoint and dataset. Check each landing page and the [citation guidance](https://opentopography.org/citations). Unknown licenses and missing DOIs remain unresolved; `CITATIONS.txt` is a provenance starting point, not necessarily a publication-ready citation.
 
-### 5. Output Configuration
+The optional backdrop uses [Esri World Hillshade](https://developers.arcgis.com/javascript/latest/sample-code/layers-custom-blendlayer/). Bundled country outlines remain available without that service. Background maps are context, not ALS coverage.
 
-Users define:
+## Suggest a dataset
 
-- the output directory on their local machine  
-- the project folder name  
+[Suggest a dataset](https://github.com/Cesarito2021/als_downloader/issues/new?title=Dataset%20suggestion): include country/site, provider, landing page or DOI, format, coverage/index, dates, license, required citation, and credential requirements. Never include keys or passwords. A structured [suggestion form](.github/ISSUE_TEMPLATE/suggest-dataset.yml) becomes available in GitHub's issue chooser after merge.
 
-Downloaded LAZ files are automatically organized in a structured  
-folder hierarchy to support reproducible workflows.
+Suggestions are reviewed before inclusion. Enabling a source requires documented terms, reliable AOI-to-tile discovery, and one or two decoded sample downloads per supported country. A catalog entry alone does not enable downloads.
 
----
+## Development and release gate
 
-### 6. LiDAR Tile Discovery
-
-After configuring the AOI:
-
-- the app queries USGS 3DEP ALS metadata services  
-- ALS tiles intersecting the AOI are identified  
-
-Results are summarized by:
-
-- acquisition year  
-- project/source  
-- number of available tiles  
-
-This step allows users to evaluate ALS availability before downloading data.
-
----
-
-### 7. ALS Data Download
-
-Users can:
-
-- select specific acquisition years  
-- select specific ALS projects  
-- download only the required LAZ tiles  
-
-Downloaded files are saved locally and can be directly used in:
-
-- PDAL  
-- lidR  
-- CloudCompare  
-- GIS software  
-
-## Developers and Maintainers
-
-- Cesar Alvites — University of Florida  
-- Carlos Alberto Silva — University of Florida  
-- Viswanath Nandigam — San Diego Supercomputer Center, University of California San Diego  
-- Chelsea Scott — Arizona State University  
-- Inacio Bueno — University of Florida
-
-## Acknowledgements
-
-This application was developed within the OpenForest4D (https://openforest4d.org/) cyberinfrastructure initiative, supported by academic and research institutions focused on next-generation forest mapping and monitoring.
+Includes documented functions, offline tests, an offline vignette, and Windows/macOS/Linux check CI. Local Windows validation uses `R CMD check --as-cran --no-manual`; it does not establish CRAN acceptance. See [the release checklist](docs/RELEASE_CHECKLIST.md). No workflow submits to CRAN.

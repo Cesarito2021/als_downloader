@@ -1,0 +1,85 @@
+---
+title: "Discovering and downloading ALS tiles"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Discovering and downloading ALS tiles}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The package exposes the same study-area and transfer functions used by its Shiny
+interface. Package loading and the examples below make no network requests.
+
+```{r}
+library(alsdownloader)
+ring <- matrix(c(0,0, 1,0, 1,1, 0,1, 0,0), ncol=2, byrow=TRUE)
+aoi <- read_aoi(sf::st_sfc(sf::st_polygon(list(ring)), crs=4326))
+aoi_area(aoi)
+download_worker_policy("local", available_cores=8)
+```
+
+## Interactive use
+
+Start the app explicitly from an interactive R session:
+
+```{r, eval=FALSE}
+launch_app()
+```
+
+Draw an area or upload a zipped Shapefile, GeoPackage or GeoJSON. Select a
+provider and acquisition interval, search, then select tile rows. For local
+downloads choose an output directory. Unknown acquisition dates remain visible.
+
+## Scripted use
+
+These commands need a real study area and internet access and are not executed
+when this vignette is built:
+
+```{r, eval=FALSE}
+aoi <- read_aoi("study-area.gpkg", layer="study")
+tiles <- find_tiles(aoi, provider="usgs3dep")
+download_tiles(tiles, output_dir="selected-tiles", workers=2)
+
+ot_tiles <- find_tiles(aoi, provider="opentopography",
+                      tile_index_dir="my-tile-indexes")
+```
+
+OpenTopography indexes must include geometry, CRS and a URL field. Their
+acquisition dates are currently reported as unknown rather than guessed from
+filenames. Obtain the dataset DOI and exact attribution from the provider.
+USGS 3DEP assets are signed immediately before transfer.
+
+## Resume and validation
+
+Each completed tile has a sidecar record with its source and checksum. Running
+the same request again skips only files whose records and checksums match.
+Inspect `manifest.csv` for failures. HTTP status, reported length and the LAS
+signature are checked; complete decompression of every point is not verified.
+Existing untracked destination files are not overwritten.
+
+Transfer failures remain in the result table. Rate-limit and authorization
+responses stop that tile rather than causing aggressive automatic retries.
+After a hard crash, verify that no transfer process is alive before removing
+the output directory's `.als-transfer-lock` directory.
+
+## Preview and units
+
+```{r}
+p <- preview_points(data.frame(X=1:100, Y=101:200, Z=201:300), max_points=12)
+nrow(p)
+attr(p, "origin")
+```
+
+`read_preview()` optionally uses lidR to decimate a local LAS/LAZ file while
+reading. It is not a remote COPC streaming implementation. Preview coordinates
+retain the source units; the source's vertical datum and units must be checked.
+Elevation colors do not represent terrain-normalized canopy height.
+
+## Hosted deployment
+
+Hosted mode uses serial downloads with a small per-batch storage allowance.
+The administrator configures the OpenTopography index path and any shared lock
+directory. The browser cannot select arbitrary server directories. Outputs are
+temporary and must be saved before closing the session. Multi-process hosting
+requires a shared `ALS_HOST_LOCK_DIR`; multiple hosts require a distributed job
+queue, which this version does not provide.

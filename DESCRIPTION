@@ -1,0 +1,28 @@
+Package: alsdownloader
+Title: Discover and Download Airborne Laser Scanning Data
+Version: 0.1.0.9000
+Authors@R: c(
+    person("Cesar Ivan", "Alvites Diaz", role = c("aut", "cre"),
+           email = "calvites1990@gmail.com"),
+    person("Carlos Alberto", "Silva", role = "ctb"),
+    person("Viswanath", "Nandigam", role = "ctb"),
+    person("Chelsea", "Scott", role = "ctb"),
+    person("Inacio", "Bueno", role = "ctb"))
+Description: Search airborne laser scanning point-cloud tiles by polygon,
+    inspect acquisition metadata, and download selected assets with resumable
+    transfer records. Supports the USGS 3D Elevation Program through
+    Planetary Computer and local OpenTopography tile indexes. Includes a
+    responsive 'Shiny' interface, provider access notes, bounded point-cloud
+    previews, and configurable local download concurrency.
+License: GPL-3
+Contact: Cesar Ivan Alvites Diaz <c.alvitesdiaz@ufl.edu>
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: sf, s2, httr, jsonlite, digest, parallelly, future, future.apply,
+    shiny (>= 1.8.0), leaflet, leaflet.extras, DT, callr, zip
+Suggests: lidR, testthat (>= 3.0.0), knitr, rmarkdown
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+URL: https://github.com/Cesarito2021/als_downloader
+BugReports: https://github.com/Cesarito2021/als_downloader/issues
+RoxygenNote: 7.3.1

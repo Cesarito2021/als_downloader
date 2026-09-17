@@ -1,0 +1,54 @@
+name: Suggest a dataset
+description: Propose an airborne laser scanning dataset for review.
+title: "Dataset suggestion: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for contributing. We review access, licensing, metadata and a sample before enabling a dataset. Do not include passwords, API keys or signed private URLs."
+  - type: input
+    id: dataset
+    attributes:
+      label: Dataset name and provider
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Country and coverage area
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Public catalog or dataset URL
+    validations:
+      required: true
+  - type: textarea
+    id: access
+    attributes:
+      label: Download method, format and authentication requirements
+      description: "For example: COPC, LAZ, LAS, EPT; API, tile index or portal."
+    validations:
+      required: true
+  - type: textarea
+    id: license
+    attributes:
+      label: License, required attribution and citation or DOI
+    validations:
+      required: true
+  - type: textarea
+    id: metadata
+    attributes:
+      label: Acquisition dates, CRS, vertical datum, density and classification
+  - type: input
+    id: sample
+    attributes:
+      label: Public sample tile or small test area
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Review
+      options:
+        - label: "I understand this is a suggestion and inclusion requires validation."
+          required: true

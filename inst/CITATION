@@ -1,0 +1,6 @@
+bibentry(bibtype = "Manual",
+  title = "alsdownloader: Discover and Download Airborne Laser Scanning Data",
+  author = person("Cesar Ivan", "Alvites Diaz"),
+  year = "2026",
+  note = "Development version. Cite source datasets separately.",
+  url = "https://github.com/Cesarito2021/als_downloader")

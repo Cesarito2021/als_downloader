@@ -1,0 +1,158 @@
+#' Inspect provider access and implementation status
+#' @return A data frame with provider identifiers, access notes, source links,
+#'   and whether a tile-search adapter is implemented. Implemented does not
+#'   mean that every dataset or endpoint is currently available.
+#' @export
+#' @examples
+#' provider_catalog()
+provider_catalog <- function() {
+  utils::read.csv(system.file("extdata", "providers.csv", package = "alsdownloader"),
+                  stringsAsFactors = FALSE)
+}
+
+empty_tiles <- function() {
+  sf::st_sf(tile_id = character(), provider = character(), dataset = character(),
+    filename = character(), url = character(), acquired_start = character(),
+    acquired_end = character(), size_bytes = numeric(), license_url = character(),
+    citation = character(), geometry = sf::st_sfc(crs = 4326))
+}
+
+request_json <- function(url, body = NULL, query = NULL) {
+  tryCatch({
+    response <- if (is.null(body)) httr::GET(url, query = query, httr::timeout(60))
+      else httr::POST(url, body = body, encode = "json", httr::timeout(60))
+    if (httr::status_code(response) >= 400)
+      stop(sprintf("Provider returned HTTP %s.", httr::status_code(response)))
+    jsonlite::fromJSON(httr::content(response, "text", encoding = "UTF-8"), simplifyVector = FALSE)
+  }, error = function(e) stop("Provider request failed. Check connectivity, access and service status.", call. = FALSE))
+}
+
+#' Find point-cloud tiles intersecting a study area
+#' @param aoi Polygon input accepted by [read_aoi()].
+#' @param provider Either `"usgs3dep"` (Planetary Computer) or
+#'   `"opentopography"` (local TileIndex archives).
+#' @param start,end Optional inclusive acquisition dates in `YYYY-MM-DD` format.
+#'   Unknown acquisition dates remain in the results.
+#' @param tile_index_dir Directory of OpenTopography `*_TileIndex.zip` files.
+#'   Required for the OpenTopography adapter. Embedded index CRS is required.
+#' @param max_items Maximum number of tiles to return. An incomplete result
+#'   raises an error instead of silently reporting partial coverage.
+#' @return An `sf` table of assets with stable identifiers, canonical URLs,
+#'   acquisition dates, citation information and tile geometry in EPSG:4326.
+#' @details Network access occurs only when this function is explicitly called
+#'   for USGS 3DEP. OpenTopography uses supplied local indexes and their embedded
+#'   download links; it does not assume a universal area limit or require a key
+#'   for already-public tile URLs. Asset licenses must be checked per dataset.
+#' @export
+#' @examples
+#' if (interactive()) {
+#'   # tiles <- find_tiles("study-area.gpkg", provider = "usgs3dep")
+#' }
+find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography"),
+                       start = NULL, end = NULL, tile_index_dir = NULL,
+                       max_items = 10000L) {
+  provider <- match.arg(provider)
+  aoi <- read_aoi(aoi)
+  for (value in list(start, end)) if (!is.null(value) &&
+      (length(value) != 1L || is.na(as.Date(value)) || !grepl("^\\d{4}-\\d{2}-\\d{2}$", value)))
+    stop("Dates must use YYYY-MM-DD.", call. = FALSE)
+  if (!is.null(start) && !is.null(end) && as.Date(start) > as.Date(end))
+    stop("Start date must not follow end date.", call. = FALSE)
+  if (length(max_items) != 1L || !is.finite(max_items) || max_items < 1)
+    stop("max_items must be positive.", call. = FALSE)
+  tiles <- if (provider == "usgs3dep") search_3dep(aoi, max_items) else search_ot(aoi, tile_index_dir, max_items)
+  if (nrow(tiles)) {
+    # Search without a date filter so undated surveys are not silently lost.
+    keep <- rep(TRUE, nrow(tiles))
+    if (!is.null(start)) keep <- keep & (is.na(tiles$acquired_end) | tiles$acquired_end >= start)
+    if (!is.null(end)) keep <- keep & (is.na(tiles$acquired_start) | tiles$acquired_start <= end)
+    tiles <- tiles[keep, , drop = FALSE]
+  }
+  tiles
+}
+
+search_3dep <- function(aoi, max_items) {
+  url <- "https://planetarycomputer.microsoft.com/api/stac/v1/search"
+  body <- list(collections = list("3dep-lidar-copc"), intersects = aoi_geometry(aoi), limit = 500L)
+  features <- list(); visited <- character()
+  repeat {
+    fingerprint <- digest::digest(list(url, body))
+    if (fingerprint %in% visited) stop("Provider pagination repeated; search incomplete.", call. = FALSE)
+    visited <- c(visited, fingerprint)
+    page <- request_json(url, body)
+    features <- c(features, page$features)
+    if (length(features) > max_items) stop("Search exceeds max_items. Use a smaller area or raise the explicit limit.", call. = FALSE)
+    links <- Filter(function(x) identical(x$rel, "next"), page$links)
+    if (!length(links)) break
+    nxt <- links[[1]]
+    if (!startsWith(nxt$href, "https://planetarycomputer.microsoft.com/"))
+      stop("Unexpected pagination host; search incomplete.", call. = FALSE)
+    url <- nxt$href
+    body <- if (identical(nxt$method, "POST")) {
+      if (isTRUE(nxt$merge)) utils::modifyList(body, nxt$body) else nxt$body
+    } else NULL
+  }
+  if (!length(features)) return(empty_tiles())
+  rows <- lapply(features, function(f) {
+    asset <- f$assets$data
+    if (is.null(asset$href) || is.null(f$geometry)) return(NULL)
+    p <- f$properties
+    start <- p$start_datetime; end <- p$end_datetime
+    if (is.null(start)) start <- p$datetime
+    if (is.null(end)) end <- p$datetime
+    date <- function(x) if (is.null(x)) NA_character_ else substr(x, 1, 10)
+    g <- sf::st_read(jsonlite::toJSON(list(type = "Feature", properties = list(), geometry = f$geometry), auto_unbox = TRUE), quiet = TRUE)
+    sf::st_sf(tile_id = f$id, provider = "usgs3dep", dataset = f$collection,
+      filename = basename(sub("\\?.*$", "", asset$href)), url = sub("\\?.*$", "", asset$href),
+      acquired_start = date(start), acquired_end = date(end),
+      size_bytes = if (is.null(asset[["file:size"]])) NA_real_ else as.numeric(asset[["file:size"]]),
+      license_url = "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
+      citation = paste("USGS 3DEP;", f$id, "; distributed through Microsoft Planetary Computer. Consult survey metadata for acquisition and producer credits."),
+      geometry = sf::st_geometry(g))
+  })
+  rows <- Filter(Negate(is.null), rows)
+  if (!length(rows)) return(empty_tiles())
+  ans <- do.call(rbind, rows)
+  ans[!duplicated(ans$tile_id) & lengths(sf::st_intersects(ans, aoi)) > 0, , drop = FALSE]
+}
+
+search_ot <- function(aoi, folder, max_items) {
+  if (is.null(folder) || !dir.exists(folder)) stop("Configure a local OpenTopography TileIndex directory.", call. = FALSE)
+  files <- list.files(folder, "_TileIndex\\.zip$", full.names = TRUE, ignore.case = TRUE)
+  if (!length(files)) stop("No OpenTopography TileIndex archives found.", call. = FALSE)
+  results <- list()
+  for (path in files) {
+    members <- utils::unzip(path, list = TRUE)
+    if (any(grepl("(^/|^[A-Za-z]:|(^|/)\\.\\.(/|$))", gsub("\\\\", "/", members$Name))))
+      stop("Unsafe tile-index archive.", call. = FALSE)
+    if (sum(members$Length) > 500 * 1024^2) stop("Tile index exceeds 500 MB extraction limit.", call. = FALSE)
+    tmp <- tempfile("als-index-"); dir.create(tmp)
+    obj <- tryCatch({
+      utils::unzip(path, exdir = tmp)
+      shp <- list.files(tmp, "\\.(shp|gpkg|geojson)$", recursive = TRUE, full.names = TRUE, ignore.case = TRUE)
+      if (length(shp) != 1L) stop("Each tile archive must contain one spatial index.")
+      sf::st_read(shp, quiet = TRUE)
+    }, finally = unlink(tmp, recursive = TRUE))
+    if (is.na(sf::st_crs(obj))) stop("Tile index has no embedded CRS; provide a corrected index.", call. = FALSE)
+    names(obj) <- tolower(names(obj))
+    if (!"url" %in% names(obj)) stop("Tile index lacks a URL field.", call. = FALSE)
+    obj <- sf::st_transform(sf::st_make_valid(sf::st_zm(obj, drop = TRUE, what = "ZM")), 4326)
+    obj <- obj[lengths(sf::st_intersects(obj, aoi)) > 0, , drop = FALSE]
+    if (!nrow(obj)) next
+    dataset <- sub("_TileIndex\\.zip$", "", basename(path), ignore.case = TRUE)
+    href <- as.character(obj$url)
+    name <- basename(sub("\\?.*$", "", href))
+    rows <- sf::st_sf(tile_id = paste(dataset, name, sep = "/"), provider = "opentopography",
+      dataset = dataset, filename = name, url = href, acquired_start = NA_character_,
+      acquired_end = NA_character_, size_bytes = NA_real_,
+      license_url = NA_character_,
+      citation = paste("OpenTopography dataset", dataset, "- license not supplied in this index. Obtain the dataset license, DOI and required producer citation from its landing page. Citation guidance: https://opentopography.org/citations"),
+      geometry = sf::st_geometry(obj))
+    results[[length(results) + 1L]] <- rows
+    if (sum(vapply(results, nrow, integer(1))) > max_items)
+      stop("Search exceeds max_items; use a smaller study area.", call. = FALSE)
+  }
+  if (!length(results)) return(empty_tiles())
+  ans <- do.call(rbind, results)
+  ans[!duplicated(ans$url), , drop = FALSE]
+}

@@ -8,7 +8,7 @@ Develop **ALS Explorer**, a map-first Shiny application with a shared provider c
 
 Build this in stages. A polished map alone will not make the application dependable: accurate coverage, resumable downloads, trustworthy acquisition dates and correct citations are the key scientific improvements.
 
-This delivery is a review and an interactive interface concept, not a completed global Shiny replacement. The new worker-policy module is tested independently but is not connected to `app.R` yet. No remote changes have been pushed or deployed.
+This document records the initial baseline review. The subsequent package preview is described in the current README and RELEASE_CHECKLIST.md; those files supersede implementation-status statements in this historical review.
 
 ## Material reviewed and verification boundary
 

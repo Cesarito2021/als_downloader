@@ -1,0 +1,19 @@
+id,name,country_code,country,implemented,access,info_url
+usgs3dep,USGS 3DEP,840,United States,TRUE,Public catalog; assets signed at download time,https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc
+opentopography,OpenTopography,0,Global,TRUE,Local TileIndex archives; license and citation vary by dataset,https://opentopography.org/node/3598
+opentopography,OpenTopography AUS11_Victor,36,Australia,TRUE,One sample validated; requires supplied TileIndex and dataset terms review,https://opentopography.org/node/3598
+opentopography,OpenTopography BR17_SaoPaulo,76,Brazil,TRUE,One sample validated; requires supplied TileIndex and dataset terms review,https://opentopography.org/node/3598
+opentopography,OpenTopography Auckland_2013,554,New Zealand,TRUE,One sample validated; requires supplied TileIndex and dataset terms review,https://opentopography.org/node/3598
+opentopography,OpenTopography TW18_Carr,158,Taiwan,TRUE,One sample validated; requires supplied TileIndex and dataset terms review,https://opentopography.org/node/3598
+neon,NEON AOP,840,United States,FALSE,Account and download token required; attribution applies,https://www.neonscience.org/impact/observatory-blog/getting-started-what-new-users-should-know-about-neon-data
+canelevation,CanElevation,124,Canada,FALSE,Open Government Licence Canada; adapter pending,https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947
+ignfr,IGN LiDAR HD,250,France,FALSE,COPC product; confirm current catalog terms,https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD
+pnoa,PNOA LiDAR,724,Spain,FALSE,Producer attribution required; download adapter pending,https://pnoa.ign.es/pnoa-lidar/productos-a-descarga
+skog,Laserdata Skog,752,Sweden,FALSE,CC0 product; delivery workflow pending,https://www2.lantmateriet.se/en/geodata/our-products/product-list/laser-data-download-forest/
+nls,NLS 0.5 p,246,Finland,FALSE,Open data with attribution; 5 p is a separate licensed product,https://www.maanmittauslaitos.fi/en/about-nls/organisation/publications-and-brochures/publication-rights
+swisstopo,swissSURFACE3D,756,Switzerland,FALSE,Attribution required; sample data has separate terms,https://www.swisstopo.admin.ch/en/height-model-swisssurface3d
+scotland,Scottish Public Sector LiDAR,826,United Kingdom,FALSE,Scottish collections only; check campaign license,https://registry.opendata.aws/scottish-lidar/
+ornl,ORNL Amazon ALS,76,Brazil,FALSE,Earthdata access and dataset citation must be verified,https://doi.org/10.3334/ORNLDAAC/1644
+forestscan,ForestScan,266,Gabon,FALSE,Research candidate; dates and file access need validation,https://doi.org/10.5285/88a8620229014e0ebacf0606b302112d
+linz,LINZ,554,New Zealand,FALSE,Open point clouds; collection adapter pending,https://www.linz.govt.nz/products-services/data/types-linz-data/elevation-data/access-elevation-data
+elvis,ELVIS,36,Australia,FALSE,Portal ordering workflow; adapter pending,https://elevation.fsdf.org.au/

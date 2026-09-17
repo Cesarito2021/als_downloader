@@ -1,5 +1,17 @@
-# Pure planning policy. Integration with the Shiny queue is a separate step.
-# mode must come from deployment configuration, never from a browser input.
+#' Plan download concurrency
+#' @param mode Deployment mode: `"hosted"` or `"local"`.
+#' @param available_cores Available logical CPU cores. Missing values use one.
+#' @param requested User-selected worker count, or `NULL` for the recommendation.
+#' @param provider_limit Maximum simultaneous transfers allowed by the provider.
+#' @param jobs Number of pending tile transfers.
+#' @return A list containing recommended, maximum, requested and effective counts.
+#' @details Hosted mode uses one worker. Local mode leaves four available cores
+#'   unused when possible and initially recommends at most ten workers. During
+#'   automated package checks callers must explicitly request no more than two.
+#' @export
+#' @examples
+#' download_worker_policy("local", available_cores = 8)
+#' download_worker_policy("hosted", available_cores = 16, requested = 4)
 download_worker_policy <- function(mode, available_cores = NA_integer_,
                                    requested = NULL, provider_limit = Inf,
                                    jobs = Inf) {
