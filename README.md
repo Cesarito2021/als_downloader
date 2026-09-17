@@ -50,7 +50,7 @@ Remote preview downloads one complete source tile up to 200 MB temporarily; its 
 
 The example displays **58,648 points** from the supplied biomass forest exercise: a **2%** reader sample, a central window covering **25% of each XY axis**, and vertical scale **1:1**. No denoising or height normalization is applied. [Capture settings](docs/images/forest-capture-provenance.json).
 Use **Forest close-up and display sampling** to adjust the window, point density and camera.
-For two point clouds, **Compare campaigns** provides a visual overlay only within their overlapping provider footprints and your AOI, limited to **1 km²**. There are no calculated differences, statistics or analysis exports. See the [visual comparison limits](docs/TEMPORAL_COMPARISON.md).
+Comparison is optional. When the same AOI has **two or more point-cloud campaigns**, the user can opt in and choose two. **View overlapping clouds** is enabled only for a distinct pair with shared coverage inside that AOI, limited to **1 km²**. There are no calculated differences, statistics or analysis exports. See the [visual comparison limits](docs/TEMPORAL_COMPARISON.md).
 Colors show source elevation, **not canopy height**. Confirm coordinate units and vertical datum.
 
 Dates are shown as supplied by each provider, without independent year verification or correction. Unknown, overlapping or inconsistent dates do not block visualization.

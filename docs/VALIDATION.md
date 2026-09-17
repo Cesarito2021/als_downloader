@@ -162,3 +162,13 @@ Live Edge displayed 12,541 A points and 24,405 B points in a 0.0024 km² overlap
 Independent palettes, show/hide, separate original-download selection and 390 px layout passed without
 JavaScript errors. No analysis controls or difference exports were present. The comparison capture was
 refreshed as a separate asset; the README retains exactly its three requested figures.
+
+## User-selected comparison — 17 September 2026
+
+Comparison now requires explicit opt-in, at least two campaigns returned for the same AOI, and a
+user-selected distinct pair with positive overlap no larger than 1 km². The button is disabled
+until these conditions hold; the server repeats the eligibility check before starting work.
+There is no default pair. Opting out cancels the worker and clears the preview.
+The package suite passed 103 assertions. Live Edge verified the disabled initial state, selection
+without opt-in, enabling an eligible pair, opting out, and rejecting the same campaign twice.
+No point-cloud download was started by that browser check; no JavaScript errors occurred.

@@ -48,3 +48,18 @@ test_that("visual comparison starts without campaigns or analysis controls", {
     expect_match(output$compare_status,'Choose two campaigns')
   })
 })
+
+test_that("comparison is optional and requires an eligible pair in the same AOI", {
+  a <- box_cloud();a$dataset <- 'A';a$provider <- 'test';a$acquired_start <- NA_character_;a$acquired_end <- NA_character_
+  b <- a;b$dataset <- 'B';c <- a;c$dataset <- 'C'
+  tiles <- rbind(a,b,c);keys <- names(campaign_groups(tiles))
+  gate <- comparison_availability
+  expect_false(gate(a,a,keys[1],keys[2],TRUE)$ready)
+  expect_false(gate(tiles,a,keys[1],keys[2],FALSE)$ready)
+  expect_false(gate(tiles,a,'','',TRUE)$ready)
+  expect_false(gate(tiles,a,keys[1],keys[1],TRUE)$ready)
+  expect_true(gate(tiles,a,keys[1],keys[3],TRUE)$ready)
+  expect_false(gate(tiles,NULL,keys[1],keys[2],TRUE)$ready)
+  sf::st_geometry(b) <- sf::st_geometry(box_cloud(2000))
+  expect_false(gate(rbind(a,b),box_cloud(width=4000),keys[1],keys[2],TRUE)$ready)
+})

@@ -4,11 +4,12 @@ Comparison is **visualization only**, with a maximum overlapping area of **1 km�
 It does not calculate changes, differences, statistics or analysis exports.
 
 1. Draw or upload a study area and search the provider catalog.
-2. Open **Compare campaigns** and choose two distinct campaigns. Provider dates are displayed unchanged.
+2. If the same AOI has at least two campaigns, open **Compare campaigns**, tick **I want to compare two point clouds in this study area**, and choose two distinct campaigns. Nothing is selected or loaded automatically. Provider dates are displayed unchanged.
 3. Choose **View overlapping clouds**. Both clouds are clipped to the intersection of their provider footprints and your AOI.
 4. Rotate or zoom the shared view, choose a colour palette for each cloud, and show/hide either cloud.
 
 The app rejects empty overlap or overlap above 1 km² before downloading comparison files.
+The visualization button remains disabled until the user opts in and selects an eligible pair. With more than two campaigns available, the user chooses which two to view. Opting out clears the view and cancels any comparison worker.
 A larger study area is acceptable only when its intersecting shared footprint is at most 1 km².
 Provider footprints may include internal gaps: their intersection does not certify that every location has points in both surveys.
 No overlap is fabricated from country outlines or by moving either cloud. If either cloud has no points within the overlap, visualization stops.

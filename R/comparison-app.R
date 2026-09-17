@@ -1,13 +1,14 @@
 comparison_ui <- function() {
   shiny::tabPanel("Compare campaigns",
     shiny::h3("Two point clouds, overlapping area only"),
+    shiny::checkboxInput("compare_opt_in", "I want to compare two point clouds in this study area", FALSE),
     shiny::p("Search an AOI in Explore, then choose two campaigns. Dates are displayed as supplied by the provider, without independent year verification or correction. The overlay is for visualization only. Downloads remain separate."),
     shiny::fluidRow(shiny::column(6, shiny::selectInput("epoch_a", "A | reference campaign", choices = character()),
       shiny::actionButton("download_epoch_a", "Select A tiles for download")),
       shiny::column(6, shiny::selectInput("epoch_b", "B | comparison campaign", choices = character()),
       shiny::actionButton("download_epoch_b", "Select B tiles for download"))),
     shiny::helpText("Visualization only: overlapping area up to 1 km2, limited to the intersection of both provider footprints and your AOI. At most four tiles and 200 MB per campaign, 100 MB per tile. Both clouds require the same embedded projected CRS in metres."),
-    shiny::actionButton("compare_load", "View overlapping clouds", class = "als-primary"),
+    shiny::textOutput("compare_availability"), shiny::uiOutput("compare_load_control"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
     shiny::tags$canvas(id = "als-compare-cloud", class = "als-point-cloud", role = "img", tabindex = "0", `aria-label` = "Two georeferenced campaign point clouds. Drag to rotate; plus/minus to zoom; zero to fit."),
     shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A color / palette", c("Cyan", "Orange", "Viridis", "Magma", "Plasma", "Cividis"))),
@@ -33,12 +34,20 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   }
   stop_job <- function() {if (!is.null(cmp$job) && cmp$job$is_alive()) cmp$job$kill_tree(); cmp$job <- NULL; cleanup()}
   groups <- shiny::reactive(campaign_groups(state$tiles))
+  availability <- shiny::reactive(comparison_availability(state$tiles, state$aoi, input$epoch_a, input$epoch_b, input$compare_opt_in))
+  output$compare_availability <- shiny::renderText(availability()$message)
+  output$compare_load_control <- shiny::renderUI({
+    available <- availability()
+    if (isTRUE(available$ready)) shiny::actionButton("compare_load", "View overlapping clouds", class = "als-primary")
+    else shiny::actionButton("compare_load", "View overlapping clouds", class = "als-primary", disabled = TRUE)
+  })
   shiny::observeEvent(state$tiles, {
     g <- groups(); choices <- if (length(g)) stats::setNames(names(g), paste0(names(g), " [", lengths(g), " tiles]")) else character()
-    shiny::updateSelectInput(session, "epoch_a", choices = choices, selected = if (length(g)) names(g)[1] else "")
-    shiny::updateSelectInput(session, "epoch_b", choices = choices, selected = if (length(g) > 1) names(g)[2] else "")
+    choices <- c("Choose a point-cloud campaign" = "", choices)
+    shiny::updateSelectInput(session, "epoch_a", choices = choices, selected = "")
+    shiny::updateSelectInput(session, "epoch_b", choices = choices, selected = "")
   }, ignoreNULL = FALSE)
-  shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b), {
+  shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b, input$compare_opt_in), {
     stop_job(); cmp$result <- NULL; cmp$status <- "Choose two campaigns, then load the AOI comparison."
     session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = list(), origin = c(0, 0, 0)))
   }, ignoreNULL = FALSE)
@@ -55,6 +64,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   shiny::observeEvent(input$download_epoch_a, choose_download(input$epoch_a))
   shiny::observeEvent(input$download_epoch_b, choose_download(input$epoch_b))
   shiny::observeEvent(input$compare_load, {
+    if (!isTRUE(availability()$ready)) {shiny::showNotification(availability()$message); return()}
     if (isTRUE(state$comparison_busy) || (!is.null(state$job) && state$job$is_alive()) ||
         (!is.null(state$preview_job) && state$preview_job$is_alive())) {
       shiny::showNotification("Wait for the current download or preview."); return()

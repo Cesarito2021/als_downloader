@@ -10,6 +10,22 @@ campaign_groups <- function(tiles) {
   split(seq_len(nrow(tiles)), label)
 }
 
+comparison_availability <- function(tiles, aoi, a, b, opted_in = FALSE) {
+  unavailable <- function(message) list(ready = FALSE, message = message)
+  groups <- campaign_groups(tiles)
+  if (is.null(aoi) || length(groups) < 2L)
+    return(unavailable("Comparison needs at least two point-cloud campaigns in the same study area. Search the AOI first."))
+  if (!isTRUE(opted_in)) return(unavailable("Comparison is optional. Tick the checkbox to choose two clouds."))
+  if (is.null(a) || is.null(b) || !a %in% names(groups) || !b %in% names(groups) || identical(a, b))
+    return(unavailable("Choose two different point-cloud campaigns from this AOI."))
+  if (length(groups[[a]]) > 4L || length(groups[[b]]) > 4L)
+    return(unavailable("Reduce the AOI to at most four tiles per selected campaign."))
+  tryCatch({
+    overlap <- comparison_overlap(tiles[groups[[a]], ], tiles[groups[[b]], ], aoi)
+    list(ready = TRUE, message = sprintf("Ready: two clouds share %.4f km2 inside this AOI (maximum 1 km2). Visualization only.", aoi_area(overlap)))
+  }, error = function(e) unavailable(conditionMessage(e)))
+}
+
 comparison_overlap <- function(a, b, aoi) {
   if (!inherits(a, "sf") || !inherits(b, "sf")) stop("Both clouds require provider footprints.")
   footprint <- function(x) sf::st_union(sf::st_geometry(read_aoi(x)))
