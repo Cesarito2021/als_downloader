@@ -1,0 +1,39 @@
+{
+  "checked_at": "2026-09-17 18:04:54 UTC",
+  "point": [
+    -85.418,
+    29.948
+  ],
+  "url": "https://noaa-nos-coastal-lidar-pds.s3.amazonaws.com/laz/geoid18/8625/Blk_861/20181024_FEMA_PostMichael_FL_16rfu5214.copc.laz",
+  "bytes": 45866026,
+  "filename": "20181024_FEMA_PostMichael_FL_16rfu5214.copc.laz",
+  "download_md5": "eb1fcdb574f13b20e80e3aeba4d01598",
+  "decoded_sample_points": 159663,
+  "gps_time_range": [
+    224423839.6385,
+    224428444.1164
+  ],
+  "header": {
+    "Global Encoding": {
+      "GPS Time Type": true,
+      "Waveform Data Packets Internal": false,
+      "Waveform Data Packets External": false,
+      "Synthetic Return Numbers": false,
+      "WKT": true,
+      "Aggregate Model": false
+    },
+    "File Creation Day of Year": 307,
+    "File Creation Year": 2018
+  },
+  "classification": {
+    "1": 120694,
+    "2": 37095,
+    "29": 1874
+  },
+  "crs": "COMPD_CS[\"NAD83(2011) / UTM zone 16N + NAVD88 height\",PROJCS[\"NAD83(2011) / UTM zone 16N\",GEOGCS[\"NAD83(2011)\",DATUM[\"NAD83_National_Spatial_Reference_System_2011\",SPHEROID[\"GRS 1980\",6378137,298.257222101],AUTHORITY[\"EPSG\",\"1116\"]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"6318\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",-87],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"EPSG\",\"6345\"]],VERT_CS[\"NAVD88 height\",VERT_DATUM[\"North American Vertical Datum 1988\",2005],UNIT[\"metre\",1],AXIS[\"Gravity-related height\",UP],AUTHORITY[\"EPSG\",\"5703\"]]]",
+  "sample_gps_calendar_range": [
+    "2018-10-24 13:43:59.638500",
+    "2018-10-24 15:00:44.116400"
+  ],
+  "time_note": "GPS calendar time; not converted to UTC. Adjusted GPS restored by adding 1e9 seconds; sample only."
+}

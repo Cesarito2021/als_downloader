@@ -12,44 +12,8 @@ Other sources are reviewed links for discovery; they do not yet have download ad
 
 ## User interface
 
-### A close-up of the forest canopy
-
-![Forest crown silhouettes in a real point-cloud preview, with Viridis elevation colors and no vertical exaggeration](docs/images/forest-closeup-viridis.png)
-
-This example uses the forest exercise file supplied with the maintainer's biomass application.
-The reader retains approximately **2%** of its 33,845,306 records; a central window spanning **25% of each XY axis** shows **58,648 points**.
-The camera is set to **Forest silhouette**, with vertical scale **1:1**. No denoising, terrain normalization or synthetic trees were applied.
-It is a visualization example, not a newly verified geographic data source. [Capture settings](docs/images/forest-capture-provenance.json).
-
-Open **Forest close-up and display sampling** in the shared **3D preview** to change the reader percentage,
-window size/position, optional voxel spacing, camera preset and point size. Rebuild after changing sampling or the window.
-Camera and point-size changes are immediate. The bounded reader pool can reduce the requested percentage on very large files;
-the status reports the effective sampling and the display contains at most 150,000 points.
-Downloads and temporal-comparison calculations are unaffected by these display controls.
-
-### Compare campaigns and download each separately
-
-After an AOI search, open **Compare campaigns** and choose reference **A** and later **B**.
-Superpose their AOI-clipped clouds with independent colors/palettes and show/hide controls.
-After verifying compatible vertical references and acquisition intervals, inspect an exploratory
-**P95 elevation difference, B − A**, on a shared grid; export the grid and its provenance.
-Use **Select A/B tiles for download** to download each campaign separately.
-
-The difference is not automatically canopy growth, forest loss or statistically significant change.
-This bounded preview downloads source files temporarily and supports AOIs up to **0.25 km²**.
-[Workflow, assumptions, resource limits and validation](docs/TEMPORAL_COMPARISON.md).
-
-![Real two-campaign AOI overlay; the source's invalid acquisition interval is flagged and temporal differencing remains unavailable](docs/images/interface-compare-campaigns.png)
-
-Live USGS example: 12,525 points in A and 24,390 in B. This demonstrates overlay and campaign selection,
-not a validated change between years: the provider reports an invalid date interval for A.
-
-### Start with a world view
-
-![Interactive welcome globe using Natural Earth cartography](docs/images/interface-globe.png)
-
-The opening globe uses bundled [Natural Earth public-domain cartography](https://www.naturalearthdata.com/about/terms-of-use/), rendered locally without Apple imagery. Drag or use arrow keys to rotate, then choose **Open map**.
-Dark green at **0.10 opacity** marks countries with catalog sources, including discovery-only entries; it does not represent measured coverage or nationwide download availability.
+The opening globe uses bundled Natural Earth cartography. Choose **Open map** to begin.
+Green country shading indicates catalog sources, not measured LiDAR coverage.
 
 ### Explore → define an area → find tiles → download
 
@@ -84,8 +48,12 @@ The satellite and terrain backdrops depend on external map services; the welcome
 For a map tile, adjust the shared sampling controls and choose **Rebuild selected map tile**. Alternatively, upload a local LAS/LAZ file and choose **Build bounded preview**.
 Remote preview downloads one complete source tile up to 200 MB temporarily; its reader pool is capped at 750,000 points and the displayed sample at 150,000. This is not COPC range streaming. Requires a known file size and `lidR`; temporary files are cleaned up after processing or session exit.
 
-The example displays 58,648 points from the supplied biomass forest exercise file, using the settings described above.
+The example displays **58,648 points** from the supplied biomass forest exercise: a **2%** reader sample, a central window covering **25% of each XY axis**, and vertical scale **1:1**. No denoising or height normalization is applied. [Capture settings](docs/images/forest-capture-provenance.json).
+Use **Forest close-up and display sampling** to adjust the window, point density and camera.
+For two epochs, use **Compare campaigns**; see the [comparison method and limitations](docs/TEMPORAL_COMPARISON.md).
 Colors show source elevation, **not canopy height**. Confirm coordinate units and vertical datum.
+
+Dates in search results are provider-reported metadata. Acquisition dates, file creation dates and publication dates can differ. A [coastal Hurricane Michael tile check](docs/HURRICANE_MICHAEL.md) verified a NOAA point sample from **24 October 2018** and documented an unresolved date discrepancy in a separate USGS catalog tile.
 
 ## Data sources
 
@@ -123,7 +91,6 @@ Our [initial aerial LiDAR overview](docs/ZENODO_AERIAL.md) separates eligible ae
 These are local research datasets, not country-wide coverage, and have no Zenodo AOI-search adapter yet.
 In **Sources and access**, choose **Connect to Zenodo** to retrieve Sila's current file metadata and enable a direct browser download of the original aerial `merged.las` (6.82 GB). The app connects to the source and does not store this file. Terrestrial files and processed derivatives are excluded. This source connection does not provide AOI search, clipping or an in-app preview of the large file. [Dataset citation and bounded access evidence](docs/ITALY_PULETTI.md).
 
-![Live Zenodo source connection in Shiny](docs/images/interface-zenodo-source.png)
 
 Multifordiv remains pending platform verification. Cite each dataset's authors and DOI; all three selected deposits list CC BY 4.0.
 
