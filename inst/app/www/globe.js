@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     for(const f of world.features){
       const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
       for(const poly of polys)for(const shift of [-360,0,360]){t.beginPath();poly.forEach(coords=>ring(coords,shift));t.fillStyle='#c4d5b7';t.fill('evenodd');
-        if(countries.has(Number(f.id))){t.fillStyle='rgba(0,64,32,0.10)';t.fill('evenodd');}
+        if(countries.has(Number(f.id))){t.fillStyle='rgba(220,38,38,0.55)';t.fill('evenodd');}
         t.strokeStyle='#6c958b';t.lineWidth=.65;t.stroke();}
     }
     pixels=t.getImageData(0,0,W,H).data;canvas.dataset.ready='true';draw();

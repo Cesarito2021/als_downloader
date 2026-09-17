@@ -11,7 +11,7 @@
 
 * Limit the README to three figures: annotated main map, 3D preview and source submission form. Record a decoded coastal post-Michael tile and distinguish acquisition, file creation and catalog dates.
 
-* Add a rotatable welcome globe rendered from bundled Natural Earth cartography; catalog countries use a dark-green 0.10-opacity tint. Open map continues to AOI discovery.
+* Add a rotatable welcome globe rendered from bundled Natural Earth cartography; catalog countries use a red 0.55-opacity tint. Open map continues to AOI discovery.
 * Route selected map tiles to the shared 3D preview instead of a duplicate viewer under Explore. Consolidate the README map guide into one annotated satellite capture.
 
 * Require separate source proposal fields for the access link, storage host/location, short description, acknowledgement and dataset DOI/original platform in Shiny and the GitHub template; include them in all proposal drafts and text exports.

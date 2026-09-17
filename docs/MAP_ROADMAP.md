@@ -1,6 +1,6 @@
 # Informational coverage map — next stage
 
-Implemented: a rotatable Natural Earth welcome globe, Esri RGB/terrain basemap switching, translucent search footprints and selected-tile navigation to the shared 3D preview, with Viridis/Magma colors and automatic landscape fitting. Country tint has opacity 0.10 and represents catalog presence only.
+Implemented: a rotatable Natural Earth welcome globe, Esri RGB/terrain basemap switching, translucent search footprints and selected-tile navigation to the shared 3D preview, with Viridis/Magma colors and automatic landscape fitting. Red country tint has opacity 0.55 and represents catalog presence only.
 The acquisition-year coverage map and summary-grid features below remain proposed.
 
 The application now provides a persistent **Submit a data source** form for community suggestions,

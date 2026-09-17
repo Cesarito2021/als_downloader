@@ -81,7 +81,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
                 shiny::h2("Explore aerial LiDAR around the world"),
                 shiny::p("Discover sources. Define your study area. Find and inspect tiles."),
                 shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Rotatable world globe. Drag or use arrow keys to rotate.", `data-countries` = paste(unique(catalog$country_code), collapse = ",")),
-                shiny::p(id = "globe_status", "Drag or use arrow keys to rotate. Dark green marks countries with catalog sources (opacity 0.10), not measured survey coverage."),
+                shiny::p(id = "globe_status", "Drag or use arrow keys to rotate. Red marks countries with catalog sources, not measured survey coverage."),
                 shiny::tags$button(id = "globe_reset", type = "button", class = "btn", "Reset globe"), " ",
                 shiny::actionButton("enter_map", "Open map", class = "als-primary"),
                 shiny::p(shiny::tags$a(href = "https://www.naturalearthdata.com/about/terms-of-use/", "Made with Natural Earth - public-domain cartography")))),
