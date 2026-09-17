@@ -226,15 +226,9 @@ For bugs, include the version, provider, error message and a small reproducible 
 landing page or DOI, acquisition method, dates, format, coverage index, license, citation and access requirements.
 Suggestions are reviewed before integration. New adapters need reliable AOI-to-file discovery and decoded sample checks.
 
-## Developers and maintainers
+## Author and maintainer
 
-| Contributor | Affiliation recorded in the original application |
-|---|---|
-| Cesar Alvites · maintainer | University of Florida |
-| Carlos Alberto Silva | University of Florida |
-| Viswanath Nandigam | San Diego Supercomputer Center, University of California San Diego |
-| Chelsea Scott | Arizona State University |
-| Inacio Bueno | University of Florida |
+**Cesar Alvites** · University of Florida.
 
 ## Acknowledgements
 
