@@ -11,7 +11,7 @@ Description: Search airborne laser scanning point-cloud tiles by polygon,
     optional visual overlays of overlapping surveys, and connection checks
     for contributor-provided data links. Data remain with their providers.
 License: GPL-3
-Contact: Cesar Ivan Alvites Diaz <c.alvitesdiaz@ufl.edu>
+Contact: Cesar Ivan Alvites Diaz <calvites1990@gmail.com>
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
 Imports: sf, s2, httr, curl, jsonlite, digest, parallelly, future, future.apply,
