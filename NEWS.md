@@ -1,5 +1,7 @@
 # alsdownloader 0.1.0.9001
 
+* Restrict comparison to visualization of two clouds within their shared footprint/AOI intersection, at most 1 km². Remove P95 grids, statistics, analysis exports and analytical preprocessing; retain display sampling and separate original-file downloads.
+
 * Use provider dates unchanged without independent year verification or chronological restrictions on B-minus-A comparisons; retain spatial compatibility checks.
 * Refine the globe colors and geographic grid, and add button/keyboard reset controls. The README retains exactly three figures.
 

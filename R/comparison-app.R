@@ -1,31 +1,21 @@
 comparison_ui <- function() {
   shiny::tabPanel("Compare campaigns",
-    shiny::h3("Two campaigns, one study area"),
-    shiny::p("Search an AOI in Explore, then choose two campaigns. Dates are displayed as supplied by the provider, without independent year verification or correction. Differences follow your selection: B minus A. Downloads remain separate."),
+    shiny::h3("Two point clouds, overlapping area only"),
+    shiny::p("Search an AOI in Explore, then choose two campaigns. Dates are displayed as supplied by the provider, without independent year verification or correction. The overlay is for visualization only. Downloads remain separate."),
     shiny::fluidRow(shiny::column(6, shiny::selectInput("epoch_a", "A | reference campaign", choices = character()),
       shiny::actionButton("download_epoch_a", "Select A tiles for download")),
       shiny::column(6, shiny::selectInput("epoch_b", "B | comparison campaign", choices = character()),
       shiny::actionButton("download_epoch_b", "Select B tiles for download"))),
-    shiny::helpText("Exploratory comparison: AOI up to 0.25 km2; at most four tiles and 200 MB per campaign, 100 MB per tile. Full source tiles are downloaded temporarily; the exact AOI is used for analysis. Both clouds must have the same embedded projected CRS in metres."),
-    shiny::fluidRow(shiny::column(6, shiny::numericInput("compare_resolution", "Grid cell size (metres)", 10, min = 1, max = 100)),
-      shiny::column(6, shiny::numericInput("compare_min_points", "Minimum points per cell in EACH campaign", 5, min = 3, step = 1))),
-    shiny::actionButton("compare_load", "Load and compare AOI", class = "als-primary"),
+    shiny::helpText("Visualization only: overlapping area up to 1 km2, limited to the intersection of both provider footprints and your AOI. At most four tiles and 200 MB per campaign, 100 MB per tile. Both clouds require the same embedded projected CRS in metres."),
+    shiny::actionButton("compare_load", "View overlapping clouds", class = "als-primary"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
     shiny::tags$canvas(id = "als-compare-cloud", class = "als-point-cloud", role = "img", tabindex = "0", `aria-label` = "Two georeferenced campaign point clouds. Drag to rotate; plus/minus to zoom; zero to fit."),
     shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A color / palette", c("Cyan", "Orange", "Viridis", "Magma", "Plasma", "Cividis"))),
       shiny::column(4, shiny::selectInput("compare_palette_b", "B color / palette", c("Orange", "Cyan", "Magma", "Viridis", "Plasma", "Cividis"))),
       shiny::column(4, shiny::sliderInput("compare_exaggeration", "Vertical exaggeration", 1, 12, 1, step = 1))),
     shiny::checkboxInput("compare_show_a", "Show A", TRUE), shiny::checkboxInput("compare_show_b", "Show B", TRUE),
-    shiny::helpText("One shared origin, camera and elevation scale. Up to 50,000 display points per campaign; calculations use all retained AOI points, not the display sample."),
-    shiny::tags$details(shiny::tags$summary("Coordinate system and analysis metadata"), shiny::verbatimTextOutput("compare_metadata")),
-    shiny::h4("Difference: P95 elevation B minus A"),
-    shiny::p("This is a difference in the 95th percentile of source elevation on a shared grid, not a canopy-height change or a statistically significant change estimate. Registration, acquisition season, density and classifications can affect the result."),
-    shiny::textInput("vertical_a", "Verified vertical reference for A (datum + geoid/model)", placeholder = "Copy from the survey metadata"),
-    shiny::textInput("vertical_b", "Verified vertical reference for B (datum + geoid/model)", placeholder = "Must match A; no vertical conversion is performed"),
-    shiny::checkboxInput("compare_verified", "I verified the same vertical reference, metre Z units, absolute elevations (not normalized heights) and adequate alignment in the survey metadata.", FALSE),
-    shiny::textOutput("compare_gate"),
-    shiny::uiOutput("difference_panel"),
-    shiny::uiOutput("difference_exports"))
+    shiny::helpText("One shared origin, camera and elevation scale. Up to 50,000 display points per cloud. No calculated differences, analysis or exports. Provider footprints may contain gaps in actual point coverage."),
+    shiny::tags$details(shiny::tags$summary("Source and display information"), shiny::verbatimTextOutput("compare_metadata")))
 }
 
 comparison_server <- function(input, output, session, state, mode, hosted_lock) {
@@ -48,9 +38,8 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
     shiny::updateSelectInput(session, "epoch_a", choices = choices, selected = if (length(g)) names(g)[1] else "")
     shiny::updateSelectInput(session, "epoch_b", choices = choices, selected = if (length(g) > 1) names(g)[2] else "")
   }, ignoreNULL = FALSE)
-  shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b, input$compare_resolution, input$compare_min_points), {
+  shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b), {
     stop_job(); cmp$result <- NULL; cmp$status <- "Choose two campaigns, then load the AOI comparison."
-    shiny::updateCheckboxInput(session, "compare_verified", value = FALSE)
     session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = list(), origin = c(0, 0, 0)))
   }, ignoreNULL = FALSE)
   choose_download <- function(key) {
@@ -76,23 +65,22 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
       if (is.null(input$epoch_a) || is.null(input$epoch_b) || !input$epoch_a %in% names(g) || !input$epoch_b %in% names(g)) stop("Search an AOI and choose two campaigns first.")
       ia <- g[[input$epoch_a]]; ib <- g[[input$epoch_b]]
       if (!length(ia) || !length(ib) || identical(input$epoch_a, input$epoch_b)) stop("Choose two distinct campaigns.")
-      if (is.null(state$aoi) || aoi_area(state$aoi) > .25) stop("Draw/upload an AOI no larger than 0.25 km2.")
+      if (is.null(state$aoi)) stop("Draw/upload an AOI first.")
+      overlap <- comparison_overlap(state$tiles[ia, ], state$tiles[ib, ], state$aoi)
       if (length(ia) > 4 || length(ib) > 4) stop("Reduce the AOI to at most four intersecting tiles per campaign.")
-      if (!is.finite(input$compare_resolution) || input$compare_resolution < 1 || input$compare_resolution > 100 ||
-          !is.finite(input$compare_min_points) || input$compare_min_points < 3 || input$compare_min_points != floor(input$compare_min_points)) stop("Check grid resolution and minimum point count.")
       if (mode == "hosted") {
         if (!dir.create(hosted_lock, showWarnings = FALSE)) stop("Another hosted transfer is running. Try again later.")
         cmp$locked <- TRUE
       }
       cmp$directory <- tempfile("als-comparison-"); dir.create(cmp$directory)
-      a <- sf::st_drop_geometry(state$tiles[ia, , drop = FALSE]); b <- sf::st_drop_geometry(state$tiles[ib, , drop = FALSE])
+      a <- state$tiles[ia, , drop = FALSE]; b <- state$tiles[ib, , drop = FALSE]
       cmp$labels <- c(input$epoch_a, input$epoch_b)
-      cmp$dates <- list(a = a[c("acquired_start", "acquired_end")], b = b[c("acquired_start", "acquired_end")])
-      cmp$files <- rbind(transform(a, epoch = "A"), transform(b, epoch = "B")); cmp$files$url <- redact_url(cmp$files$url)
-      state$comparison_busy <- TRUE; cmp$status <- "Downloading campaigns sequentially, clipping the AOI and building the shared grid..."
-      cmp$job <- callr::r_bg(function(a, b, aoi, resolution, minimum, directory)
-        alsdownloader:::compare_campaigns(a, b, aoi, resolution, minimum, directory),
-        args = list(a, b, state$aoi, input$compare_resolution, input$compare_min_points, cmp$directory), supervise = TRUE)
+      cmp$dates <- NULL
+      cmp$files <- NULL
+      state$comparison_busy <- TRUE; cmp$status <- "Loading both clouds inside the overlapping area..."
+      cmp$job <- callr::r_bg(function(a, b, aoi, directory)
+        alsdownloader:::compare_campaigns(a, b, aoi, directory),
+        args = list(a, b, overlap, cmp$directory), supervise = TRUE)
     }, error = function(e) {cmp$status <- conditionMessage(e); cleanup()})
   })
   shiny::observe({
@@ -111,7 +99,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
     tryCatch({
       cmp$result <- job$get_result()
       r <- cmp$result
-      cmp$status <- sprintf("A: %s AOI points | B: %s AOI points. Overlay ready; difference eligibility is shown below.", r$counts[1], r$counts[2])
+      cmp$status <- sprintf("A: %s overlap points | B: %s overlap points | %.4f km2. Overlay ready for visualization only.", r$counts[1], r$counts[2], r$overlap_km2)
       session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = rbind(r$a, r$b),
         groups = c(rep(0L, nrow(r$a)), rep(1L, nrow(r$b))), origin = r$origin))
     }, error = function(e) {cmp$status <- paste("Comparison could not be completed:", conditionMessage(e))})
@@ -120,33 +108,6 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   shiny::observeEvent(input$compare_cancel, {stop_job(); cmp$status <- "Comparison cancelled."})
   output$compare_status <- shiny::renderText(cmp$status)
   output$compare_metadata <- shiny::renderText({shiny::req(cmp$result); paste(paste(c("A", "B"), cmp$labels, collapse = "\n"), cmp$result$method, cmp$result$crs, sep = "\n\n")})
-  gate <- shiny::reactive({
-    comparison_gate(cmp$result, cmp$dates, input$compare_verified, input$vertical_a, input$vertical_b)
-  })
-  output$compare_gate <- shiny::renderText(gate())
-  difference <- shiny::reactive({shiny::req(startsWith(gate(), "Exploratory difference enabled")); cmp$result$grid})
-  output$difference_panel <- shiny::renderUI({difference(); shiny::tagList(shiny::plotOutput("difference_plot", height = "420px"), shiny::textOutput("difference_summary"))})
-  output$difference_plot <- shiny::renderPlot({
-    g <- difference(); delta <- g$delta_b_minus_a; lim <- max(abs(delta), na.rm = TRUE); if (lim == 0) lim <- 1
-    colors <- grDevices::colorRampPalette(c("#2166ac", "#f7f7f7", "#b2182b"))(101)
-    col <- rep("#606b75", nrow(g)); col[g$eligible] <- colors[1L + round(100 * (delta[g$eligible] + lim) / (2 * lim))]
-    r <- cmp$result$resolution / 2
-    graphics::par(bg = "#101b23", fg = "#e0eaf0", col.axis = "#e0eaf0", col.lab = "#e0eaf0", mar = c(4, 4, 3, 1))
-    graphics::plot(g$x, g$y, type = "n", asp = 1, xlim = range(g$x) + c(-r, r), ylim = range(g$y) + c(-r, r),
-      xlab = "Easting (m)", ylab = "Northing (m)", main = "P95 elevation difference: B - A (m)", col.main = "#e0eaf0")
-    graphics::rect(g$x-r, g$y-r, g$x+r, g$y+r, col = col, border = NA)
-    graphics::legend("topright", legend = c(sprintf("%.2f m", -lim), "0 m", sprintf("+%.2f m", lim), "Insufficient / missing"), fill = c(colors[c(1,51,101)], "#606b75"), bg = "#101b23", text.col = "#e0eaf0", cex = .8)
-  })
-  output$difference_summary <- shiny::renderText({g <- difference(); sprintf("%s of %s occupied grid cells comparable; median B - A = %.3f m. Cell P95 uses full retained AOI points; no significance test or automatic change classification.", sum(g$eligible), nrow(g), stats::median(g$delta_b_minus_a[g$eligible]))})
-  output$difference_exports <- shiny::renderUI({difference(); shiny::tagList(shiny::downloadButton("difference_csv", "Export difference grid CSV"), shiny::downloadButton("comparison_metadata", "Export comparison provenance JSON"))})
-  output$difference_csv <- shiny::downloadHandler(filename = "p95-difference-b-minus-a.csv", content = function(file) utils::write.csv(difference(), file, row.names = FALSE, na = ""))
-  output$comparison_metadata <- shiny::downloadHandler(filename = "comparison-provenance.json", content = function(file) {
-    difference(); r <- cmp$result
-    jsonlite::write_json(list(created_at_utc = format(Sys.time(), tz = "UTC", usetz = TRUE), software_version = as.character(utils::packageVersion("alsdownloader")), campaigns = cmp$labels, sources = cmp$files, crs = r$crs,
-      vertical_reference_user_verified = input$vertical_a, z_units_user_verified = "metres", method = r$method,
-      resolution_m = r$resolution, minimum_points = input$compare_min_points, counts = r$counts,
-      aoi_wkt_epsg4326 = sf::st_as_text(sf::st_geometry(state$aoi))), file, pretty = TRUE, auto_unbox = TRUE)
-  })
   shiny::observeEvent(list(input$compare_palette_a, input$compare_palette_b, input$compare_exaggeration, input$compare_show_a, input$compare_show_b),
     session$sendCustomMessage("als-view", list(target = "als-compare-cloud", palette = input$compare_palette_a,
       paletteB = input$compare_palette_b, exaggeration = input$compare_exaggeration, showA = input$compare_show_a, showB = input$compare_show_b)))

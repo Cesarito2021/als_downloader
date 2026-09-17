@@ -28,8 +28,8 @@ RGB imagery is requested directly by the browser from Esri and retains the map a
 # Campaign comparison limits
 
 The Compare campaigns tab uses a separate background worker and shares the hosted transfer lock.
-It downloads sequentially, permits four tiles/200 MB per campaign (100 MB each) and clips to an AOI of at most 0.25 km².
-Reader and accumulated AOI point limits and a grid-cell budget bound processing; display sampling does not replace the analysis points.
-Cancelling, changing the AOI/campaign/grid, or closing the session stops the worker and removes its temporary directory.
+It downloads sequentially, permits four tiles/200 MB per campaign (100 MB each) and clips both clouds to the intersection of their provider footprints and the AOI, at most 1 km². Empty or oversized overlap is rejected before transfer.
+Reader and accumulated overlap point limits bound memory; each cloud is sampled to at most 50,000 display points. No analytical grids or difference exports are generated.
+Cancelling, changing the AOI/campaign, or closing the session stops the worker and removes its temporary directory.
 Downloads and other previews in that session wait until comparison processing finishes or is cancelled.
-[Scientific interpretation, eligibility and limits](TEMPORAL_COMPARISON.md).
+[Visualization scope and limits](TEMPORAL_COMPARISON.md).

@@ -146,3 +146,19 @@ The 105 package assertions passed, including updated date-policy checks, with th
 Browser checks verified globe rotation, button and keyboard reset, mobile width and the provider-date
 explanation without page errors. The README still contains exactly three figures; the globe screenshot
 is retained only as a separate documentation asset.
+
+## Overlap-only visualization — 17 September 2026
+
+Comparison now displays two clouds within the intersection of their provider footprints and the AOI,
+with a maximum shared area of 1 km². The former analytical grids, metrics, date gates and difference
+exports are removed. No denoising or duplicate removal is performed; finite coordinates are clipped
+and sampled for display. Internal gaps in source footprints are not inferred as observed coverage.
+
+The revised package suite passed 96 assertions, including partial/disjoint/touching footprints,
+AOI clipping, rejection above 1 km², shared display coordinates, CRS mismatch rejection and absence
+of analysis controls/results. Installation succeeded with the previously documented dependency warnings.
+
+Live Edge displayed 12,541 A points and 24,405 B points in a 0.0024 km² overlap from the two USGS campaigns.
+Independent palettes, show/hide, separate original-download selection and 390 px layout passed without
+JavaScript errors. No analysis controls or difference exports were present. The comparison capture was
+refreshed as a separate asset; the README retains exactly its three requested figures.

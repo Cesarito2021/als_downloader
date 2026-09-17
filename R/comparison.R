@@ -10,27 +10,16 @@ campaign_groups <- function(tiles) {
   split(seq_len(nrow(tiles)), label)
 }
 
-comparison_grid <- function(a, b, resolution = 10, min_points = 5L) {
-  if (length(resolution) != 1L || !is.finite(resolution) || resolution < 1 || resolution > 100)
-    stop("Choose a grid resolution between 1 and 100 metres.")
-  if (length(min_points) != 1L || !is.finite(min_points) || min_points < 3 || min_points != floor(min_points))
-    stop("At least three points per cell and epoch are required.")
-  aggregate_epoch <- function(p, suffix) {
-    p <- p[is.finite(p$X) & is.finite(p$Y) & is.finite(p$Z), c("X", "Y", "Z")]
-    if (!nrow(p)) stop("No finite AOI points in one campaign.")
-    ix <- floor(p$X / resolution); iy <- floor(p$Y / resolution)
-    cells <- split(seq_len(nrow(p)), paste(ix, iy, sep = ":"))
-    first <- vapply(cells, `[`, integer(1), 1L)
-    out <- data.frame(ix = ix[first], iy = iy[first], n = lengths(cells),
-      p95 = vapply(cells, function(i) unname(stats::quantile(p$Z[i], .95, type = 7)), numeric(1)))
-    names(out)[3:4] <- paste0(c("n_", "p95_"), suffix)
-    out
-  }
-  cells <- merge(aggregate_epoch(a, "a"), aggregate_epoch(b, "b"), by = c("ix", "iy"), all = TRUE)
-  cells$x <- (cells$ix + .5) * resolution; cells$y <- (cells$iy + .5) * resolution
-  cells$eligible <- !is.na(cells$n_a) & !is.na(cells$n_b) & cells$n_a >= min_points & cells$n_b >= min_points
-  cells$delta_b_minus_a <- ifelse(cells$eligible, cells$p95_b - cells$p95_a, NA_real_)
-  cells
+comparison_overlap <- function(a, b, aoi) {
+  if (!inherits(a, "sf") || !inherits(b, "sf")) stop("Both clouds require provider footprints.")
+  footprint <- function(x) sf::st_union(sf::st_geometry(read_aoi(x)))
+  overlap <- suppressWarnings(sf::st_intersection(footprint(a), footprint(b)))
+  overlap <- suppressWarnings(sf::st_intersection(overlap, footprint(aoi)))
+  if (!length(overlap) || all(sf::st_is_empty(overlap))) stop("The two clouds have no overlapping area inside the AOI.")
+  area <- sum(as.numeric(sf::st_area(overlap))) / 1e6
+  if (!is.finite(area) || area <= 0) stop("The two clouds have no overlapping area inside the AOI.")
+  if (area > 1) stop("The overlapping area exceeds 1 km2. Draw a smaller AOI.")
+  sf::st_sf(geometry = overlap)
 }
 
 read_comparison_cloud <- function(path, aoi) {
@@ -43,11 +32,10 @@ read_comparison_cloud <- function(path, aoi) {
   if (is.null(n) || !is.finite(n) || n > 50000000) stop("A comparison tile exceeds the 50-million source-point limit.")
   roi <- sf::st_transform(aoi, crs)
   bb <- sf::st_bbox(roi)
-  las <- lidR::readLAS(path, select = "xyzc", filter = paste("-drop_withheld -drop_class 7 18 -inside", paste(format(as.numeric(bb), scientific = FALSE, trim = TRUE), collapse = " ")))
+  las <- lidR::readLAS(path, select = "xyz", filter = paste("-inside", paste(format(as.numeric(bb), scientific = FALSE, trim = TRUE), collapse = " ")))
   if (is.null(las) || !nrow(las@data)) return(list(points = data.frame(X = numeric(), Y = numeric(), Z = numeric()), crs = crs))
   if (nrow(las@data) > 2000000) stop("More than two million AOI bounding-box points; use a smaller AOI.")
   points <- as.data.frame(las@data)
-  if ("Classification" %in% names(points)) points <- points[!points$Classification %in% c(7L, 18L), ]
   points <- points[is.finite(points$X) & is.finite(points$Y) & is.finite(points$Z), c("X", "Y", "Z")]
   if (nrow(points)) {
     inside <- lengths(sf::st_intersects(sf::st_as_sf(points, coords = c("X", "Y"), crs = crs), roi)) > 0
@@ -56,9 +44,10 @@ read_comparison_cloud <- function(path, aoi) {
   list(points = points, crs = crs)
 }
 
-compare_campaigns <- function(a, b, aoi, resolution, min_points, directory) {
-  if (aoi_area(aoi) > .25) stop("Comparison is limited to a 0.25 square kilometre AOI; draw a smaller area.")
-  if (aoi_area(aoi) * 1e6 / resolution^2 > 50000) stop("Increase cell size: comparison is limited to approximately 50,000 AOI grid cells.")
+compare_campaigns <- function(a, b, aoi, directory) {
+  overlap <- comparison_overlap(a, b, aoi)
+  overlap_km2 <- aoi_area(overlap)
+  a <- sf::st_drop_geometry(a); b <- sf::st_drop_geometry(b)
   if (!nrow(a) || !nrow(b) || nrow(a) > 4L || nrow(b) > 4L)
     stop("Use an AOI intersecting at most four tiles per campaign for this preview.")
   reference <- NULL
@@ -71,7 +60,7 @@ compare_campaigns <- function(a, b, aoi, resolution, min_points, directory) {
         path = file.path(directory, paste0(prefix, i, ".laz")),
         reader = function(path) {
           remaining <<- remaining - file.size(path)
-          read_comparison_cloud(path, aoi)
+          read_comparison_cloud(path, overlap)
         })
       if (is.null(reference)) reference <<- cloud$crs
       else if (!isTRUE(reference == cloud$crs)) stop("Campaign CRS definitions differ. Align horizontal and vertical references externally before comparison.")
@@ -79,30 +68,20 @@ compare_campaigns <- function(a, b, aoi, resolution, min_points, directory) {
       if (point_budget < 0) stop("More than two million retained AOI points in a campaign; reduce the AOI.")
       cloud$points
     })
-    points <- unique(do.call(rbind, clouds))
+    points <- do.call(rbind, clouds)
     if (!nrow(points)) stop("One campaign has no laser points inside the AOI.")
     if (nrow(points) > 2000000) stop("More than two million AOI points in a campaign; reduce the AOI.")
     points
   }
   pa <- read_epoch(a, "a"); pb <- read_epoch(b, "b")
-  writeLines("Building the shared AOI grid and display samples...", file.path(directory, "progress.txt"))
-  grid <- comparison_grid(pa, pb, resolution, min_points)
+  writeLines("Preparing the overlapping point-cloud views...", file.path(directory, "progress.txt"))
   origin <- vapply(rbind(pa, pb), min, numeric(1))
   sample_cloud <- function(p) {
     p <- p[unique(round(seq(1, nrow(p), length.out = min(50000, nrow(p))))), ]
     p[] <- Map(function(x, offset) x - offset, p, origin)
     unname(as.matrix(p))
   }
-  list(a = sample_cloud(pa), b = sample_cloud(pb), origin = unname(origin), grid = grid,
-    counts = c(nrow(pa), nrow(pb)), crs = reference$wkt, resolution = resolution,
-    method = "Difference of cell P95 source elevation (B minus A); withheld and classes 7/18 excluded; exact duplicate XYZ removed; no interpolation or registration")
-}
-
-comparison_gate <- function(result, dates, verified, vertical_a, vertical_b) {
-  if (is.null(result)) return("Load two campaigns to begin.")
-  if (!isTRUE(verified) || is.null(vertical_a) || is.null(vertical_b) || !nzchar(trimws(vertical_a)) ||
-      tolower(trimws(vertical_a)) != tolower(trimws(vertical_b)))
-    return("Verify matching vertical references and metre Z units before interpreting a difference.")
-  if (!any(result$grid$eligible)) return("No shared grid cells meet the minimum point count in both campaigns. No difference can be inferred.")
-  "Exploratory difference enabled: positive = higher P95 in B; negative = lower P95 in B. Missing/undersampled cells are not zero change."
+  list(a = sample_cloud(pa), b = sample_cloud(pb), origin = unname(origin), overlap_km2 = overlap_km2,
+    counts = c(nrow(pa), nrow(pb)), crs = reference$wkt,
+    method = "Visualization only: both point clouds clipped to the intersection of provider footprints and AOI. Display sampling only; no denoising, differences, metrics or analysis exports. Footprints do not resolve within-tile data gaps.")
 }
