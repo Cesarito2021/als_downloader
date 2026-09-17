@@ -10,6 +10,8 @@ It does not calculate changes, differences, statistics or analysis exports.
 5. Click **Draw profile line**. The cloud switches to plan view. Click start and end, or drag, in any direction. A horizontal profile opens immediately underneath. Adjust the strip width (default 2 m) to include points near the line. The profile shows distance along the line and original elevation, using the same campaign colours and visibility controls. It uses the displayed sample, not the full-resolution cloud; gaps are left empty and missing campaigns are identified. No curves are fitted or differences calculated. Escape stops drawing; Clear profile removes the section. Loading another AOI/campaign pair clears it.
 6. Download the cloud figure, profile figure or both as PNG. Exports include campaign labels, colours, framing and strip coordinates. They contain rendered figures only, with no point-data or analytical export. Profile elevation axes are not multiplied by the cloud's vertical exaggeration.
 
+Use **Return to 3D** to restore the oblique camera while keeping the profile. The line and strip are shown in plan view. [Exported example from two Utah surveys](images/interface-compare-campaigns.png); nearly coincident points are not evidence of a quantified change.
+
 The app rejects empty overlap before downloading comparison files. Only the viewing window is displayed.
 The visualization button remains disabled until the user opts in and selects an eligible pair. With more than two campaigns available, the user chooses which two to view. Opting out clears the view and cancels any comparison worker.
 A larger study area is accepted: comparison is cropped to the selected window. Source files may still need to be downloaded in full temporarily before cropping.

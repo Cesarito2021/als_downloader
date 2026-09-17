@@ -11,6 +11,7 @@ No submission has been made to CRAN. Passing local checks does not guarantee acc
 - Real USGS discovery returned seven Utah tiles; one source tile decoded to 7,523 preview points. A two-campaign overlap displayed 12,541 and 24,405 points over 0.0024 km2, with independent visibility and original-file selection.
 - The globe and search screenshots were refreshed. Comparison camera framing now optionally fits the central 98% of projected display coordinates without deleting points.
 - The visual-profile update passed a fresh full local `--as-cran` check (including PDF manual): 0 errors, 0 warnings, the same two notes. Browser tests with real Utah campaigns passed line selection by clicks/drag, shared colour/visibility controls, strip-width changes, three PNG downloads, stale-profile clearing and mobile layout. Offline JavaScript tests cover directional distances, strip/end boundaries and empty sections. Profiles use displayed samples without fitting curves or calculating campaign differences.
+- [Visual-profile CI run 35275843652](https://github.com/Cesarito2021/als_downloader/actions/runs/35275843652), commit `763fb27`, passed Windows, macOS, Linux release and Linux R-devel, including the new JavaScript geometry checks. This run supersedes the earlier release check for current application code.
 - Ten active catalog entries remain, with nine representative file endpoints checked; see [access scope](ACTIVE_SOURCES.md). This is not verification of every file in each national archive.
 
 ## Before submission

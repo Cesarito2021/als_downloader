@@ -12,4 +12,4 @@ The full --as-cran run, including PDF and HTML manuals, reports 0 errors, 0 warn
 - New submission.
 - Unable to verify current time in the local environment.
 
-GitHub Actions run 35271083291 (commit 1309077) passed Windows, macOS and Linux with R release and Linux with R-devel using --as-cran --no-manual, with warnings treated as failures. See docs/CRAN_READINESS.md for the remaining maintainer confirmations. Examples and tests do not make network requests; the app and network workflows run only when explicitly invoked.
+GitHub Actions run 35275843652 (commit 763fb27) passed Windows, macOS and Linux with R release and Linux with R-devel using --as-cran --no-manual, with warnings treated as failures, after the visual-profile update. The full local manual check also passed again. See docs/CRAN_READINESS.md for the remaining maintainer confirmations. Examples and tests do not make network requests; the app and network workflows run only when explicitly invoked.
