@@ -1,6 +1,19 @@
 # ALS Downloader
 
+[![R package checks](https://github.com/Cesarito2021/als_downloader/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/Cesarito2021/als_downloader/actions/workflows/R-CMD-check.yaml)
+[![License: GPL-3](https://img.shields.io/badge/license-GPL--3-526575)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![CRAN: not submitted](https://img.shields.io/badge/CRAN-not%20submitted-777777)](docs/CRAN_READINESS.md)
+[![R-universe: activation pending](https://img.shields.io/badge/R--universe-activation%20pending-777777)](docs/R_UNIVERSE.md)
+[![Citation guide](https://img.shields.io/badge/citation-guide-526575)](inst/CITATION)
+
+[![R 4.1 or newer](https://img.shields.io/badge/R-%E2%89%A5%204.1-526575?logo=r&logoColor=white)](https://www.r-project.org/)
+[![Shiny](https://img.shields.io/badge/interface-Shiny-526575)](https://shiny.posit.co/)
+[![HTML CSS JavaScript](https://img.shields.io/badge/web-HTML%20%2F%20CSS%20%2F%20JavaScript-526575)](inst/app/www)
+[![GitHub stars](https://img.shields.io/github/stars/Cesarito2021/als_downloader?style=flat&label=GitHub%20stars&color=526575)](https://github.com/Cesarito2021/als_downloader/stargazers)
+
 Discover aerial LiDAR sources, download original LAS/LAZ files and inspect overlapping point clouds. R package and Shiny application by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
+
+Badges show software resources and repository status, not scientific endorsement. Download and citation counts are not yet available. [Metrics and R-universe setup](docs/R_UNIVERSE.md).
 
 ## Install and launch
 
