@@ -18,7 +18,7 @@ A LAS/LAZ extension or a `lidar` keyword alone does not establish an aerial plat
 | Italy · Alpe di Catenaia | [Tree-LiMS — Puletti, Guasti, Innocenti and Botticelli](https://zenodo.org/records/17492219) | UAV LiDAR at single-tree level: `las_singletree_data.zip` (204.2 MB) | CC BY 4.0. Record and file listing checked; archive contents and point decoding pending. Multispectral and trait files are ancillary, not aerial laser clouds. Acquisition dates and spatial footprints still need verification. |
 | Brazil · Mato Grosso, Amazonas and Pará | [EBA L1A — Ometto and collaborators](https://zenodo.org/records/7636454) | Aircraft ALS, 2016/2017 and 2017/2018 campaigns; Trimble Harrier 68i aboard a Cessna 206; ZIP archives of transects | CC BY 4.0. Source description and file listing reviewed; full downloads and decoding pending. Study transects do not represent continuous national coverage. |
 
-All three are **discovery entries with no Zenodo AOI/download adapter**. Metadata review, file access and integration are separate validation stages.
+All three have **no Zenodo AOI-search adapter**. Sila additionally has a live metadata connection and direct browser download link in **Sources and access**, limited to the reviewed original aerial `merged.las`. No full-file proxy, clipping or point-cloud storage is provided. Tree-LiMS and EBA remain discovery links. Metadata review, file access and integration are separate validation stages.
 The Sila [access evidence](italy-sila-access.json) and Italian [record metadata](italy-puletti-records.json) retain the exact records inspected.
 The original [source audit](SOURCE_AUDIT.md) records EBA findings.
 

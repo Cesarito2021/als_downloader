@@ -30,3 +30,7 @@
 * Added transport validation, checksum-based resume records and citation exports.
 * Added bounded LAS/LAZ previews and an offline-testable coordinate sampler.
 * Additional providers are catalog candidates, not active download adapters.
+# Zenodo source connection
+
+* Add an explicit live connection to the Sila Zenodo record with a direct browser link to its reviewed original ALS file, size, license and dataset citation. Terrestrial and processed files are excluded; AOI search remains unavailable for this source.
+* Remove the personal Sila acknowledgement from the README; retain dataset attribution with the source.

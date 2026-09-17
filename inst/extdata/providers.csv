@@ -16,6 +16,6 @@ ornl,ORNL Amazon ALS,76,Brazil,FALSE,Earthdata access and dataset citation must 
 forestscan,ForestScan Lope - UAV laser scanning subset,266,Gabon,FALSE,Research collection; aerial UAV-LS subset only; TLS excluded; point sample and adapter pending,https://doi.org/10.5285/88a8620229014e0ebacf0606b302112d,2026-09-17
 linz,LINZ,554,New Zealand,FALSE,Open point clouds; collection adapter pending,https://www.linz.govt.nz/products-services/data/types-linz-data/elevation-data/access-elevation-data,2026-09-17
 elvis,ELVIS,36,Australia,FALSE,Portal ordering workflow; adapter pending,https://elevation.fsdf.org.au/,2026-09-17
-sila_zenodo,Zenodo research: Sila ALS - Nicola Puletti / CREA,380,Italy,FALSE,Research deposit; CC BY 4.0; July 2019 ALS sample verified; terrestrial files excluded; local study; adapter pending,https://zenodo.org/records/3633629,2026-09-17
-treelims_zenodo,Zenodo research: Tree-LiMS - Puletti and collaborators,380,Italy,FALSE,UAV LiDAR single-tree LAS archive; CC BY 4.0; metadata only; decoding and AOI adapter pending,https://zenodo.org/records/17492219,2026-09-17
+sila_zenodo,Zenodo research: Sila ALS,380,Italy,FALSE,Live source connection and direct browser link; CC BY 4.0; July 2019 ALS sample verified; terrestrial files excluded; AOI adapter pending,https://zenodo.org/records/3633629,2026-09-17
+treelims_zenodo,Zenodo research: Tree-LiMS,380,Italy,FALSE,UAV LiDAR single-tree LAS archive; CC BY 4.0; metadata only; decoding and AOI adapter pending,https://zenodo.org/records/17492219,2026-09-17
 eba_zenodo,Zenodo research: EBA L1A - Ometto and collaborators,76,Brazil,FALSE,Aircraft ALS transects 2016-2018; CC BY 4.0; metadata only; decoding and AOI adapter pending,https://zenodo.org/records/7636454,2026-09-17

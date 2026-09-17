@@ -101,9 +101,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
           comparison_ui(),
           shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Zenodo entries are complementary research deposits, not official national coverage. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have a search adapter. Verify dataset terms and citations before downloading."),
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
-            DT::DTOutput("sources")))))
+            zenodo_source_ui(), DT::DTOutput("sources")))))
   )
   server <- function(input, output, session) {
+    zenodo_source_server(input, output, session)
     shiny::observeEvent(input$suggest_source, {
       shiny::showModal(shiny::modalDialog(
         title = "Submit a data source", size = "l", easyClose = FALSE,

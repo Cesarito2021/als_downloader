@@ -119,11 +119,15 @@ Our [initial aerial LiDAR overview](docs/ZENODO_AERIAL.md) separates eligible ae
 
 | Dataset / country | Platform | Current evidence |
 |---|---|---|
-| [Sila — Nicola Puletti / CREA · Italy](https://zenodo.org/records/3633629) | Aircraft ALS, July 2019 | Public LAS sample decoded; terrestrial files excluded. |
-| [Tree-LiMS — Puletti and collaborators · Italy](https://zenodo.org/records/17492219) | UAV LiDAR | Record and single-tree LAS archive listing checked; point decoding pending. |
+| [Sila · Italy](https://zenodo.org/records/3633629) | Aircraft ALS, July 2019 | Public LAS sample decoded; live source connection and direct browser link; terrestrial files excluded. |
+| [Tree-LiMS · Italy](https://zenodo.org/records/17492219) | UAV LiDAR | Record and single-tree LAS archive listing checked; point decoding pending. |
 | [EBA — Ometto and collaborators · Brazil](https://zenodo.org/records/7636454) | Aircraft ALS, 2016–2018 campaigns | Acquisition description and archive listing reviewed; point decoding pending. |
 
-These are local research datasets, not country-wide coverage, and have no Zenodo search/download adapter yet.
+These are local research datasets, not country-wide coverage, and have no Zenodo AOI-search adapter yet.
+In **Sources and access**, choose **Connect to Zenodo** to retrieve Sila's current file metadata and enable a direct browser download of the original aerial `merged.las` (6.82 GB). The app connects to the source and does not store this file. Terrestrial files and processed derivatives are excluded. This source connection does not provide AOI search, clipping or an in-app preview of the large file. [Dataset citation and bounded access evidence](docs/ITALY_PULETTI.md).
+
+![Live Zenodo source connection in Shiny](docs/images/interface-zenodo-source.png)
+
 Multifordiv remains pending platform verification. Cite each dataset's authors and DOI; all three selected deposits list CC BY 4.0.
 
 **Inventory corrections:** the East Helanshan and Taiwan `TW18_Carr` point clouds are photogrammetric, not ALS.
@@ -235,8 +239,6 @@ Suggestions are reviewed before integration. New adapters need reliable AOI-to-f
 Developed within the [OpenForest4D](https://openforest4d.org) cyberinfrastructure initiative.
 We acknowledge the data producers, research teams and public agencies that collect and share airborne LiDAR,
 and the OpenTopography and USGS communities supporting access to these data.
-For the Italian Sila dataset, we acknowledge **Nicola Puletti / CREA** and the AGRIDIGIT Selvicoltura project credited by the source.
-[Dataset citation and access evidence](docs/ITALY_PULETTI.md).
 
 The application builds on the R and Shiny ecosystems, including `sf`, Leaflet, DT and `lidR`.
 The forest-view controls follow the sampling, point-size and camera ideas in Cesar Alvites's supplied biomass visualization scripts (`export_lidar_html`).

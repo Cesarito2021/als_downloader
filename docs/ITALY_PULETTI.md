@@ -26,7 +26,9 @@ Exact byte ranges, hashes and coordinate extrema: [italy-sila-access.json](italy
 The source record and related record metadata are summarized in [italy-puletti-records.json](italy-puletti-records.json).
 Reproduce the bounded probe with `python tools/check-sila-access.py` from a checkout.
 
-Italy now appears in the application's country/source catalog with **Implemented = FALSE**.
+The **Sources and access** tab offers **Connect to Zenodo**, which retrieves live record metadata and exposes only the reviewed original aerial `merged.las` as a direct browser download. The app checks the record, exact file link, size, DOI and license before enabling the link. It does not store or proxy the full file. Connection failure leaves the download link disabled.
+
+Italy appears in the application's country/source catalog with **Implemented = FALSE** for AOI search.
 Automatic AOI discovery still requires verified spatial footprints, CRS and a Zenodo adapter.
 The GPS Shapefile name alone does not establish the LAS coordinate reference system.
 
@@ -39,7 +41,7 @@ The GPS Shapefile name alone does not establish the LAS coordinate reference sys
 
 Sila and Tree-LiMS are discovery entries in the [aerial-only Zenodo overview](ZENODO_AERIAL.md). Multifordiv remains outside the eligible catalog pending platform verification. Related files were not downloaded. Terrestrial-only records are excluded; the metadata audit retains them for traceability.
 
-## Citation and acknowledgement
+## Dataset citation
 
 Puletti, N. (2020). *Sila National Park – 3D Point cloud data* (Version 1) [Data set]. Zenodo.
 [https://doi.org/10.5281/zenodo.3633629](https://doi.org/10.5281/zenodo.3633629).

@@ -102,3 +102,17 @@ The README now uses the actual forest render and a newly annotated interface cap
 [Capture settings and provenance](images/forest-capture-provenance.json).
 Display sampling is bounded at 750,000 reader points and 150,000 plotted points; source downloads and
 the separate campaign-comparison calculations are unchanged.
+
+## Zenodo source connection — 17 September 2026
+
+The Sila access probe succeeded again: HTTP 206, 94,208 bytes read and 1,024 LAS point records decoded.
+The full 6.82 GB file and its checksum were not validated. The general web reader returned HTTP 429;
+the direct API probe and the live Shiny API connection succeeded.
+
+The package suite passed **105 assertions**, including aerial-file selection and rejection of missing files,
+changed links, mismatched records and changed licenses. Installation succeeded with the existing locale
+and Shiny build-version warnings. Live Edge verified the initial disabled link, successful metadata connection,
+the exact aerial file URL, size, citation, license and 390 px layout without JavaScript errors.
+No browser download of the complete file was initiated. The app connects and links to Zenodo; it does not
+proxy or store this point cloud and does not offer AOI discovery for it.
+[Live interface capture](images/interface-zenodo-source.png).
