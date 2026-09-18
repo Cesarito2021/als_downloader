@@ -37,7 +37,11 @@ Screenshots illustrate the interface before the latest source exclusions, colour
 | W3 - Yellow shading | Country has only a linked official source; download from the provider's own portal. |
 | W4 - Open map | Open the map to draw or upload an area of interest. |
 
-## 2. Search, download and plot
+## 2. Point cloud 3D viewer
+
+*Screenshot needed here — the standalone "3D preview" tab does not have one yet. Select a tile in Explore, click **Plot selected tile in 3D**, or upload a local LAS/LAZ file, then rotate/zoom with drag, scroll and the on-screen controls. Elevation-coloured, up to 200 MB per tile; colours show source elevation, not canopy height.*
+
+## 3. Search, download and plot
 
 ![Annotated search example showing study area, source tiles and download controls](docs/images/interface-rgb-tile.png)
 
@@ -54,7 +58,7 @@ The search figure is a Utah example. Collection dates come from provider acquisi
 
 The OpenTopography adapter follows the tile-index selection and download workflow described in OpenTopography's official tutorial, [*Programmatic Access to OpenTopography's Point Cloud Data with Tile Indexes*](https://opentopography.org/node/3598) (24 November 2025): intersect supplied tile indexes with the study area and download the selected original LAS/LAZ files.
 
-## 3. Compare campaigns and view a profile
+## 4. Compare campaigns and view a profile
 
 ![Two side-by-side survey clouds on black, with a shared coloured elevation profile below](docs/images/interface-compare-campaigns.png)
 
@@ -63,6 +67,20 @@ Choose two campaigns covering the same AOI and opt into **Compare campaigns**. V
 Click **Draw profile line** to switch both panels to a top-down view together, then click two endpoints (in either panel) or drag a segment in any direction; the same line appears in both automatically. A single profile of both sampled clouds appears below, using their colours and original elevations. Adjust the strip width, show/hide either campaign, return to 3D, or download the cloud, profile or both as PNG.
 
 The profile does not require height normalization. Both clouds must have compatible coordinate references; the app does not align them, fit curves or calculate changes. [Visual comparison guide](docs/TEMPORAL_COMPARISON.md).
+
+## 5. Submit your dataset
+
+*Screenshot needed here — the "Sources and access" tab's submission form does not have one yet.*
+
+Ten main fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI or Zenodo record ID, collection year(s), aerial platform, LAS/LAZ or index link, license link, access requirements and optional sensor/location notes. Zenodo submissions additionally require a polygon boundary link, unless the data link already supplies the GeoJSON tile index.
+
+Keep the point clouds in their original repository. For **discover → inspect → download**, submit a small GeoJSON index with one footprint and direct LAS/LAZ link per tile. Approved indexes support AOI search without a new provider-specific connector. [Template, required fields and large-file guidance](docs/CONTRIBUTING_DATA.md).
+
+Complete the form, click **Check compatibility**, then **Submit your request** when the vector alligator reaches 100%. The check reads LAS/LAZ headers or up to 5 MiB of GeoJSON metadata; no point cloud is downloaded or plotted. Completion means technical checks passed, not publication approval. A successful check enables a private email draft to the maintainer. Review and send it in your email application. Editing the request resets compatibility. Portals and authentication-based access need manual discussion.
+
+After an AOI search, select tiles to see their known total size, export selected metadata or download an R script for local transfer. Downloads preserve complete original tiles; they do not clip files to the AOI. A metadata index does not make a large point-cloud file smaller, and 3D inspection remains optional.
+
+Your contact email is for review and acceptance replies and is not included in public GitHub issues. Inclusion requires maintainer approval. No automatic email delivery service is configured. [Contact handling and acceptance reply](docs/CONTRIBUTOR_PRIVACY.md). [Observed approval times](docs/APPROVAL_TIMES.md) count only public metadata-only GitHub requests marked `source-approved`; private email requests are excluded.
 
 ## Source examples
 
@@ -82,18 +100,6 @@ Eight examples are shown below. The **[complete catalogue, access conditions and
 Only aircraft, helicopter and UAV **laser scanning** are in scope. Automatic integration requires open-licensed, anonymous access, spatial coverage metadata and preserved provider attribution. The app downloads original files from their providers and does not host point clouds or bypass access restrictions. [Review evidence](docs/ACTIVE_SOURCES.md) · [European candidates](docs/EUROPE_ACCESS_REVIEW.md).
 
 In R, use `alsdownloader::provider_catalog()` for the full table, or locate the installed guide with `system.file("sources", "README.md", package = "alsdownloader")`.
-
-## Submit your dataset
-
-Ten main fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI or Zenodo record ID, collection year(s), aerial platform, LAS/LAZ or index link, license link, access requirements and optional sensor/location notes. Zenodo submissions additionally require a polygon boundary link, unless the data link already supplies the GeoJSON tile index.
-
-Keep the point clouds in their original repository. For **discover → inspect → download**, submit a small GeoJSON index with one footprint and direct LAS/LAZ link per tile. Approved indexes support AOI search without a new provider-specific connector. [Template, required fields and large-file guidance](docs/CONTRIBUTING_DATA.md).
-
-Complete the form, click **Check compatibility**, then **Submit your request** when the vector alligator reaches 100%. The check reads LAS/LAZ headers or up to 5 MiB of GeoJSON metadata; no point cloud is downloaded or plotted. Completion means technical checks passed, not publication approval. A successful check enables a private email draft to the maintainer. Review and send it in your email application. Editing the request resets compatibility. Portals and authentication-based access need manual discussion.
-
-After an AOI search, select tiles to see their known total size, export selected metadata or download an R script for local transfer. Downloads preserve complete original tiles; they do not clip files to the AOI. A metadata index does not make a large point-cloud file smaller, and 3D inspection remains optional.
-
-Your contact email is for review and acceptance replies and is not included in public GitHub issues. Inclusion requires maintainer approval. No automatic email delivery service is configured. [Contact handling and acceptance reply](docs/CONTRIBUTOR_PRIVACY.md). [Observed approval times](docs/APPROVAL_TIMES.md) count only public metadata-only GitHub requests marked `source-approved`; private email requests are excluded.
 
 ## Contact and citation
 

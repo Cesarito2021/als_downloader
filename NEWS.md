@@ -15,3 +15,4 @@
 * Redesign campaign comparison as two side-by-side panels (A, B) sharing one synced camera, instead of one canvas with both clouds overlaid. Drawing a profile line in either panel places the same line and strip in both automatically; the elevation profile below remains a single shared chart.
 * Mention IGN LiDAR HD in the package Description. Add CITATION.cff and CONTRIBUTING.md. Refine interface polish (rounded controls, smoother hover/focus transitions, subtle depth) without changing layout or the colour palette.
 * Replace two stray RStudio project files left over from early working names (lidar_app.Rproj, ot_pc_app.Rproj) with a single alsdownloader.Rproj.
+* Reorder the README walkthrough as five numbered steps: explore sources, point cloud 3D viewer, search/download, compare campaigns, submit your dataset. Two steps still need a real screenshot (3D viewer, submission form).
