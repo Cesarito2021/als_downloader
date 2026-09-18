@@ -69,3 +69,34 @@ currently uses a synthetic stand-in shaped like this scenario - a thinned,
 shortened canopy in half of a synthetic 100 m tile, red vs. blue - clearly
 labeled as synthetic in the README caption, not real Apalachicola data.
 Replace it with a real render once a verified pair from this area is found.
+
+## Candidate site found by the maintainer, 18 September 2026
+
+Located in Google Earth (screenshot: a placemark near "Abe Springs")
+and reported as UTM Zone 16N, Easting 679558.79 m E, Northing 3357161.09
+m N. Converted in this session (`pyproj`, EPSG:32616 -> EPSG:4326, since
+this sandbox has no network access to a live USGS/Planetary Computer
+endpoint to check the point any other way):
+
+**Latitude 30.332975, Longitude -85.132174** (WGS84).
+
+This falls in the Calhoun/Liberty County area of the Florida Panhandle,
+between Blountstown and Wewahitchka, near the Apalachicola River -
+forested, and within Hurricane Michael's Category 5 eyewall track
+(the storm crossed the Panhandle on 10 October 2018 on a path that
+includes this area), consistent with the "northwest of Apalachicola"
+guidance above, though it is west of the river rather than inside the
+Apalachicola National Forest boundary itself (which lies mostly east of
+the river) - still a physically reasonable candidate for wind-driven
+canopy loss.
+
+**Not yet verified against the actual catalog.** This sandbox can reach
+`github.com` and package registries (confirmed: `pypi.org`,
+`registry.npmjs.org`) but not `planetarycomputer.microsoft.com`,
+`index.nationalmap.gov`, `www.usgs.gov`, or even `cran.r-project.org` -
+all returned connection failures when checked directly. The next step
+still has to happen in the running app (or any session with real
+network access): search provider `usgs3dep` with no date filter over a
+small AOI centered near 30.332975, -85.132174, and check the grouped
+campaign list under **Compare campaigns** for two distinct projects
+whose collection intervals straddle October 2018.
