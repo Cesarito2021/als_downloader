@@ -28,7 +28,7 @@ Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6,
 
 ![Welcome globe with annotated navigation and catalog presence](docs/images/interface-globe.png)
 
-Screenshots illustrate the interface before the latest source exclusions and colour update; the [complete source table](inst/sources/SOURCES.md) records the current catalogue.
+Screenshots illustrate the interface before the latest source exclusions, colour update and the two-panel comparison layout; the [complete source table](inst/sources/SOURCES.md) records the current catalogue.
 
 | Control | Purpose |
 |---|---|
@@ -56,11 +56,11 @@ The OpenTopography adapter follows the tile-index selection and download workflo
 
 ## 3. Compare campaigns and view a profile
 
-![Two overlapping survey clouds on black, with their coloured elevation profiles below](docs/images/interface-compare-campaigns.png)
+![Two side-by-side survey clouds on black, with a shared coloured elevation profile below](docs/images/interface-compare-campaigns.png)
 
-Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km. The default colours are light purple and pale yellow on black; red and blue are also available.
+Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km, shown as **two side-by-side panels** (A left, B right) sharing one camera: rotate or zoom either panel and both move together. The default colours are light purple (A) and pale yellow (B) on black; red and blue are also available.
 
-Click **Draw profile line** to switch to a top-down view, then click two endpoints or drag a segment in any direction. A profile of both sampled clouds appears below, using their colours and original elevations. Adjust the strip width, show/hide either campaign, return to 3D, or download the cloud, profile or both as PNG.
+Click **Draw profile line** to switch both panels to a top-down view together, then click two endpoints (in either panel) or drag a segment in any direction; the same line appears in both automatically. A single profile of both sampled clouds appears below, using their colours and original elevations. Adjust the strip width, show/hide either campaign, return to 3D, or download the cloud, profile or both as PNG.
 
 The profile does not require height normalization. Both clouds must have compatible coordinate references; the app does not align them, fit curves or calculate changes. [Visual comparison guide](docs/TEMPORAL_COMPARISON.md).
 

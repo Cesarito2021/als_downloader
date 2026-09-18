@@ -10,51 +10,59 @@
     return selected;
   }
   window.ALSProfileSection=section;
-  window.ALSProfile = function (cloud, state, redraw, planView) {
+  // canvases: the two synced 3D panels (A, B). Drawing on either one places the
+  // same world-space line and shows on both; the chart below is a single shared output.
+  window.ALSProfile = function (canvases, state, redraw, planView) {
     const byId=id=>document.getElementById(id), panel=byId('profile_panel'), canvas=byId('als-compare-profile');
     if(!panel || !canvas)return null;
     let active=false,start=null,end=null,press=null,strip=2;
     const hint=byId('profile_hint');
     function enable(id,yes){byId(id).disabled=!yes;}
-    function reset(){active=false;start=end=press=null;panel.hidden=true;cloud.style.cursor='grab';
+    function setCursor(v){canvases.forEach(c=>c.style.cursor=v);}
+    function reset(){active=false;start=end=press=null;panel.hidden=true;setCursor('grab');
       for(const id of ['profile_clear','export_profile','export_combined'])enable(id,false);
       const ready=state().points.length>0;enable('profile_draw',ready);enable('profile_3d',ready);enable('export_cloud',ready);
-      hint.textContent=ready?'Draw profile line: choose two endpoints in plan view, or drag. The profile uses displayed points only.':'Load two clouds to draw a profile.';}
-    function cancel(){active=false;press=null;if(!end)start=null;cloud.style.cursor='grab';hint.textContent='Drawing stopped. Choose Draw profile line to start again.';redraw();}
-    byId('profile_draw').onclick=()=>{reset();active=true;cloud.style.cursor='crosshair';planView();cloud.focus();hint.textContent='Plan view: click start then end, or drag a line. Escape cancels.';};
+      hint.textContent=ready?'Draw profile line: choose two endpoints in plan view (in either panel), or drag. The profile uses displayed points only.':'Load two clouds to draw a profile.';}
+    function cancel(){active=false;press=null;if(!end)start=null;setCursor('grab');hint.textContent='Drawing stopped. Choose Draw profile line to start again.';redraw();}
+    byId('profile_draw').onclick=()=>{reset();active=true;setCursor('crosshair');planView();canvases[0].focus();hint.textContent='Plan view: click start then end (in either panel), or drag a line. Escape cancels.';};
     byId('profile_clear').onclick=()=>{reset();redraw();};
-    byId('profile_3d').onclick=()=>{if(active)cancel();cloud.ondblclick();};
+    byId('profile_3d').onclick=()=>{if(active)cancel();canvases[0].ondblclick();};
     byId('profile_width').onchange=e=>{const n=Number(e.target.value);strip=Number.isFinite(n)?Math.max(.2,Math.min(100,n)):2;e.target.value=strip;redraw();};
-    function world(e){const s=state(),m=s.camera,r=cloud.getBoundingClientRect();
+    function world(e){const s=state(),m=s.camera,target=e.currentTarget,r=target.getBoundingClientRect();
       if(!m)return null;
-      const rx=(e.clientX-r.left-m.w/2)/m.scale+m.cx,ry=(e.clientY-r.top-(m.h-45)/2)/m.scale+m.cy;
+      const w=target.clientWidth,h=target.clientHeight;
+      const rx=(e.clientX-r.left-w/2)/m.scale+m.cx,ry=(e.clientY-r.top-(h-45)/2)/m.scale+m.cy;
       return [rx*m.co+ry*m.si+s.extent[0]/2,-rx*m.si+ry*m.co+s.extent[1]/2];}
     function finish(p){if(!p||!start)return;const length=Math.hypot(p[0]-start[0],p[1]-start[1]);
       if(length<.2){hint.textContent='Choose endpoints at least 0.2 m apart.';return;}
-      end=p;active=false;press=null;cloud.style.cursor='grab';panel.hidden=false;enable('profile_clear',true);enable('export_profile',true);enable('export_combined',true);redraw();}
+      end=p;active=false;press=null;setCursor('grab');panel.hidden=false;enable('profile_clear',true);enable('export_profile',true);enable('export_combined',true);redraw();}
     function pointer(kind,e){if(!active)return false;
       e.preventDefault();
-      if(kind==='down'){cloud.focus();cloud.setPointerCapture(e.pointerId);
+      if(kind==='down'){e.currentTarget.focus();e.currentTarget.setPointerCapture(e.pointerId);
         if(start){finish(world(e));return true;}
         start=world(e);press=[e.clientX,e.clientY];redraw();}
       if(kind==='up'&&press){if(Math.hypot(e.clientX-press[0],e.clientY-press[1])>5)finish(world(e));press=null;}
       return true;}
     function color(name,z,s){const stops=s.palettes[name],v=Math.max(0,Math.min(1,z/(s.extent[2]||1)))*(stops.length-1),i=Math.min(stops.length-2,Math.floor(v)),t=v-i;
       return 'rgb('+stops[i].map((x,j)=>Math.round(x+(stops[i+1][j]-x)*t)).join(',')+')';}
-    function screen(p,s){const m=s.camera,x=p[0]-s.extent[0]/2,y=p[1]-s.extent[1]/2;
-      return [(x*m.co-y*m.si-m.cx)*m.scale+m.w/2,(x*m.si+y*m.co-m.cy)*m.scale+(m.h-45)/2];}
-    function render(ctx){const s=state();if(!start)return;
+    function screen(p,s,target){const m=s.camera,x=p[0]-s.extent[0]/2,y=p[1]-s.extent[1]/2;
+      const w=target.clientWidth,h=target.clientHeight;
+      return [(x*m.co-y*m.si-m.cx)*m.scale+w/2,(x*m.si+y*m.co-m.cy)*m.scale+(h-45)/2];}
+    // Draws the plan-view line/strip overlay onto one panel's own 3D canvas.
+    function renderOverlay(ctx,target){const s=state();if(!start)return;
       // A plan view provides an unambiguous horizontal transect independent of Z.
-      if(s.pitch===0){const a=screen(start,s);ctx.save();ctx.strokeStyle='#f4f8fc';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);
-        if(end){const b=screen(end,s);ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.stroke();
-          const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy),off=strip*s.camera.scale/2;
-          ctx.fillStyle='rgba(220,233,255,.12)';ctx.beginPath();ctx.moveTo(a[0]-dy/l*off,a[1]+dx/l*off);ctx.lineTo(b[0]-dy/l*off,b[1]+dx/l*off);ctx.lineTo(b[0]+dy/l*off,b[1]-dx/l*off);ctx.lineTo(a[0]+dy/l*off,a[1]-dx/l*off);ctx.closePath();ctx.fill();
-          ctx.fillStyle='#ffffff';ctx.fillText('End',b[0]+5,b[1]-7);}
-        ctx.fillStyle='#ffffff';ctx.fillText('Start',a[0]+5,a[1]-7);ctx.restore();}
-      if(!end)return;
+      if(s.pitch!==0)return;
+      const a=screen(start,s,target);ctx.save();ctx.strokeStyle='#f4f8fc';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);
+      if(end){const b=screen(end,s,target);ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.stroke();
+        const dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy),off=strip*s.camera.scale/2;
+        ctx.fillStyle='rgba(220,233,255,.12)';ctx.beginPath();ctx.moveTo(a[0]-dy/l*off,a[1]+dx/l*off);ctx.lineTo(b[0]-dy/l*off,b[1]+dx/l*off);ctx.lineTo(b[0]+dy/l*off,b[1]-dx/l*off);ctx.lineTo(a[0]+dy/l*off,a[1]-dx/l*off);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#ffffff';ctx.fillText('End',b[0]+5,b[1]-7);}
+      ctx.fillStyle='#ffffff';ctx.fillText('Start',a[0]+5,a[1]-7);ctx.restore();}
+    // Draws the shared distance/elevation chart once, below both panels.
+    function renderChart(){const s=state();if(!start||!end)return;
       const length=Math.hypot(end[0]-start[0],end[1]-start[1]);
       const selected=section(s.points,s.groups,start,end,strip);
-      const w=canvas.clientWidth||cloud.clientWidth,h=300,dpr=Math.min(devicePixelRatio||1,2);
+      const w=canvas.clientWidth||canvases[0].clientWidth,h=300,dpr=Math.min(devicePixelRatio||1,2);
       canvas.width=w*dpr;canvas.height=h*dpr;const g=canvas.getContext('2d');g.scale(dpr,dpr);g.fillStyle='#05080c';g.fillRect(0,0,w,h);
       const left=70,right=20,top=42,bottom=52,pw=w-left-right,ph=h-top-bottom;
       let zs=selected.map(p=>p[1]).sort((a,b)=>a-b),zmin=zs[0]??0,zmax=zs.at(-1)??s.extent[2];
@@ -72,11 +80,11 @@
       g.restore();g.fillStyle='#c7d6df';g.textAlign='center';g.fillText('Distance from line start (m)',left+pw/2,h-10);
       g.save();g.translate(16,top+ph/2);g.rotate(-Math.PI/2);g.fillText('Elevation (m)',0,0);g.restore();
       const hasA=selected.some(p=>p[2]===0),hasB=selected.some(p=>p[2]===1);
-      hint.textContent='Profile strip: '+strip+' m wide. '+(!hasA||!hasB?'No sampled points from '+(!hasA&&!hasB?'either cloud':!hasA?'A':'B')+' in this strip. Widen or redraw it. ':'')+'Sampled points only; gaps are not interpolated. '+(s.focusCentral?'Central 98% elevation framing; disable focus to show all elevations.':'All sampled elevations shown.');
+      hint.textContent='Profile strip: '+strip+' m wide, shown in both panels. '+(!hasA||!hasB?'No sampled points from '+(!hasA&&!hasB?'either cloud':!hasA?'A':'B')+' in this strip. Widen or redraw it. ':'')+'Sampled points only; gaps are not interpolated. '+(s.focusCentral?'Central 98% elevation framing; disable focus to show all elevations.':'All sampled elevations shown.');
       canvas.dataset.hasA=String(hasA);canvas.dataset.hasB=String(hasB);
     }
     function exportFigure(kind){const s=state();if(!s.points.length||(kind!=='cloud'&&!end))return;
-      const sources=kind==='both'?[cloud,canvas]:[kind==='profile'?canvas:cloud];
+      const sources=kind==='both'?[canvases[0],canvases[1],canvas]:kind==='profile'?[canvas]:canvases;
       const width=1600,scaled=sources.map(c=>({c,h:Math.round(c.height/c.width*width)}));
       const out=document.createElement('canvas');out.width=width;out.height=scaled.reduce((v,x)=>v+x.h,0)+220;
       const g=out.getContext('2d');g.fillStyle='#05080c';g.fillRect(0,0,out.width,out.height);let y=0;
@@ -92,6 +100,6 @@
       lines.forEach((text,i)=>g.fillText(text,24,y+28+i*28,width-48));
       out.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='als-comparison-'+kind+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);},'image/png');}
     byId('export_cloud').onclick=()=>exportFigure('cloud');byId('export_profile').onclick=()=>exportFigure('profile');byId('export_combined').onclick=()=>exportFigure('both');
-    return {render,reset,cancel,pointer,isDrawing:()=>active};
+    return {renderOverlay,renderChart,reset,cancel,pointer,isDrawing:()=>active};
   };
 })();

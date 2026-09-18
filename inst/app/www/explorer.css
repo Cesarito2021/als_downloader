@@ -12,4 +12,4 @@
 #source_test_progress progress{width:100%;height:10px}
 
 .modal-body .shiny-input-container{width:100%}.modal-body{max-width:100%}
-#als-compare-cloud{background:#05080c}.als-profile-canvas{display:block;width:100%;height:300px;background:#05080c}.als-profile-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}.als-profile-tools label{margin:0}.als-profile-tools input{width:85px;color:#e0eaf0;background:#1c2e3a;border:1px solid #526575;padding:6px}#profile_panel[hidden]{display:none}#profile_hint{color:#b9cbd8;margin:10px 0}
+.als-compare-split{display:grid;grid-template-columns:1fr 1fr;gap:10px}.als-compare-panel{background:#05080c;height:380px}.als-profile-canvas{display:block;width:100%;height:300px;background:#05080c}.als-profile-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}.als-profile-tools label{margin:0}.als-profile-tools input{width:85px;color:#e0eaf0;background:#1c2e3a;border:1px solid #526575;padding:6px}#profile_panel[hidden]{display:none}#profile_hint{color:#b9cbd8;margin:10px 0}@media(max-width:850px){.als-compare-split{grid-template-columns:1fr}.als-compare-panel{height:280px}}
