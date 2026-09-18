@@ -19,7 +19,7 @@ Thanks for your interest in alsdownloader.
 
 Suggesting a new LiDAR provider is a separate, non-code process: see
 [docs/CONTRIBUTING_DATA.md](docs/CONTRIBUTING_DATA.md) and the in-app
-**Submit a data source** form.
+**Share your dataset** form.
 
 ## Reporting problems
 

@@ -3,7 +3,7 @@
 Implemented: a rotatable Natural Earth welcome globe, Esri RGB/terrain basemap switching, translucent search footprints and selected-tile navigation to the shared 3D preview, with Viridis/Magma colors and automatic landscape fitting. Red country tint has opacity 0.55 and represents catalog presence only.
 The acquisition-year coverage map and summary-grid features below remain proposed.
 
-The application now provides a persistent **Submit a data source** form for community suggestions,
+The application now provides a persistent **Share your dataset** form for community suggestions,
 with email/GitHub drafts and a text export. It connects to existing deposits; it does not host point clouds.
 The next map stage should expose a product information card with title, producer, repository, acquisition
 platform and interval, DOI/paper/preprint, license, access conditions and reviewed coverage.

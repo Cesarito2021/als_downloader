@@ -76,17 +76,17 @@ Click **Draw profile line** to switch both panels to a top-down view together, t
 
 The profile does not require height normalization. Both clouds must have compatible coordinate references; the app does not align them, fit curves or calculate changes. [Visual comparison guide](docs/TEMPORAL_COMPARISON.md).
 
-## 5. Submit your dataset
+## 5. Share your dataset
 
-![Submit a data source form with fields, compatibility check and the progress alligator](docs/images/interface-submit-source.png)
+![Share your dataset form with fields, compatibility check and the progress alligator](docs/images/interface-submit-source.png)
 
-This screenshot may predate later changes to the exact field list; the ten fields below are current.
+Have aerial LiDAR data other researchers could use? Click **Share your dataset** and tell us a bit about it - it only takes a few minutes, and your point clouds never leave your own repository. This screenshot predates the friendlier wording and the new optional "what kind of dataset is this" tag (country-wide, national/regional agency, or local/campus survey); the nine required fields below are unchanged.
 
-Ten main fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI or Zenodo record ID, collection year(s), aerial platform, LAS/LAZ or index link, license link, access requirements and optional sensor/location notes. Zenodo submissions additionally require a polygon boundary link, unless the data link already supplies the GeoJSON tile index.
+Nine required fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI or Zenodo record ID, collection year(s), aerial platform, LAS/LAZ or index link, license link and access requirements. Two more are optional: sensor/location notes, and the dataset-type tag mentioned above. Zenodo submissions additionally require a polygon boundary link, unless the data link already supplies the GeoJSON tile index.
 
 Keep the point clouds in their original repository. For **discover → inspect → download**, submit a small GeoJSON index with one footprint and direct LAS/LAZ link per tile. Approved indexes support AOI search without a new provider-specific connector. [Template, required fields and large-file guidance](docs/CONTRIBUTING_DATA.md).
 
-Complete the form, click **Check compatibility**, then **Submit your request** when the vector alligator reaches 100%. The check reads LAS/LAZ headers or up to 5 MiB of GeoJSON metadata; no point cloud is downloaded or plotted. Completion means technical checks passed, not publication approval. A successful check enables a private email draft to the maintainer. Review and send it in your email application. Editing the request resets compatibility. Portals and authentication-based access need manual discussion.
+Complete the form, click **Check compatibility**, then **Send my request** when the vector alligator reaches 100%. The check reads LAS/LAZ headers or up to 5 MiB of GeoJSON metadata; no point cloud is downloaded or plotted. Completion means technical checks passed, not publication approval. A successful check opens a private email draft for you to review and send yourself. Editing the request resets compatibility. Portals and authentication-based access need manual discussion.
 
 After an AOI search, select tiles to see their known total size, export selected metadata or download an R script for local transfer. Downloads preserve complete original tiles; they do not clip files to the AOI. A metadata index does not make a large point-cloud file smaller, and 3D inspection remains optional.
 

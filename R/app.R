@@ -51,7 +51,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     shiny::div(class = "als-header", shiny::div(shiny::h1("ALS DOWNLOADER"),
       shiny::span("Discover, inspect and download airborne LiDAR")),
       shiny::div(class = "als-header-actions",
-        shiny::actionButton("suggest_source", "Submit a data source"),
+        shiny::actionButton("suggest_source", "Share your dataset"),
         shiny::span(class = "mode-label", paste(toupper(mode), "MODE")))),
     shiny::div(class = "als-layout",
       shiny::tags$details(class = "als-sidebar", open = "open",

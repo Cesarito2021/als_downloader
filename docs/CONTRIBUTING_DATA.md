@@ -1,16 +1,18 @@
 # Contribute a searchable aerial LiDAR source
 
-Keep the LAS/LAZ files in your own public repository. ALS Downloader stores
-metadata and links, not your point clouds. Submit a small GeoJSON tile index
-so a researcher can draw or upload an AOI, inspect intersecting tiles and
-download the selected original files. 3D inspection is optional.
+Thinking of sharing your aerial LiDAR data? Great - here's what makes it
+easy to search inside the app. Keep the LAS/LAZ files in your own public
+repository; ALS Downloader stores metadata and links, not your point
+clouds. Submit a small GeoJSON tile index so a researcher can draw or
+upload an AOI, inspect intersecting tiles and download the selected
+original files. 3D inspection is optional.
 
 Active catalogue inclusion requires verified polygon coverage or a tile
 index. A direct cloud URL or GPS point locations alone are insufficient.
 Providers may also supply GeoPackage or a zipped polygon Shapefile for
 maintainer review and conversion to the common index format.
 
-Download the template in **Submit your dataset**, or use
+Download the template in **Share your dataset**, or use
 [the example GeoJSON](../inst/extdata/contribution-template.geojson).
 It contains fictional geometry and URLs: replace every example value and
 footprint before submitting. It is not an active source.
@@ -46,9 +48,11 @@ download the referenced LAS/LAZ files or confirm their contents, dates or
 license. A direct LAS/LAZ submission receives a header-only connection check.
 Redirecting portals and access requiring an account need manual discussion.
 
-Complete the ten-field form, run **Check compatibility**, then open and send
-the email draft. Technical completion at 100% is not publication approval.
-Cesar reviews access, attribution and coverage before installing an index.
+Complete the form (nine required fields, plus two optional ones - notes and
+a "what kind of dataset" tag), run **Check compatibility**, then open and
+send the email draft. Technical completion at 100% is not publication
+approval. Cesar reviews access, attribution and coverage before installing
+an index.
 The contact email stays out of the public index.
 
 After approval, the maintainer saves the index as `campaign.tiles.geojson`

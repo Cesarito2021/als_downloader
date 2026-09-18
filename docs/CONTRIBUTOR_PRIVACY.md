@@ -2,7 +2,7 @@
 
 The app requires a contact email to prepare a private submission. It does not publish that address in a GitHub issue, send email automatically, or store requests in a database. Form values remain in the Shiny session; the connection worker writes temporary progress text that is removed after completion or cancellation. The external data host sees the connection request but is not sent the contact email as a separate field.
 
-**Submit your request** opens the user's mail client. The user reviews and sends the draft to Cesar Alvites. The maintainer can reply using that email thread after review and integration. Email handling then follows the sender's and recipient's mail-service policies. There is no automated mail service configured.
+**Send my request** opens the user's mail client. The user reviews and sends the draft to Cesar Alvites. The maintainer can reply using that email thread after review and integration. Email handling then follows the sender's and recipient's mail-service policies. There is no automated mail service configured.
 
 Suggested acceptance reply (send only after integration):
 
