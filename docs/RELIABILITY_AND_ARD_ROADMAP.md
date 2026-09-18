@@ -140,6 +140,45 @@ dependencies; a package must never assume a specific machine's filesystem).
   in the Shiny app, same as the existing `.xlsx`/`.txt` downloads) -
   never to a fixed path.
 
+## 7. What GeoLibre (opengeos/GeoLibre) does that's worth learning from
+
+The maintainer pointed at [opengeos/GeoLibre](https://github.com/opengeos/GeoLibre),
+a browser-based geospatial platform, asking whether its point-cloud handling
+is worth mimicking. Its actual source
+(`packages/map/src/cesium-point-cloud.ts`) confirms most of it already
+matches this app's own design: it colours points by native RGB or a
+height ramp when there is none (exactly `preview.js`'s LUT), it **refuses
+to render a cloud with no resolvable CRS** rather than guessing (the same
+"never infer" principle used everywhere else in this project), and it
+lazy-loads its heavy point-cloud decoder only once the feature activates
+(the same role `requireNamespace("lidR")` already plays here). Nothing to
+change on those fronts.
+
+Two things it does differently and better, worth adopting:
+
+- **Real COPC octree-level sampling, not "every Nth point."** Its loader
+  walks a COPC file's actual hierarchy breadth-first from the root -
+  COPC's own coarse-to-fine level-of-detail structure - stopping at a
+  point budget, so a bounded preview is a genuinely representative spatial
+  sample. This app's own preview path (`preview_remote_tile()` /
+  `lidR::readLAS(..., "-keep_every_nth")` in `R/preview.R` and
+  `R/comparison.R`) instead keeps every Nth point in on-disk order, which
+  can be spatially biased depending on how the provider wrote the file.
+  Since USGS 3DEP and other integrated sources are frequently already
+  COPC, reading via COPC's hierarchy pages when the source is COPC (with
+  the current decimation kept as the fallback for plain LAS/LAZ) would be
+  a real, scoped quality improvement to the existing preview path - not a
+  new feature, an upgrade to one already there.
+- **`whitebox` (a CRAN package) as an alternative to `lidR` for item 5's
+  optional DTM/DSM/CHM products.** GeoLibre's own backend uses
+  WhiteboxTools for all of its LiDAR processing. The R wrapper
+  (`whitebox::wbt_init()`) downloads a standalone compiled binary once,
+  rather than requiring the GDAL/PROJ-linked native compilation `lidR`
+  needs - a smaller, more robust dependency footprint for a CRAN package
+  to lean on for item 5. Worth trying both and keeping whichever installs
+  more reliably across platforms, or supporting either behind the same
+  `requireNamespace()` guard.
+
 ## Suggested order
 
 1 and 2 are the safest, smallest, and most valuable ("solidez" +
