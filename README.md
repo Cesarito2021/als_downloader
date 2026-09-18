@@ -1,11 +1,15 @@
 # ALS Downloader
 
+![ALS Downloader](docs/images/banner.svg)
+
 [![R package checks](https://github.com/Cesarito2021/als_downloader/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Cesarito2021/als_downloader/actions/workflows/R-CMD-check.yaml)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 <!-- Add once live: CRAN status badge (https://www.r-pkg.org/badges/version/alsdownloader) after CRAN acceptance,
      and an r-universe badge (https://<universe>.r-universe.dev/badges/alsdownloader) once the r-universe build succeeds. -->
+
+**Author:** [Cesar Alvites](https://github.com/Cesarito2021) — sole developer and maintainer.
 
 **Discover, inspect and download airborne LiDAR.** ALS Downloader is open-source software for the scientific community and stakeholders, connecting users to aerial laser-scanning point clouds from multiple providers. Once the app is launched and its sources configured, explore the map, draw or upload a study area, inspect acquisition dates and tiles, and download original files **without writing code**. Optional 3D previews support visual inspection. **Parallel downloads in local mode** respect the configured provider limits; hosted transfers run one at a time.
 
@@ -19,7 +23,7 @@ The software is open source; each external dataset retains its own licence and a
 
 Integrated workflows cover **USGS 3DEP, AHN6, swissSURFACE3D, IGN LiDAR HD (France), OpenTopography tile indexes and approved contributor GeoJSON indexes**. The catalogue also links to additional sources, with their integration status clearly identified. Covers aircraft, helicopter and UAV laser scanning.
 
-Developed and maintained by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
+Release candidate **0.1.0**; not yet submitted to CRAN.
 
 ## Statement of need and related software
 
@@ -27,7 +31,7 @@ Airborne LiDAR is published by dozens of national mapping agencies and research 
 
 It is deliberately **not** a point-cloud processing library: once tiles are downloaded, use ['lidR'](https://cran.r-project.org/package=lidR) (which this package already calls for bounded previews) or another established tool for classification, canopy metrics, rasterization or change detection. It is also not a replacement for any single provider's own portal or API, which remain more complete for that provider alone; this package's contribution is the shared discovery/preview/download layer and the licence-aware catalogue across providers, not a novel processing algorithm. The campaign-comparison view is visualization-only by the same logic: it never computes differences, statistics or classifications, so it cannot be mistaken for a validated change-detection method.
 
-## Install and launch
+## Getting started
 
 ```r
 install.packages("remotes")
