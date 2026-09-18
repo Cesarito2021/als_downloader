@@ -107,6 +107,8 @@ Eight examples are shown below. The **[complete catalogue, access conditions and
 | AHN6, Netherlands | [AHN](https://www.ahn.nl/dataroom) | Native footprint search and original LAZ download; AHN6 only. |
 | swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native AOI search and original LAS ZIP downloads; extract locally for preview. |
 
+The CanElevation adapter's legal basis is the **[Open Government Licence - Canada](https://open.canada.ca/en/open-government-licence-canada)**, which explicitly permits copying, redistributing and adapting the data, including commercially, with attribution - published directly on the official **[LiDAR Point Clouds - CanElevation Series dataset page](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947)**, the same page that lists the project/tile index files this adapter reads. Unlike the OpenTopography tutorial cited above, no separate official "how to consume this programmatically" guide was found for CanElevation from this session (no outbound network access beyond GitHub); if NRCan publishes one, it should replace or supplement this citation.
+
 Only aircraft, helicopter and UAV **laser scanning** are in scope. Automatic integration requires open-licensed, anonymous access, spatial coverage metadata and preserved provider attribution. The app downloads original files from their providers and does not host point clouds or bypass access restrictions. [Review evidence](docs/ACTIVE_SOURCES.md) · [European candidates](docs/EUROPE_ACCESS_REVIEW.md).
 
 In R, use `alsdownloader::provider_catalog()` for the full table, or locate the installed guide with `system.file("sources", "README.md", package = "alsdownloader")`.
