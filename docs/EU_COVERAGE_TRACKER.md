@@ -25,9 +25,9 @@ had at least one prior investigation on record; there are no genuine
 |---|---|---|---|
 | France | 🟦 Done | IGN LiDAR HD: STAC search + anonymous COPC download confirmed live 17 Sep 2026 | `inst/sources/VALIDATION.md`, `public-access-checks.json` |
 | Netherlands | 🟦 Done | AHN6: native OGC index + anonymous LAZ download, CC BY 4.0 | `inst/extdata/providers.csv`, `docs/EUROPE_INTEGRATION.md` |
-| Luxembourg | 🟧 Candidate (strong) | CC0; official GeoJSON/Shapefile tile index downloaded and parsed (10,908 features); sample ZIP reachable (HTTP 206) | `inst/sources/VALIDATION.md` |
-| Slovenia | 🟧 Candidate (strong) | GURS 2023-2025 national survey; public viewer/download, no registration (max 10 sheets/download); licence/API unconfirmed | `docs/EUROPE_ACCESS_REVIEW.md` |
-| Belgium (Wallonia) | 🟧 Candidate | Public ArcGIS index confirmed (HTTP 200, real feature returned); no download URL in that feature yet, point-file transport untested | `inst/sources/VALIDATION.md` |
+| Luxembourg | 🟧 Candidate (blocked on one gap) | CC0; official GeoJSON tile index downloaded and parsed (10,908 features, real schema: `tile_id`/`parent_id`/`laz_file`/`zip_file`); a sample ZIP is confirmed reachable (HTTP 206) - but its real URL (`.../lidar-2019-.../20200221-113602/lidar2019-ndp-....zip`) embeds a resource ID that does **not** appear in the index and cannot be derived from the `zip_file` filename (checked the raw JSON, not just the summary: no formula maps `LIDAR2019_NdP_C9_R7_..._EPSG2169.zip` to `20200221-113602`). Needs either a live call to data.public.lu's own dataset API to resolve filename -> resource ID, or a maintainer-supplied lookup table. | `inst/sources/public-access-checks.json` (`luxembourg` key) |
+| Slovenia | 🟧 Candidate (described only, unchecked) | GURS 2023-2025 national survey announcement describes a public viewer/download without registration (max 10 sheets/download) and GKOT classified LAZ vs. DMR/DMP terrain products to avoid - but unlike Poland/Estonia, no HTTP reachability check or file check has actually been recorded for it yet; this is a documentation-only lead | `docs/EUROPE_ACCESS_REVIEW.md` |
+| Belgium (Wallonia) | 🟧 Candidate (blocked on one gap) | Public ArcGIS FeatureServer confirmed (HTTP 200); a real feature returned rich metadata (`LAS_NAME`, acquisition dates, point count, file size, EPSG, classification) - but checked the raw JSON directly: **no URL or download-link field exists anywhere in that feature**. The index alone cannot produce a file URL; a separate download mechanism (not yet found) is required. | `inst/sources/public-access-checks.json` (`wallonia_sample` key) |
 | Belgium (Flanders) | 🟧 Candidate | DHMV II: provider describes public airborne LAZ download; tile endpoint/licence/sample access not yet checked | `docs/EUROPE_ACCESS_REVIEW.md` |
 | Poland | 🟧 Candidate | Official page reachable (HTTP 200, after a TLS certificate-chain retry); documents WMS/WFS download URLs; file explicitly untested | `docs/dataset-candidates.csv` |
 | Estonia | 🟧 Candidate | Official elevation download service (select laser points + year); portal reachable (HTTP 200); file untested | `docs/link-checks.csv`, `docs/EUROPE_ACCESS_REVIEW.md` |
@@ -55,13 +55,24 @@ had at least one prior investigation on record; there are no genuine
 ## What would move a 🟧 candidate to 🟦 done
 
 For each candidate, someone with real network access needs to repeat the
-same check already done for France/Canada/Luxembourg: request the actual
+same check already done for France and Canada: request the actual
 tile/index file, confirm it returns 200/206 anonymously with no login, and
 confirm the file signature (LAS/LAZ magic bytes) - then, if positive, an
-adapter can be written the same way `R/europe.R`/`R/canada.R` were. Priority
-order by strength of existing evidence: **Luxembourg and Slovenia first**
-(closest to confirmed), then Belgium-Wallonia, Poland and Estonia (official
-index/portal already reachable), then the remaining candidates.
+adapter can be written the same way `R/europe.R`/`R/canada.R` were.
+
+Re-checked the raw JSON evidence directly (not just the prose summaries) for
+the two candidates that looked strongest, Luxembourg and Belgium-Wallonia,
+and both turned out to be missing exactly one piece rather than being ready
+to implement: Luxembourg's index has no field that resolves to the real
+per-file resource ID its download URL requires, and Wallonia's index has no
+download-URL field at all. Priority order for a live-verification pass:
+**Luxembourg first** (resolve the data.public.lu filename -> resource-ID
+mapping, likely via that portal's own dataset API - closest to a working
+adapter of any candidate), **then Poland and Estonia** (official portals
+already confirmed reachable, HTTP 200; only the file-download step is
+untested), **then Slovenia** (a documented, no-registration public
+viewer/download - but not yet even reachability-checked), then the
+remaining candidates.
 
 ## What would move a 🟧 candidate to 🟨 no access
 
