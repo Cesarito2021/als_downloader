@@ -200,7 +200,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else sprintf("Study area: %.4f km^2", aoi_area(state$aoi)))
     shiny::observeEvent(input$search, {
       shiny::req(state$aoi)
-      state$tiles <- NULL; leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles")
+      state$tiles <- NULL
+      leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::removeControl("tile_year_legend")
       state$search <- "Searching provider..."
       tryCatch({
         result <- shiny::withProgress(message = "Finding source tiles", value = .2, {
@@ -209,8 +210,22 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         })
         state$tiles <- result
         state$search <- if (nrow(result)) paste(nrow(result), "intersecting tiles. Select rows below; acquisition dates may be unknown.") else "No matching records in this source and interval. This does not establish that no LiDAR data exist here."
-        if (nrow(result)) leaflet::leafletProxy("map") |> leaflet::addPolygons(data = result, group = "Tiles",
-          layerId = paste0("tile:", seq_len(nrow(result))), color = "#7bdfcd", weight = 1.5, fillOpacity = .10, label = ~filename)
+        if (nrow(result)) {
+          # Colour footprints by acquisition year (final date; start when the
+          # end date is unknown) instead of one flat colour, so overlapping
+          # surveys from different years are visually distinguishable at a
+          # glance. Tiles with no provider-reported date stay a neutral grey,
+          # never a guessed year.
+          reported <- ifelse(is.na(result$acquired_end), result$acquired_start, result$acquired_end)
+          year <- suppressWarnings(as.integer(substr(reported, 1, 4)))
+          pal <- leaflet::colorNumeric("viridis", domain = year, na.color = "#8a97a1")
+          leaflet::leafletProxy("map") |>
+            leaflet::addPolygons(data = result, group = "Tiles",
+              layerId = paste0("tile:", seq_len(nrow(result))), color = "#1c2b35", weight = 1,
+              fillColor = pal(year), fillOpacity = .55, label = ~filename) |>
+            leaflet::addLegend("bottomright", group = "Tiles", layerId = "tile_year_legend",
+              pal = pal, values = year, title = "Acquisition year", na.label = "Unknown")
+        }
       }, error = function(e) {state$search <- conditionMessage(e); notify(e)})
     })
     output$search_status <- shiny::renderText(state$search)

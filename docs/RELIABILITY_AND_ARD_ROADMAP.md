@@ -179,6 +179,48 @@ Two things it does differently and better, worth adopting:
   more reliably across platforms, or supporting either behind the same
   `requireNamespace()` guard.
 
+## 8. The bigger dream: a real 3D coverage/time explorer
+
+The maintainer shared a GeoLibre screenshot of Manhattan buildings
+extruded and coloured by construction year, with an automatic legend and
+a time slider, and asked whether something in that spirit is realistic
+for forest/LiDAR coverage. Short answer: yes, translated correctly, and a
+first small piece of it is already done (item above: search-result tile
+footprints on the 2D map, coloured by acquisition year with a legend -
+same idea as the building screenshot, using `leaflet::colorNumeric()` and
+`addLegend()`, both already-imported, no new dependency). The building
+screenshot's actual mechanism is not special-cased for buildings at all:
+it is real polygons with a real attribute (construction year) driving
+colour/height and an automatically generated legend - exactly the tile
+footprints this app already carries with their own real attribute
+(acquisition date), just not yet rendered that way everywhere.
+
+The full vision - true 3D (not Leaflet's 2D), plus a time slider to scrub
+through acquisition years and watch coverage appear - is a real,
+buildable target, but a genuinely larger step than anything else in this
+document:
+
+- The natural foundation is **`mapgl`**, a CRAN package (not yet verified
+  against a live CRAN check from this session - confirm before relying on
+  it) that wraps MapLibre GL JS as an htmlwidget and bundles its own JS/CSS
+  inside the R package source, the same way `leaflet` does. That matters
+  specifically because of a **real blocker in this session**: this
+  sandbox can only reach `github.com`, not `unpkg.com`/`jsdelivr.net`/npm,
+  so vendoring a third-party JS library file directly into
+  `inst/app/www/` is not possible from here. An htmlwidget package whose
+  JS assets ship inside the package itself sidesteps that entirely,
+  because installing it is a normal CRAN dependency, not a network fetch
+  this session has to perform.
+- A time slider reads naturally on `acquired_end`/`acquired_start`,
+  already real fields on every tile.
+- This does not replace the existing Leaflet AOI-drawing map or the
+  point-cloud viewer - it would be a new, additional exploration view.
+
+This is not something to start under time pressure or close to a session
+limit: it needs its own design pass (which map replaces or supplements
+Leaflet, whether `mapgl` genuinely fits a Shiny app cleanly, a real check
+that it builds under `R CMD check`) before writing code.
+
 ## Suggested order
 
 1 and 2 are the safest, smallest, and most valuable ("solidez" +

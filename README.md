@@ -47,10 +47,10 @@ The [complete source table](inst/sources/SOURCES.md) records the current catalog
 | B - Study area | Draw a polygon/rectangle or upload GeoJSON, GeoPackage or a zipped Shapefile. |
 | C - Search | Select a provider and acquisition interval; find intersecting tiles. |
 | D - Download | Select files and download originals to your chosen folder. |
-| E - Map | Inspect the study area and returned tile footprints. |
+| E - Map | Inspect the study area and returned tile footprints, coloured by acquisition year with an automatic legend (grey where the provider reports no date). |
 | F - Results | Review metadata; select one tile and click **Plot selected tile in 3D**. |
 
-The search figure is a Utah example. Collection dates come from provider acquisition metadata; the **final collection date** represents an interval. Missing dates remain unknown. Publication dates and filename years are not substituted. Source imagery may have a different date from the LiDAR.
+The search figure is a Utah example and predates the year-coloured footprints described above (the tile list, dates and workflow are otherwise unchanged). Collection dates come from provider acquisition metadata; the **final collection date** represents an interval. Missing dates remain unknown. Publication dates and filename years are not substituted. Source imagery may have a different date from the LiDAR.
 
 The OpenTopography adapter follows the tile-index selection and download workflow described in OpenTopography's official tutorial, [*Programmatic Access to OpenTopography's Point Cloud Data with Tile Indexes*](https://opentopography.org/node/3598) (24 November 2025): intersect supplied tile indexes with the study area and download the selected original LAS/LAZ files.
 
