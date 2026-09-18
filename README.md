@@ -4,7 +4,7 @@
 
 | Access snapshot | Current scope |
 |---|---|
-| Countries with a successful connected-source access sample | **6**: United States, Netherlands, Switzerland, Brazil, New Zealand (17 September 2026) and France (18 September 2026). France's STAC endpoint and file host were verified live on 17 September 2026 (see [VALIDATION.md](inst/sources/VALIDATION.md)); the in-app adapter built from that evidence has not yet been re-tested against the live service in a network-enabled session or CI run. This does not imply complete national coverage. |
+| Countries with a successful connected-source access sample | **7**: United States, Netherlands, Switzerland, Brazil, New Zealand (17 September 2026), France and Canada (18 September 2026). France's STAC endpoint and file host, and Canada's public S3 bucket, were verified live on 17 September 2026 (see [VALIDATION.md](inst/sources/VALIDATION.md) and [file-access-checks.csv](docs/file-access-checks.csv)); neither in-app adapter has been re-tested against the live service in a network-enabled session or CI run since being built from that evidence. This does not imply complete national coverage. |
 | Collection years | Provider-reported dates appear with search results; missing dates remain unknown. A complete global year range has not been established. |
 | Approximate data volume | Known file sizes are totalled for the selected tiles; files with unknown sizes are identified separately. A global GB total has not been established. |
 
