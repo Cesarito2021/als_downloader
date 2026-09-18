@@ -6,7 +6,7 @@
 \usage{
 find_tiles(
   aoi,
-  provider = c("usgs3dep", "opentopography"),
+  provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo"),
   start = NULL,
   end = NULL,
   tile_index_dir = NULL,
@@ -17,13 +17,16 @@ find_tiles(
 \item{aoi}{Polygon input accepted by [read_aoi()].}
 
 \item{provider}{Either `"usgs3dep"` (Planetary Computer) or
-`"opentopography"` (local TileIndex archives).}
+`"opentopography"` (local TileIndex archives), or `"contributed"`
+(maintainer-approved local `*.tiles.geojson` indexes), `"ahn6"`
+(native AHN6 index), or `"swisstopo"` (swissSURFACE3D STAC).}
 
 \item{start, end}{Optional inclusive acquisition dates in `YYYY-MM-DD` format.
 Unknown acquisition dates remain in the results.}
 
-\item{tile_index_dir}{Directory of OpenTopography `*_TileIndex.zip` files.
-Required for the OpenTopography adapter. Embedded index CRS is required.}
+\item{tile_index_dir}{Directory of OpenTopography `*_TileIndex.zip` files
+or approved contributed `*.tiles.geojson` files. Required for these
+adapters. OpenTopography indexes require an embedded CRS.}
 
 \item{max_items}{Maximum number of tiles to return. An incomplete result
 raises an error instead of silently reporting partial coverage.}
@@ -37,7 +40,7 @@ Find point-cloud tiles intersecting a study area
 }
 \details{
 Network access occurs only when this function is explicitly called
-  for USGS 3DEP. OpenTopography uses supplied local indexes and their embedded
+  for USGS 3DEP, AHN6 or swisstopo. OpenTopography uses supplied local indexes and their embedded
   download links; it does not assume a universal area limit or require a key
   for already-public tile URLs. Asset licenses must be checked per dataset.
 }

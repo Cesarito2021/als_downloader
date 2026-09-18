@@ -6,7 +6,9 @@ Authors@R: person("Cesar Ivan", "Alvites Diaz", role = c("aut", "cre"),
 Description: Search airborne laser scanning point-cloud tiles by polygon,
     inspect acquisition metadata, and download selected assets with resumable
     transfer records. Supports the USGS 3D Elevation Program through
-    Planetary Computer and local OpenTopography tile indexes. Includes a
+    Planetary Computer, local OpenTopography tile indexes, and approved
+    contributor GeoJSON tile indexes, plus native AHN6 and swissSURFACE3D
+    spatial catalogs. Includes a
     'Shiny' interface, source attribution, bounded point-cloud previews,
     optional visual overlays of overlapping surveys, and connection checks
     for contributor-provided data links. Data remain with their providers.

@@ -10,7 +10,7 @@ als_app(mode = "local", tile_index_dir = NULL, provider_limit = 2L)
 \item{mode}{`"local"` for configurable transfers or `"hosted"` for a serial
 download service. Set by the administrator, not by browser input.}
 
-\item{tile_index_dir}{Optional administrator-supplied OpenTopography index
+\item{tile_index_dir}{Optional administrator-supplied OpenTopography or contributed index
 directory. Not exposed as a server path control in hosted mode.}
 
 \item{provider_limit}{Transfer concurrency ceiling after checking provider

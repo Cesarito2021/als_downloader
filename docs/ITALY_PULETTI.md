@@ -1,5 +1,11 @@
 # Italy — Nicola Puletti / CREA datasets on Zenodo
 
+Historical access review. Sila and Tree-LiMS were subsequently removed from
+the active catalogue because polygon coverage/tile indexes were not verified.
+The GPS Shapefile in Sila contains points, not boundaries. The selection
+language below describes the earlier review, not current app availability.
+See the [coverage audit](COVERAGE_AUDIT.md).
+
 Verified **17 September 2026**. The primary ALS entry for Italy is
 [Sila National Park – 3D Point cloud data](https://zenodo.org/records/3633629),
 by **Nicola Puletti (CREA)**, DOI **10.5281/zenodo.3633629**, licensed **CC BY 4.0**.

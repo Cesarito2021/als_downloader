@@ -39,6 +39,10 @@ test_that("connection check only requests headers, regardless of cloud size", {
 
 test_that("submission requires private contact, concise description and a real DOI", {
   x <- list(source_name="Forest",source_email="contact@example.org",source_description="Aerial laser survey.",source_origin="10.5281/zenodo.3633629",source_year="2018-2020",source_platform="Aircraft / helicopter ALS",source_url="https://example.org/forest.laz",source_license_url="https://creativecommons.org/licenses/by/4.0/",source_access="public",source_notes="Sensor model",source_open_license=TRUE)
+  expect_false(source_request(x)$valid)
+  x$source_boundary <- "https://example.org/coverage.gpkg"
+  expect_true(source_request(x)$valid)
+  x$source_origin <- "3633629"
   expect_true(source_request(x)$valid)
   x$source_email <- "missing";expect_false(source_request(x)$valid)
   x$source_email <- "contact@example.org";x$source_description <- paste(rep("word",51),collapse=" ");expect_false(source_request(x)$valid)

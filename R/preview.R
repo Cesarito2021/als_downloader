@@ -55,6 +55,9 @@ read_preview <- function(path, max_points = 100000L) {
 
 # Temporary, single-file preview; never persists a cloud in the source catalog.
 preview_remote_tile <- function(tile, max_bytes = 200 * 1024^2, path = tempfile(fileext = ".laz"), reader = function(path) read_preview(path, 100000L)) {
+  require_data_terms(tile)
+  if (grepl("\\.zip$",tile$filename[[1]],ignore.case=TRUE))
+    stop("This source delivers an original LAS ZIP. Download and extract it locally, then open the LAS for preview.")
   if (!requireNamespace("lidR", quietly = TRUE)) stop("Install lidR to preview tiles.")
   url <- tile$url[[1]]
   if (!grepl("^https://", url)) stop("Only HTTPS tile URLs are supported.")

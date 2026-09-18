@@ -19,7 +19,8 @@ empty_tiles <- function() {
 
 request_json <- function(url, body = NULL, query = NULL) {
   tryCatch({
-    response <- if (is.null(body)) httr::GET(url, query = query, httr::timeout(60))
+    response <- if (is.null(body) && is.null(query)) httr::GET(url, httr::timeout(60))
+      else if (is.null(body)) httr::GET(url, query = query, httr::timeout(60))
       else httr::POST(url, body = body, encode = "json", httr::timeout(60))
     if (httr::status_code(response) >= 400)
       stop(sprintf("Provider returned HTTP %s.", httr::status_code(response)))
@@ -30,17 +31,20 @@ request_json <- function(url, body = NULL, query = NULL) {
 #' Find point-cloud tiles intersecting a study area
 #' @param aoi Polygon input accepted by [read_aoi()].
 #' @param provider Either `"usgs3dep"` (Planetary Computer) or
-#'   `"opentopography"` (local TileIndex archives).
+#'   `"opentopography"` (local TileIndex archives), or `"contributed"`
+#'   (maintainer-approved local `*.tiles.geojson` indexes), `"ahn6"`
+#'   (native AHN6 index), or `"swisstopo"` (swissSURFACE3D STAC).
 #' @param start,end Optional inclusive acquisition dates in `YYYY-MM-DD` format.
 #'   Unknown acquisition dates remain in the results.
-#' @param tile_index_dir Directory of OpenTopography `*_TileIndex.zip` files.
-#'   Required for the OpenTopography adapter. Embedded index CRS is required.
+#' @param tile_index_dir Directory of OpenTopography `*_TileIndex.zip` files
+#'   or approved contributed `*.tiles.geojson` files. Required for these
+#'   adapters. OpenTopography indexes require an embedded CRS.
 #' @param max_items Maximum number of tiles to return. An incomplete result
 #'   raises an error instead of silently reporting partial coverage.
 #' @return An `sf` table of assets with stable identifiers, canonical URLs,
 #'   acquisition dates, citation information and tile geometry in EPSG:4326.
 #' @details Network access occurs only when this function is explicitly called
-#'   for USGS 3DEP. OpenTopography uses supplied local indexes and their embedded
+#'   for USGS 3DEP, AHN6 or swisstopo. OpenTopography uses supplied local indexes and their embedded
 #'   download links; it does not assume a universal area limit or require a key
 #'   for already-public tile URLs. Asset licenses must be checked per dataset.
 #' @export
@@ -48,7 +52,7 @@ request_json <- function(url, body = NULL, query = NULL) {
 #' if (interactive()) {
 #'   # tiles <- find_tiles("study-area.gpkg", provider = "usgs3dep")
 #' }
-find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography"),
+find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo"),
                        start = NULL, end = NULL, tile_index_dir = NULL,
                        max_items = 10000L) {
   provider <- match.arg(provider)
@@ -60,7 +64,11 @@ find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography"),
     stop("Start date must not follow end date.", call. = FALSE)
   if (length(max_items) != 1L || !is.finite(max_items) || max_items < 1)
     stop("max_items must be positive.", call. = FALSE)
-  tiles <- if (provider == "usgs3dep") search_3dep(aoi, max_items) else search_ot(aoi, tile_index_dir, max_items)
+  tiles <- switch(provider, usgs3dep = search_3dep(aoi, max_items),
+    opentopography = search_ot(aoi, tile_index_dir, max_items),
+    contributed = search_contributed(aoi, tile_index_dir, max_items),
+    ahn6 = search_europe(aoi,"ahn6",max_items),
+    swisstopo = search_europe(aoi,"swisstopo",max_items))
   if (nrow(tiles)) {
     # Search without a date filter so undated surveys are not silently lost.
     keep <- rep(TRUE, nrow(tiles))
@@ -75,6 +83,17 @@ find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography"),
 stac_acquisition_period <- function(properties) {
   date <- function(x) if (is.null(x) || !length(x) || is.na(x[1]) || !nzchar(x[1])) NA_character_ else substr(x[1], 1, 10)
   c(start = date(properties$start_datetime), end = date(properties$end_datetime))
+}
+
+country_source_links <- function(catalog, country_code) {
+  rows <- catalog[as.character(catalog$country_code) == as.character(country_code), , drop = FALSE]
+  shiny::tagList(lapply(seq_len(nrow(rows)), function(i) shiny::div(
+    shiny::tags$strong(rows$name[i]),
+    shiny::p(rows$access[i]),
+    shiny::p(if (isTRUE(rows$implemented[i])) "AOI adapter available in this app; see source requirements."
+      else "Download through the official portal. In-app AOI search is not yet available for this source."),
+    shiny::tags$a(href=rows$info_url[i], target="_blank", rel="noopener noreferrer",
+      "Open official source"))))
 }
 
 search_3dep <- function(aoi, max_items) {
@@ -151,6 +170,18 @@ search_ot <- function(aoi, folder, max_items) {
       license_url = NA_character_,
       citation = paste("OpenTopography dataset", dataset, "- license not supplied in this index. Obtain the dataset license, DOI and required producer citation from its landing page. Citation guidance: https://opentopography.org/citations"),
       geometry = sf::st_geometry(obj))
+    if (identical(dataset, "Auckland_2013")) {
+      rows$license_url <- "https://creativecommons.org/licenses/by/3.0/nz/"
+      rows$citation <- paste("Copyright in this work is owned by Auckland Council.",
+        "Auckland, New Zealand 2013. Distributed by OpenTopography.",
+        "https://doi.org/10.5069/G9KW5CZ5 . For derivative works use the producer's derivative attribution; see dataset metadata.")
+    }
+    if (identical(dataset, "BR17_SaoPaulo")) {
+      rows$license_url <- "https://www.gnu.org/licenses/gpl-3.0.html"
+      rows$citation <- paste("Sao Paulo, Brazil Lidar Survey 2017. Distributed by OpenTopography.",
+        "Provider lists GNU GPLv3; preserve licence and applicable redistribution terms.",
+        "https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.062020.31983.1")
+    }
     results[[length(results) + 1L]] <- rows
     if (sum(vapply(results, nrow, integer(1))) > max_items)
       stop("Search exceeds max_items; use a smaller study area.", call. = FALSE)

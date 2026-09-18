@@ -21,7 +21,9 @@ public_sample_target <- function(url, resolver = function(host) curl::nslookup(h
   list(host=u$hostname, ip=ips[1])
 }
 
-source_preflight <- function(url, directory, head_request = function(url, config, handle) httr::HEAD(url, config, httr::timeout(20), handle=handle)) {
+source_preflight <- function(url, directory, head_request = function(url, config, handle) httr::HEAD(url, config, httr::timeout(20), handle=handle),
+                             index_request = function(url, path, config, handle) httr::GET(url, config,
+                               httr::config(maxfilesize_large = 5 * 1024^2), httr::write_disk(path), httr::timeout(30), handle = handle)) {
   progress <- function(n, message) writeLines(c(as.character(n), message), file.path(directory,"stage.txt"))
   progress(10,"Checking public HTTPS access")
   target <- public_sample_target(url)
@@ -35,6 +37,20 @@ source_preflight <- function(url, directory, head_request = function(url, config
   type <- headers[["content-type"]]
   disposition <- headers[["content-disposition"]]
   path <- httr::parse_url(url)$path
+  if (grepl("\\.geojson$", path, ignore.case = TRUE)) {
+    size <- suppressWarnings(as.numeric(headers[["content-length"]]))
+    if (length(size) != 1L || !is.finite(size) || size <= 0 || size > 5 * 1024^2)
+      stop("GeoJSON index requires a known size up to 5 MiB. Split larger indexes by campaign or region.")
+    progress(60, "Reading the small tile index; no point clouds")
+    file <- file.path(directory, "index.geojson")
+    on.exit(unlink(file), add = TRUE)
+    response <- index_request(url, file, config, handle)
+    if (httr::status_code(response) != 200L || !file.exists(file) || file.size(file) != size)
+      stop("Incomplete tile-index response.")
+    tiles <- read_tile_index(file)
+    progress(90, "Tile footprints and metadata are structurally compatible")
+    return(list(summary = paste(nrow(tiles), "tile footprints and metadata passed the index structure check. No point-cloud bytes downloaded or plotted. Individual asset access, license and survey accuracy require maintainer review; not publication approval.")))
+  }
   named_file <- grepl("\\.(las|laz)$", path, ignore.case=TRUE) ||
     (!is.null(disposition) && grepl("\\.(las|laz)([\"; ]|$)",disposition,ignore.case=TRUE))
   if (!is.null(type) && grepl("text/html",type,ignore.case=TRUE))
@@ -45,7 +61,7 @@ source_preflight <- function(url, directory, head_request = function(url, config
 }
 
 source_preflight_ui <- function() shiny::tagList(
-  shiny::helpText("The check uses the dataset access/download link above. It requests HTTP headers only; file size does not limit this check."),
+  shiny::helpText("LAS/LAZ links: HTTP headers only. GeoJSON tile indexes: at most 5 MiB of metadata, with footprints and file links checked. No point clouds are transferred."),
   shiny::actionButton("source_test", "Check compatibility"),
   shiny::actionButton("source_test_cancel", "Cancel test"),
   shiny::uiOutput("source_test_progress"),
@@ -63,7 +79,7 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
     state$source_test_busy <- FALSE
   }
   reset <- function() {cleanup();check$ready <- FALSE;check$percent <- 0;check$summary <- "Not tested";check$message <- "Check the dataset link, or submit for manual review."}
-  shiny::observeEvent(lapply(c("source_name","source_email","source_description","source_origin","source_year","source_platform","source_url","source_license_url","source_access","source_notes","source_open_license"),function(id)input[[id]]), reset(),ignoreNULL=FALSE)
+  shiny::observeEvent(lapply(c("source_name","source_email","source_description","source_origin","source_boundary","source_year","source_platform","source_url","source_license_url","source_access","source_notes","source_open_license"),function(id)input[[id]]), reset(),ignoreNULL=FALSE)
   shiny::observeEvent(input$source_test_cancel,reset())
   shiny::observeEvent(input$source_test, {
     request <- source_request(input)

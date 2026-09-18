@@ -1,5 +1,14 @@
 redact_url <- function(x) sub("\\?.*$", "", x)
 
+require_data_terms <- function(tiles) {
+  if (is.null(tiles$license_url) || is.null(tiles$citation) ||
+      anyNA(tiles$license_url) || anyNA(tiles$citation) ||
+      any(!grepl("^https://[^[:space:]]+$", tiles$license_url)) ||
+      any(!nzchar(trimws(tiles$citation))))
+    stop("Dataset licence and attribution are unresolved. Download and remote preview are disabled until source terms are reviewed.", call. = FALSE)
+  invisible(TRUE)
+}
+
 asset_path <- function(tile, output_dir) {
   key <- digest::digest(paste(tile$provider, tile$tile_id, redact_url(tile$url)), algo = "sha256", serialize = FALSE)
   filename <- substr(gsub("[^A-Za-z0-9._-]", "_", basename(tile$filename)), 1, 110)
@@ -27,7 +36,7 @@ transfer_tile <- function(tile, output_dir, retries, timeout, progress_dir = NUL
     if (!is.null(progress_dir)) saveRDS(x, file.path(progress_dir, paste0(basename(dest), ".rds")))
     as.data.frame(x, stringsAsFactors = FALSE)
   }
-  if (file.exists(record) && valid_las_header(dest)) {
+  if (file.exists(record) && valid_tile_container(dest,tile)) {
     previous <- tryCatch(readRDS(record), error = function(e) NULL)
     if (!is.null(previous) && identical(previous$source_url, result$source_url) &&
         identical(previous$checksum, unname(tools::md5sum(dest)))) {
@@ -66,13 +75,13 @@ transfer_tile <- function(tile, output_dir, retries, timeout, progress_dir = NUL
         stop("Downloaded byte count does not match Content-Length.")
       if (is.finite(tile$size_bytes) && file.size(part) != tile$size_bytes)
         stop("Downloaded size does not match the catalog.")
-      if (!valid_las_header(part)) stop("Downloaded file lacks a valid LAS/LAZ signature and minimum header size.")
+      if (!valid_tile_container(part,tile)) stop("Downloaded file lacks the expected LAS/LAZ header or Swiss LAS ZIP directory.")
       if (file.exists(dest)) unlink(dest)
       if (!file.rename(part, dest)) stop("Could not finalize the downloaded file.")
       result$status <- "downloaded"
       result$bytes <- as.numeric(file.size(dest))
       result$checksum <- unname(tools::md5sum(dest))
-      result$message <- "Transport size/header verified; full point decoding not performed."
+      result$message <- "Transport size and header/archive directory verified; full point decoding not performed."
       saveRDS(result, record)
       TRUE
     }, error = function(e) {
@@ -120,6 +129,7 @@ download_tiles <- function(tiles, output_dir, workers = 1L, mode = c("local", "h
   if (!is.data.frame(tiles) || !all(required %in% names(tiles)))
     stop("tiles must be an asset table returned by find_tiles().", call. = FALSE)
   if (!nrow(tiles)) stop("No tiles selected.", call. = FALSE)
+  require_data_terms(tiles)
   if (anyNA(tiles$url) || any(!grepl("^https://", tiles$url))) stop("Invalid HTTPS asset URL.", call. = FALSE)
   if (length(retries) != 1 || !is.finite(retries) || retries < 0 || retries != floor(retries)) stop("retries must be a nonnegative integer.")
   if (length(timeout) != 1 || !is.finite(timeout) || timeout <= 0) stop("timeout must be positive.")
@@ -133,6 +143,8 @@ download_tiles <- function(tiles, output_dir, workers = 1L, mode = c("local", "h
   if (!dir.create(lock, showWarnings = FALSE)) stop("This output directory is locked by another transfer. After a crashed job, remove .als-transfer-lock only when no job is running.")
   on.exit(unlink(lock, recursive = TRUE), add = TRUE)
   writeLines(as.character(Sys.getpid()), file.path(lock, "owner"))
+  metadata <- tiles; metadata$url <- redact_url(metadata$url)
+  utils::write.csv(metadata, file.path(output_dir, "selected-tiles.csv"), row.names = FALSE)
   if (!is.null(progress_dir)) dir.create(progress_dir, recursive = TRUE, showWarnings = FALSE)
   old <- future::plan(); on.exit(future::plan(old), add = TRUE)
   if (policy$effective == 1L) future::plan(future::sequential)

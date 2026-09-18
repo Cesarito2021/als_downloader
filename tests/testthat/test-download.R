@@ -2,6 +2,17 @@ fixture_tile <- function() data.frame(tile_id="example", provider="opentopograph
   filename="tile.laz",url="https://example.org/tile.laz?secret=do-not-log",size_bytes=227,
   citation="Fixture only",license_url="https://example.org/terms")
 
+test_that("unresolved data terms block all transfers before network or output", {
+  tile <- fixture_tile(); tile$license_url <- NA_character_
+  dest <- tempfile()
+  local_mocked_bindings(fetch_asset=function(...)stop("Network must not run"),.package="alsdownloader")
+  expect_error(download_tiles(tile,dest), "licence and attribution")
+  expect_false(dir.exists(dest))
+  expect_error(preview_remote_tile(tile), "licence and attribution")
+  tile$license_url <- "https://example.org/terms"; tile$citation <- " "
+  expect_error(download_tiles(tile,dest), "licence and attribution")
+})
+
 fake_response <- function(part, status=200L, valid=TRUE, reported=227) {
   payload <- raw(227)
   payload[1:4] <- charToRaw(if(valid) "LASF" else "HTML")
@@ -17,6 +28,8 @@ test_that("transfer records permit validated resume and redact URLs", {
   second <- download_tiles(fixture_tile(),dest,retries=0,workers=1)
   expect_equal(second$status,"verified_existing")
   expect_false(any(grepl("secret",readLines(file.path(dest,"manifest.csv")))))
+  expect_false(any(grepl("secret",readLines(file.path(dest,"selected-tiles.csv")))))
+  expect_equal(utils::read.csv(file.path(dest,"selected-tiles.csv"))$citation,"Fixture only")
   writeBin(raw(250),first$path)
   third <- download_tiles(fixture_tile(),dest,retries=0,workers=1)
   expect_equal(third$status,"downloaded")

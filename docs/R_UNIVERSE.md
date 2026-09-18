@@ -4,9 +4,9 @@
 
 The [registry](https://github.com/Cesarito2021/cesarito2021.r-universe.dev/blob/main/packages.json) lists `alsdownloader` from its public GitHub repository. A copy is kept in [tools/runiverse/packages.json](../tools/runiverse/packages.json).
 
-**Activation pending:** the account owner must install the [official R-universe GitHub app](https://github.com/apps/r-universe) for this account, allowing access to the registry and package repositories. After activation, inspect builds and the package page before advertising installation. R-universe provides an additional build/distribution channel; it does not confer CRAN acceptance or scientific peer review. [Official setup documentation](https://docs.r-universe.dev/publish/set-up.html).
+**Publication verified on 17 September 2026:** [alsdownloader 0.1.0](https://cesarito2021.r-universe.dev/alsdownloader) is indexed and available, with 9 checks reported OK for source commit `93b143557098f255965860558fc8389070e73761` ([build](https://github.com/r-universe/cesarito2021/actions/runs/35279593002)). The official GitHub app is installed for Cesarito2021, limited to the registry and package repositories. R-universe provides an additional build/distribution channel; it does not confer CRAN acceptance or scientific peer review. [Official setup documentation](https://docs.r-universe.dev/publish/set-up.html).
 
-Once deployment is confirmed, use:
+Install with:
 
 ```r
 install.packages("alsdownloader", repos = c(
@@ -14,7 +14,7 @@ install.packages("alsdownloader", repos = c(
 ))
 ```
 
-Replace the pending badge with the deployed version and check-status endpoints:
+Optional status endpoints (no README badges are currently used):
 
 - `https://cesarito2021.r-universe.dev/alsdownloader/badges/version`
 - `https://cesarito2021.r-universe.dev/alsdownloader/badges/checks`

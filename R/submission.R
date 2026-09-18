@@ -1,6 +1,7 @@
 source_request <- function(input) {
   ids <- c("source_name","source_email","source_description","source_origin","source_year","source_platform","source_url","source_license_url","source_access","source_notes")
   values <- vapply(ids,function(id)if(is.null(input[[id]]))"" else trimws(input[[id]]),character(1))
+  if (grepl("^[0-9]+$",values['source_origin'])) values['source_origin'] <- paste0("10.5281/zenodo.",values['source_origin'])
   fail <- function(message)list(valid=FALSE,message=message)
   if(any(!nzchar(values[seq_len(9)])))return(fail("Complete the nine required fields; additional notes are optional."))
   if(!grepl("^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$",values['source_email']))return(fail("Enter a valid contact email address."))
@@ -13,21 +14,29 @@ source_request <- function(input) {
   if(!all(grepl("^https://[^[:space:]]+$",values[c('source_url','source_license_url')])))return(fail("Data and license links must be HTTPS URLs."))
   if(!isTRUE(input$source_open_license))return(fail("Confirm the open-data license declaration."))
   if(any(nchar(values)>1000))return(fail("Keep each field within 1,000 characters."))
-  labels <- c("Dataset","Contact email (private)","Description","Dataset DOI / citation","Collection year(s); final year is representative","Aerial laser platform","LAS/LAZ access link","Open-data license","Access requirements","Sensor model / location / additional notes")
+  boundary <- if(is.null(input$source_boundary)) "" else trimws(input$source_boundary)
+  zenodo <- grepl("10\\.5281/zenodo\\.[0-9]+$",values['source_origin']) || grepl("^https://zenodo\\.org/",values['source_url'])
+  if (zenodo && !nzchar(boundary) && grepl("\\.geojson$",values['source_url'],ignore.case=TRUE)) boundary <- values['source_url']
+  if (zenodo && (!grepl("^https://[^[:space:]]+$",boundary) || nchar(boundary)>1000))
+    return(fail("Zenodo submissions require a public polygon boundary or tile-index link (GeoJSON, GeoPackage or zipped Shapefile). GPS points alone are insufficient."))
+  labels <- c("Dataset","Contact email (private)","Description","Dataset DOI / citation","Collection year(s); final year is representative","Aerial laser platform","GeoJSON index or LAS/LAZ access link","Open-data license","Access requirements","Sensor model / location / additional notes")
   list(valid=TRUE,message="Metadata ready for compatibility check.",title=paste("Dataset suggestion:",values[1]),
-    body=paste(labels,values,sep=": ",collapse="\n\n"))
+    body=paste(paste(labels,values,sep=": ",collapse="\n\n"),if(zenodo) paste("Polygon coverage / index (maintainer review required):",boundary) else "",sep="\n\n"))
 }
 
 source_submission_ui <- function() shiny::modalDialog(
   title="Submit your dataset",size="l",easyClose=FALSE,
-  shiny::p("Complete ten short fields, check compatibility, then submit your request to Cesar Alvites for review."),
+  shiny::p("Complete the short form, check compatibility, then submit your request to Cesar Alvites for review. Zenodo submissions also need polygon coverage or a tile index."),
+  shiny::p("Keep your LAS/LAZ files at your repository. For search by study area, provide a small GeoJSON index with one footprint and stable file URL per tile. Do not upload point clouds here."),
+  shiny::downloadButton("source_index_template", "Download tile-index template"),
   shiny::textInput("source_name","Dataset name *"),
   shiny::tags$div(class="shiny-input-container form-group",shiny::tags$label(class="control-label",`for`="source_email","Contact email *"),shiny::tags$input(id="source_email",type="email",class="form-control",placeholder="For review and acceptance replies; not published")),
   shiny::textAreaInput("source_description","Description (maximum 50 words) *",rows=2),
-  shiny::textInput("source_origin","Dataset DOI *",placeholder="10.5281/zenodo.3633629"),
+  shiny::textInput("source_origin","Dataset DOI or Zenodo record ID *",placeholder="Dataset DOI, or numeric Zenodo record ID"),
+  shiny::textInput("source_boundary","Zenodo polygon boundary / tile-index link",placeholder="Required for Zenodo unless the data link is the GeoJSON tile index"),
   shiny::textInput("source_year","Collection year or interval *",placeholder="2019 or 2018-2020; not publication year"),
   shiny::selectInput("source_platform","Acquisition platform *",c("Choose a platform"="","Aircraft / helicopter ALS","UAV LiDAR","Mixed aerial laser platforms")),
-  shiny::textInput("source_url","LAS/LAZ files or file-index link *",placeholder="Public HTTPS data link"),
+  shiny::textInput("source_url","Tile-index GeoJSON or direct LAS/LAZ link *",placeholder="Public HTTPS link; index recommended for AOI search"),
   shiny::textInput("source_license_url","Open-data license URL *"),
   shiny::selectInput("source_access","Access requirements *",c("Choose access conditions"="","Public: no account or permission"="public","Free registration required"="registration","Owner permission required"="permission")),
   shiny::textAreaInput("source_notes","Sensor model, location or other relevant information (optional)",rows=2),
@@ -37,6 +46,9 @@ source_submission_ui <- function() shiny::modalDialog(
   footer=shiny::modalButton("Close"))
 
 source_submission_server <- function(input,output,session,check) {
+  output$source_index_template <- shiny::downloadHandler(filename = "my-campaign.tiles.geojson", content = function(file) {
+    file.copy(system.file("extdata", "contribution-template.geojson", package = "alsdownloader"), file, overwrite = TRUE)
+  })
   shiny::observeEvent(input$suggest_source,shiny::showModal(source_submission_ui()))
   request <- shiny::reactive(source_request(input))
   output$source_form_status <- shiny::renderText(request()$message)

@@ -1,7 +1,7 @@
 #' Launch the ALS Downloader Shiny application
 #' @param mode `"local"` for configurable transfers or `"hosted"` for a serial
 #'   download service. Set by the administrator, not by browser input.
-#' @param tile_index_dir Optional administrator-supplied OpenTopography index
+#' @param tile_index_dir Optional administrator-supplied OpenTopography or contributed index
 #'   directory. Not exposed as a server path control in hosted mode.
 #' @param provider_limit Transfer concurrency ceiling after checking provider
 #'   terms. Defaults to two; hosted mode always uses one.
@@ -49,7 +49,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       shiny::tags$script(src = "als-assets/preview.js"),
       shiny::tags$script(src = "als-assets/globe.js")),
     shiny::div(class = "als-header", shiny::div(shiny::h1("ALS DOWNLOADER"),
-      shiny::span("Global point cloud explorer")),
+      shiny::span("Discover, inspect and download airborne LiDAR")),
       shiny::div(class = "als-header-actions",
         shiny::actionButton("suggest_source", "Submit a data source"),
         shiny::span(class = "mode-label", paste(toupper(mode), "MODE")))),
@@ -57,12 +57,13 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       shiny::tags$details(class = "als-sidebar", open = "open",
         shiny::tags$summary("Study area and downloads"),
         shiny::selectInput("country", "Explore a country", choices = c("World" = "", stats::setNames(catalog$country_code[catalog$country_code > 0 & !duplicated(catalog$country_code)], catalog$country[catalog$country_code > 0 & !duplicated(catalog$country_code)]))),
-        shiny::fileInput("aoi_file", "Upload study area", accept = c(".zip", ".gpkg", ".geojson", ".json", ".fgb")),
+          shiny::uiOutput("country_access"),
+          shiny::fileInput("aoi_file", "Upload study area", accept = c(".zip", ".gpkg", ".geojson", ".json", ".fgb")),
         shiny::uiOutput("layer_control"),
         shiny::helpText("Or draw a polygon or rectangle on the map. ZIP uploads must include Shapefile companion files."),
         shiny::textOutput("aoi_status"),
-        shiny::selectInput("provider", "Search provider", c("USGS 3DEP" = "usgs3dep", "OpenTopography" = "opentopography")),
-        if (mode == "local") shiny::textInput("indexes", "OpenTopography TileIndex directory", value = if (is.null(tile_index_dir)) "" else tile_index_dir),
+          shiny::selectInput("provider", "Search provider", c("USGS 3DEP" = "usgs3dep", "OpenTopography" = "opentopography", "Netherlands - AHN6" = "ahn6", "Switzerland - swissSURFACE3D" = "swisstopo", "Approved contributed indexes" = "contributed")),
+        if (mode == "local") shiny::textInput("indexes", "Approved tile-index directory", value = if (is.null(tile_index_dir)) "" else tile_index_dir),
         shiny::dateRangeInput("dates", "Acquisition interval", start = "2000-01-01", end = Sys.Date()),
         shiny::actionButton("search", "Find intersecting tiles", class = "als-primary"),
         shiny::tags$hr(),
@@ -72,6 +73,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
           shiny::helpText(paste("Recommended:", policy$recommended, "| maximum:", policy$maximum, "| provider ceiling:", provider_limit)))
         else shiny::helpText("Hosted downloads use one worker. Select up to 10 tiles per batch. Files are delivered through your browser."),
         shiny::actionButton("download", "Download selected tiles", class = "als-primary"),
+        shiny::textOutput("selection_summary"),
+        shiny::helpText("Downloads preserve original tiles, including portions outside the AOI. 3D inspection is optional."),
         shiny::actionButton("cancel", "Cancel job"),
         shiny::textOutput("job_status"), shiny::uiOutput("bundle_control")),
       shiny::div(class = "als-main",
@@ -89,7 +92,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::conditionalPanel("input.enter_map > 0", leaflet::leafletOutput("map", height = "60vh"),
             shiny::div(class = "map-caption", "Country shading indicates catalog candidates, not continuous survey coverage. Search results show source tile footprints."),
             shiny::textOutput("search_status"), DT::DTOutput("tiles"),
-            shiny::downloadButton("export_manifest", "Export tile metadata"),
+            shiny::actionButton("select_all_tiles", "Select all results"),
+            shiny::actionButton("clear_tiles", "Clear selection"),
+            shiny::downloadButton("export_manifest", "Export all tile metadata"),
+            shiny::downloadButton("export_selection", "Export selected metadata"),
+            shiny::downloadButton("export_script", "Download selection as R script"),
             shiny::div(class = "als-tile-preview",
               shiny::textOutput("tile_selection"),
               shiny::actionButton("plot_tile", "Plot selected tile in 3D", class = "als-primary"),
@@ -107,9 +114,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 1, step = 1),
             shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Colors show source elevation, not canopy height.")),
           comparison_ui(),
-          shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Zenodo entries are complementary research deposits, not official national coverage. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have a search adapter. Verify dataset terms and citations before downloading."),
+          shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Research deposits require verified polygon coverage or a tile index. Official national portals also provide external access; choose a country to open its source link. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have an in-app search adapter. Verify dataset terms and citations before downloading."),
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
-            zenodo_source_ui(), DT::DTOutput("sources")))))
+            DT::DTOutput("sources")))))
   )
   server <- function(input, output, session) {
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "Draw or upload a study area to begin.",
@@ -179,7 +186,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
           DT::selectRows(DT::dataTableProxy("tiles"), index)
         return()
       }
-      if (!is.null(id) && id %in% world$id) navigate(as.character(id))
+      if (!is.null(id) && id %in% world$id) {
+        navigate(as.character(id))
+        if (as.character(id) %in% as.character(catalog$country_code))
+          shiny::updateSelectInput(session, "country", selected=as.character(id))
+      }
     })
     output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else sprintf("Study area: %.4f km^2", aoi_area(state$aoi)))
     shiny::observeEvent(input$search, {
@@ -192,7 +203,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             if (mode == "local") input$indexes else tile_index_dir)
         })
         state$tiles <- result
-        state$search <- paste(nrow(result), "intersecting tiles. Select rows below; acquisition dates may be unknown.")
+        state$search <- if (nrow(result)) paste(nrow(result), "intersecting tiles. Select rows below; acquisition dates may be unknown.") else "No matching records in this source and interval. This does not establish that no LiDAR data exist here."
         if (nrow(result)) leaflet::leafletProxy("map") |> leaflet::addPolygons(data = result, group = "Tiles",
           layerId = paste0("tile:", seq_len(nrow(result))), color = "#7bdfcd", weight = 1.5, fillOpacity = .10, label = ~filename)
       }, error = function(e) {state$search <- conditionMessage(e); notify(e)})
@@ -200,11 +211,35 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     output$search_status <- shiny::renderText(state$search)
     output$tiles <- DT::renderDT({
       if (is.null(state$tiles)) return(DT::datatable(data.frame(Status = "No search results yet."), rownames = FALSE))
-      DT::datatable(sf::st_drop_geometry(state$tiles)[c("filename", "dataset", "acquired_end", "acquired_start", "size_bytes")],
-        colnames = c("File", "Dataset", "Collection date (end)", "Collection start", "Size (bytes)"),
+      DT::datatable(sf::st_drop_geometry(state$tiles)[c("filename", "dataset", "provider", "acquired_end", "acquired_start", "size_bytes", "license_url", "citation")],
+        colnames = c("File", "Dataset", "Source adapter", "Collection date (end)", "Collection start", "Size (bytes)", "License", "Producer / citation"),
         rownames = FALSE, selection = "multiple", options = list(scrollX = TRUE, pageLength = 8))
     })
+    output$country_access <- shiny::renderUI({
+      id <- input$country
+      if (is.null(id) || !nzchar(id)) return(shiny::helpText("Choose a country to see its official data access links."))
+      country_source_links(catalog, id)
+    })
     output$sources <- DT::renderDT(DT::datatable(catalog, rownames = FALSE, options = list(scrollX = TRUE, pageLength = 15)))
+    selected_tiles <- shiny::reactive({
+      shiny::req(state$tiles)
+      ids <- input$tiles_rows_selected
+      ids <- ids[ids %in% seq_len(nrow(state$tiles))]
+      state$tiles[ids, , drop = FALSE]
+    })
+    shiny::observeEvent(input$select_all_tiles, {shiny::req(state$tiles); DT::selectRows(DT::dataTableProxy("tiles"), seq_len(nrow(state$tiles)))})
+    shiny::observeEvent(input$clear_tiles, DT::selectRows(DT::dataTableProxy("tiles"), integer()))
+    output$selection_summary <- shiny::renderText({
+      x <- selected_tiles(); known <- is.finite(x$size_bytes)
+      sprintf("%s tiles selected | %.1f MiB known | %s files with unknown size", nrow(x), sum(x$size_bytes[known])/1024^2, sum(!known))
+    })
+    output$export_selection <- shiny::downloadHandler(filename = "selected-tiles.csv", content = function(file) {
+      x <- sf::st_drop_geometry(selected_tiles()); shiny::req(nrow(x)); x$url <- redact_url(x$url)
+      utils::write.csv(x, file, row.names = FALSE)
+    })
+    output$export_script <- shiny::downloadHandler(filename = "download-selected-tiles.R", content = function(file) {
+      x <- selected_tiles(); shiny::req(nrow(x)); writeLines(selection_script(x), file, useBytes = TRUE)
+    })
     output$tile_selection <- shiny::renderText({
       selected <- input$tiles_rows_selected
       if (is.null(state$tiles) || length(selected) != 1L || !selected %in% seq_len(nrow(state$tiles)))
@@ -233,6 +268,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       shiny::req(state$tiles, input$tiles_rows_selected)
       rows <- state$tiles[input$tiles_rows_selected, , drop = FALSE]
       tryCatch({
+        require_data_terms(rows)
         if (mode == "hosted" && nrow(rows) > 10) stop("Hosted batches are limited to 10 tiles. Run locally for larger batches.")
         if (mode == "hosted" && anyNA(rows$size_bytes)) {
           for (i in which(is.na(rows$size_bytes))) {

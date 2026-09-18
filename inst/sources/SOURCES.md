@@ -1,0 +1,27 @@
+# Complete source catalogue
+
+Generated from `inst/extdata/providers.csv`; see [access and attribution policy](README.md).
+
+18 source/product entries, not a count of individual datasets or tiles.
+An available adapter is a technical capability, not blanket permission for every asset.
+
+| Source | Country | Adapter | Access and limitations | Reviewed |
+|---|---|---|---|---|
+| [USGS 3DEP](https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc) | United States | Available; see conditions | Public catalog; assets signed at download time | 2026-09-17 |
+| [OpenTopography](https://opentopography.org/node/3598) | Global | Available; see conditions | Local TileIndex archives; license and citation vary by dataset | 2026-09-17 |
+| [OpenTopography AUS11_Victor](https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.062013.28354.1) | Australia | Available; see conditions | Access sample passed; provider lists no use license; reuse permission unresolved; not cleared as open data | 2026-09-17 |
+| [OpenTopography BR17_SaoPaulo](https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.062020.31983.1) | Brazil | Available; see conditions | Access sample passed; provider lists GNU GPLv3; preserve dataset DOI and review redistribution obligations | 2026-09-17 |
+| [OpenTopography Auckland_2013](https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.062016.2193.1) | New Zealand | Available; see conditions | Access sample passed; acknowledgement specifies CC BY 3.0 NZ and Auckland Council credit; separate license field is empty | 2026-09-17 |
+| [CanElevation](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Canada | Not implemented; reference only | Public COPC header verified; Open Government Licence Canada; adapter pending | 2026-09-17 |
+| [swissSURFACE3D](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Switzerland | Available; see conditions | Native STAC AOI search and original LAS ZIP/COPC download; archived ZIP preview requires local extraction; acquisition dates unknown unless separately verified | 2026-09-17 |
+| [IGN LiDAR HD](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | France | Not implemented; reference only | Anonymous official COPC headers verified; spatial tile-to-asset sample verified using public research STAC linked by INRAE; Licence Ouverte 2.0; in-app adapter pending | 2026-09-17 |
+| [PNOA LiDAR](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga) | Spain | Not implemented; reference only | Official CC BY 4.0-compatible terms and tile polygon verified; anonymous download-init returned HTTP 403 in live check; automatic transfer not validated; official portal only | 2026-09-17 |
+| [AHN6 point clouds](https://www.ahn.nl/dataroom) | Netherlands | Available; see conditions | AHN6 native OGC footprint search and original LAZ download; other AHN versions not integrated; collection dates not inferred from filenames | 2026-09-17 |
+| [Kartverket laser projects](https://www.geonorge.no/kartdata/datasett-i-geonorge/hoydedata/) | Norway | Not implemented; reference only | Official project coverage and spatial downloads at Hoydedata; select laser point clouds; in-app adapter pending | 2026-09-17 |
+| [NLS laser scanning 0.5 p](https://www.maanmittauslaitos.fi/laserkeilaus-ja-ilmakuvaus) | Finland | Not implemented; reference only | Open 0.5 p cloud downloads through Mapsite; acquisition coverage GeoPackages; paid 5 p product excluded; in-app adapter pending | 2026-09-17 |
+| [GUGiK airborne laser clouds](https://www.geoportal.gov.pl/en/data/lidar-measurements-lidar/) | Poland | Not implemented; reference only | Official spatial download layers and LIDAR indexes; in-app adapter pending | 2026-09-17 |
+| [Estonian airborne laser clouds](https://geoportaal.maaamet.ee/eng/spatial-data/elevation-data/download-elevation-data-p664.html) | Estonia | Not implemented; reference only | Official elevation download service: select aerial laser points and survey year; in-app adapter pending | 2026-09-17 |
+| [GeoSN Saxony laser clouds](https://www.geodaten.sachsen.de/downloadbereich-digitale-hoehenmodelle-4851.html) | Germany | Not implemented; reference only | Saxony only: original LSC LAZ delivered in 2 km ZIP tiles with acquisition information; select LSC not raster models; in-app adapter pending | 2026-09-17 |
+| [NEON discrete return LiDAR](https://www.neonscience.org/resources/learning-hub/tutorials/neon-discrete-point-clouds) | United States | Not implemented; reference only | DP1.30003.001: 1 km LAZ tiles and spatial metadata; user account/API token required for download; in-app adapter pending | 2026-09-17 |
+| [ORNL Brazilian forest surveys](https://daac.ornl.gov/CMS/guides/LiDAR_Forest_Inventory_Brazil.html) | Brazil | Not implemented; reference only | Original LAZ with CSV/KMZ tile inventory; Earthdata access workflow required; authenticated transfer and in-app adapter pending | 2026-09-17 |
+| [LINZ aerial LiDAR collections](https://www.linz.govt.nz/products-services/data/types-linz-data/elevation-data/provincial-growth-fund-lidar-programme) | New Zealand | Not implemented; reference only | Official programme includes source point clouds and regional coverage; follow point-cloud access channels; in-app adapter pending | 2026-09-17 |

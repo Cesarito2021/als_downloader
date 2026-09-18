@@ -16,6 +16,8 @@ Requires R >= 4.1. Install `lidR` for point-cloud previews. USGS searches requir
 
 ![Welcome globe with annotated navigation and catalog presence](docs/images/interface-globe.png)
 
+Screenshots illustrate the interface before the latest source exclusions; the [complete source table](inst/sources/SOURCES.md) records the current catalogue.
+
 | Control | Purpose |
 |---|---|
 | W1 - Globe | Rotate to explore countries represented in the active catalog. |
@@ -49,30 +51,36 @@ Click **Draw profile line** to switch to a top-down view, then click two endpoin
 
 The profile does not require height normalization. Both clouds must have compatible coordinate references; the app does not align them, fit curves or calculate changes. [Visual comparison guide](docs/TEMPORAL_COMPARISON.md).
 
-## Active sources
+## Source examples
 
-**10 catalog entries**, including one general index service; this is not a count of individual survey datasets. The current review checked nine representative file endpoints. A successful sample access does not guarantee all files or an AOI adapter. [Access evidence and removed entries](docs/ACTIVE_SOURCES.md).
+Ten examples are shown below. The **[complete catalogue, access conditions and credits](inst/sources/README.md)** ships inside the package, together with a table of software dependencies. Portal references are distinguished from implemented downloads.
 
 | Source / product | Official resource | Available workflow |
 |---|---|---|
 | USGS 3DEP | [USGS via Planetary Computer](https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc) | AOI search, original download, bounded preview. |
 | OpenTopography index service | [OpenTopography](https://opentopography.org/node/3598) | Local TileIndex files; dataset-specific access and terms. |
-| AUS11_Victor, Australia | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
+| AUS11_Victor, Australia | [Dataset record](https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.062013.28354.1) | Access tested; licence not supplied. Reuse permission unresolved. |
 | BR17_SaoPaulo, Brazil | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
 | Auckland_2013, New Zealand | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
 | CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Source link; representative COPC access checked; no AOI adapter. |
-| swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Source link; representative LAS archive access checked; no AOI adapter. |
-| Sila, Italy | [Puletti / Zenodo DOI](https://doi.org/10.5281/zenodo.3633629) | Contribution example: original aerial LAS. |
-| Tree-LiMS, Italy | [Zenodo DOI](https://doi.org/10.5281/zenodo.17492219) | Contribution example: UAV laser archive. |
-| EBA, Brazil | [Ometto et al. / Zenodo DOI](https://doi.org/10.5281/zenodo.7636454) | Contribution example: aircraft laser archive. |
+| IGN LiDAR HD, France | [Official portal](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | Select and download point-cloud tiles on the official portal; in-app adapter pending. |
+| PNOA LiDAR, Spain | [Official portal](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga) | Choose coverage campaign and LAZ tiles on the official portal; in-app adapter pending. |
+| AHN6, Netherlands | [AHN](https://www.ahn.nl/dataroom) | Native footprint search and original LAZ download; AHN6 only. |
+| swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native AOI search and original LAS ZIP downloads; extract locally for preview. |
 
-Only aircraft, helicopter and UAV **laser scanning** are in scope. Terrestrial/mobile ground scanning, spaceborne LiDAR and photogrammetry are excluded. Zenodo examples retain CC BY 4.0 attribution and link to the original files; the app does not host them.
+Only aircraft, helicopter and UAV **laser scanning** are in scope. Automatic integration requires open-licensed, anonymous access, spatial coverage metadata and preserved provider attribution. The app downloads original files from their providers and does not host point clouds or bypass access restrictions. [Review evidence](docs/ACTIVE_SOURCES.md) · [European candidates](docs/EUROPE_ACCESS_REVIEW.md).
+
+In R, use `alsdownloader::provider_catalog()` for the full table, or locate the installed guide with `system.file("sources", "README.md", package = "alsdownloader")`.
 
 ## Submit your dataset
 
-Ten short fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI, collection year(s), aerial platform, LAS/LAZ or index link, license link, access requirements and optional sensor/location notes.
+Ten main fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI or Zenodo record ID, collection year(s), aerial platform, LAS/LAZ or index link, license link, access requirements and optional sensor/location notes. Zenodo submissions additionally require a polygon boundary link, unless the data link already supplies the GeoJSON tile index.
 
-Complete the form, click **Check compatibility**, then **Submit your request** when the vector alligator reaches 100%. The check reads connection headers only; no point cloud is downloaded or plotted. A successful check enables a private email draft to the maintainer. You review and send it in your email application. Editing the request resets compatibility. Portals, indexes and authentication-based access currently need manual discussion with the maintainer.
+Keep the point clouds in their original repository. For **discover → inspect → download**, submit a small GeoJSON index with one footprint and direct LAS/LAZ link per tile. Approved indexes support AOI search without a new provider-specific connector. [Template, required fields and large-file guidance](docs/CONTRIBUTING_DATA.md).
+
+Complete the form, click **Check compatibility**, then **Submit your request** when the vector alligator reaches 100%. The check reads LAS/LAZ headers or up to 5 MiB of GeoJSON metadata; no point cloud is downloaded or plotted. Completion means technical checks passed, not publication approval. A successful check enables a private email draft to the maintainer. Review and send it in your email application. Editing the request resets compatibility. Portals and authentication-based access need manual discussion.
+
+After an AOI search, select tiles to see their known total size, export selected metadata or download an R script for local transfer. Downloads preserve complete original tiles; they do not clip files to the AOI. A metadata index does not make a large point-cloud file smaller, and 3D inspection remains optional.
 
 Your contact email is for review and acceptance replies and is not included in public GitHub issues. Inclusion requires maintainer approval. No automatic email delivery service is configured. [Contact handling and acceptance reply](docs/CONTRIBUTOR_PRIVACY.md). [Observed approval times](docs/APPROVAL_TIMES.md) count only public metadata-only GitHub requests marked `source-approved`; private email requests are excluded.
 
@@ -86,6 +94,8 @@ Developed within [OpenForest4D](https://openforest4d.org), funded by NSF awards 
 
 ## License and disclaimer
 
-Software: **GPL-3**, without warranty. Data retain their own licenses and attribution requirements; inclusion implies no provider endorsement. Natural Earth supplies public-domain globe outlines; basemap credits remain visible. [Third-party notices](inst/NOTICE). Source availability, spatial coverage and coordinate compatibility are not guaranteed.
+ALS Downloader connects users to existing airborne LiDAR data held by external providers. Dataset rights remain with their respective rights holders. Users must follow each dataset's licence, attribution requirements and access conditions for their intended use, including commercial use and redistribution. Inclusion does not imply provider endorsement or grant additional permissions. See [source policies](inst/sources/POLICIES.md).
+
+Software: **GPL-3**, without warranty. Source availability, spatial coverage and suitability are not guaranteed. Natural Earth supplies public-domain globe outlines; basemap credits remain visible. [Third-party notices](inst/NOTICE).
 
 [Release checks and outstanding CRAN considerations](docs/CRAN_READINESS.md).
