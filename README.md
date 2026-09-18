@@ -37,11 +37,7 @@ Screenshots illustrate the interface before the latest source exclusions, colour
 | W3 - Yellow shading | Country has only a linked official source; download from the provider's own portal. |
 | W4 - Open map | Open the map to draw or upload an area of interest. |
 
-## 2. Point cloud 3D viewer
-
-*Screenshot needed here — the standalone "3D preview" tab does not have one yet. Select a tile in Explore, click **Plot selected tile in 3D**, or upload a local LAS/LAZ file, then rotate/zoom with drag, scroll and the on-screen controls. Elevation-coloured, up to 200 MB per tile; colours show source elevation, not canopy height.*
-
-## 3. Search, download and plot
+## 2. Search, download and plot
 
 ![Annotated search example showing study area, source tiles and download controls](docs/images/interface-rgb-tile.png)
 
@@ -57,6 +53,10 @@ Screenshots illustrate the interface before the latest source exclusions, colour
 The search figure is a Utah example. Collection dates come from provider acquisition metadata; the **final collection date** represents an interval. Missing dates remain unknown. Publication dates and filename years are not substituted. Source imagery may have a different date from the LiDAR.
 
 The OpenTopography adapter follows the tile-index selection and download workflow described in OpenTopography's official tutorial, [*Programmatic Access to OpenTopography's Point Cloud Data with Tile Indexes*](https://opentopography.org/node/3598) (24 November 2025): intersect supplied tile indexes with the study area and download the selected original LAS/LAZ files.
+
+## 3. Point cloud 3D viewer
+
+*Screenshot needed here — the standalone "3D preview" tab does not have one yet. Select a tile in Explore, click **Plot selected tile in 3D**, or upload a local LAS/LAZ file, then rotate/zoom with drag, scroll and the on-screen controls. Elevation-coloured, up to 200 MB per tile; colours show source elevation, not canopy height.*
 
 ## 4. Compare campaigns and view a profile
 
