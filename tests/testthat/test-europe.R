@@ -2,7 +2,7 @@ test_that("embedded spatial query parameters are preserved", {
   args <- NULL
   local_mocked_bindings(GET=function(url,...) {
     args <<- list(...)
-    structure(list(status_code=200L,headers=list(`content-type`="application/json"),content=charToRaw('{"ok":true}')),class="response")
+    structure(list(url=url,status_code=200L,headers=list(`Content-Type`="application/json"),content=charToRaw('{"ok":true}')),class="response")
   },.package="httr")
   expect_true(request_json("https://example.org/items?bbox=1,2,3,4")$ok)
   expect_false("query" %in% names(args))
