@@ -28,7 +28,7 @@ Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6,
 
 ![Welcome globe with annotated navigation and catalog presence](docs/images/interface-globe.png)
 
-Screenshots illustrate the interface before the latest source exclusions, colour update and the two-panel comparison layout; the [complete source table](inst/sources/SOURCES.md) records the current catalogue.
+The [complete source table](inst/sources/SOURCES.md) records the current catalogue.
 
 | Control | Purpose |
 |---|---|
@@ -66,9 +66,9 @@ The OpenTopography adapter follows the tile-index selection and download workflo
 
 ## 4. Compare campaigns and view a profile
 
-![Two overlapping survey clouds on black, with their coloured elevation profile below](docs/images/interface-compare-campaigns.png)
+![Two side-by-side survey clouds on black (A light purple, B pale yellow), with their shared coloured elevation profile below](docs/images/interface-compare-campaigns.png)
 
-This screenshot predates the two-panel redesign described below (see the note at the top of this walkthrough): it shows both campaigns overlapping in one viewport rather than side by side. The controls and behaviour described in the text are current.
+This figure uses synthetic example points to demonstrate the current two-panel layout and controls (real code, generated example data, not a captured survey); the labels shown (`UT_KaneCo_2019`, `UT_StatewideSouth_1_2020`) match the real Utah campaigns used elsewhere in this README.
 
 Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km, shown as **two side-by-side panels** (A left, B right) sharing one camera: rotate or zoom either panel and both move together. The default colours are light purple (A) and pale yellow (B) on black; red and blue are also available.
 
@@ -80,7 +80,7 @@ The profile does not require height normalization. Both clouds must have compati
 
 ![Submit a data source form with fields, compatibility check and the progress alligator](docs/images/interface-submit-source.png)
 
-This screenshot may predate later changes to the exact field list (see the note at the top of this walkthrough); the ten fields below are current.
+This screenshot may predate later changes to the exact field list; the ten fields below are current.
 
 Ten main fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI or Zenodo record ID, collection year(s), aerial platform, LAS/LAZ or index link, license link, access requirements and optional sensor/location notes. Zenodo submissions additionally require a polygon boundary link, unless the data link already supplies the GeoJSON tile index.
 
