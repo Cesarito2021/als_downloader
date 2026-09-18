@@ -14,6 +14,12 @@ Integrated workflows cover **USGS 3DEP, AHN6, swissSURFACE3D, IGN LiDAR HD (Fran
 
 Developed and maintained by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
 
+## Statement of need and related software
+
+Airborne LiDAR is published by dozens of national mapping agencies and research infrastructures, each with its own portal, query syntax, licence and file-naming convention. A researcher who needs point clouds from more than one country today has to learn each provider separately, or write and maintain bespoke scraping code. ALS Downloader addresses that specific gap: a single, no-code workflow to search, inspect and download **original** point-cloud tiles across several independently operated providers, while keeping each dataset's own licence, citation and acquisition metadata attached to every file.
+
+It is deliberately **not** a point-cloud processing library: once tiles are downloaded, use ['lidR'](https://cran.r-project.org/package=lidR) (which this package already calls for bounded previews) or another established tool for classification, canopy metrics, rasterization or change detection. It is also not a replacement for any single provider's own portal or API, which remain more complete for that provider alone; this package's contribution is the shared discovery/preview/download layer and the licence-aware catalogue across providers, not a novel processing algorithm. The campaign-comparison view is visualization-only by the same logic: it never computes differences, statistics or classifications, so it cannot be mistaken for a validated change-detection method.
+
 ## Install and launch
 
 ```r
