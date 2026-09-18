@@ -75,8 +75,8 @@
         g.textAlign='right';g.fillText((s.origin[2]+zmax-(zmax-zmin)*i/4).toFixed(1),left-8,y+4);}
       g.save();g.beginPath();g.rect(left,top,pw,ph);g.clip();
       for(const p of selected){if((p[2]===0&&!s.showA)||(p[2]===1&&!s.showB))continue;
-        g.fillStyle=color(p[2]===1?s.paletteB:s.palette,p[1],s);g.globalAlpha=.85;
-        g.fillRect(left+p[0]/length*pw,top+(zmax-p[1])/(zmax-zmin)*ph,2,2);}
+        g.fillStyle=color(p[2]===1?s.paletteB:s.palette,p[1],s);g.globalAlpha=.9;
+        g.fillRect(left+p[0]/length*pw-1,top+(zmax-p[1])/(zmax-zmin)*ph-1,3,3);}
       g.restore();g.fillStyle='#c7d6df';g.textAlign='center';g.fillText('Distance from line start (m)',left+pw/2,h-10);
       g.save();g.translate(16,top+ph/2);g.rotate(-Math.PI/2);g.fillText('Elevation (m)',0,0);g.restore();
       const hasA=selected.some(p=>p[2]===0),hasB=selected.some(p=>p[2]===1);
