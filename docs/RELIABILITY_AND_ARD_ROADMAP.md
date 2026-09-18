@@ -258,6 +258,28 @@ realistic way to offer it is as a documented *external* workflow - "convert
 your downloaded tiles to EPT and view them with Eptium/CesiumJS for
 museum-grade 3D" - alongside, not inside, `als_downloader`.
 
+### Checked and ruled out: m-schuetz/compute_rasterizer
+
+Also shared: [m-schuetz/compute_rasterizer](https://github.com/m-schuetz/compute_rasterizer),
+Markus Schütz's (TU Wien) research code rendering up to two billion
+points in real time via OpenGL compute shaders with atomic depth/colour
+packing - genuinely impressive, published research (2021/2022 papers).
+Cloned and confirmed from its own README: it **requires Windows and an
+NVIDIA GPU specifically**, and builds as a native desktop app via a
+Visual Studio 2022 solution file. There is no way to run this inside a
+browser (WebGL has no compute shaders; this isn't written for WebGPU
+either) - it cannot become part of a Shiny app's client-side rendering,
+independent of any CRAN concern.
+
+More importantly, it solves a problem this app doesn't have: it targets
+rendering an *entire* cloud (billions of points) at full detail. This
+app's own point-cloud panels intentionally cap at 50,000 display points
+per cloud precisely so a preview loads fast in an ordinary browser - a
+deliberate lightweight-preview design, not a full scientific render of
+the tile. This technique would only become relevant if the app's purpose
+changed from "downloader with a preview" to "full-detail point-cloud
+viewer," which is a different product, not a rendering-library swap.
+
 ## Suggested order
 
 1 and 2 are the safest, smallest, and most valuable ("solidez" +
