@@ -10,8 +10,8 @@ Description: Discover, inspect and download airborne laser scanning data
     transfers in local mode subject to configured provider limits.
     Define a study area, find intersecting point-cloud tiles, inspect provider
     acquisition metadata and optionally preview points before downloading
-    original files. Integrates USGS 3DEP, AHN6, swissSURFACE3D, local
-    OpenTopography tile indexes and approved contributor GeoJSON indexes.
+    original files. Integrates USGS 3DEP, AHN6, swissSURFACE3D, IGN LiDAR HD,
+    local OpenTopography tile indexes and approved contributor GeoJSON indexes.
     Additional source references are distinguished from integrated downloads.
     Preserves source attribution and transfer records; data remain hosted
     by their providers. Covers aircraft, helicopter and UAV laser scanning.

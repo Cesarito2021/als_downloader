@@ -13,3 +13,20 @@
 
 .modal-body .shiny-input-container{width:100%}.modal-body{max-width:100%}
 .als-compare-split{display:grid;grid-template-columns:1fr 1fr;gap:10px}.als-compare-panel{background:#05080c;height:380px}.als-profile-canvas{display:block;width:100%;height:300px;background:#05080c}.als-profile-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}.als-profile-tools label{margin:0}.als-profile-tools input{width:85px;color:#e0eaf0;background:#1c2e3a;border:1px solid #526575;padding:6px}#profile_panel[hidden]{display:none}#profile_hint{color:#b9cbd8;margin:10px 0}@media(max-width:850px){.als-compare-split{grid-template-columns:1fr}.als-compare-panel{height:280px}}
+
+/* Elegance pass: rounded corners, smooth transitions, subtle depth. No layout, color palette or contrast changes. */
+:root{--als-accent:#8fb4c9;--als-radius:9px}
+.btn,.form-control,.selectize-input,.selectize-dropdown,input[type=number],input[type=text],input[type=file]{border-radius:var(--als-radius)}
+.btn{transition:background .15s ease,transform .08s ease,box-shadow .15s ease;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.btn:active{transform:translateY(0);box-shadow:none}
+.btn.als-primary:hover,.btn.als-primary:focus{background:#bdd0da}
+.als-header{box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.als-header h1{font-weight:600}
+.als-sidebar{box-shadow:2px 0 14px rgba(0,0,0,.22)}
+.nav-tabs>li>a{transition:color .15s ease,box-shadow .15s ease;border-radius:var(--als-radius) var(--als-radius) 0 0}
+.nav-tabs>li.active>a,.nav-tabs>li.active>a:hover,.nav-tabs>li.active>a:focus{box-shadow:inset 0 -2px 0 var(--als-accent)}
+a{transition:color .12s ease}a:hover{color:#c3dbe6}
+.als-globe-intro,.modal-content{box-shadow:0 8px 28px rgba(0,0,0,.3)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0b131a}::-webkit-scrollbar-thumb{background:#2a3b47;border-radius:6px}::-webkit-scrollbar-thumb:hover{background:#3a4f5c}
+@media(prefers-reduced-motion:reduce){.btn,.btn:hover,.nav-tabs>li>a,a{transition:none}}
