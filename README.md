@@ -66,11 +66,11 @@ The OpenTopography adapter follows the tile-index selection and download workflo
 
 ## 4. Compare campaigns and view a profile
 
-![Two side-by-side survey clouds on black (A light purple, B pale yellow), with their shared coloured elevation profile below](docs/images/interface-compare-campaigns.png)
+![Two side-by-side survey clouds on black (A red, B blue), with a visible canopy difference and their shared coloured elevation profile below](docs/images/interface-compare-campaigns.png)
 
-This figure uses synthetic example points to demonstrate the current two-panel layout and controls (real code, generated example data, not a captured survey); the labels shown (`UT_KaneCo_2019`, `UT_StatewideSouth_1_2020`) match the real Utah campaigns used elsewhere in this README.
+This figure uses synthetic example points to demonstrate the current two-panel layout and controls (real code, generated example data, not a captured survey); the labels shown (`UT_KaneCo_2019`, `UT_StatewideSouth_1_2020`) match the real Utah campaigns used elsewhere in this README. It is shaped like a stand-in for a real pre/post-storm pair near northwest Apalachicola, FL - campaign B is thinned and shortened in one half to illustrate the kind of canopy-loss contrast this feature is for, until a real verified pair from that area is available.
 
-Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km, shown as **two side-by-side panels** (A left, B right) sharing one camera: rotate or zoom either panel and both move together. The default colours are light purple (A) and pale yellow (B) on black; red and blue are also available.
+Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km, shown as **two side-by-side panels** (A left, B right) sharing one camera: rotate or zoom either panel and both move together. The default colours are red (A) and blue (B) on black, chosen for a clearer contrast between the two clouds; light purple, pale yellow and other palettes are also available.
 
 Click **Draw profile line** to switch both panels to a top-down view together, then click two endpoints (in either panel) or drag a segment in any direction; the same line appears in both automatically. A single profile of both sampled clouds appears below, using their colours and original elevations. Adjust the strip width, show/hide either campaign, return to 3D, or download the cloud, profile or both as PNG.
 

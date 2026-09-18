@@ -82,7 +82,7 @@
   // one camera (rotation/zoom) and one profile-line selection drawn across both.
   function comparisonViewer(ca, cb) {
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=1.08,exag=1,zoom=1,drag=null;
-    let groups=[],palette='Light purple',paletteB='Pale yellow',showA=true,showB=true,focusCentral=true;
+    let groups=[],palette='Red',paletteB='Blue',showA=true,showB=true,focusCentral=true;
     let initialPitch=1.08,pointSize=1.8,labels=[],camera=null,crs='';
     let ordered=[],xmin=0,xmax=0,ymin=0,ymax=0,scale=1;
     const profile = window.ALSProfile ? window.ALSProfile([ca,cb],

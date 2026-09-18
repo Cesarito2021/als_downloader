@@ -63,3 +63,9 @@ the grouped campaign list under **Compare campaigns** for two distinct
 projects whose collection intervals straddle October 2018. If a real pair
 turns up,
 record its exact campaign labels, AOI and a screenshot here.
+
+The README's compare-campaigns screenshot (`docs/images/interface-compare-campaigns.png`)
+currently uses a synthetic stand-in shaped like this scenario - a thinned,
+shortened canopy in half of a synthetic 100 m tile, red vs. blue - clearly
+labeled as synthetic in the README caption, not real Apalachicola data.
+Replace it with a real render once a verified pair from this area is found.
