@@ -49,6 +49,37 @@ record, not a government page, so no `info_url` was added for either.
 a dedicated EU-country-code coverage test). This environment cannot run R,
 so this change has not been re-verified with a fresh `R CMD check --as-cran`.
 
+Added `docs/DATASETS.md`, a by-continent index generated alongside the
+existing source tables, and trimmed the README's Source examples table to
+its eight most representative entries so the catalogue's growth to 36 rows
+does not make the README unreadable.
+
+## Static check: undeclared `stats`/`tools`/`utils` imports, 18 September 2026
+
+Without an R runtime in this environment, `R CMD check` itself cannot be
+run, so a manual static pass grepped every `R/*.R` file for `pkg::fun()`
+calls and compared the package names against `DESCRIPTION`'s `Imports`.
+`stats::setNames`, `tools::file_ext`/`md5sum`, and `utils::read.csv`/
+`unzip`/`write.csv`/`URLencode`/`capture.output`/`modifyList` were all in
+use but none of `stats`, `tools` or `utils` were declared - a real
+`R CMD check --as-cran` flag (`'::' or ':::' import not declared`). Fixed
+by adding all three to `Imports`. They are base packages bundled with R
+(not on CRAN), so `tools/update_source_docs.py` was also fixed to link
+them to the R manual instead of a nonexistent CRAN package page in the
+generated `inst/sources/DEPENDENCIES.md`.
+
+Also checked (and found already correct): non-ASCII characters, bare `T`/
+`F` literals, `sapply` instead of `vapply`, `1:n`-style loop bugs, every
+`@export` tag against `NAMESPACE` and every `man/*.Rd` file, and every
+`\link{}`/`[fn()]` cross-reference against an actually-exported function.
+`read_comparison_cloud()`'s `lidR::` calls (in `R/comparison.R`) looked
+unguarded at first read, unlike every other `lidR::` call site in the
+package, but tracing its only caller confirmed it always runs inside
+`preview_remote_tile()`, which already checks
+`requireNamespace("lidR", quietly = TRUE)` before invoking it - not a bug.
+This is still not a substitute for a real `R CMD check --as-cran` run,
+which remains owed before submission.
+
 ## Comparison UI redesign: 18 September 2026
 
 `R/comparison-app.R`, `inst/app/www/preview.js` and `inst/app/www/profile.js` were rewritten to show campaigns A and B as two synced side-by-side canvases (`als-compare-cloud-a`/`-b`) instead of one canvas with both clouds overlaid; drawing a profile line in either panel now places the same line in both, and the elevation chart below stays a single shared output. This is a real UI/rendering change, not a copy edit, and this environment has no R, so it could not be exercised through the actual Shiny app. It was instead verified with a headless Chromium harness (Playwright, pre-installed in this environment) driving the built JavaScript directly: loaded synthetic two-campaign point data, confirmed both panels render only their own campaign's palette color with zero cross-panel color contamination, dragged panel B and confirmed panel A's rendered pixels changed too (shared camera), and drew a line split across both panels (one endpoint clicked in each) producing a populated profile chart with points from both campaigns and no JavaScript errors. The R-side wiring (`comparison-app.R`'s `session$sendCustomMessage(..., target = "als-compare-cloud", ...)` calls) was not changed, since `"als-compare-cloud"` remains the logical key the JS `views` map resolves to the new two-canvas viewer — but the actual Shiny reactive flow around it (file downloads feeding the viewer, `compare_metadata`, PNG export buttons wired through R) has not been exercised end-to-end and still needs a real browser/CI pass before release, per item 2 below.
