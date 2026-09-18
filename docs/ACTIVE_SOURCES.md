@@ -3,9 +3,15 @@
 Follow-up [European live checks](../inst/sources/VALIDATION.md): French spatial
 metadata and official COPC headers now pass; Spain's anonymous download-init
 returned 403, so PNOA LiDAR was removed from the active catalogue on 18
-September 2026 pending a working transfer check. France has no new in-app
-adapter. Luxembourg and Wallonia were additionally tested but are not new
-active catalogue entries.
+September 2026 pending a working transfer check. Using that same live
+evidence, an in-app AOI adapter for IGN LiDAR HD was added on 18 September
+2026: it queries the public STAC catalogue at `api.stac.teledetection.fr`
+(maintained by UMR TETIS / INRAE, not IGN's own WFS) and downloads original
+COPC LAZ files from `data.geopf.fr`. The underlying endpoints were verified
+live on 17 September 2026; the adapter code itself has not yet been
+re-tested against them in a network-enabled session or CI run before this
+catalogue update. Luxembourg and Wallonia were additionally tested but are
+not new active catalogue entries.
 
 OpenTopography AUS11_Victor (Australia) was also removed on 18 September
 2026: the provider supplies no reuse licence for the dataset, so access
@@ -26,7 +32,7 @@ Nine representative file endpoints were checked using at most 1,024 bytes each (
 | OpenTopography Auckland_2013 | [Source](https://opentopography.org/node/3598) | One sample validated; requires supplied TileIndex and dataset terms review |
 | CanElevation | [Source](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Public COPC header verified; Open Government Licence Canada; adapter pending |
 | swissSURFACE3D | [Source](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native STAC AOI search and original LAS ZIP/COPC download; archived ZIP preview requires local extraction; acquisition dates unknown unless separately verified |
-| IGN LiDAR HD | [Source](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | Official portal: spatial tile selection and original point-cloud downloads; in-app AOI adapter pending |
+| IGN LiDAR HD | [Source](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | AOI search via public STAC catalogue (UMR TETIS / INRAE), original COPC LAZ download; adapter added 18 September 2026, pending live/CI re-validation |
 | AHN6 point clouds | [Source](https://www.ahn.nl/dataroom) | AHN6 native OGC footprint search and original LAZ download; other AHN versions not integrated; collection dates not inferred from filenames |
 | Kartverket laser projects | [Source](https://www.geonorge.no/kartdata/datasett-i-geonorge/hoydedata/) | Official project coverage and spatial downloads at Hoydedata; select laser point clouds; in-app adapter pending |
 | NLS laser scanning 0.5 p | [Source](https://www.maanmittauslaitos.fi/laserkeilaus-ja-ilmakuvaus) | Open 0.5 p cloud downloads through Mapsite; acquisition coverage GeoPackages; paid 5 p product excluded; in-app adapter pending |

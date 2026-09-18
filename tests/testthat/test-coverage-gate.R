@@ -11,7 +11,7 @@ test_that("unverified research footprints are excluded from active coverage", {
 
 test_that("national portals remain accessible without claiming an AOI adapter", {
   catalog <- provider_catalog()
-  for (country in c(124,250,578)) {
+  for (country in c(124,578,616)) {
     x <- catalog[catalog$country_code == country, ]
     expect_equal(nrow(x),1L)
     expect_false(x$implemented)

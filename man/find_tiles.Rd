@@ -6,7 +6,8 @@
 \usage{
 find_tiles(
   aoi,
-  provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo"),
+  provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo",
+    "ignfr"),
   start = NULL,
   end = NULL,
   tile_index_dir = NULL,
@@ -19,7 +20,9 @@ find_tiles(
 \item{provider}{Either `"usgs3dep"` (Planetary Computer) or
 `"opentopography"` (local TileIndex archives), or `"contributed"`
 (maintainer-approved local `*.tiles.geojson` indexes), `"ahn6"`
-(native AHN6 index), or `"swisstopo"` (swissSURFACE3D STAC).}
+(native AHN6 index), `"swisstopo"` (swissSURFACE3D STAC), or `"ignfr"`
+(IGN LiDAR HD, indexed through a public STAC catalogue maintained by
+UMR TETIS / INRAE; not IGN's own WFS).}
 
 \item{start, end}{Optional inclusive acquisition dates in `YYYY-MM-DD` format.
 Unknown acquisition dates remain in the results.}
@@ -40,7 +43,7 @@ Find point-cloud tiles intersecting a study area
 }
 \details{
 Network access occurs only when this function is explicitly called
-  for USGS 3DEP, AHN6 or swisstopo. OpenTopography uses supplied local indexes and their embedded
+  for USGS 3DEP, AHN6, swisstopo or ignfr. OpenTopography uses supplied local indexes and their embedded
   download links; it does not assume a universal area limit or require a key
   for already-public tile URLs. Asset licenses must be checked per dataset.
 }

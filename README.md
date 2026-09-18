@@ -4,13 +4,13 @@
 
 | Access snapshot | Current scope |
 |---|---|
-| Countries with a successful connected-source access sample | **5**: United States, Netherlands, Switzerland, Brazil and New Zealand (17 September 2026). This does not imply complete national coverage. |
+| Countries with a successful connected-source access sample | **6**: United States, Netherlands, Switzerland, Brazil, New Zealand (17 September 2026) and France (18 September 2026). France's STAC endpoint and file host were verified live on 17 September 2026 (see [VALIDATION.md](inst/sources/VALIDATION.md)); the in-app adapter built from that evidence has not yet been re-tested against the live service in a network-enabled session or CI run. This does not imply complete national coverage. |
 | Collection years | Provider-reported dates appear with search results; missing dates remain unknown. A complete global year range has not been established. |
 | Approximate data volume | Known file sizes are totalled for the selected tiles; files with unknown sizes are identified separately. A global GB total has not been established. |
 
 The software is open source; each external dataset retains its own licence and attribution requirements.
 
-Integrated workflows cover **USGS 3DEP, AHN6, swissSURFACE3D, OpenTopography tile indexes and approved contributor GeoJSON indexes**. The catalogue also links to additional sources, with their integration status clearly identified. Covers aircraft, helicopter and UAV laser scanning.
+Integrated workflows cover **USGS 3DEP, AHN6, swissSURFACE3D, IGN LiDAR HD (France), OpenTopography tile indexes and approved contributor GeoJSON indexes**. The catalogue also links to additional sources, with their integration status clearly identified. Covers aircraft, helicopter and UAV laser scanning.
 
 Developed and maintained by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
 
@@ -22,7 +22,7 @@ remotes::install_github("Cesarito2021/als_downloader")
 alsdownloader::launch_app()
 ```
 
-Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6 and swissSURFACE3D query online spatial catalogues. OpenTopography and contributed sources use locally configured tile indexes; remote downloads require internet access. See the [workflow guide](vignettes/als-workflow.Rmd).
+Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6, swissSURFACE3D and IGN LiDAR HD (France) query online spatial catalogues. OpenTopography and contributed sources use locally configured tile indexes; remote downloads require internet access. See the [workflow guide](vignettes/als-workflow.Rmd).
 
 ## 1. Explore sources
 
@@ -74,7 +74,7 @@ Eight examples are shown below. The **[complete catalogue, access conditions and
 | BR17_SaoPaulo, Brazil | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
 | Auckland_2013, New Zealand | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
 | CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Source link; representative COPC access checked; no AOI adapter. |
-| IGN LiDAR HD, France | [Official portal](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | Select and download point-cloud tiles on the official portal; in-app adapter pending. |
+| IGN LiDAR HD, France | [Official record](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | AOI search via a public STAC catalogue (UMR TETIS / INRAE, not IGN's own WFS), original COPC LAZ download; adapter added 18 September 2026, pending a fresh live/CI validation. |
 | AHN6, Netherlands | [AHN](https://www.ahn.nl/dataroom) | Native footprint search and original LAZ download; AHN6 only. |
 | swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native AOI search and original LAS ZIP downloads; extract locally for preview. |
 

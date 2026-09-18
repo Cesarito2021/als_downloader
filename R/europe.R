@@ -22,6 +22,9 @@ search_europe <- function(aoi, provider, max_items) {
   if (provider=="ahn6") {
     prefix <- "https://api.ellipsis-drive.com/v3/ogc/features/0820faae-5240-499b-8486-cf406433cf71/"
     url <- paste0(prefix,"collections/6aec07f5-f7eb-4f51-b6f7-aee45e5767bd/items?limit=100&bbox=",bbox)
+  } else if (provider=="ignfr") {
+    prefix <- "https://api.stac.teledetection.fr/collections/lidarhd/"
+    url <- paste0(prefix,"items?limit=100&bbox=",bbox)
   } else {
     prefix <- "https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swisssurface3d/"
     url <- paste0(prefix,"items?limit=100&bbox=",bbox)
@@ -32,6 +35,7 @@ search_europe <- function(aoi, provider, max_items) {
     if (is.null(f$geometry)) stop("Index item has no footprint.")
     g <- sf::st_read(jsonlite::toJSON(list(type="Feature",properties=list(),geometry=f$geometry),auto_unbox=TRUE),quiet=TRUE)
     if (!any(lengths(sf::st_intersects(g,aoi))>0)) next
+    acquired <- c(start=NA_character_, end=NA_character_)
     if (provider=="ahn6") {
       href <- f$properties$Puntenwolk
       if (is.null(href) || !grepl("^https://basisdata\\.nl/hwh-ahn/AHN6/.*\\.laz$",href,ignore.case=TRUE))
@@ -39,6 +43,16 @@ search_europe <- function(aoi, provider, max_items) {
       assets <- list(list(href=href))
       license <- "https://creativecommons.org/licenses/by/4.0/"
       citation <- "Actueel Hoogtebestand Nederland (AHN6); original point-cloud tile. https://www.ahn.nl/dataroom"
+    } else if (provider=="ignfr") {
+      assets <- Filter(function(a) !is.null(a$href) && grepl("\\.copc\\.laz$",a$href,ignore.case=TRUE),f$assets)
+      if (!length(assets)) stop("France LiDAR HD item has no supported point-cloud asset; search incomplete.")
+      if (any(!vapply(assets,function(a) startsWith(a$href,"https://data.geopf.fr/telechargement/download/"),logical(1))))
+        stop("Unexpected France LiDAR HD asset host/path.")
+      license <- "https://www.data.gouv.fr/pages/legal/licences/etalab-2.0"
+      citation <- paste("Source: IGN LiDAR HD, producer Institut national de l'information geographique et forestiere (IGN).",
+        "Indexed through a public STAC catalogue maintained by UMR TETIS / INRAE (api.stac.teledetection.fr),",
+        "not IGN's own WFS. Licence Ouverte 2.0. https://geoservices.ign.fr/lidarhd")
+      acquired <- stac_acquisition_period(f$properties)
     } else {
       assets <- Filter(function(a) !is.null(a$href) && grepl("\\.(las|laz|las\\.zip)$",a$href,ignore.case=TRUE),f$assets)
       if (!length(assets)) stop("Swiss item has no supported point-cloud asset; search incomplete.")
@@ -47,10 +61,13 @@ search_europe <- function(aoi, provider, max_items) {
       license <- "https://www.swisstopo.admin.ch/en/terms-of-use-free-geodata-and-geoservices"
       citation <- "Source: Federal Office of Topography swisstopo; swissSURFACE3D. https://www.swisstopo.admin.ch/en/height-model-swisssurface3d"
     }
-    # Catalog timestamps and filename years are not confirmed acquisition dates.
+    # Catalog timestamps and filename years are not confirmed acquisition dates,
+    # except for ignfr, whose STAC properties carry named acquisition fields.
+    dataset <- switch(provider, ahn6="AHN6", ignfr="IGN LiDAR HD", "swissSURFACE3D")
     for (asset in assets) result[[length(result)+1L]] <- sf::st_sf(
-      tile_id=as.character(f$id),provider=provider,dataset=if(provider=="ahn6")"AHN6" else "swissSURFACE3D",
-      filename=basename(asset$href),url=asset$href,acquired_start=NA_character_,acquired_end=NA_character_,
+      tile_id=as.character(f$id),provider=provider,dataset=dataset,
+      filename=basename(asset$href),url=asset$href,
+      acquired_start=unname(acquired['start']),acquired_end=unname(acquired['end']),
       size_bytes=if(is.null(asset[["file:size"]]))NA_real_ else as.numeric(asset[["file:size"]]),
       license_url=license,citation=citation,geometry=sf::st_geometry(g))
     if (length(result)>max_items) stop("Search exceeds max_items; use a smaller area.")

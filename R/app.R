@@ -62,7 +62,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         shiny::uiOutput("layer_control"),
         shiny::helpText("Or draw a polygon or rectangle on the map. ZIP uploads must include Shapefile companion files."),
         shiny::textOutput("aoi_status"),
-          shiny::selectInput("provider", "Search provider", c("USGS 3DEP" = "usgs3dep", "OpenTopography" = "opentopography", "Netherlands - AHN6" = "ahn6", "Switzerland - swissSURFACE3D" = "swisstopo", "Approved contributed indexes" = "contributed")),
+          shiny::selectInput("provider", "Search provider", c("USGS 3DEP" = "usgs3dep", "OpenTopography" = "opentopography", "Netherlands - AHN6" = "ahn6", "Switzerland - swissSURFACE3D" = "swisstopo", "France - IGN LiDAR HD" = "ignfr", "Approved contributed indexes" = "contributed")),
         if (mode == "local") shiny::textInput("indexes", "Approved tile-index directory", value = if (is.null(tile_index_dir)) "" else tile_index_dir),
         shiny::dateRangeInput("dates", "Acquisition interval", start = "2000-01-01", end = Sys.Date()),
         shiny::actionButton("search", "Find intersecting tiles", class = "als-primary"),

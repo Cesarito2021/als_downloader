@@ -10,3 +10,4 @@
 * Collect ten concise contributor fields, including a private contact email and a dataset DOI. Gate request preparation on successful connection checks, without transferring point-cloud files.
 * Include source attribution, third-party notices and observed approval-time reporting.
 * Remove PNOA LiDAR (Spain, failed anonymous download-init check) and OpenTopography AUS11_Victor (Australia, no supplied reuse licence) from the catalogue; access was not guaranteed for either.
+* Add an in-app AOI adapter for IGN LiDAR HD (France): AOI search via a public STAC catalogue maintained by UMR TETIS / INRAE, original COPC LAZ download from data.geopf.fr, real per-tile acquisition dates. Built from previously verified live evidence; pending its own live/CI re-validation before relying on it in production.
