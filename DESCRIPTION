@@ -4,7 +4,10 @@ Version: 0.1.0
 Authors@R: person("Cesar Ivan", "Alvites Diaz", role = c("aut", "cre"),
     email = "calvites1990@gmail.com")
 Description: Discover, inspect and download airborne laser scanning data
-    from multiple providers through an R workflow and a 'Shiny' application.
+    from multiple providers through an R workflow and a 'Shiny' application
+    for researchers and stakeholders. The configured application supports
+    map-based discovery and downloads without writing code, with parallel
+    transfers in local mode subject to configured provider limits.
     Define a study area, find intersecting point-cloud tiles, inspect provider
     acquisition metadata and optionally preview points before downloading
     original files. Integrates USGS 3DEP, AHN6, swissSURFACE3D, local

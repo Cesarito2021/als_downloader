@@ -84,6 +84,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
               shiny::div(class = "als-globe-intro",
                 shiny::h2("Explore aerial LiDAR around the world"),
                 shiny::p("Discover, inspect and download. Define your study area, inspect source tiles and acquisition dates, and download original files from their providers."),
+                shiny::p("Open-source software for researchers and stakeholders. Use the configured app without writing code; parallel downloads are available in local mode within provider limits."),
                 shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Rotatable world globe. Drag or use arrow keys to rotate.", `data-countries` = paste(unique(catalog$country_code), collapse = ",")),
                 shiny::p(id = "globe_status", "Drag or use arrow keys to rotate. Red marks countries with catalog sources, not measured survey coverage."),
                 shiny::tags$button(id = "globe_reset", type = "button", class = "btn", "Reset globe"), " ",

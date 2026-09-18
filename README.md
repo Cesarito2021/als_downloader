@@ -1,6 +1,14 @@
 # ALS Downloader
 
-**Discover, inspect and download airborne LiDAR.** ALS Downloader connects researchers to point-cloud data from multiple providers through an R package and a Shiny application. Define your study area, discover intersecting tiles, inspect acquisition dates and source information, optionally preview the points, and download the original files directly from their providers.
+**Discover, inspect and download airborne LiDAR.** ALS Downloader is open-source software for the scientific community and stakeholders, connecting users to aerial laser-scanning point clouds from multiple providers. Once the app is launched and its sources configured, explore the map, draw or upload a study area, inspect acquisition dates and tiles, and download original files **without writing code**. Optional 3D previews support visual inspection. **Parallel downloads in local mode** respect the configured provider limits; hosted transfers run one at a time.
+
+| Access snapshot | Current scope |
+|---|---|
+| Countries with a successful connected-source access sample | **5**: United States, Netherlands, Switzerland, Brazil and New Zealand (17 September 2026). This does not imply complete national coverage. |
+| Collection years | Provider-reported dates appear with search results; missing dates remain unknown. A complete global year range has not been established. |
+| Approximate data volume | Known file sizes are totalled for the selected tiles; files with unknown sizes are identified separately. A global GB total has not been established. |
+
+The software is open source; each external dataset retains its own licence and attribution requirements.
 
 Integrated workflows cover **USGS 3DEP, AHN6, swissSURFACE3D, OpenTopography tile indexes and approved contributor GeoJSON indexes**. The catalogue also links to additional sources, with their integration status clearly identified. Covers aircraft, helicopter and UAV laser scanning.
 
