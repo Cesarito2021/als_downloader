@@ -221,6 +221,43 @@ limit: it needs its own design pass (which map replaces or supplements
 Leaflet, whether `mapgl` genuinely fits a Shiny app cleanly, a real check
 that it builds under `R CMD check`) before writing code.
 
+### Checked and ruled out: the experimental R `{cesium}` package
+
+The maintainer also pointed at an R-Cesium option: the
+[r-spatial/cesium#3](https://github.com/r-spatial/cesium/issues/3)
+discussion about `goergen95/cesium`, an experimental sf-to-CZML converter
+for CesiumJS, plus Hobu's Eptium (CesiumJS blog, June 2025) for
+streaming EPT/COPC point clouds as native 3D Tiles. Cloned both repos in
+this session (GitHub is reachable) rather than judging from the issue
+text alone:
+
+- `r-spatial/cesium`'s last commit is from **December 2019** - an
+  unrelated placeholder, not the experiment discussed in the issue.
+- `goergen95/cesium`'s last commit is from **October 2023** - about three
+  years stale, still version `0.1.0`, never published to CRAN. It also
+  **vendors 19 MB of CesiumJS inside the package**
+  (`inst/htmlwidgets/lib/Cesium/`), which alone would likely draw a CRAN
+  size objection (the practical soft ceiling is a few MB). And it never
+  handles point clouds at all - grepping the whole source found no
+  LAS/LAZ/COPC/point-cloud code; it only converts `sf` points, markers,
+  lines, polygons and rasters to CZML with a time dimension.
+
+**Verdict: not a foundation to build on**, for either half of the item-8
+dream. It doesn't solve the point-cloud problem, and its abandonment plus
+bundled size make it a worse CRAN bet than `mapgl` for the vector/legend/
+time-slider half - though this is itself a reason to actually check
+`mapgl`'s own bundled size before leaning on it, rather than assuming an
+htmlwidget package is automatically small just because it vendors its JS.
+
+Eptium itself (serving EPT/COPC as native Cesium 3D Tiles point clouds,
+with real GPU-driven level-of-detail - a materially better result than
+the bounded octree-walk-in-JS approach GeoLibre's own COPC path uses) is
+real and relevant, but it is server/JS tooling from Hobu (the PDAL/Entwine
+team), not an R package. It doesn't fit inside a CRAN package's scope; the
+realistic way to offer it is as a documented *external* workflow - "convert
+your downloaded tiles to EPT and view them with Eptium/CesiumJS for
+museum-grade 3D" - alongside, not inside, `als_downloader`.
+
 ## Suggested order
 
 1 and 2 are the safest, smallest, and most valuable ("solidez" +
