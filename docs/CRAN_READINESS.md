@@ -84,10 +84,29 @@ which remains owed before submission.
 
 `R/comparison-app.R`, `inst/app/www/preview.js` and `inst/app/www/profile.js` were rewritten to show campaigns A and B as two synced side-by-side canvases (`als-compare-cloud-a`/`-b`) instead of one canvas with both clouds overlaid; drawing a profile line in either panel now places the same line in both, and the elevation chart below stays a single shared output. This is a real UI/rendering change, not a copy edit, and this environment has no R, so it could not be exercised through the actual Shiny app. It was instead verified with a headless Chromium harness (Playwright, pre-installed in this environment) driving the built JavaScript directly: loaded synthetic two-campaign point data, confirmed both panels render only their own campaign's palette color with zero cross-panel color contamination, dragged panel B and confirmed panel A's rendered pixels changed too (shared camera), and drew a line split across both panels (one endpoint clicked in each) producing a populated profile chart with points from both campaigns and no JavaScript errors. The R-side wiring (`comparison-app.R`'s `session$sendCustomMessage(..., target = "als-compare-cloud", ...)` calls) was not changed, since `"als-compare-cloud"` remains the logical key the JS `views` map resolves to the new two-canvas viewer — but the actual Shiny reactive flow around it (file downloads feeding the viewer, `compare_metadata`, PNG export buttons wired through R) has not been exercised end-to-end and still needs a real browser/CI pass before release, per item 2 below.
 
+## First verified green CI run on this branch's actual head: 18 September 2026
+
+Every prior GitHub Actions run referenced above and throughout this branch's
+history had been failing (`conclusion: failure`) with a genuine `R CMD check`
+ERROR - this was not caught earlier because this environment has no R and no
+one had checked the Actions results themselves. Checked directly via the
+`github` MCP tools' Actions endpoints (available in this session without any
+local R install): `test-core.R:64` asserted the implemented-provider id set
+was still `c("usgs3dep", "opentopography", "ahn6", "swisstopo")`, never
+updated when `ignfr` (France) and `canelevation` (Canada) were added as
+implemented adapters - all 235 other tests already passed. Fixed in commit
+`cd2f4d1`, and
+[run 35406911944](https://github.com/Cesarito2021/als_downloader/actions/runs/35406911944)
+on that commit passed `--as-cran` (warnings as failures) on Windows, macOS,
+Ubuntu-release and Ubuntu-devel - the first fully green run this session has
+directly confirmed against the branch's actual current head, not a
+historical revision. Re-check this after every further change; a passing
+run today does not cover commits made after it.
+
 ## Before submission
 
 1. Authorship confirmed by the maintainer: the project collaborators did not contribute to this application and have been removed from DESCRIPTION. Cesar Ivan Alvites Diaz is the sole package author and maintainer (`aut`/`cre`). The brief OpenForest4D project acknowledgement remains in the README. This metadata correction follows the linked release checks.
-2. Re-run the successful cross-platform matrix if package code or metadata change before submission. Local R 4.4.0 checks include the full PDF manual; verify current-R and R-devel against the latest published revision.
+2. Re-run the successful cross-platform matrix if package code or metadata change before submission (done for the current head as of `cd2f4d1`, above). Local R 4.4.0 checks include the full PDF manual; verify current-R and R-devel against the latest published revision.
 3. Review the linked dataset licenses and third-party notices; access checks do not grant rights. CC BY examples retain DOI credit; national products retain provider terms. The app never claims complete national coverage from country shading.
 4. Decide the operational email process. The app prepares private drafts; automated confirmations require a separately configured mail service. The public approval metric excludes email-only requests.
 5. Confirm the final package name, version and maintainer address, review any remaining check notes and prepare a truthful submission comment. No `--as-cran` run is an acceptance guarantee.
