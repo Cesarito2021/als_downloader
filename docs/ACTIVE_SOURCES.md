@@ -13,6 +13,15 @@ re-tested against them in a network-enabled session or CI run before this
 catalogue update. Luxembourg and Wallonia were additionally tested but are
 not new active catalogue entries.
 
+An in-app adapter for CanElevation (Canada) was also added on 18 September
+2026, from the live evidence already recorded in docs/SOURCE_AUDIT.md and
+docs/file-access-checks.csv: a confirmed public S3 bucket
+(`canelevation-lidar-point-clouds.s3.ca-central-1.amazonaws.com`) and
+confirmed project/tile GeoPackage or Shapefile indexes from NRCan. No live
+spatial query API was confirmed for this source, so the adapter follows the
+existing OpenTopography local-index pattern (the user supplies the official
+index directory) rather than a fully automatic search like France's.
+
 OpenTopography AUS11_Victor (Australia) was also removed on 18 September
 2026: the provider supplies no reuse licence for the dataset, so access
 cannot be presented as guaranteed even though the technical adapter and a
@@ -30,7 +39,7 @@ Nine representative file endpoints were checked using at most 1,024 bytes each (
 | OpenTopography | [Source](https://opentopography.org/node/3598) | Local TileIndex archives; license and citation vary by dataset |
 | OpenTopography BR17_SaoPaulo | [Source](https://opentopography.org/node/3598) | One sample validated; requires supplied TileIndex and dataset terms review |
 | OpenTopography Auckland_2013 | [Source](https://opentopography.org/node/3598) | One sample validated; requires supplied TileIndex and dataset terms review |
-| CanElevation | [Source](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Public COPC header verified; Open Government Licence Canada; adapter pending |
+| CanElevation | [Source](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | AOI search via a locally supplied NRCan project/tile index (no live spatial API confirmed), original COPC LAZ download from the public S3 bucket; adapter added 18 September 2026, pending live/CI re-validation |
 | swissSURFACE3D | [Source](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native STAC AOI search and original LAS ZIP/COPC download; archived ZIP preview requires local extraction; acquisition dates unknown unless separately verified |
 | IGN LiDAR HD | [Source](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | AOI search via public STAC catalogue (UMR TETIS / INRAE), original COPC LAZ download; adapter added 18 September 2026, pending live/CI re-validation |
 | AHN6 point clouds | [Source](https://www.ahn.nl/dataroom) | AHN6 native OGC footprint search and original LAZ download; other AHN versions not integrated; collection dates not inferred from filenames |

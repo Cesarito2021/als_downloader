@@ -7,7 +7,7 @@
 find_tiles(
   aoi,
   provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo",
-    "ignfr"),
+    "ignfr", "canelevation"),
   start = NULL,
   end = NULL,
   tile_index_dir = NULL,
@@ -20,16 +20,19 @@ find_tiles(
 \item{provider}{Either `"usgs3dep"` (Planetary Computer) or
 `"opentopography"` (local TileIndex archives), or `"contributed"`
 (maintainer-approved local `*.tiles.geojson` indexes), `"ahn6"`
-(native AHN6 index), `"swisstopo"` (swissSURFACE3D STAC), or `"ignfr"`
+(native AHN6 index), `"swisstopo"` (swissSURFACE3D STAC), `"ignfr"`
 (IGN LiDAR HD, indexed through a public STAC catalogue maintained by
-UMR TETIS / INRAE; not IGN's own WFS).}
+UMR TETIS / INRAE; not IGN's own WFS), or `"canelevation"` (Canada;
+local NRCan project/tile `.gpkg`/`.shp` index, no live spatial API
+confirmed).}
 
 \item{start, end}{Optional inclusive acquisition dates in `YYYY-MM-DD` format.
 Unknown acquisition dates remain in the results.}
 
-\item{tile_index_dir}{Directory of OpenTopography `*_TileIndex.zip` files
-or approved contributed `*.tiles.geojson` files. Required for these
-adapters. OpenTopography indexes require an embedded CRS.}
+\item{tile_index_dir}{Directory of OpenTopography `*_TileIndex.zip` files,
+approved contributed `*.tiles.geojson` files, or CanElevation `.gpkg`/
+`.shp` indexes. Required for these adapters. Indexes require an embedded
+CRS and a `url` field pointing to the original file.}
 
 \item{max_items}{Maximum number of tiles to return. An incomplete result
 raises an error instead of silently reporting partial coverage.}
@@ -43,7 +46,7 @@ Find point-cloud tiles intersecting a study area
 }
 \details{
 Network access occurs only when this function is explicitly called
-  for USGS 3DEP, AHN6, swisstopo or ignfr. OpenTopography uses supplied local indexes and their embedded
+  for USGS 3DEP, AHN6, swisstopo or ignfr. OpenTopography and canelevation use supplied local indexes and their embedded
   download links; it does not assume a universal area limit or require a key
   for already-public tile URLs. Asset licenses must be checked per dataset.
 }

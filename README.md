@@ -10,7 +10,7 @@
 
 The software is open source; each external dataset retains its own licence and attribution requirements.
 
-Integrated workflows cover **USGS 3DEP, AHN6, swissSURFACE3D, IGN LiDAR HD (France), OpenTopography tile indexes and approved contributor GeoJSON indexes**. The catalogue also links to additional sources, with their integration status clearly identified. Covers aircraft, helicopter and UAV laser scanning.
+Integrated workflows cover **USGS 3DEP, AHN6, swissSURFACE3D, IGN LiDAR HD (France), CanElevation (Canada, local index), OpenTopography tile indexes and approved contributor GeoJSON indexes**. The catalogue also links to additional sources, with their integration status clearly identified. Covers aircraft, helicopter and UAV laser scanning.
 
 Developed and maintained by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
 
@@ -22,7 +22,7 @@ remotes::install_github("Cesarito2021/als_downloader")
 alsdownloader::launch_app()
 ```
 
-Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6, swissSURFACE3D and IGN LiDAR HD (France) query online spatial catalogues. OpenTopography and contributed sources use locally configured tile indexes; remote downloads require internet access. See the [workflow guide](vignettes/als-workflow.Rmd).
+Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6, swissSURFACE3D and IGN LiDAR HD (France) query online spatial catalogues. OpenTopography, CanElevation (Canada) and contributed sources use locally configured tile indexes; remote downloads require internet access. See the [workflow guide](vignettes/als-workflow.Rmd).
 
 ## 1. Explore sources
 
@@ -102,7 +102,7 @@ Eight examples are shown below. The **[complete catalogue, access conditions and
 | OpenTopography index service | [OpenTopography](https://opentopography.org/node/3598) | Local TileIndex files; dataset-specific access and terms. |
 | BR17_SaoPaulo, Brazil | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
 | Auckland_2013, New Zealand | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
-| CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Source link; representative COPC access checked; no AOI adapter. |
+| CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | AOI search via a locally supplied NRCan project/tile index (.gpkg/.shp; no live spatial API confirmed), original COPC LAZ download from the public S3 bucket; adapter added 18 September 2026, pending a fresh live/CI validation. |
 | IGN LiDAR HD, France | [Official record](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | AOI search via a public STAC catalogue (UMR TETIS / INRAE, not IGN's own WFS), original COPC LAZ download; adapter added 18 September 2026, pending a fresh live/CI validation. |
 | AHN6, Netherlands | [AHN](https://www.ahn.nl/dataroom) | Native footprint search and original LAZ download; AHN6 only. |
 | swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native AOI search and original LAS ZIP downloads; extract locally for preview. |
