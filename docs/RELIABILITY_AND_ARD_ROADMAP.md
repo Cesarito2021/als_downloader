@@ -109,11 +109,43 @@ res = 1, output_dir)`, guarded by `requireNamespace("lidR")`:
   stayed out of.
 - No invented point-density numbers where a provider does not publish one.
 
+## 6. A downloadable session report (HTML by default, PDF optional)
+
+Inspired by another of the maintainer's apps (CSF-Ind), which renders a
+PDF report via `rmarkdown`/`tinytex` after processing a dataset. The idea
+is worth adopting here - a "Download session report" button next to
+**Download selected tiles** - but not the same implementation, because
+that app's source loads `tinytex`, `rnaturalearth`, `tidyverse` and a dozen
+other packages unconditionally with bare `library()` calls at the top of
+the file, and hardcodes a Windows path (`C:\Users\...\main.R`). Either one
+would fail `R CMD check` immediately (undeclared/unconditional heavy
+dependencies; a package must never assume a specific machine's filesystem).
+
+**Rescoped design:**
+- An R Markdown template shipped at `inst/report/session-report.Rmd`,
+  rendered with `rmarkdown::render()` (already a `Suggests` dependency via
+  the vignette) - guarded by `requireNamespace("rmarkdown", quietly = TRUE)`,
+  same pattern as the `lidR` guard elsewhere.
+- **HTML by default** (self-contained, `knitr` already `Suggests`, needs no
+  extra runtime install). Offer PDF only when
+  `requireNamespace("tinytex", quietly = TRUE) && tinytex::is_tinytex()`
+  is true; otherwise render HTML and say why, rather than failing or
+  forcing every user to install a multi-hundred-MB LaTeX distribution just
+  to use the app.
+- Content: search parameters (AOI, provider, date range), tile count and
+  the same GB figure from item 2 above, a per-provider breakdown, and the
+  citations/licences already written to `CITATIONS.txt` - all data the app
+  already has in hand at download time, no new computation.
+- Written only to the user-chosen `output_dir` (or via `downloadHandler`
+  in the Shiny app, same as the existing `.xlsx`/`.txt` downloads) -
+  never to a fixed path.
+
 ## Suggested order
 
 1 and 2 are the safest, smallest, and most valuable ("solidez" +
 transparency) - no new dependencies, pure extensions of existing tested
-functions. 3 and 4 are small, additive, and low-risk. 5 is the biggest
-piece (a new function, new tests, new docs) and is entirely optional
-value-add; do it last, and only once the app itself is otherwise ready for
-its first CRAN submission.
+functions. 3, 4 and 6 are small, additive, and low-risk (6 needs one new
+`.Rmd` file but no new hard dependency). 5 is the biggest piece (a new
+function, new tests, new docs) and is entirely optional value-add; do it
+last, and only once the app itself is otherwise ready for its first CRAN
+submission.
