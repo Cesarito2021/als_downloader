@@ -25,6 +25,56 @@ for row in records:
         label, cell(row["access"]), row["reviewed_on"]]) + " |")
 (target / "SOURCES.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
+# Country-code -> continent, for the human-readable by-region index below.
+# 0 is the generic OpenTopography index service (no single country).
+CONTINENTS = {
+    0: "Global", 840: "North America", 124: "North America",
+    76: "South America", 554: "Oceania",
+    756: "Europe", 250: "Europe", 528: "Europe", 578: "Europe", 246: "Europe",
+    616: "Europe", 233: "Europe", 276: "Europe", 724: "Europe", 40: "Europe",
+    56: "Europe", 100: "Europe", 191: "Europe", 203: "Europe", 208: "Europe",
+    348: "Europe", 372: "Europe", 380: "Europe", 428: "Europe", 440: "Europe",
+    442: "Europe", 470: "Europe", 620: "Europe", 642: "Europe", 703: "Europe",
+    705: "Europe", 752: "Europe",
+}
+CONTINENT_ORDER = ["Global", "North America", "South America", "Europe", "Oceania"]
+missing = {int(r["country_code"]) for r in records} - set(CONTINENTS)
+if missing:
+    raise ValueError(f"Add a continent mapping for country code(s): {sorted(missing)}")
+
+by_continent = {c: [] for c in CONTINENT_ORDER}
+for row in records:
+    by_continent[CONTINENTS[int(row["country_code"])]].append(row)
+
+n_available = sum(1 for r in records if r["implemented"] == "TRUE")
+lines = ["# Datasets by region", "",
+         "Generated from `inst/extdata/providers.csv` by `tools/update_source_docs.py`; "
+         "see [SOURCES.md](../inst/sources/SOURCES.md) for the full access/licence text behind "
+         "each entry, and the [README](../README.md) for a handful of representative examples.",
+         "",
+         f"**{n_available} available in-app (in-app search and download) and "
+         f"{len(records) - n_available} portal-only (linked official source, no in-app adapter) "
+         f"entries, {len(records)} total.**", "",
+         "- 🟢 **Available in-app** - search and download inside the app.",
+         "- 🔗 **Portal only** - follow the official link and download there; no in-app adapter yet.",
+         ""]
+for continent in CONTINENT_ORDER:
+    rows = by_continent[continent]
+    if not rows:
+        continue
+    lines.append(f"## {continent}")
+    lines.append("")
+    lines.append("| Country | Source | Status |")
+    lines.append("|---|---|---|")
+    for row in sorted(rows, key=lambda r: (r["country"], r["name"])):
+        status = "🟢 Available in-app" if row["implemented"] == "TRUE" else "🔗 Portal only"
+        lines.append("| " + " | ".join([
+            cell(row["country"]), f'[{cell(row["name"])}]({row["info_url"]})', status]) + " |")
+    lines.append("")
+lines.append("[Full evidence and access-check history](../docs/ACTIVE_SOURCES.md) · "
+              "[EU-wide coverage detail](../docs/EU_COVERAGE_TRACKER.md).")
+(root / "docs" / "DATASETS.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
 fields = {}
 key = None
 for line in (root / "DESCRIPTION").read_text(encoding="utf-8").splitlines():
@@ -50,4 +100,4 @@ lines.extend(["", "Browser libraries delivered through Shiny, Leaflet and DT rem
               "their upstream package notices. Bundled geography and external map services",
               "are documented separately in [NOTICE](../NOTICE)."])
 (target / "DEPENDENCIES.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-print(f"Documented {len(records)} catalogue entries and DESCRIPTION dependencies.")
+print(f"Documented {len(records)} catalogue entries, the by-region dataset index and DESCRIPTION dependencies.")

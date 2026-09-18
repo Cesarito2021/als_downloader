@@ -94,7 +94,7 @@ Your contact email is for review and acceptance replies and is not included in p
 
 ## Source examples
 
-Eight examples are shown below. The **[complete catalogue, access conditions and credits](inst/sources/README.md)** ships inside the package, together with a table of software dependencies. Portal references are distinguished from implemented downloads. Two entries reviewed earlier (OpenTopography AUS11_Victor, Australia and PNOA LiDAR, Spain) were removed from the catalogue: Australia's dataset carries no supplied reuse licence, and Spain's official portal returned an HTTP 403 on the anonymous download-init check. See [Review evidence](docs/ACTIVE_SOURCES.md) for both records.
+The eight most representative entries are shown below, one or two per continent and access pattern. The catalogue currently has **36 entries covering 31 countries plus a global index service**: 8 with in-app search-and-download, 28 with only a linked official portal (no in-app adapter yet). For the complete list, grouped by continent, see **[Datasets by region](docs/DATASETS.md)**; for full access/licence text per entry, see **[the complete catalogue](inst/sources/README.md)** shipped inside the package together with a table of software dependencies. Portal references are distinguished from implemented downloads throughout. Two entries reviewed earlier (OpenTopography AUS11_Victor, Australia and PNOA LiDAR, Spain's original automated adapter) were removed: Australia's dataset carries no supplied reuse licence, and Spain's automated download-init returned an HTTP 403 - Spain still appears as a portal-only entry today. See [Review evidence](docs/ACTIVE_SOURCES.md) for both records.
 
 | Source / product | Official resource | Available workflow |
 |---|---|---|
