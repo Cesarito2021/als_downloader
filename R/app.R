@@ -85,13 +85,15 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
                 shiny::h2("Explore aerial LiDAR around the world"),
                 shiny::p("Discover, inspect and download. Define your study area, inspect source tiles and acquisition dates, and download original files from their providers."),
                 shiny::p("Open-source software for researchers and stakeholders. Use the configured app without writing code; parallel downloads are available in local mode within provider limits."),
-                shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Rotatable world globe. Drag or use arrow keys to rotate.", `data-countries` = paste(unique(catalog$country_code), collapse = ",")),
-                shiny::p(id = "globe_status", "Drag or use arrow keys to rotate. Red marks countries with catalog sources, not measured survey coverage."),
+                shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Rotatable world globe. Drag or use arrow keys to rotate. Red countries have an in-app download adapter; yellow countries link to an official source you must visit directly.",
+                  `data-countries` = paste(unique(catalog$country_code), collapse = ","),
+                  `data-implemented` = paste(unique(catalog$country_code[catalog$implemented]), collapse = ",")),
+                shiny::p(id = "globe_status", "Drag or use arrow keys to rotate. Red marks countries with an in-app download adapter; yellow marks countries with only a linked official source you must visit directly. Neither reflects measured survey coverage. Open the map, or choose a country below, to see its links."),
                 shiny::tags$button(id = "globe_reset", type = "button", class = "btn", "Reset globe"), " ",
                 shiny::actionButton("enter_map", "Open map", class = "als-primary"),
                 shiny::p(shiny::tags$a(href = "https://www.naturalearthdata.com/about/terms-of-use/", "Made with Natural Earth - public-domain cartography")))),
             shiny::conditionalPanel("input.enter_map > 0", leaflet::leafletOutput("map", height = "60vh"),
-            shiny::div(class = "map-caption", "Country shading indicates catalog candidates, not continuous survey coverage. Search results show source tile footprints."),
+            shiny::div(class = "map-caption", "Red marks countries with an in-app download adapter; yellow marks countries with only a linked official source you must visit directly. Neither reflects continuous survey coverage. Search results show source tile footprints."),
             shiny::textOutput("search_status"), DT::DTOutput("tiles"),
             shiny::actionButton("select_all_tiles", "Select all results"),
             shiny::actionButton("clear_tiles", "Clear selection"),
@@ -130,13 +132,15 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     comparison_server(input, output, session, state, mode, hosted_lock)
     output$map <- leaflet::renderLeaflet({
       world$catalog <- world$code %in% catalog$country_code
+      world$implemented <- world$code %in% catalog$country_code[catalog$implemented]
       leaflet::leaflet(world) |>
         leaflet::addProviderTiles("Esri.WorldImagery", group = "Satellite RGB") |>
         leaflet::addTiles("https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
           group = "Terrain relief", attribution = "Terrain: Esri, Airbus DS, USGS, NGA, NASA, CGIAR, NLS, OS, NMA, Geodatastyrelsen, GSA, GSI and GIS User Community",
           options = leaflet::tileOptions(maxZoom = 16, className = "als-relief-tiles")) |>
         leaflet::addPolygons(layerId = ~id, group = "Countries", color = "#60717c", weight = .5,
-          fillColor = ~ifelse(catalog, "#2c7565", "#25313c"), fillOpacity = ~ifelse(catalog, .10, 0), label = ~name) |>
+          fillColor = ~ifelse(implemented, "#dc2626", ifelse(catalog, "#eab308", "#25313c")),
+          fillOpacity = ~ifelse(catalog, .14, 0), label = ~name) |>
         leaflet.extras::addDrawToolbar(targetGroup = "Study area", polygonOptions = leaflet.extras::drawPolygonOptions(showArea = TRUE),
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,

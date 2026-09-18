@@ -28,13 +28,14 @@ Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6,
 
 ![Welcome globe with annotated navigation and catalog presence](docs/images/interface-globe.png)
 
-Screenshots illustrate the interface before the latest source exclusions; the [complete source table](inst/sources/SOURCES.md) records the current catalogue.
+Screenshots illustrate the interface before the latest source exclusions and colour update; the [complete source table](inst/sources/SOURCES.md) records the current catalogue.
 
 | Control | Purpose |
 |---|---|
 | W1 - Globe | Rotate to explore countries represented in the active catalog. |
-| W2 - Red shading | Indicates source presence, not complete national survey coverage. |
-| W3 - Open map | Open the map to draw or upload an area of interest. |
+| W2 - Red shading | Country has an in-app search-and-download adapter. Not complete national survey coverage. |
+| W3 - Yellow shading | Country has only a linked official source; download from the provider's own portal. |
+| W4 - Open map | Open the map to draw or upload an area of interest. |
 
 ## 2. Search, download and plot
 

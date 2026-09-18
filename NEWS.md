@@ -11,3 +11,4 @@
 * Include source attribution, third-party notices and observed approval-time reporting.
 * Remove PNOA LiDAR (Spain, failed anonymous download-init check) and OpenTopography AUS11_Victor (Australia, no supplied reuse licence) from the catalogue; access was not guaranteed for either.
 * Add an in-app AOI adapter for IGN LiDAR HD (France): AOI search via a public STAC catalogue maintained by UMR TETIS / INRAE, original COPC LAZ download from data.geopf.fr, real per-tile acquisition dates. Built from previously verified live evidence; pending its own live/CI re-validation before relying on it in production.
+* Distinguish in-app download adapters from portal-only reference sources by colour on the globe and map: red for countries with an implemented adapter, yellow for countries with only a linked official source the user must visit directly. Choosing a country (by click or from the sidebar list) still shows its official links either way.

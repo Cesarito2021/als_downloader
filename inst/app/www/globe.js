@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   for(let x=0;x<W;x+=W/12){t.moveTo(x,0);t.lineTo(x,H);}
   for(let y=H/6;y<H;y+=H/6){t.moveTo(0,y);t.lineTo(W,y);}t.stroke();
   const countries=new Set(canvas.dataset.countries.split(',').map(Number));
+  const implemented=new Set((canvas.dataset.implemented||'').split(',').filter(Boolean).map(Number));
   let pixels,lon=-65,lat=18,drag=null,pending=false;
   function ring(coords,shift){
     let prev=coords[0][0];const points=coords.map(([raw,y])=>{let x=raw;while(x-prev>180)x-=360;while(x-prev< -180)x+=360;prev=x;return [x,y];});
@@ -23,7 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     for(const f of world.features){
       const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
       for(const poly of polys)for(const shift of [-360,0,360]){t.beginPath();poly.forEach(coords=>ring(coords,shift));t.fillStyle='#c4d5b7';t.fill('evenodd');
-        if(countries.has(Number(f.id))){t.fillStyle='rgba(220,38,38,0.55)';t.fill('evenodd');}
+        if(implemented.has(Number(f.id))){t.fillStyle='rgba(220,38,38,0.55)';t.fill('evenodd');}
+        else if(countries.has(Number(f.id))){t.fillStyle='rgba(234,179,8,0.55)';t.fill('evenodd');}
         t.strokeStyle='#6c958b';t.lineWidth=.65;t.stroke();}
     }
     pixels=t.getImageData(0,0,W,H).data;canvas.dataset.ready='true';draw();
