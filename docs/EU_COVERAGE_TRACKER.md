@@ -13,11 +13,22 @@ had at least one prior investigation on record; there are no genuine
 
 ## Status legend
 
-- 🟦 **Done** - implemented in-app adapter, real anonymous file download confirmed (`inst/extdata/providers.csv`, `implemented=TRUE`). Do not re-investigate; extend or fix only if something breaks.
+- 🟦 **Done** - implemented in-app adapter, real anonymous file download confirmed (`inst/extdata/providers.csv`, `implemented=TRUE`). Shows **red** on the app's globe/map. Do not re-investigate; extend or fix only if something breaks.
 - 🟨 **No access** - actively investigated and closed: either a real negative (HTTP 403, registration/account required, paid-only route) or a screened search that found no qualifying open ALS chain. Do not re-investigate unless the provider publicly changes its terms.
 - 🟧 **Candidate** - a real official portal/licence/index exists with some positive evidence, but no anonymous file download has been confirmed yet. Needs a live check (a real network session) before it can become 🟦 or 🟨.
 
-**Summary: 2 done, 10 no access, 15 candidate.**
+As of 18 September 2026, every 🟨/🟧 row below with a genuine official
+government/agency source link is now also present in
+`inst/extdata/providers.csv` as a portal-only entry (`implemented=FALSE`),
+so it shows **yellow** on the app's globe and map with a working link to
+that official page - the app does not wait for 🟦 status to surface a
+country. Only Cyprus and Greece are not yet mapped in-app: their only lead
+is a non-official Zenodo research record, not a genuine government portal,
+so no info_url has been added for either without a stronger source.
+
+**Summary: 2 done, 10 no access, 15 candidate; 25 of 27 states now have an
+in-app portal link (all but Cyprus and Greece), pending real network access
+to build any further automated adapters.**
 
 ## Table
 

@@ -27,7 +27,22 @@ OpenTopography AUS11_Victor (Australia) was also removed on 18 September
 cannot be presented as guaranteed even though the technical adapter and a
 sample download passed.
 
-Reviewed 18 September 2026. **16 active catalogue entries**, including one general index service. Entries are source/products, not counts of individual tiles or completed national adapters. The [document review](DOCUMENT_SOURCE_REVIEW.md) records the expanded scope.
+Reviewed 18 September 2026. **36 active catalogue entries**, including one general index service. Entries are source/products, not counts of individual tiles or completed national adapters. The [document review](DOCUMENT_SOURCE_REVIEW.md) records the expanded scope.
+
+Also on 18 September 2026, the catalogue was extended with portal-only entries
+(`implemented=FALSE`) for every EU member state where a genuine official
+government/agency page was identified but no anonymous in-app adapter exists
+yet: Austria, Belgium (Wallonia and Flanders separately), Bulgaria, Croatia,
+Czechia, Denmark, Hungary, Ireland, Italy, Latvia, Lithuania, Luxembourg,
+Malta, Portugal, Romania, Slovakia, Slovenia, Spain and Sweden - 20 rows in
+total, alongside the pre-existing Norway/Finland/Poland/Estonia/Germany
+portal rows. These show as yellow on the globe and map (a real official
+source link a user can follow themselves) rather than being absent from the
+catalogue entirely; only Cyprus and Greece have no genuine official-portal
+page identified yet (their only lead is a non-official Zenodo research
+record), so they are not yet mapped. See
+[EU_COVERAGE_TRACKER.md](EU_COVERAGE_TRACKER.md) for the full evidence
+behind each row.
 
 The historical inventory contains 46 rows, including repeated sources, discovery pages and excluded products. It is retained only as an audit archive; it does not populate the app. Of 40 distinct page links rechecked, 38 responded successfully. HTTP reachability alone was not sufficient for retention.
 
@@ -56,7 +71,7 @@ Nine representative file endpoints were checked using at most 1,024 bytes each (
 
 The remaining entries below were excluded by the earlier access review. Several official portals have since been restored as official portal access, with their in-app adapters still pending. Removal does not assert data unavailability.
 
-- [PNOA LiDAR (Spain)](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga): official terms and tile polygon verified, but the anonymous download-init check returned HTTP 403; removed 18 September 2026 pending a working transfer check.
+- PNOA LiDAR (Spain): the automated adapter (id `pnoa`) was removed 18 September 2026 because the anonymous download-init check returned HTTP 403. A portal-only row (id `ign_pnoa`, `implemented=FALSE`) was re-added the same day so the country still appears (yellow) on the map with a link to the [official portal](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga) for manual download.
 - [OpenTopography AUS11_Victor (Australia)](https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.062013.28354.1): technical adapter and a sample download passed, but the provider supplies no reuse licence; removed 18 September 2026 as access could not be presented as guaranteed.
 - [Laserdata Skog](https://www2.lantmateriet.se/en/geodata/our-products/product-list/laser-data-download-forest/): provider changed access conditions in 2026; current terms and authorized delivery require review (see DOCUMENT_SOURCE_REVIEW.md).
 - [Scottish Public Sector LiDAR](https://registry.opendata.aws/scottish-lidar/): Public AWS bucket; OGL v3 except phase-2 LAZ non-commercial terms; adapter pending

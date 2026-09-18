@@ -28,6 +28,27 @@ A new in-app adapter (`search_europe(aoi, "ignfr", ...)` in `R/europe.R`, wired 
 
 A second new in-app adapter (`search_canelevation()` in `R/canada.R`, wired through `find_tiles()`) covers CanElevation (Canada): unlike `ignfr`, no live spatial query API was confirmed, so it follows the existing OpenTopography local-index pattern instead of a bbox search - the user supplies a directory of NRCan's official project/tile `.gpkg`/`.shp` indexes, and downloads use the confirmed public S3 bucket (`canelevation-lidar-point-clouds.s3.ca-central-1.amazonaws.com`, per `docs/file-access-checks.csv`). Unit tests write real temporary GeoPackage fixtures and exercise `find_tiles()` end-to-end (`tests/testthat/test-canada.R`), rather than mocking, since this adapter has no network call to mock in the first place. Still needs a real run against an actual NRCan-downloaded index before release.
 
+## Catalogue update: portal-only EU coverage, 18 September 2026
+
+`providers.csv` grew from 16 to 36 rows (`16 -> 36`). The 20 new rows are all
+`implemented=FALSE` "national portal" entries (same pattern as the
+pre-existing Norway/Finland/Poland/Estonia/Germany rows): Austria, Belgium
+(Wallonia and Flanders as two separate rows sharing country code 56),
+Bulgaria, Croatia, Czechia, Denmark, Hungary, Ireland, Italy, Latvia,
+Lithuania, Luxembourg, Malta, Portugal, Romania, Slovakia, Slovenia, Spain
+(re-added under a new id, `ign_pnoa`, distinct from the removed `pnoa`
+adapter id) and Sweden. Each `info_url` is a real official government/agency
+page drawn from `docs/EUROPE_ACCESS_REVIEW.md`; none were guessed. This
+gives the app's globe/map (`R/app.R`, `inst/app/www/globe.js`) a yellow
+marker and a working "open official source" link for every EU member state
+that has a genuine official portal on record, even where no anonymous
+in-app adapter exists. Cyprus and Greece are the only EU states still
+unmapped in the catalogue: their only lead is a non-official Zenodo research
+record, not a government page, so no `info_url` was added for either.
+`test-coverage-gate.R` was updated to match (`nrow(catalog)` now `36L`, plus
+a dedicated EU-country-code coverage test). This environment cannot run R,
+so this change has not been re-verified with a fresh `R CMD check --as-cran`.
+
 ## Comparison UI redesign: 18 September 2026
 
 `R/comparison-app.R`, `inst/app/www/preview.js` and `inst/app/www/profile.js` were rewritten to show campaigns A and B as two synced side-by-side canvases (`als-compare-cloud-a`/`-b`) instead of one canvas with both clouds overlaid; drawing a profile line in either panel now places the same line in both, and the elevation chart below stays a single shared output. This is a real UI/rendering change, not a copy edit, and this environment has no R, so it could not be exercised through the actual Shiny app. It was instead verified with a headless Chromium harness (Playwright, pre-installed in this environment) driving the built JavaScript directly: loaded synthetic two-campaign point data, confirmed both panels render only their own campaign's palette color with zero cross-panel color contamination, dragged panel B and confirmed panel A's rendered pixels changed too (shared camera), and drew a line split across both panels (one endpoint clicked in each) producing a populated profile chart with points from both campaigns and no JavaScript errors. The R-side wiring (`comparison-app.R`'s `session$sendCustomMessage(..., target = "als-compare-cloud", ...)` calls) was not changed, since `"als-compare-cloud"` remains the logical key the JS `views` map resolves to the new two-canvas viewer — but the actual Shiny reactive flow around it (file downloads feeding the viewer, `compare_metadata`, PNG export buttons wired through R) has not been exercised end-to-end and still needs a real browser/CI pass before release, per item 2 below.
