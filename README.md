@@ -56,11 +56,19 @@ The OpenTopography adapter follows the tile-index selection and download workflo
 
 ## 3. Point cloud 3D viewer
 
-*Screenshot needed here — the standalone "3D preview" tab does not have one yet. Select a tile in Explore, click **Plot selected tile in 3D**, or upload a local LAS/LAZ file, then rotate/zoom with drag, scroll and the on-screen controls. Elevation-coloured, up to 200 MB per tile; colours show source elevation, not canopy height.*
+![Annotated 3D preview showing a local LAS/LAZ upload and the rendered point cloud](docs/images/interface-preview.png)
+
+| Control | Purpose |
+|---|---|
+| G - Upload | Upload a local LAS/LAZ tile (up to 200 MB), or plot a tile selected in Explore. |
+| H - Viewer | Rotate (drag or arrow keys), zoom (scroll or +/-), reset (0). Colours show source elevation, not canopy height. |
+| I - Exaggeration | Vertical exaggeration slider (1-12x), plus elevation palette selection. |
 
 ## 4. Compare campaigns and view a profile
 
-![Two side-by-side survey clouds on black, with a shared coloured elevation profile below](docs/images/interface-compare-campaigns.png)
+![Two overlapping survey clouds on black, with their coloured elevation profile below](docs/images/interface-compare-campaigns.png)
+
+This screenshot predates the two-panel redesign described below (see the note at the top of this walkthrough): it shows both campaigns overlapping in one viewport rather than side by side. The controls and behaviour described in the text are current.
 
 Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km, shown as **two side-by-side panels** (A left, B right) sharing one camera: rotate or zoom either panel and both move together. The default colours are light purple (A) and pale yellow (B) on black; red and blue are also available.
 
@@ -70,7 +78,9 @@ The profile does not require height normalization. Both clouds must have compati
 
 ## 5. Submit your dataset
 
-*Screenshot needed here — the "Sources and access" tab's submission form does not have one yet.*
+![Submit a data source form with fields, compatibility check and the progress alligator](docs/images/interface-submit-source.png)
+
+This screenshot may predate later changes to the exact field list (see the note at the top of this walkthrough); the ten fields below are current.
 
 Ten main fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI or Zenodo record ID, collection year(s), aerial platform, LAS/LAZ or index link, license link, access requirements and optional sensor/location notes. Zenodo submissions additionally require a polygon boundary link, unless the data link already supplies the GeoJSON tile index.
 
