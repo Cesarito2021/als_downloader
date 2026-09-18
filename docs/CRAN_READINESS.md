@@ -12,13 +12,17 @@ No submission has been made to CRAN. Passing local checks does not guarantee acc
 - The globe and search screenshots were refreshed. Comparison camera framing now optionally fits the central 98% of projected display coordinates without deleting points.
 - The visual-profile update passed a fresh full local `--as-cran` check (including PDF manual): 0 errors, 0 warnings, the same two notes. Browser tests with real Utah campaigns passed line selection by clicks/drag, shared colour/visibility controls, strip-width changes, three PNG downloads, stale-profile clearing and mobile layout. Offline JavaScript tests cover directional distances, strip/end boundaries and empty sections. Profiles use displayed samples without fitting curves or calculating campaign differences.
 - [Visual-profile CI run 35275843652](https://github.com/Cesarito2021/als_downloader/actions/runs/35275843652), commit `763fb27`, passed Windows, macOS, Linux release and Linux R-devel, including the new JavaScript geometry checks. This historical run predates the latest catalogue changes; the published revision requires a fresh matrix.
-- The catalogue contains 18 source/service references, not 18 integrated or fully validated datasets. Native adapters cover USGS, AHN6 and swissSURFACE3D; OpenTopography requires supplied tile indexes. Approved contributor indexes provide another route. See the installed [source tables, policies and validation evidence](../inst/sources/README.md) for portal-only entries and unresolved permissions.
+- The catalogue contains 16 source/service references, not 16 integrated or fully validated datasets. Native adapters cover USGS, AHN6 and swissSURFACE3D; OpenTopography requires supplied tile indexes. Approved contributor indexes provide another route. See the installed [source tables, policies and validation evidence](../inst/sources/README.md) for portal-only entries and unresolved permissions.
 
 ## Final local verification: 17 September 2026
 
 The full check passed again after the catalogue and licence-gate changes: **0 errors, 0 warnings, 2 notes**, including PDF/HTML manuals, examples, vignette and offline tests. The installed app passed browser smoke checks for the Shiny connection, globe, mobile width, map navigation and empty-selection guard, with no JavaScript errors.
 
 Downloads and remote previews reject missing licence or attribution metadata. This is a completeness check, not automatic legal clearance. Current-R and R-devel results must be checked against the exact published commit in [GitHub Actions](https://github.com/Cesarito2021/als_downloader/actions); the historical runs above do not cover the final catalogue changes.
+
+## Catalogue update: 18 September 2026
+
+Two entries were removed from `inst/extdata/providers.csv` (18 -> 16 rows) because access was not guaranteed: PNOA LiDAR (Spain), whose anonymous download-init check returned HTTP 403, and OpenTopography AUS11_Victor (Australia), whose provider supplies no reuse licence despite a passing technical access sample. See [ACTIVE_SOURCES.md](ACTIVE_SOURCES.md) for the full record. `test-coverage-gate.R` was updated to match (16 rows; the national-portal-reference loop now checks Canada, France and Norway instead of Spain). This environment cannot run R, so this change has not been re-verified with a fresh `R CMD check --as-cran` or the GitHub Actions matrix — that re-run is still owed before submission, per item 2 below.
 
 ## Before submission
 

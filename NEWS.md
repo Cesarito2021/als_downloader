@@ -9,3 +9,4 @@
 * Represent acquisition intervals by their final collection date; never infer acquisition from publication or filename dates.
 * Collect ten concise contributor fields, including a private contact email and a dataset DOI. Gate request preparation on successful connection checks, without transferring point-cloud files.
 * Include source attribution, third-party notices and observed approval-time reporting.
+* Remove PNOA LiDAR (Spain, failed anonymous download-init check) and OpenTopography AUS11_Victor (Australia, no supplied reuse licence) from the catalogue; access was not guaranteed for either.

@@ -65,18 +65,16 @@ The profile does not require height normalization. Both clouds must have compati
 
 ## Source examples
 
-Ten examples are shown below. The **[complete catalogue, access conditions and credits](inst/sources/README.md)** ships inside the package, together with a table of software dependencies. Portal references are distinguished from implemented downloads.
+Eight examples are shown below. The **[complete catalogue, access conditions and credits](inst/sources/README.md)** ships inside the package, together with a table of software dependencies. Portal references are distinguished from implemented downloads. Two entries reviewed earlier (OpenTopography AUS11_Victor, Australia and PNOA LiDAR, Spain) were removed from the catalogue: Australia's dataset carries no supplied reuse licence, and Spain's official portal returned an HTTP 403 on the anonymous download-init check. See [Review evidence](docs/ACTIVE_SOURCES.md) for both records.
 
 | Source / product | Official resource | Available workflow |
 |---|---|---|
 | USGS 3DEP | [USGS via Planetary Computer](https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc) | AOI search, original download, bounded preview. |
 | OpenTopography index service | [OpenTopography](https://opentopography.org/node/3598) | Local TileIndex files; dataset-specific access and terms. |
-| AUS11_Victor, Australia | [Dataset record](https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.062013.28354.1) | Access tested; licence not supplied. Reuse permission unresolved. |
 | BR17_SaoPaulo, Brazil | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
 | Auckland_2013, New Zealand | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
 | CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Source link; representative COPC access checked; no AOI adapter. |
 | IGN LiDAR HD, France | [Official portal](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | Select and download point-cloud tiles on the official portal; in-app adapter pending. |
-| PNOA LiDAR, Spain | [Official portal](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga) | Choose coverage campaign and LAZ tiles on the official portal; in-app adapter pending. |
 | AHN6, Netherlands | [AHN](https://www.ahn.nl/dataroom) | Native footprint search and original LAZ download; AHN6 only. |
 | swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native AOI search and original LAS ZIP downloads; extract locally for preview. |
 

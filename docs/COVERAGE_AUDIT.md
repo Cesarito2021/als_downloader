@@ -2,7 +2,9 @@
 
 This document records the initial coverage exclusions and the subsequent
 France/Spain restoration. The catalogue has since expanded to 18 entries
-following the [supplied-document review](DOCUMENT_SOURCE_REVIEW.md).
+following the [supplied-document review](DOCUMENT_SOURCE_REVIEW.md). Spain
+(PNOA) and Australia (AUS11_Victor) were later removed on 18 September 2026;
+see [ACTIVE_SOURCES.md](ACTIVE_SOURCES.md) for the current 16-entry catalogue.
 
 Reviewed 17 September 2026. Initial scope: all 10 previously active catalogue entries. Subsequently restored France and Spain as official-portal access, following the user's clarified scope.
 Retain research deposits with verified polygon coverage/index. Also expose official national portals documenting spatial downloads; this does not claim a locally verified index or an implemented adapter. Spatial evidence includes
