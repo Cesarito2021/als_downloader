@@ -61,7 +61,7 @@ test_that("STAC receives a Geometry and pagination failures are explicit", {
 
 test_that("candidate providers are not advertised as implemented", {
   catalog <- provider_catalog()
-  expect_setequal(catalog$id[catalog$implemented],c("usgs3dep","opentopography","ahn6","swisstopo"))
+  expect_setequal(catalog$id[catalog$implemented],c("usgs3dep","opentopography","ahn6","swisstopo","ignfr","canelevation"))
   expect_true(all(grepl("^https://",catalog$info_url)))
 })
 
