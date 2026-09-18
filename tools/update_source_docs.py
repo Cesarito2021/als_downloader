@@ -94,7 +94,14 @@ for field, role in [("Depends", "Runtime"), ("Imports", "Required"), ("Suggests"
         if not match:
             raise ValueError(f"Unparsed dependency: {entry}")
         name, constraint = match.groups()
-        url = "https://www.r-project.org/" if name == "R" else f"https://CRAN.R-project.org/package={name}"
+        base_r_packages = {"stats", "tools", "utils", "methods", "graphics", "grDevices", "parallel", "datasets"}
+        if name == "R":
+            url = "https://www.r-project.org/"
+        elif name in base_r_packages:
+            url = f"https://stat.ethz.ch/R-manual/R-devel/library/{name}/00Index.html"
+        else:
+            url = f"https://CRAN.R-project.org/package={name}"
+        role = "Bundled with R" if name in base_r_packages else role
         lines.append(f"| [{name}]({url}) | {role} | {constraint or 'Not specified'} |")
 lines.extend(["", "Browser libraries delivered through Shiny, Leaflet and DT remain subject to",
               "their upstream package notices. Bundled geography and external map services",

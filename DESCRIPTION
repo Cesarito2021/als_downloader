@@ -21,7 +21,7 @@ Contact: Cesar Ivan Alvites Diaz <calvites1990@gmail.com>
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
 Imports: sf, s2, httr, curl, jsonlite, digest, parallelly, future, future.apply,
-    shiny (>= 1.8.0), leaflet, leaflet.extras, DT, callr, zip
+    shiny (>= 1.8.0), leaflet, leaflet.extras, DT, callr, zip, stats, tools, utils
 Suggests: lidR, testthat (>= 3.0.0), knitr, rmarkdown
 VignetteBuilder: knitr
 Config/testthat/edition: 3
