@@ -1,6 +1,10 @@
 # ALS Downloader
 
-Discover aerial LiDAR sources, download original LAS/LAZ files and preview individual point-cloud tiles. R package and Shiny application by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
+**Discover, inspect and download airborne LiDAR.** ALS Downloader connects researchers to point-cloud data from multiple providers through an R package and a Shiny application. Define your study area, discover intersecting tiles, inspect acquisition dates and source information, optionally preview the points, and download the original files directly from their providers.
+
+Integrated workflows cover **USGS 3DEP, AHN6, swissSURFACE3D, OpenTopography tile indexes and approved contributor GeoJSON indexes**. The catalogue also links to additional sources, with their integration status clearly identified. Covers aircraft, helicopter and UAV laser scanning.
+
+Developed and maintained by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
 
 ## Install and launch
 
@@ -10,7 +14,7 @@ remotes::install_github("Cesarito2021/als_downloader")
 alsdownloader::launch_app()
 ```
 
-Requires R >= 4.1. Install `lidR` for point-cloud previews. USGS searches require internet access; OpenTopography discovery requires local TileIndex archives. See the [workflow guide](vignettes/als-workflow.Rmd).
+Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6 and swissSURFACE3D query online spatial catalogues. OpenTopography and contributed sources use locally configured tile indexes; remote downloads require internet access. See the [workflow guide](vignettes/als-workflow.Rmd).
 
 ## 1. Explore sources
 
