@@ -34,3 +34,27 @@ Do not label this tile pre-/post-Michael from its filename or catalog timestamp 
 [Recorded catalog response](michael-stac-check.json).
 
 The app displays provider-reported dates. This historical investigation does not create an acquisition-date verification requirement in the app; interpretation of the selected campaigns remains with the user.
+
+## Open lead: a usable pre/post pair may already exist in USGS 3DEP alone
+
+Not yet checked, and requires a live search this session could not run (no outbound
+network access beyond GitHub). The FEMA post-Michael survey above
+(`20181024_FEMA_PostMichael_FL_...`) is exactly the kind of disaster-response
+LiDAR that USGS periodically ingests into 3DEP under its own project name,
+separate from the raw NOAA/GEOID18 distribution. If a 2018-or-later FEMA/USGS
+project covering the Mexico Beach - Panama City, FL area is indexed in the
+Planetary Computer `3dep-lidar-copc` collection alongside an earlier project
+(`Lower_Choctawhatchee_2017` is a candidate, though its catalog dates are
+unverified per above), **that pair would work entirely through the app's
+existing, already-implemented `usgs3dep` adapter** - no NOAA integration
+needed. This has not been confirmed to exist; it is a plausible lead based on
+project-naming conventions, not a verified finding.
+
+To check: launch the app, draw a small AOI (roughly 1-2 km square) around
+29.948 N, -85.418 W (Mexico Beach) or nearby Panama City / Tyndall AFB -
+the areas Hurricane Michael (Category 5, October 2018) hit hardest across
+the Florida Panhandle, with damage extending into parts of Georgia and
+Alabama - search provider `usgs3dep` with no date filter, and look at the
+grouped campaign list under **Compare campaigns** for two distinct projects
+whose collection intervals straddle October 2018. If a real pair turns up,
+record its exact campaign labels, AOI and a screenshot here.
