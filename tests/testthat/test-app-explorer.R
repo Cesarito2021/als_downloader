@@ -97,10 +97,14 @@ test_that("search results are grouped and legended by acquisition year, includin
       size_bytes = NA_real_, license_url = "https://example.org", citation = "Test fixture",
       geometry = ring)
   }
+  # local_mocked_bindings() must be called directly inside test_that()'s own
+  # frame: called from inside shiny::testServer()'s block instead, its
+  # automatic unmock-on-exit never fires (that block is not a normal call
+  # frame), leaking the mock into every later test in the same R process.
+  local_mocked_bindings(find_tiles = fake_tiles, .package = "alsdownloader")
   app <- als_app()
   shiny::testServer(app, {
     session$flushReact()
-    local_mocked_bindings(find_tiles = fake_tiles, .package = "alsdownloader")
     state$aoi <- sf::st_sf(geometry = square)
     session$setInputs(search = 1)
     session$flushReact()

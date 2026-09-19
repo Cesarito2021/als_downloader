@@ -441,10 +441,16 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       preview_path <- tempfile(fileext = paste0(".", tools::file_ext(input$point_file$name)))
       state$preview_path <- preview_path
       file.copy(input$point_file$datapath, preview_path)
-      state$preview_job <- callr::r_bg(function(reader, path, percent, window, x, y, voxel) {
+      # Call the reader by namespace-qualified name (as download_tiles() does
+      # below) rather than passing it as a bare closure via args: a closure's
+      # captured environment does not reliably carry the rest of the package
+      # namespace into the callr background process, so a call the reader
+      # makes to another internal helper by bare name can fail to resolve
+      # there even though the reader itself runs.
+      state$preview_job <- callr::r_bg(function(path, percent, window, x, y, voxel) {
         on.exit(unlink(path))
-        reader(path, percent, window, x, y, voxel)
-      }, args = list(read_forest_preview, preview_path, input$local_percent, as.numeric(input$local_window), input$local_center_x, input$local_center_y, as.numeric(input$local_voxel)), supervise = TRUE)
+        alsdownloader::read_forest_preview(path, percent, window, x, y, voxel)
+      }, args = list(preview_path, input$local_percent, as.numeric(input$local_window), input$local_center_x, input$local_center_y, as.numeric(input$local_voxel)), supervise = TRUE)
     })
     shiny::observeEvent(c(input$plot_tile, input$replot_tile), ignoreInit = TRUE, {
       if ((isTRUE(state$comparison_busy) || isTRUE(state$source_test_busy))) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}
@@ -471,9 +477,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       state$previewtext <- paste("Downloading and sampling:", state$preview_label)
       session$sendCustomMessage("als-points", list(target = "als-cloud", points = list(), origin = c(0, 0, 0)))
       state$preview_path <- tempfile(fileext = ".laz")
-      tryCatch({state$preview_job <- callr::r_bg(function(remote_reader, forest_reader, tile, path, percent, window, x, y, voxel)
-        remote_reader(tile, path = path, reader = function(file) forest_reader(file, percent, window, x, y, voxel)),
-        args = list(preview_remote_tile, read_forest_preview, tile, state$preview_path, input$local_percent, as.numeric(input$local_window), input$local_center_x, input$local_center_y, as.numeric(input$local_voxel)), supervise = TRUE)}, error = function(e) {
+      tryCatch({state$preview_job <- callr::r_bg(function(tile, path, percent, window, x, y, voxel)
+        alsdownloader::preview_remote_tile(tile, path = path,
+          reader = function(file) alsdownloader::read_forest_preview(file, percent, window, x, y, voxel)),
+        args = list(tile, state$preview_path, input$local_percent, as.numeric(input$local_window), input$local_center_x, input$local_center_y, as.numeric(input$local_voxel)), supervise = TRUE)}, error = function(e) {
           if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
           state$previewtext <- "Could not start the preview process."
         })
