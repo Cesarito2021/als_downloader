@@ -3,19 +3,15 @@ Title: Discover, Inspect and Download Airborne Laser Scanning Data
 Version: 0.1.0
 Authors@R: person("Cesar Ivan", "Alvites Diaz", role = c("aut", "cre"),
     email = "calvites1990@gmail.com")
-Description: Discover, inspect and download airborne laser scanning data
-    from multiple providers through an R workflow and a 'Shiny' application
-    for researchers and stakeholders. The configured application supports
-    map-based discovery and downloads without writing code, with parallel
-    transfers in local mode subject to configured provider limits.
-    Define a study area, find intersecting point-cloud tiles, inspect provider
-    acquisition metadata and optionally preview points before downloading
-    original files. Integrates USGS 3DEP, AHN6, swissSURFACE3D, IGN LiDAR HD,
-    CanElevation, local OpenTopography tile indexes and approved contributor
-    GeoJSON indexes.
-    Additional source references are distinguished from integrated downloads.
-    Preserves source attribution and transfer records; data remain hosted
-    by their providers. Covers aircraft, helicopter and UAV laser scanning.
+Description: Discover, visualize and download airborne laser scanning data
+    from an international catalogue through R functions and a 'Shiny'
+    application. Spatial searches identify point-cloud tiles intersecting
+    an area of interest and retain acquisition metadata, source citations
+    and licence links. Supports three-dimensional visualization, visual
+    comparison, download planning reports and transfers of original files.
+    Integrates supported provider services and configured spatial indexes,
+    including approved community contributions. Distinguishes integrated
+    access from external portals; availability depends on provider coverage.
 License: GPL-3
 Contact: Cesar Ivan Alvites Diaz <calvites1990@gmail.com>
 Encoding: UTF-8

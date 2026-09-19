@@ -1,261 +1,120 @@
 # ALS Downloader
 
-![ALS Downloader banner: two overlapping airborne LiDAR point clouds, light purple and pale yellow, on black](docs/images/banner.png)
+![ALS Downloader — airborne LiDAR discovery and visualization](docs/images/banner.png)
 
-[![R-CMD-check](https://github.com/Cesarito2021/als_downloader/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Cesarito2021/als_downloader/actions/workflows/R-CMD-check.yaml)
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](NEWS.md)
 
-**Discover, inspect and download airborne LiDAR.** Open-source software connecting researchers to aerial laser-scanning point clouds from multiple providers. Draw or upload a study area, inspect acquisition dates and tiles, and download original files **without writing code** -- the same short description shown in the app itself. Optional 3D previews support visual inspection, and **parallel downloads in local mode** respect the configured provider limits; hosted transfers run one at a time.
+**Discover, visualize and download airborne laser scanning data from an international catalogue.**
+ALS Downloader combines R functions with a map-based Shiny application: define an **area of interest (AOI)**, find available tiles, inspect point clouds and download original files from their providers. Coverage depends on the source and configured indexes; the catalogue does not imply complete global or national coverage.
 
-| Access snapshot | Current scope |
-|---|---|
-| Countries with a successful connected-source access sample | **7**: United States, Netherlands, Switzerland, Brazil, New Zealand (17 September 2026), France and Canada (18 September 2026). France's STAC endpoint and file host, and Canada's public S3 bucket, were verified live on 17 September 2026 (see [VALIDATION.md](inst/sources/VALIDATION.md) and [file-access-checks.csv](docs/file-access-checks.csv)); neither in-app adapter has been re-tested against the live service in a network-enabled session or CI run since being built from that evidence. This does not imply complete national coverage. |
-| Collection years | Provider-reported dates appear with search results; missing dates remain unknown. A complete global year range has not been established. |
-| Approximate data volume | Known file sizes are totalled for the selected tiles; files with unknown sizes are identified separately. A global GB total has not been established. |
+[Get started](#get-started) · [Application](#application) · [Examples](#four-source-examples) · [Catalogue](#als-catalogue) · [Contribute](#contribute-als-data)
 
-The software is open source; each external dataset retains its own licence and attribution requirements.
+## Get started
 
-Integrated workflows cover **USGS 3DEP, AHN6, swissSURFACE3D, IGN LiDAR HD (France), CanElevation (Canada, local index), OpenTopography tile indexes and approved contributor GeoJSON indexes**. The catalogue also links to additional sources, with their integration status clearly identified. Covers aircraft, helicopter and UAV laser scanning.
-
-Developed and maintained by **Cesar Alvites**. Release candidate **0.1.0**; not yet submitted to CRAN.
-
-## Install and launch
+Development version **0.1.0**; **not yet submitted to CRAN**. The GitHub repository is currently private. Installation from GitHub requires authorized access and configured GitHub authentication.
 
 ```r
-install.packages("remotes")
+install.packages(c("remotes", "lidR"))
 remotes::install_github("Cesarito2021/als_downloader")
 alsdownloader::launch_app()
 ```
 
-Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6, swissSURFACE3D and IGN LiDAR HD (France) query online spatial catalogues. OpenTopography, CanElevation (Canada) and contributed sources use locally configured tile indexes; remote downloads require internet access. See the [workflow guide](vignettes/als-workflow.Rmd).
+Requires R ≥ 4.1. `lidR` enables point-cloud reading. PDF reports also require `rmarkdown`, Pandoc and a LaTeX installation such as TinyTeX. Some sources require administrator-configured spatial indexes. [Installation and workflow guide](vignettes/als-workflow.Rmd).
 
-## 1. Explore sources
+The R package is named **`alsdownloader`**. The repository remains `als_downloader` to preserve existing links.
 
-The globe and map use neutral country outlines. Green regional polygons show
-configured index extents, not national coverage. Live source coverage is retrieved
-when an area is searched. See [regional verification](docs/REGIONAL_VERIFICATION.md).
+## Application
 
-The [complete source table](inst/sources/SOURCES.md) records the current catalogue.
-The welcome page also includes an expandable **About the project** introduction
-with a link to this guide, and **Browse source catalogue** opens the app's source
-table without starting a map search.
-Sources appear as lightweight searchable cards with bundled icons, country,
-adapter status and expandable access notes. The detailed table remains available.
-USGS 3DEP appears first. The optional contribution index example is a GeoJSON map
-of file footprints and download links, not a point-cloud upload or registration.
+![Welcome page](docs/images/current/welcome.png)
 
-For large study areas, the current search limit is 10,000 tiles per source;
-source errors are reported as an incomplete search. State-wide performance has
-not been benchmarked: use smaller regions when a source reaches its limit.
-Single-cloud previews download one source tile temporarily and show transfer
-and reading progress, with cancellation and a 15-minute overall time limit.
-Comparison requires two known, non-overlapping acquisition periods and shared
-coverage; separate flights within a year can qualify. It displays a bounded
-100-1000 m window, not the entire state or a calculated change product.
-
-| Control | Purpose |
+| View | Purpose |
 |---|---|
-| W1 - Globe | Rotates on its own; drag or use arrow keys to take over, or click **Reset globe** to return to the start view and resume auto-rotation. |
-| W2 - Legend | Top-right key: red for an in-app search-and-download adapter, yellow for a linked official source only. |
-| W3 - Red shading | Country has an in-app search-and-download adapter. Not complete national survey coverage. |
-| W4 - Yellow shading | Country has only a linked official source; download from the provider's own portal. |
-| W5 - Open map | Open the map to draw or upload an area of interest. |
+| **Explore** | Draw or upload an AOI, filter acquisition dates, inspect footprints and select tiles. |
+| **3D view** | Inspect a source tile or local LAS/LAZ, using source classification, intensity or elevation colours. |
+| **3D comparison** | Visually compare compatible sources or a source with a local cloud in a shared window. |
+| **Download report (PDF)** | After a successful search, review tile counts, dates, known storage requirements, figures and credits before downloading. |
 
-## 2. Search, download and plot
+Downloads preserve original tiles. The viewer uses sampled points and may download files temporarily. Comparison is a visual aid, not an automated change estimate; compatible coordinate and elevation references are required. [Comparison guide](docs/TEMPORAL_COMPARISON.md).
 
-![Annotated search example showing study area, source tiles and download controls](docs/images/interface-rgb-tile.png)
+<details>
+<summary>View the application screens</summary>
 
-| Control | Purpose |
+**Explore and download planning**
+![Explore](docs/images/current/explore.png)
+
+**Point-cloud visualization**
+![3D view](docs/images/current/3d-view.png)
+
+**Comparison controls** — no comparison result is claimed in this capture.
+![3D comparison](docs/images/current/comparison.png)
+
+**About the project**
+![About](docs/images/current/about.png)
+
+**Source catalogue**
+![Catalogue](docs/images/current/catalogue.png)
+
+**Contribute ALS data**
+![Contribution form](docs/images/current/contribute.png)
+
+**Other data sources**
+![Other source contribution](docs/images/current/other-source.png)
+
+**Submission status**
+![Submission tracking](docs/images/current/status.png)
+
+</details>
+
+## Four source examples
+
+Real search metadata and sampled source points from regional verification, displayed in the current interface. Each cloud is viewed from above. Maps currently show geometry only; the RGB versions await confirmation of imagery publication rights. These examples demonstrate access at specific sites, not complete country coverage. [Figure provenance and source credits](docs/README_FIGURES.md).
+
+| Site | AOI and tile footprints | Point cloud: top-down | Tile metadata |
+|---|---|---|---|
+| **1. USA** — Utah, USGS 3DEP | ![USA map](docs/images/current/United_States-map.png) | ![USA cloud](docs/images/current/United_States-cloud.png) | ![USA metadata](docs/images/current/United_States-table.png) |
+| **2. Brazil** — São Paulo | ![Brazil map](docs/images/current/Brazil-map.png) | ![Brazil cloud](docs/images/current/Brazil-cloud.png) | ![Brazil metadata](docs/images/current/Brazil-table.png) |
+| **3. Canada** — Athabasca | ![Canada map](docs/images/current/Canada-map.png) | ![Canada cloud](docs/images/current/Canada-cloud.png) | ![Canada metadata](docs/images/current/Canada-table.png) |
+| **4. Netherlands** — AHN6 | ![Netherlands map](docs/images/current/Netherlands-map.png) | ![Netherlands cloud](docs/images/current/Netherlands-cloud.png) | ![Netherlands metadata](docs/images/current/Netherlands-table.png) |
+
+## ALS catalogue
+
+| Integrated source | Access |
 |---|---|
-| A - Header | Application and local/hosted mode. |
-| B - Area of interest | Draw a polygon/rectangle or upload GeoJSON, GeoPackage or a zipped Shapefile. |
-| C - Search | Set an acquisition interval; find intersecting tiles across every source usable in this deployment. |
-| D - Download | Select files and download originals to your chosen folder. |
-| E - Map | Inspect the study area and returned tile footprints, coloured by acquisition year with an automatic legend (grey where the provider reports no date). |
-| F - Results | Review metadata; select one tile and click **Plot selected tile in 3D**. |
+| **USGS 3DEP**, USA | Planetary Computer spatial catalogue and COPC files |
+| **OpenTopography**, international | Configured Tile Index files; includes selected São Paulo and Auckland datasets |
+| **CanElevation**, Canada | Configured regional indexes and original point clouds |
+| **AHN6**, Netherlands | Spatial index and LAZ files |
+| **swissSURFACE3D**, Switzerland | Spatial catalogue and LAS archives |
+| **IGN LiDAR HD**, France | Spatial catalogue and COPC files |
+| **Approved community sources** | Reviewed boundaries linked to provider-hosted files |
 
-The search figure is a Utah example and predates the year-coloured footprints described above (the tile list, dates and workflow are otherwise unchanged). Collection dates come from provider acquisition metadata; the **final collection date** represents an interval. Missing dates remain unknown. Publication dates and filename years are not substituted. Source imagery may have a different date from the LiDAR.
+Additional catalogue entries link to providers' own portals. OpenTopography explicitly documents the [Tile Index download workflow](https://opentopography.org/node/3598) used by this adapter. Each source retains its own access conditions.
 
-The OpenTopography adapter follows the tile-index selection and download workflow described in OpenTopography's official tutorial, [*Programmatic Access to OpenTopography's Point Cloud Data with Tile Indexes*](https://opentopography.org/node/3598) (24 November 2025): intersect supplied tile indexes with the study area and download the selected original LAS/LAZ files.
+[Full source catalogue](inst/sources/SOURCES.md) · [Regional verification](docs/REGIONAL_VERIFICATION.md)
 
-## 3. Point cloud 3D viewer
+## Contribute ALS data
 
-![Annotated 3D preview showing a local LAS/LAZ upload and the rendered point cloud](docs/images/interface-preview.png)
+**Contribute ALS data** accepts Zenodo records and other stable public scientific sources. Supply the record link, coverage and acquisition information; Zenodo metadata provide authors, DOI, licence and available files. Polygons should link to the corresponding point-cloud assets. Declared approximate coverage remains labelled approximate.
 
-| Control | Purpose |
-|---|---|
-| G - Upload | Upload a local LAS/LAZ tile (up to 1 GB), or plot a tile selected in Explore. |
-| H - Viewer | Rotate (drag or arrow keys), zoom (scroll or +/-), reset (0). Colours show source elevation, not canopy height. |
-| I - Exaggeration | Vertical exaggeration slider (1-12x), plus elevation palette selection. |
+Submissions require maintainer approval before appearing in searches. **Submission status** tracks a proposal using its reference. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
 
-## 4. Compare campaigns and view a profile
+[Contribution guide](docs/CONTRIBUTING_DATA.md) · [Contact-data handling](docs/CONTRIBUTOR_PRIVACY.md)
 
-![Two side-by-side survey clouds on black (A red, B blue), with a visible canopy difference and their shared coloured elevation profile below](docs/images/interface-compare-campaigns.png)
+## Author and citation
 
-This figure shows all three parts of the feature together: the two rotatable 3D panels (A, B) on top, and the drawn-segment side view (the elevation profile) below, so the height difference between campaigns is visible in one figure. It uses synthetic example points (real code, generated example data, not a captured survey); the labels shown (`UT_KaneCo_2019`, `UT_StatewideSouth_1_2020`) match the real Utah campaigns used elsewhere in this README. It is shaped like a stand-in for a real pre/post-storm pair near northwest Apalachicola, FL - campaign B is thinned and shortened in one half to illustrate the kind of canopy-loss contrast this feature is for, until a real verified pair from that area is available. The profile below uses a 5 m strip width for a denser illustrative figure; the app's own default is 2 m.
+Developed and maintained by **Cesar Ivan Alvites Diaz (Cesar Alvites)**, [University of Florida](https://cesarito2021.github.io/). [Contact](mailto:calvites1990@gmail.com).
 
-Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km, shown as **two side-by-side panels** (A left, B right) sharing one camera: rotate or zoom either panel and both move together. Cloud views default to the same Greens palette and source-elevation range in both panels. Profiles and distributions distinguish A and B in red and blue by default. Campaign-colour cloud views and other shared palettes remain available; the older screenshot above shows campaign-colour mode.
-
-Click **Draw profile line** to switch both panels to a top-down view together, then click two endpoints (in either panel) or drag a segment in any direction; the same line appears in both automatically. A single profile of both sampled clouds appears below, using their colours and original elevations. Adjust the strip width, show/hide either campaign, return to 3D, or download cloud views, the profile or the elevation distribution individually as PNG.
-
-The profile does not require height normalization. Both clouds must have compatible coordinate references; the app does not align them, fit curves or calculate changes. [Visual comparison guide](docs/TEMPORAL_COMPARISON.md).
-
-## 5. Share your dataset
-
-![Share your dataset form with fields, compatibility check and the progress alligator](docs/images/interface-submit-source.png)
-
-Use **Share ALS data** to choose **Share Zenodo dataset** or **Other data source**. The screenshot above is historical.
-
-The Zenodo form reads repository metadata, accepts supplied polygons or a labelled approximate extent, and queues proposals for team review. Track status using the complete proposal reference; the DOI identifies the dataset, not the submission. Only status and DOI are returned.
-
-Other sources require four fields: a public record link or DOI, a direct data/index link, acquisition platform and licence link. Acquisition dates, contact email, scope and a separate coverage link are optional. Confirm stable public institutional/scientific hosting and data reuse rights. Personal-drive, notebook and expiring download links are rejected; hosting suitability still needs manual review. Use Zenodo's dedicated tab for Zenodo links.
-
-**Check compatibility** checks anonymous file access or a small GeoJSON index. **Send my request** opens a private email draft for the contributor to review and send. No point clouds are downloaded and no source is automatically approved. An index links coverage polygons to original files; see [the data contribution guide](docs/CONTRIBUTING_DATA.md).
-
-After an AOI search, select tiles to see their known total size, export selected metadata or download an R script for local transfer. Downloads preserve complete original tiles; they do not clip files to the AOI. A metadata index does not make a large point-cloud file smaller, and 3D inspection remains optional.
-
-Your optional contact email is for review and acceptance replies and is not included in public GitHub issues. Inclusion requires maintainer approval. Automatic Zenodo notifications require separate administrator SMTP configuration. [Contact handling and acceptance reply](docs/CONTRIBUTOR_PRIVACY.md). [Observed approval times](docs/APPROVAL_TIMES.md) count only public metadata-only GitHub requests marked `source-approved`; private email requests are excluded.
-
-## Source examples
-
-The eight most representative entries are shown below, one or two per continent and access pattern. The catalogue currently has **36 entries covering 31 countries plus a global index service**: 8 with in-app search-and-download, 28 with only a linked official portal (no in-app adapter yet). For the complete list, grouped by continent, see **[Datasets by region](docs/DATASETS.md)**; for full access/licence text per entry, see **[the complete catalogue](inst/sources/README.md)** shipped inside the package together with a table of software dependencies. Portal references are distinguished from implemented downloads throughout. Two entries reviewed earlier (OpenTopography AUS11_Victor, Australia and PNOA LiDAR, Spain's original automated adapter) were removed: Australia's dataset carries no supplied reuse licence, and Spain's automated download-init returned an HTTP 403 - Spain still appears as a portal-only entry today. See [Review evidence](docs/ACTIVE_SOURCES.md) for both records.
-
-| Source / product | Official resource | Available workflow |
-|---|---|---|
-| USGS 3DEP | [USGS via Planetary Computer](https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc) | AOI search, original download, bounded preview. |
-| OpenTopography index service | [OpenTopography](https://opentopography.org/node/3598) | Local TileIndex files; dataset-specific access and terms. |
-| BR17_SaoPaulo, Brazil | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
-| Auckland_2013, New Zealand | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
-| CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Configured regional NRCan index; Athabasca search and original COPC decoding verified. The official ArcGIS service can supply index polygons; this adapter reads local GPKG/SHP files. |
-| IGN LiDAR HD, France | [Official record](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | UMR TETIS / INRAE STAC search; Paris sample search and original COPC decoding verified. |
-| AHN6, Netherlands | [AHN](https://www.ahn.nl/dataroom) | Native footprint search and original LAZ download; AHN6 only. |
-| swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native AOI search; LAS ZIP files are downloaded and extracted temporarily for 3D view. |
-
-The CanElevation adapter's legal basis is the **[Open Government Licence - Canada](https://open.canada.ca/en/open-government-licence-canada)**, which explicitly permits copying, redistributing and adapting the data, including commercially, with attribution - published directly on the official **[LiDAR Point Clouds - CanElevation Series dataset page](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947)**, the same page that lists the project/tile index files this adapter reads. Unlike the OpenTopography tutorial cited above, no separate official "how to consume this programmatically" guide was found for CanElevation from this session (no outbound network access beyond GitHub); if NRCan publishes one, it should replace or supplement this citation.
-
-Only aircraft, helicopter and UAV **laser scanning** are in scope. Automatic integration requires open-licensed, anonymous access, spatial coverage metadata and preserved provider attribution. The app downloads original files from their providers and does not host point clouds or bypass access restrictions. [Review evidence](docs/ACTIVE_SOURCES.md) · [European candidates](docs/EUROPE_ACCESS_REVIEW.md).
-
-In R, use `alsdownloader::provider_catalog()` for the full table, or locate the installed guide with `system.file("sources", "README.md", package = "alsdownloader")`.
-
-## Contact and citation
-
-**Cesar Alvites — developer and maintainer:** [calvites1990@gmail.com](mailto:calvites1990@gmail.com). Report reproducible software problems through [GitHub Issues](https://github.com/Cesarito2021/als_downloader/issues). Cite the package with `citation("alsdownloader")` and cite each dataset's DOI and producer separately.
+Use `citation("alsdownloader")` to cite the software. Cite each dataset's producer and DOI separately; exported metadata and reports preserve available source credits.
 
 ## Acknowledgement
 
 Developed within [OpenForest4D](https://openforest4d.org), funded by NSF awards **2409885, 2409886 and 2409887**.
 
-## License and disclaimer
+## Licences and credits
 
-ALS Downloader connects users to existing airborne LiDAR data held by external providers. Dataset rights remain with their respective rights holders. Users must follow each dataset's licence, attribution requirements and access conditions for their intended use, including commercial use and redistribution. Inclusion does not imply provider endorsement or grant additional permissions. See [source policies](inst/sources/POLICIES.md).
+Software: **GPL-3**. Dataset rights remain with their respective rights holders. Access through this application grants no additional permission and implies no provider endorsement. Follow each dataset's licence, citation requirements and service conditions.
 
-Software: **GPL-3**, without warranty. Source availability, spatial coverage and suitability are not guaranteed. Natural Earth supplies public-domain globe outlines; basemap credits remain visible. [Third-party notices](inst/NOTICE). The MIT licence belongs to the bundled html2canvas screenshot library, not the entire package or provider data. See [software, data and figure licensing](inst/sources/LICENSING.md).
+Leaflet and its R interface retain their software licences; Natural Earth supplies public-domain globe outlines. Esri basemaps have separate service and imagery conditions. Map credits must remain visible in exported figures.
 
-[Release checks and outstanding CRAN considerations](docs/CRAN_READINESS.md).
-
-### Session reports
-
-In Explore, open **PDF study report** after selecting tiles. The
-report includes the study-area footprint map, provider-reported dates, tile
-counts, known storage in GiB, concise conclusions, software citation and credits.
-The closing acknowledgement recognises OpenForest4D and NSF awards 2409885,
-2409886 and 2409887. Enable **Include technical appendix** for the file sample
-and illustrative transfer-time scenarios.
-Unknown sizes are excluded explicitly. Parallel workers do not determine network
-speed; scenarios are not download completion promises.
-
-The report automatically captures a centred satellite RGB map of the actual
-AOI and selected tiles, with dark footprints, a gold study boundary, scale bar
-and credits. The same composition is available as **Save centred RGB map PNG**.
-It does not move the Explore map. If imagery cannot load, the app reports the
-problem; turn off **Include centred satellite RGB map** to use a geometry-only
-map instead. Imagery dates do not represent LiDAR acquisition dates.
-
-To include point-cloud or comparison views, first use their camera buttons to
-save PNGs, then attach them in the report panel (up to six figures,
-10 MiB each). Legends and credits remain embedded; verify that attached figures
-match the study being reported. The compact summary is typically two pages;
-figures and lengthy source credits add pages. Original LAS/LAZ files are unchanged.
-The app offers one report format: PDF. It requires rmarkdown, Pandoc and a
-working TinyTeX installation on the app server.
-
-### Compare a source with your own point cloud
-
-In **Compare campaigns**, choose **Source campaign + my LAS/LAZ** to compare
-one catalogue campaign with your own cloud. Upload one LAS/LAZ (up to 1 GB),
-choose campaign A, confirm compatible coordinate/elevation references and set
-the source Z units when absent from metadata. This mode works with one available
-source date; the local file's date is not inferred. Both clouds must have the
-same embedded projected CRS. The app clips a 100–1000 m viewing window to the
-AOI and shared coverage, converts known units to metres, and samples at most
-50,000 displayed points per cloud. It does not align vertical datums or compute
-change. The local header bounding box is approximate coverage. Files exceeding
-50 million source points are rejected; use an external subset first. Original
-files are unchanged, and local uploads do not enter the community catalogue.
-
-For ordinary **Two source campaigns**, the existing requirement for two known,
-non-overlapping acquisition periods still applies.
-
-### Community Zenodo submissions
-
-Contributors choose whether they have coverage polygons. If not, they may declare
-an approximate square using a map centre and the distance from centre to each
-side: the default 1,000 m produces a 2 x 2 km square. Select the corresponding files and confirm
-that the square encloses them. It remains labelled approximate in review, email,
-catalogue dataset names and citations after approval. It can produce search
-matches in areas without points. No coverage is inferred or verified from clouds.
-
-**Share your dataset → Share a Zenodo dataset** asks for five items: the public
-Zenodo link or DOI, coverage polygons or a declared approximate extent, acquisition dates (unknown is allowed),
-ALS/UAV platform and an optional private contact email. Reading metadata retrieves
-the version DOI, title, authors, licence, description, notes, filenames and sizes.
-Publication dates are never substituted for survey dates. No point cloud is
-downloaded or analysed during submission.
-
-Coverage can be uploaded as GeoJSON, a single-layer GeoPackage or a zipped
-Shapefile with its CRS (at most 5 MiB). A small coverage file already listed in
-the record can instead be selected. A single LAS/LAZ asset is mapped automatically;
-for several assets, include a `file_key` column with the exact Zenodo filename
-for each polygon. Multiple polygons for an asset are combined. ZIP assets are
-supported as whole-archive downloads; contents require maintainer verification.
-For 3D view, ZIP files are extracted temporarily (1 GiB download, 2 GiB total
-uncompressed limit). A single LAS/LAZ opens automatically; multiple clouds require
-selecting a member and loading again. No clouds are merged automatically. Other
-archive formats and ZIP inputs to remote comparison are not supported.
-Unknown coverage cannot be inferred from a DOI or an arbitrary map location.
-The approximate option requires a declared centre, 1 to 10,000 m to each side,
-latitude between -85 and 85 degrees, and explicit file selection. Disjoint surveys
-should use separate proposals or polygons rather than a large square bridging gaps.
-
-For a local maintainer installation, configure a persistent private directory:
-
-```r
-launch_app(submission_dir = "~/als-private-review", reviewer = "Your name")
-```
-
-The **Review Zenodo requests** screen shows pending coverage, files and credits.
-The maintainer must confirm the file/footprint mapping, aerial LiDAR content,
-dates and licence obligations before approving. Approval rechecks metadata and
-saves an index; only approved indexes participate in subsequent AOI searches.
-Rejection, reviewer identity and decision notes are recorded privately. Identical
-proposals are deduplicated. Source data remain on Zenodo with their own licences;
-approval does not relicense them. Optional [email notifications](docs/ZENODO_EMAIL_SETUP.md)
-require administrator configuration.
-
-On a public deployment, configure `submission_dir` on persistent private storage
-outside web assets and omit `reviewer`. Review the same queue from a separate
-trusted local installation; the built-in reviewer UI is not an authentication
-system. `launch_app()` restricts reviewer mode to localhost. Protect queue access
-and apply deployment-level submission rate limits before opening a public service.
-If no queue is configured, users can save their proposal JSON and share it
-privately; a maintainer can enqueue it with `submit_zenodo()`.
-
-The R equivalents are `inspect_zenodo()`, `prepare_zenodo_submission()`,
-`submit_zenodo()`, `zenodo_submissions()` and `review_zenodo_submission()`.
-No community records ship pre-approved. Tests use fictitious local metadata and
-polygons; live-record acceptance and public-service load testing remain separate.
-
-### Reports before downloading
-
-After a search, choose **Study report (PDF)** in the sidebar, then **Download report (PDF)**. The report shows selected tiles, or all results if nothing is selected, with known storage and unknown file sizes. Expand **Report options and figures** for the RGB map, optional PNG attachments and transfer-time scenarios. The PDF does not require downloading point clouds.
+[Third-party notices](inst/NOTICE) · [Data and figure licensing](inst/sources/LICENSING.md) · [Access and intellectual-property review](inst/sources/USE_REVIEW.md) · [CRAN readiness](docs/CRAN_READINESS.md)
