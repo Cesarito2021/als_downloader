@@ -21,7 +21,7 @@ header-includes:
   - \definecolor{alsaccent}{HTML}{176B68}
   - \makeatletter
   - \renewcommand\section{\@startsection{section}{1}{\z@}{-2ex plus -1ex minus -.2ex}{1ex plus .2ex}{\normalfont\large\bfseries\color{alsaccent}}}
-  - \def\@maketitle{\noindent{\color{alsaccent}\Huge\bfseries\@title\par}\vspace{0.7em}}
+  - \def\@maketitle{}
   - \renewcommand\subsection[1]{\par\vspace{1.4em}{\large\bfseries\color{alsaccent}#1\par}\vspace{.3em}{\color{alsaccent}\hrule}\vspace{.7em}}
   - \makeatother
 ---
@@ -53,6 +53,17 @@ dates <- if (has_tiles) sort(unique(na.omit(c(as.character(tiles_df$acquired_sta
 dates <- dates[nzchar(dates)]
 area_label <- if (length(aoi_area_km2) == 1 && is.finite(aoi_area_km2)) sprintf("%.4f km2", aoi_area_km2) else "Not recorded"
 date_label <- if (length(dates)) paste(min(dates), "to", max(dates)) else "Not reported"
+```
+
+```{r report-banner}
+if (knitr::is_latex_output()) {
+  banner <- normalizePath(system.file("report", "banner.png", package = "alsdownloader"), winslash = "/", mustWork = TRUE)
+  cat(paste0("```{=latex}\n\\noindent\\begin{minipage}[c]{0.50\\linewidth}\n",
+    "\\includegraphics[width=\\linewidth,height=2cm,keepaspectratio]{\\detokenize{", banner, "}}\n",
+    "\\end{minipage}\\hfill\\begin{minipage}[c]{0.45\\linewidth}\\raggedleft\n",
+    "{\\color{alsaccent}\\Large\\bfseries Study report}\\par\n",
+    "\\end{minipage}\\par\\vspace{0.8em}\n```\n\n"))
+}
 ```
 
 Discover, inspect and download airborne LiDAR. A visual summary of your selected data, with source information to support the next step in your study.
