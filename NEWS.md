@@ -1,5 +1,9 @@
 # alsdownloader 0.1.0
 
+* Let Zenodo contributors select existing boundary files or declare an approximate
+  square from a map centre and metric half-width. Require explicit asset selection
+  and confirmation; preserve approximate labels in review, mail and catalogue.
+
 * Add optional SMTP notifications for queued Zenodo proposals, private email
   previews, delivery receipts and links to the matching local review screen.
   Opening a link never approves a proposal; explicit maintainer review remains
