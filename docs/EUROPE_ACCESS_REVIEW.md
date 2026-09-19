@@ -117,3 +117,28 @@ definition of Europe.
 
 No new adapter or new active provider was enabled by this document. The review
 does not certify uptime, every tile, or permissions for all products of an agency.
+
+## Checked and deferred: Norway, Poland, Estonia, Germany (18 September 2026)
+
+After building live-query adapters for France (STAC, confirmed file download)
+and a local-index adapter for Canada (confirmed public S3 bucket file
+download), these four were reviewed as the next candidates and found to lack
+comparable evidence - **no adapter was built for any of them**:
+
+- **Poland (GUGiK)**: `docs/dataset-candidates.csv` records the official page
+  as reachable (HTTP 200, after an initial TLS certificate-chain failure) and
+  documents WMS GetFeatureInfo download URLs and WFS indexes by vertical
+  datum, but explicitly notes "**File untested**" - no anonymous file
+  download was ever confirmed.
+- **Norway (Kartverket/Hoydedata), Estonia (Maa-amet), Germany/Saxony
+  (GeoSN)**: only page-level reachability is recorded (`docs/link-checks.csv`
+  for Estonia); none has a confirmed anonymous LAS/LAZ file download.
+
+Building a local-index adapter (the pattern used for CanElevation) does not
+strictly require a live-tested file download, since the app only reads a
+tile index the user already downloaded from the official portal themselves -
+but it does require knowing the index's actual field schema and file-host
+pattern well enough to write correct, non-speculative code, and none of
+these four have that documented yet. Revisit once a real file
+download (host, response code, LAS signature) is confirmed for one of them,
+the way `docs/file-access-checks.csv` already does for Canada and Switzerland.

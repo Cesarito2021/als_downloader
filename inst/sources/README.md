@@ -5,6 +5,8 @@ links and software dependencies without bundling or rehosting point clouds.
 
 - [Complete source table](SOURCES.md): all catalogue entries, official links,
   access conditions and implementation status.
+- [Datasets by region](../../docs/DATASETS.md): the same catalogue, grouped by
+  continent, without the full access/licence text - for browsing at a glance.
 - [Dataset policies](POLICIES.md): official licence references, reuse conditions
   and unresolved permissions; file accessibility is not legal clearance.
 - [R dependency table](DEPENDENCIES.md): required and optional libraries and

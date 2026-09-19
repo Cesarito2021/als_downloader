@@ -9,10 +9,13 @@ comparison_ui <- function() {
       shiny::actionButton("download_epoch_b", "Select B tiles for download"))),
     shiny::selectInput("compare_side_m", "Preview square side", choices = c("100 m (default)" = 100, "250 m" = 250, "500 m" = 500, "1 km" = 1000), selected = 100),
     shiny::helpText("A small window is placed in the largest shared footprint and clipped to your AOI. Draw a smaller AOI in Explore to choose its location. The automatic location is not guaranteed to represent the forest."),
-    shiny::helpText("Visualization only: square side 100 m to 1 km (100 m = 0.01 km2; 1 km = 1 km2). At most four tiles and 200 MB per campaign, 100 MB per tile. Both clouds require the same embedded projected CRS in metres."),
+    shiny::helpText("Visualization only: square side 100 m to 1 km (100 m = 0.01 km2; 1 km = 1 km2). At most four tiles and 600 MB per campaign, 300 MB per tile. Both clouds require the same embedded projected CRS in metres."),
     shiny::textOutput("compare_availability"), shiny::uiOutput("compare_load_control"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
-    shiny::tags$canvas(id = "als-compare-cloud", class = "als-point-cloud", role = "img", tabindex = "0", `aria-label` = "Two georeferenced campaign point clouds. Drag to rotate; plus/minus to zoom; zero to fit."),
+    shiny::tags$div(class = "als-compare-split",
+      shiny::tags$canvas(id = "als-compare-cloud-a", class = "als-point-cloud als-compare-panel", role = "img", tabindex = "0", `aria-label` = "Campaign A point cloud. Drag to rotate (synced with panel B); plus/minus to zoom; zero to fit."),
+      shiny::tags$canvas(id = "als-compare-cloud-b", class = "als-point-cloud als-compare-panel", role = "img", tabindex = "0", `aria-label` = "Campaign B point cloud. Drag to rotate (synced with panel A); plus/minus to zoom; zero to fit.")),
+    shiny::helpText("Panels A and B share one camera: drag or zoom either one and both rotate together, so the same view compares both clouds side by side."),
     shiny::tags$div(class="als-profile-tools",
       shiny::tags$button(id="profile_draw",type="button",class="btn btn-default",disabled=TRUE,"Draw profile line"),
       shiny::tags$button(id="profile_3d",type="button",class="btn btn-default",disabled=TRUE,"Return to 3D"),
@@ -20,16 +23,21 @@ comparison_ui <- function() {
       shiny::tags$label(`for`="profile_width","Profile strip width (m)"),
       shiny::tags$input(id="profile_width",type="number",min=0.2,max=100,step=0.2,value=2),
       shiny::tags$button(id="export_cloud",type="button",class="btn btn-default",disabled=TRUE,"Download cloud figure")),
-    shiny::tags$p(id="profile_hint",role="status",`aria-live`="polite","Load two clouds to draw a profile. Drawing switches to a plan view: click the start and end, or drag a line in any direction. Escape cancels drawing."),
+    shiny::tags$p(id="profile_hint",role="status",`aria-live`="polite","Load two clouds to draw a profile. Drawing switches both panels to a plan view: click the start and end in either one, or drag a line in any direction; the same segment appears in both. Escape cancels drawing."),
     shiny::tags$div(id="profile_panel",hidden=NA,
-      shiny::h4("Profile along the selected line"),
+      shiny::h4("Profile along the selected line (both campaigns)"),
       shiny::tags$canvas(id="als-compare-profile",class="als-profile-canvas",role="img",`aria-label`="Distance and elevation profile of sampled points from both campaigns"),
       shiny::tags$div(class="als-profile-tools",
         shiny::tags$button(id="export_profile",type="button",class="btn btn-default",disabled=TRUE,"Download profile figure"),
         shiny::tags$button(id="export_combined",type="button",class="btn btn-default",disabled=TRUE,"Download both figures"))),
-    shiny::helpText("A (earlier) is light purple and B (later) is pale yellow on black. Colours identify campaigns, not measured change. Profiles show sampled points within the chosen strip, without fitted curves or calculated differences."),
-    shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A color / palette", c("Light purple", "Pale yellow", "Blue", "Red", "Grey", "Cyan", "Orange", "Viridis", "Magma", "Plasma", "Cividis"))),
-      shiny::column(4, shiny::selectInput("compare_palette_b", "B color / palette", c("Pale yellow", "Light purple", "Red", "Blue", "Grey", "Orange", "Cyan", "Magma", "Viridis", "Plasma", "Cividis"))),
+    shiny::tags$div(class="als-density-panel",
+      shiny::h4("Elevation distribution (both campaigns)"),
+      shiny::tags$canvas(id="als-compare-density", class="als-density-canvas", role="img",
+        `aria-label`="Elevation density histograms for campaigns A and B, with each campaign's sample count and mean elevation."),
+      shiny::helpText("Density of all currently loaded points by elevation, not a modeled distribution or a calculated difference between campaigns.")),
+    shiny::helpText("A (earlier) is red and B (later) is blue on black, for a clearer contrast between the two clouds. Colours identify campaigns, not measured change. Profiles show sampled points within the chosen strip, without fitted curves or calculated differences."),
+    shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A color / palette", c("Red", "Light purple", "Pale yellow", "Blue", "Grey", "Cyan", "Orange", "Viridis", "Magma", "Plasma", "Cividis"), selected = "Red")),
+      shiny::column(4, shiny::selectInput("compare_palette_b", "B color / palette", c("Blue", "Pale yellow", "Light purple", "Red", "Grey", "Orange", "Cyan", "Magma", "Viridis", "Plasma", "Cividis"), selected = "Blue")),
       shiny::column(4, shiny::sliderInput("compare_exaggeration", "Vertical exaggeration", 1, 12, 1, step = 1))),
     shiny::checkboxInput("compare_focus", "Focus camera on central 98% (display only; turn off to fit all points)", TRUE),
     shiny::checkboxInput("compare_show_a", "Show A", TRUE), shiny::checkboxInput("compare_show_b", "Show B", TRUE),
@@ -106,9 +114,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
       cmp$dates <- NULL
       cmp$files <- NULL
       state$comparison_busy <- TRUE; cmp$status <- "Loading both clouds inside the overlapping area..."
-      cmp$job <- callr::r_bg(function(compare, a, b, aoi, directory)
-        compare(a, b, aoi, directory),
-        args = list(compare_campaigns, a, b, overlap, cmp$directory), supervise = TRUE)
+      cmp$job <- background_job("compare_campaigns", list(a, b, overlap, cmp$directory))
     }, error = function(e) {cmp$status <- conditionMessage(e); cleanup()})
   })
   shiny::observe({

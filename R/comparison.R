@@ -89,11 +89,11 @@ compare_campaigns <- function(a, b, aoi, directory) {
     stop("Use an AOI intersecting at most four tiles per campaign for this preview.")
   reference <- NULL
   read_epoch <- function(rows, prefix) {
-    remaining <- 200 * 1024^2
+    remaining <- 600 * 1024^2
     point_budget <- 2000000L
     clouds <- lapply(seq_len(nrow(rows)), function(i) {
       writeLines(sprintf("Campaign %s: downloading/reading tile %s of %s", toupper(prefix), i, nrow(rows)), file.path(directory, "progress.txt"))
-      cloud <- preview_remote_tile(rows[i, , drop = FALSE], max_bytes = min(100 * 1024^2, remaining),
+      cloud <- preview_remote_tile(rows[i, , drop = FALSE], max_bytes = min(300 * 1024^2, remaining),
         path = file.path(directory, paste0(prefix, i, ".laz")),
         reader = function(path) {
           remaining <<- remaining - file.size(path)

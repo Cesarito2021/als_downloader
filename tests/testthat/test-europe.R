@@ -22,6 +22,26 @@ test_that("European adapters select cloud assets and filter exact footprints", {
   expect_equal(nrow(search_europe(away,"ahn6",10)),0L)
 })
 
+test_that("France LiDAR HD adapter selects COPC assets, host and reported dates", {
+  aoi <- sf::st_as_sfc(sf::st_bbox(c(xmin=5.7,ymin=45.1,xmax=5.73,ymax=45.12),crs=4326))
+  geometry <- list(type="Polygon",coordinates=list(list(c(5.7,45.1),c(5.73,45.1),c(5.73,45.12),c(5.7,45.12),c(5.7,45.1))))
+  f <- list(id="LHD_FXX_0913_6450_PTS_LAMB93_IGN69_PM",geometry=geometry,
+    properties=list(start_datetime="2021-08-06T00:00:00Z",end_datetime="2021-08-06T23:59:59Z"),
+    assets=list(data=list(href="https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/x/LHD_FXX_0913_6450_PTS_LAMB93_IGN69.copc.laz")))
+  local_mocked_bindings(native_pages=function(...)list(f),.package="alsdownloader")
+  x <- search_europe(aoi,"ignfr",10)
+  expect_equal(nrow(x),1L)
+  expect_match(x$url,"data.geopf.fr/telechargement/download/",fixed=TRUE)
+  expect_equal(x$dataset,"IGN LiDAR HD")
+  expect_equal(x$acquired_start,"2021-08-06");expect_equal(x$acquired_end,"2021-08-06")
+  expect_match(x$license_url,"etalab-2.0",fixed=TRUE)
+  expect_match(x$citation,"INRAE",fixed=TRUE)
+
+  bad <- f; bad$assets$data$href <- "https://evil.example/x.copc.laz"
+  local_mocked_bindings(native_pages=function(...)list(bad),.package="alsdownloader")
+  expect_error(search_europe(aoi,"ignfr",10),"Unexpected France")
+})
+
 test_that("pagination cannot silently cross hosts or exceed limits", {
   local_mocked_bindings(request_json=function(...)list(type="FeatureCollection",features=list(list(id="a")),links=list(list(rel="next",href="https://other.example/items"))),.package="alsdownloader")
   expect_error(native_pages("https://example.org/items","https://example.org/",10),"Unexpected")

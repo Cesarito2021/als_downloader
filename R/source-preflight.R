@@ -61,11 +61,11 @@ source_preflight <- function(url, directory, head_request = function(url, config
 }
 
 source_preflight_ui <- function() shiny::tagList(
-  shiny::helpText("LAS/LAZ links: HTTP headers only. GeoJSON tile indexes: at most 5 MiB of metadata, with footprints and file links checked. No point clouds are transferred."),
+  shiny::helpText("We'll just peek at your link: HTTP headers only for LAS/LAZ, or up to 5 MiB of metadata for a GeoJSON tile index (footprints and file links checked). No point clouds are ever transferred."),
   shiny::actionButton("source_test", "Check compatibility"),
   shiny::actionButton("source_test_cancel", "Cancel test"),
   shiny::uiOutput("source_test_progress"),
-  shiny::helpText("100% means the link checks completed and the request is ready for your review, not publication approval. No point clouds are downloaded or displayed."))
+  shiny::helpText("Reaching 100% means the technical checks passed and your request is ready for review - not publication approval yet. No point clouds are downloaded or displayed."))
 
 source_preflight_server <- function(input, output, session, state, mode, hosted_lock) {
   check <- shiny::reactiveValues(job=NULL,directory=NULL,locked=FALSE,percent=0,message="Optional: check the source connection without downloading data.",summary="Not tested",ready=FALSE)
@@ -94,7 +94,7 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
       }
       check$directory <- tempfile("als-source-test-");dir.create(check$directory)
       state$source_test_busy <- TRUE;check$percent <- 5;check$message <- "Starting connection check"
-      check$job <- callr::r_bg(function(check_link,url,directory) check_link(url,directory),args=list(source_preflight,trimws(input$source_url),check$directory),supervise=TRUE)
+      check$job <- background_job("source_preflight", list(trimws(input$source_url), check$directory))
     },error=function(e){cleanup();check$message <- conditionMessage(e)})
   })
   shiny::observe({

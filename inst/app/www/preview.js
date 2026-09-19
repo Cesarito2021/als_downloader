@@ -9,14 +9,13 @@
     Blue: [[75,158,255],[75,158,255]], Red: [[255,99,105],[255,99,105]],
     Cyan: [[0,220,240],[0,220,240]], Orange: [[255,150,50],[255,150,50]]
   };
+  const makeLut = colors => Array.from({length:256},(_,n)=>{
+    const v=n/255*(colors.length-1),i=Math.min(colors.length-2,Math.floor(v)),t=v-i;
+    return 'rgb('+colors[i].map((x,j)=>Math.round(x+(colors[i+1][j]-x)*t)).join(',')+')';
+  });
   function viewer(c) {
-    const comparison=c.id==='als-compare-cloud';
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=1.08,exag=2,zoom=1,drag=null,palette='Viridis';
-    let groups=[],paletteB='Magma',showA=true,showB=true,focusCentral=true;
     let initialPitch=1.08,pointSize=1.8;
-    let labels=[],camera=null,crs='';
-    if(comparison){palette='Light purple';paletteB='Pale yellow';exag=1;}
-    const profile=comparison && window.ALSProfile ? window.ALSProfile(c,()=>({points,groups,origin,extent,labels,crs,palette,paletteB,showA,showB,focusCentral,palettes,camera,pitch,exag}),draw,()=>{pitch=0;yaw=0;zoom=1;draw();}) : null;
     function draw() {
       if (!c.clientWidth) return;
       const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
@@ -24,34 +23,20 @@
       const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
       ctx.fillStyle='#05080c';ctx.fillRect(0,0,w,h);
       ctx.fillStyle='#adbeca';ctx.font='12px system-ui';
-      if(!points.length){ctx.fillText(comparison?'Choose two overlapping clouds to view together.':'Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
+      if(!points.length){ctx.fillText('Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
       const co=Math.cos(yaw),si=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
       let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
-      const ordered=points.map((p,index)=>{
+      const ordered=points.map(p=>{
         const x=p[0]-extent[0]/2,y=p[1]-extent[1]/2,z=(p[2]-extent[2]/2)*exag;
         const rx=x*co-y*si,ry=x*si+y*co,py=ry*cp-z*sp;
         xmin=Math.min(xmin,rx);xmax=Math.max(xmax,rx);ymin=Math.min(ymin,py);ymax=Math.max(ymax,py);
-        return [rx,py,ry*sp+z*cp,p[2],groups[index]||0];
+        return [rx,py,ry*sp+z*cp,p[2]];
       }).sort((a,b)=>a[2]-b[2]);
-      // Camera framing only: retain every point, but let users avoid extreme
-      // returns compressing the whole cloud into a tiny area of the viewport.
-      if(comparison && focusCentral && ordered.length>100){
-        const xs=ordered.map(p=>p[0]).sort((a,b)=>a-b),ys=ordered.map(p=>p[1]).sort((a,b)=>a-b);
-        const lo=Math.floor((ordered.length-1)*.01),hi=Math.ceil((ordered.length-1)*.99);
-        xmin=xs[lo];xmax=xs[hi];ymin=ys[lo];ymax=ys[hi];
-      }
       // Fit projected bounds to the landscape canvas, with room for the legend.
       const scale=Math.min((w-60)/Math.max(xmax-xmin,1),(h-110)/Math.max(ymax-ymin,1))*zoom;
-      camera={scale,cx:(xmin+xmax)/2,cy:(ymin+ymax)/2,w,h,co,si};
-      const colors=palettes[palette];
-      const makeLut=colors=>Array.from({length:256},(_,n)=>{
-        const v=n/255*(colors.length-1),i=Math.min(colors.length-2,Math.floor(v)),t=v-i;
-        return 'rgb('+colors[i].map((x,j)=>Math.round(x+(colors[i+1][j]-x)*t)).join(',')+')';
-      });
-      const lut=makeLut(colors),lutB=makeLut(palettes[paletteB]);
+      const lut=makeLut(palettes[palette]);
       for(const p of ordered){
-        if((p[4]===0&&!showA)||(p[4]===1&&!showB))continue;
-        ctx.fillStyle=(p[4]===1?lutB:lut)[Math.round(255*p[3]/(extent[2]||1))];
+        ctx.fillStyle=lut[Math.round(255*p[3]/(extent[2]||1))];
         ctx.fillRect((p[0]-(xmin+xmax)/2)*scale+w/2,(p[1]-(ymin+ymax)/2)*scale+(h-45)/2,pointSize,pointSize);
       }
       function legend(name,x,width,label){
@@ -64,22 +49,16 @@
         ctx.fillText(Number(origin[2]).toFixed(1),x,h-15);
         ctx.textAlign='right';ctx.fillText((Number(origin[2])+extent[2]).toFixed(1),x+width,h-15);
       }
-      const legendWidth=groups.length?Math.min(180,(w-60)/2):180;
-      legend(palette,20,legendWidth,groups.length?'A':'Elevation');
-      if(groups.length)legend(paletteB,w-20-legendWidth,legendWidth,'B');
-      if(groups.length){ctx.textAlign='left';ctx.fillStyle='#e0eaf0';ctx.fillText('A: '+palette+(showA?'':' (hidden)')+' | B: '+paletteB+(showB?'':' (hidden)'),20,20);}
-      if(profile)profile.render(ctx);
+      legend(palette,20,180,'Elevation');
     }
     function fit(){yaw=initialYaw;pitch=initialPitch;zoom=1;draw();}
-    c.onpointerdown=e=>{if(profile?.pointer('down',e))return;drag=[e.clientX,e.clientY];c.setPointerCapture(e.pointerId);c.focus();};
-    c.onpointermove=e=>{if(profile?.pointer('move',e))return;if(!drag)return;yaw+=(e.clientX-drag[0])*.008;pitch=Math.max(0,Math.min(1.5,pitch+(e.clientY-drag[1])*.008));drag=[e.clientX,e.clientY];draw();};
-    c.onpointerup=e=>{if(profile?.pointer('up',e))return;drag=null;};
-    c.onpointercancel=()=>{drag=null;profile?.cancel();};
+    c.onpointerdown=e=>{drag=[e.clientX,e.clientY];c.setPointerCapture(e.pointerId);c.focus();};
+    c.onpointermove=e=>{if(!drag)return;yaw+=(e.clientX-drag[0])*.008;pitch=Math.max(0,Math.min(1.5,pitch+(e.clientY-drag[1])*.008));drag=[e.clientX,e.clientY];draw();};
+    c.onpointerup=()=>{drag=null;};
+    c.onpointercancel=()=>{drag=null;};
     c.onwheel=e=>{e.preventDefault();zoom=Math.max(.4,Math.min(8,zoom*Math.exp(-e.deltaY*.001)));draw();};
-    c.ondblclick=()=>{if(!profile?.isDrawing())fit();};
+    c.ondblclick=()=>fit();
     c.onkeydown=e=>{
-      if(e.key==='Escape'){profile?.cancel();return;}
-      if(profile?.isDrawing())return;
       if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','0'].includes(e.key))return;
       e.preventDefault();if(e.key==='0'){fit();return;}
       if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;
@@ -88,6 +67,148 @@
     };
     const observer=new ResizeObserver(draw);observer.observe(c);draw();
     return {dispose(){observer.disconnect();},load(data){
+      points=data.points;origin=data.origin;extent=[0,0,0];
+      let sx=0,sy=0,sxx=0,syy=0,sxy=0;
+      for(const p of points){for(let j=0;j<3;j++)extent[j]=Math.max(extent[j],p[j]);sx+=p[0];sy+=p[1];sxx+=p[0]*p[0];syy+=p[1]*p[1];sxy+=p[0]*p[1];}
+      const n=points.length||1;
+      initialYaw=-.5*Math.atan2(2*(sxy-sx*sy/n),sxx-sx*sx/n-syy+sy*sy/n);
+      fit();},
+      update(data){if(data.focusCentral!=null){}if(data.exaggeration!=null)exag=data.exaggeration;if(palettes[data.palette])palette=data.palette;
+        if(data.pointSize!=null)pointSize=Math.max(.7,Math.min(3,data.pointSize));
+        if(data.pose){initialPitch=data.pose==='forest'?1.38:1.08;fit();}
+        if(data.fit)fit();else draw();}};
+  }
+  // Two synced side-by-side panels: A and B always show one campaign each, sharing
+  // one camera (rotation/zoom) and one profile-line selection drawn across both.
+  function comparisonViewer(ca, cb) {
+    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=1.08,exag=1,zoom=1,drag=null;
+    let groups=[],palette='Red',paletteB='Blue',showA=true,showB=true,focusCentral=true;
+    let initialPitch=1.08,pointSize=1.8,labels=[],camera=null,crs='';
+    let ordered=[],xmin=0,xmax=0,ymin=0,ymax=0,scale=1;
+    const dc=document.getElementById('als-compare-density');
+    // A simple binned count of loaded Z values per campaign: how much of each
+    // cloud sits at each elevation, not a fitted or modeled distribution.
+    function renderDensity(){
+      if(!dc||!dc.clientWidth)return;
+      const w=dc.clientWidth,h=220,dpr=Math.min(devicePixelRatio||1,2);
+      dc.width=w*dpr;dc.height=h*dpr;const g=dc.getContext('2d');g.scale(dpr,dpr);
+      g.fillStyle='#05080c';g.fillRect(0,0,w,h);
+      g.font='12px system-ui';
+      if(!points.length){g.fillStyle='#adbeca';g.fillText('Load two clouds to see their elevation distribution.',20,30);return;}
+      const za=[],zb=[];
+      for(let i=0;i<points.length;i++)(groups[i]===1?zb:za).push(points[i][2]);
+      const left=56,right=16,top=34,bottom=30,pw=Math.max(10,w-left-right),ph=Math.max(10,h-top-bottom);
+      const all=za.concat(zb);
+      let zmin=Math.min(...all),zmax=Math.max(...all);
+      if(!isFinite(zmin)||!isFinite(zmax))return;
+      if(zmin===zmax){zmin-=1;zmax+=1;}
+      const bins=32,binWidth=(zmax-zmin)/bins;
+      function hist(arr){const counts=new Array(bins).fill(0);
+        for(const z of arr){let i=Math.floor((z-zmin)/binWidth);if(i<0)i=0;if(i>=bins)i=bins-1;counts[i]++;}
+        return counts;}
+      const ha=hist(za),hb=hist(zb),maxCount=Math.max(1,...ha,...hb);
+      function bars(counts,color){g.fillStyle=color;
+        for(let i=0;i<bins;i++){const bh=counts[i]/maxCount*ph;
+          g.fillRect(left+i/bins*pw,top+ph-bh,pw/bins-1,bh);}}
+      g.save();g.beginPath();g.rect(left,top,pw,ph);g.clip();g.globalAlpha=.55;
+      bars(ha,'#ff6369');bars(hb,'#4b9eff');g.globalAlpha=1;g.restore();
+      g.strokeStyle='#33404e';g.lineWidth=1;g.beginPath();
+      g.moveTo(left,top);g.lineTo(left,top+ph);g.lineTo(left+pw,top+ph);g.stroke();
+      g.fillStyle='#c7d6df';g.textAlign='center';g.font='11px system-ui';
+      g.fillText(zmin.toFixed(1)+' m',left,top+ph+16);g.fillText(zmax.toFixed(1)+' m',left+pw,top+ph+16);
+      g.textAlign='left';g.font='12px system-ui';
+      const mean=arr=>arr.reduce((a,b)=>a+b,0)/arr.length;
+      g.fillStyle='#ff9fa3';
+      g.fillText('A: n='+za.length+(za.length?', mean '+mean(za).toFixed(2)+' m':' (hidden or none loaded)'),left,20);
+      g.fillStyle='#9fc8ff';
+      g.fillText('B: n='+zb.length+(zb.length?', mean '+mean(zb).toFixed(2)+' m':' (hidden or none loaded)'),left+Math.min(260,pw/2+20),20);
+    }
+    const profile = window.ALSProfile ? window.ALSProfile([ca,cb],
+      ()=>({points,groups,origin,extent,labels,crs,palette,paletteB,showA,showB,focusCentral,palettes,camera,pitch,exag}),
+      drawBoth, ()=>{pitch=0;yaw=0;zoom=1;drawBoth();}) : null;
+    function project(){
+      if(!points.length){ordered=[];return;}
+      const co=Math.cos(yaw),si=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+      xmin=Infinity;xmax=-Infinity;ymin=Infinity;ymax=-Infinity;
+      ordered=points.map((p,index)=>{
+        const x=p[0]-extent[0]/2,y=p[1]-extent[1]/2,z=(p[2]-extent[2]/2)*exag;
+        const rx=x*co-y*si,ry=x*si+y*co,py=ry*cp-z*sp;
+        xmin=Math.min(xmin,rx);xmax=Math.max(xmax,rx);ymin=Math.min(ymin,py);ymax=Math.max(ymax,py);
+        return [rx,py,ry*sp+z*cp,p[2],groups[index]||0];
+      }).sort((a,b)=>a[2]-b[2]);
+      // Shared bounds across both campaigns keep A and B on the same scale, so
+      // their relative height and position stay comparable side by side.
+      if(focusCentral&&ordered.length>100){
+        const xs=ordered.map(p=>p[0]).sort((a,b)=>a-b),ys=ordered.map(p=>p[1]).sort((a,b)=>a-b);
+        const lo=Math.floor((ordered.length-1)*.01),hi=Math.ceil((ordered.length-1)*.99);
+        xmin=xs[lo];xmax=xs[hi];ymin=ys[lo];ymax=ys[hi];
+      }
+    }
+    function panel(c, groupFilter, activePalette){
+      if(!c.clientWidth) return null;
+      const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
+      c.width=w*dpr;c.height=h*dpr;
+      const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+      ctx.fillStyle='#05080c';ctx.fillRect(0,0,w,h);
+      ctx.fillStyle='#adbeca';ctx.font='12px system-ui';
+      if(!points.length){ctx.fillText('Choose two overlapping clouds to view together.',20,35);return ctx;}
+      const visible=groupFilter===0?showA:showB;
+      if(visible){
+        const lut=makeLut(palettes[activePalette]);
+        for(const p of ordered){
+          if(p[4]!==groupFilter)continue;
+          ctx.fillStyle=lut[Math.round(255*p[3]/(extent[2]||1))];
+          ctx.fillRect((p[0]-(xmin+xmax)/2)*scale+w/2,(p[1]-(ymin+ymax)/2)*scale+(h-45)/2,pointSize,pointSize);
+        }
+      }
+      const legendWidth=Math.min(180,Math.max(40,w-40));
+      const stops=palettes[activePalette];const gradient=ctx.createLinearGradient(20,0,20+legendWidth,0);
+      stops.forEach((s,i)=>gradient.addColorStop(i/(stops.length-1),'rgb('+s.join(',')+')'));
+      ctx.fillStyle='rgba(8,14,20,.95)';ctx.fillRect(10,h-70,legendWidth+20,65);
+      ctx.fillStyle=gradient;ctx.fillRect(20,h-40,legendWidth,7);
+      ctx.fillStyle='#c7d6df';
+      ctx.fillText(activePalette+' · Z ×'+exag+(visible?'':' (hidden)')+(labels[groupFilter]?(' | '+labels[groupFilter]):''),20,h-50);
+      ctx.fillText(Number(origin[2]).toFixed(1),20,h-15);
+      ctx.textAlign='right';ctx.fillText((Number(origin[2])+extent[2]).toFixed(1),20+legendWidth,h-15);
+      ctx.textAlign='left';
+      return ctx;
+    }
+    function drawBoth(){
+      project();
+      const w=Math.max(ca.clientWidth||1,1),h=Math.max(ca.clientHeight||1,1);
+      scale=points.length?Math.min((w-60)/Math.max(xmax-xmin,1),(h-110)/Math.max(ymax-ymin,1))*zoom:1;
+      camera={scale,cx:(xmin+xmax)/2,cy:(ymin+ymax)/2,co:Math.cos(yaw),si:Math.sin(yaw)};
+      const ctxA=panel(ca,0,palette),ctxB=panel(cb,1,paletteB);
+      if(profile){
+        if(ctxA)profile.renderOverlay(ctxA,ca);
+        if(ctxB)profile.renderOverlay(ctxB,cb);
+        profile.renderChart();
+      }
+      renderDensity();
+    }
+    function fit(){yaw=initialYaw;pitch=initialPitch;zoom=1;drawBoth();}
+    function attach(c){
+      c.onpointerdown=e=>{if(profile?.pointer('down',e))return;drag=[e.clientX,e.clientY];c.setPointerCapture(e.pointerId);c.focus();};
+      c.onpointermove=e=>{if(profile?.pointer('move',e))return;if(!drag)return;yaw+=(e.clientX-drag[0])*.008;pitch=Math.max(0,Math.min(1.5,pitch+(e.clientY-drag[1])*.008));drag=[e.clientX,e.clientY];drawBoth();};
+      c.onpointerup=e=>{if(profile?.pointer('up',e))return;drag=null;};
+      c.onpointercancel=()=>{drag=null;profile?.cancel();};
+      c.onwheel=e=>{e.preventDefault();zoom=Math.max(.4,Math.min(8,zoom*Math.exp(-e.deltaY*.001)));drawBoth();};
+      c.ondblclick=()=>{if(!profile?.isDrawing())fit();};
+      c.onkeydown=e=>{
+        if(e.key==='Escape'){profile?.cancel();return;}
+        if(profile?.isDrawing())return;
+        if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','0'].includes(e.key))return;
+        e.preventDefault();if(e.key==='0'){fit();return;}
+        if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;
+        if(e.key==='ArrowUp')pitch=Math.min(1.5,pitch+.1);if(e.key==='ArrowDown')pitch=Math.max(.1,pitch-.1);
+        if(e.key==='+'||e.key==='=')zoom=Math.min(8,zoom*1.15);if(e.key==='-')zoom=Math.max(.4,zoom/1.15);drawBoth();
+      };
+      const observer=new ResizeObserver(drawBoth);observer.observe(c);
+      return observer;
+    }
+    const obsA=attach(ca),obsB=attach(cb);
+    drawBoth();
+    return {dispose(){obsA.disconnect();obsB.disconnect();},load(data){
       points=data.points;origin=data.origin;groups=data.groups||[];labels=data.labels||[];crs=data.crs||'';extent=[0,0,0];profile?.reset();
       let sx=0,sy=0,sxx=0,syy=0,sxy=0;
       for(const p of points){for(let j=0;j<3;j++)extent[j]=Math.max(extent[j],p[j]);sx+=p[0];sy+=p[1];sxx+=p[0]*p[0];syy+=p[1]*p[1];sxy+=p[0]*p[1];}
@@ -98,10 +219,12 @@
         if(data.pointSize!=null)pointSize=Math.max(.7,Math.min(3,data.pointSize));
         if(data.pose){initialPitch=data.pose==='forest'?1.38:1.08;fit();}
         if(palettes[data.paletteB])paletteB=data.paletteB;if(data.showA!=null)showA=data.showA;if(data.showB!=null)showB=data.showB;
-        if(data.fit)fit();else draw();}};
+        if(data.fit)fit();else drawBoth();}};
   }
   document.addEventListener('DOMContentLoaded',()=>{
-    const views={};for(const id of ['als-cloud','als-tile-cloud','als-compare-cloud']){const c=document.getElementById(id);if(c)views[id]=viewer(c);}
+    const views={};for(const id of ['als-cloud','als-tile-cloud']){const c=document.getElementById(id);if(c)views[id]=viewer(c);}
+    const ca=document.getElementById('als-compare-cloud-a'),cb=document.getElementById('als-compare-cloud-b');
+    if(ca&&cb)views['als-compare-cloud']=comparisonViewer(ca,cb);
     const compact=matchMedia('(max-width:850px)');
     function layout(){const sidebar=document.querySelector('.als-sidebar');if(sidebar)sidebar.open=!compact.matches;}
     compact.addEventListener('change',layout);layout();

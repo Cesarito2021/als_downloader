@@ -77,3 +77,31 @@ aoi_geometry <- function(aoi) {
   sf::st_write(sf::st_sf(geometry = g), tmp, quiet = TRUE)
   jsonlite::fromJSON(tmp, simplifyVector = FALSE)$features[[1]]$geometry
 }
+
+# Build sf polygons directly from a leaflet.extras draw event's parsed R list,
+# instead of round-tripping through jsonlite::toJSON()/sf::st_read(): a
+# length-1 ring or coordinate list at any nesting level is otherwise at risk
+# of auto_unbox silently collapsing, which corrupts the resulting geometry.
+leaflet_draw_ring <- function(ring) {
+  pts <- lapply(ring, function(pt) as.numeric(unlist(pt))[1:2])
+  do.call(rbind, pts)
+}
+
+leaflet_draw_polygon <- function(geometry) {
+  if (!identical(geometry$type, "Polygon"))
+    stop("Only polygon or rectangle draw shapes are supported.", call. = FALSE)
+  sf::st_polygon(lapply(geometry$coordinates, leaflet_draw_ring))
+}
+
+# feature: a single GeoJSON Feature list, as delivered by a Shiny
+# map_draw_new_feature input event from leaflet.extras::addDrawToolbar().
+leaflet_draw_feature_to_sf <- function(feature) {
+  sf::st_sf(geometry = sf::st_sfc(leaflet_draw_polygon(feature$geometry), crs = 4326))
+}
+
+# collection: a GeoJSON FeatureCollection list, as delivered by a Shiny
+# map_draw_edited_features input event.
+leaflet_draw_collection_to_sf <- function(collection) {
+  polys <- lapply(collection$features, function(f) leaflet_draw_polygon(f$geometry))
+  sf::st_sf(geometry = sf::st_sfc(polys, crs = 4326))
+}

@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   for(let x=0;x<W;x+=W/12){t.moveTo(x,0);t.lineTo(x,H);}
   for(let y=H/6;y<H;y+=H/6){t.moveTo(0,y);t.lineTo(W,y);}t.stroke();
   const countries=new Set(canvas.dataset.countries.split(',').map(Number));
-  let pixels,lon=-65,lat=18,drag=null,pending=false;
+  const implemented=new Set((canvas.dataset.implemented||'').split(',').filter(Boolean).map(Number));
+  let pixels,lon=-65,lat=18,drag=null,pending=false,autorotate=true;
   function ring(coords,shift){
     let prev=coords[0][0];const points=coords.map(([raw,y])=>{let x=raw;while(x-prev>180)x-=360;while(x-prev< -180)x+=360;prev=x;return [x,y];});
     const first=points[0],last=points[points.length-1];
@@ -23,16 +24,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     for(const f of world.features){
       const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
       for(const poly of polys)for(const shift of [-360,0,360]){t.beginPath();poly.forEach(coords=>ring(coords,shift));t.fillStyle='#c4d5b7';t.fill('evenodd');
-        if(countries.has(Number(f.id))){t.fillStyle='rgba(220,38,38,0.55)';t.fill('evenodd');}
+        if(implemented.has(Number(f.id))){t.fillStyle='rgba(220,38,38,0.55)';t.fill('evenodd');}
+        else if(countries.has(Number(f.id))){t.fillStyle='rgba(234,179,8,0.55)';t.fill('evenodd');}
         t.strokeStyle='#6c958b';t.lineWidth=.65;t.stroke();}
     }
     pixels=t.getImageData(0,0,W,H).data;canvas.dataset.ready='true';draw();
+    requestAnimationFrame(spin);
   }catch(e){document.getElementById('globe_status').textContent='Globe unavailable. Open the map to continue.';}
+  // Throttled to ~16 fps: the per-pixel software projection in draw() is too
+  // costly to re-run at a full 60 fps just for a slow ambient spin.
+  let lastSpin=0;
+  function spin(ts){if(autorotate&&ts-lastSpin>60){lon+=.12;lastSpin=ts;draw();}requestAnimationFrame(spin);}
   function draw(){
     if(!pixels||!canvas.clientWidth)return;
-    const w=Math.min(900,Math.round(canvas.clientWidth)),h=canvas.clientHeight;
+    const w=Math.min(1100,Math.round(canvas.clientWidth)),h=canvas.clientHeight;
     canvas.width=w;canvas.height=h;ctx.fillStyle='#050b12';ctx.fillRect(0,0,w,h);
-    for(let i=0;i<95;i++){ctx.fillStyle=i%4?'#304252':'#718494';ctx.fillRect((i*137.51)%w,(i*71.13)%h,1,1);}
+    // Two faint, fixed nebula glows behind the starfield for a bit of depth;
+    // subtle enough to never compete with the globe's red/yellow coverage colours.
+    const neb1=ctx.createRadialGradient(w*.14,h*.1,0,w*.14,h*.1,w*.4);
+    neb1.addColorStop(0,'#3a2f5e3d');neb1.addColorStop(1,'#3a2f5e00');
+    ctx.fillStyle=neb1;ctx.fillRect(0,0,w,h);
+    const neb2=ctx.createRadialGradient(w*.88,h*.9,0,w*.88,h*.9,w*.45);
+    neb2.addColorStop(0,'#1f4a4a3d');neb2.addColorStop(1,'#1f4a4a00');
+    ctx.fillStyle=neb2;ctx.fillRect(0,0,w,h);
+    for(let i=0;i<200;i++){
+      const x=(i*137.51)%w,y=(i*71.13+(i%17)*23)%h,tier=i%11;
+      ctx.fillStyle=tier===0?'#dbe7ee':tier<4?'#718494':'#304252';
+      const size=tier===0?1.6:1;
+      ctx.fillRect(x,y,size,size);
+    }
     const r=Math.min(w*.43,h*.435),cx=w/2,cy=h/2,phi=lat*Math.PI/180,lambda=lon*Math.PI/180;
     const glow=ctx.createRadialGradient(cx,cy,r*.9,cx,cy,r*1.1);glow.addColorStop(0,'#559ec480');glow.addColorStop(1,'#559ec400');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
     const img=ctx.getImageData(0,0,w,h),out=img.data;
@@ -46,11 +66,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     ctx.putImageData(img,0,0);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#93cbd37f';ctx.lineWidth=2;ctx.stroke();
   }
   function redraw(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;draw();});}
-  canvas.onpointerdown=e=>{drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);canvas.focus();};
+  canvas.onpointerdown=e=>{autorotate=false;drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);canvas.focus();};
   canvas.onpointermove=e=>{if(!drag)return;lon-=(e.clientX-drag[0])*.35;lat=Math.max(-75,Math.min(75,lat+(e.clientY-drag[1])*.25));drag=[e.clientX,e.clientY];redraw();};
   canvas.onpointerup=canvas.onpointercancel=()=>drag=null;
-  function reset(){lon=-65;lat=18;redraw();}
+  function reset(){lon=-65;lat=18;autorotate=true;redraw();}
   document.getElementById('globe_reset').onclick=reset;
-  canvas.onkeydown=e=>{if(e.key==='0'){e.preventDefault();reset();return;}if(!e.key.startsWith('Arrow'))return;e.preventDefault();lon+=e.key==='ArrowLeft'?-10:e.key==='ArrowRight'?10:0;lat=Math.max(-75,Math.min(75,lat+(e.key==='ArrowUp'?10:e.key==='ArrowDown'?-10:0)));redraw();};
+  canvas.onkeydown=e=>{if(e.key==='0'){e.preventDefault();reset();return;}if(!e.key.startsWith('Arrow'))return;e.preventDefault();autorotate=false;lon+=e.key==='ArrowLeft'?-10:e.key==='ArrowRight'?10:0;lat=Math.max(-75,Math.min(75,lat+(e.key==='ArrowUp'?10:e.key==='ArrowDown'?-10:0)));redraw();};
   new ResizeObserver(redraw).observe(canvas);
 });

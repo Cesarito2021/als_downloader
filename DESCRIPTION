@@ -10,8 +10,9 @@ Description: Discover, inspect and download airborne laser scanning data
     transfers in local mode subject to configured provider limits.
     Define a study area, find intersecting point-cloud tiles, inspect provider
     acquisition metadata and optionally preview points before downloading
-    original files. Integrates USGS 3DEP, AHN6, swissSURFACE3D, local
-    OpenTopography tile indexes and approved contributor GeoJSON indexes.
+    original files. Integrates USGS 3DEP, AHN6, swissSURFACE3D, IGN LiDAR HD,
+    CanElevation, local OpenTopography tile indexes and approved contributor
+    GeoJSON indexes.
     Additional source references are distinguished from integrated downloads.
     Preserves source attribution and transfer records; data remain hosted
     by their providers. Covers aircraft, helicopter and UAV laser scanning.
@@ -20,8 +21,8 @@ Contact: Cesar Ivan Alvites Diaz <calvites1990@gmail.com>
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
 Imports: sf, s2, httr, curl, jsonlite, digest, parallelly, future, future.apply,
-    shiny (>= 1.8.0), leaflet, leaflet.extras, DT, callr, zip
-Suggests: lidR, testthat (>= 3.0.0), knitr, rmarkdown
+    shiny (>= 1.8.0), leaflet, leaflet.extras, DT, callr, zip, stats, tools, utils
+Suggests: lidR, testthat (>= 3.0.0), knitr, rmarkdown, tinytex, pkgload
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 URL: https://github.com/Cesarito2021/als_downloader

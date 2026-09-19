@@ -33,18 +33,23 @@ request_json <- function(url, body = NULL, query = NULL) {
 #' @param provider Either `"usgs3dep"` (Planetary Computer) or
 #'   `"opentopography"` (local TileIndex archives), or `"contributed"`
 #'   (maintainer-approved local `*.tiles.geojson` indexes), `"ahn6"`
-#'   (native AHN6 index), or `"swisstopo"` (swissSURFACE3D STAC).
+#'   (native AHN6 index), `"swisstopo"` (swissSURFACE3D STAC), `"ignfr"`
+#'   (IGN LiDAR HD, indexed through a public STAC catalogue maintained by
+#'   UMR TETIS / INRAE; not IGN's own WFS), or `"canelevation"` (Canada;
+#'   local NRCan project/tile `.gpkg`/`.shp` index, no live spatial API
+#'   confirmed).
 #' @param start,end Optional inclusive acquisition dates in `YYYY-MM-DD` format.
 #'   Unknown acquisition dates remain in the results.
-#' @param tile_index_dir Directory of OpenTopography `*_TileIndex.zip` files
-#'   or approved contributed `*.tiles.geojson` files. Required for these
-#'   adapters. OpenTopography indexes require an embedded CRS.
+#' @param tile_index_dir Directory of OpenTopography `*_TileIndex.zip` files,
+#'   approved contributed `*.tiles.geojson` files, or CanElevation `.gpkg`/
+#'   `.shp` indexes. Required for these adapters. Indexes require an embedded
+#'   CRS and a `url` field pointing to the original file.
 #' @param max_items Maximum number of tiles to return. An incomplete result
 #'   raises an error instead of silently reporting partial coverage.
 #' @return An `sf` table of assets with stable identifiers, canonical URLs,
 #'   acquisition dates, citation information and tile geometry in EPSG:4326.
 #' @details Network access occurs only when this function is explicitly called
-#'   for USGS 3DEP, AHN6 or swisstopo. OpenTopography uses supplied local indexes and their embedded
+#'   for USGS 3DEP, AHN6, swisstopo or ignfr. OpenTopography and canelevation use supplied local indexes and their embedded
 #'   download links; it does not assume a universal area limit or require a key
 #'   for already-public tile URLs. Asset licenses must be checked per dataset.
 #' @export
@@ -52,7 +57,7 @@ request_json <- function(url, body = NULL, query = NULL) {
 #' if (interactive()) {
 #'   # tiles <- find_tiles("study-area.gpkg", provider = "usgs3dep")
 #' }
-find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo"),
+find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo", "ignfr", "canelevation"),
                        start = NULL, end = NULL, tile_index_dir = NULL,
                        max_items = 10000L) {
   provider <- match.arg(provider)
@@ -68,7 +73,9 @@ find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography", "contribu
     opentopography = search_ot(aoi, tile_index_dir, max_items),
     contributed = search_contributed(aoi, tile_index_dir, max_items),
     ahn6 = search_europe(aoi,"ahn6",max_items),
-    swisstopo = search_europe(aoi,"swisstopo",max_items))
+    swisstopo = search_europe(aoi,"swisstopo",max_items),
+    ignfr = search_europe(aoi,"ignfr",max_items),
+    canelevation = search_canelevation(aoi, tile_index_dir, max_items))
   if (nrow(tiles)) {
     # Search without a date filter so undated surveys are not silently lost.
     keep <- rep(TRUE, nrow(tiles))

@@ -11,5 +11,7 @@
 ^docs$
 ^tools$
 ^cran-comments\.md$
+^CITATION\.cff$
+^CONTRIBUTING\.md$
 ^.*\.Rcheck$
 ^.*\.tar\.gz$

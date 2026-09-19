@@ -53,8 +53,27 @@ read_preview <- function(path, max_points = 100000L) {
   preview_points(las@data, max_points)
 }
 
-# Temporary, single-file preview; never persists a cloud in the source catalog.
-preview_remote_tile <- function(tile, max_bytes = 200 * 1024^2, path = tempfile(fileext = ".laz"), reader = function(path) read_preview(path, 100000L)) {
+#' Download one remote tile temporarily and read a bounded preview
+#' @param tile A single-row tile data frame, as returned by [find_tiles()].
+#' @param max_bytes Maximum known HTTP file size accepted for the temporary
+#'   download, in bytes.
+#' @param path Temporary local path for the downloaded file. Removed after
+#'   `reader` runs or on error.
+#' @param reader Function called with `path` once the download completes;
+#'   defaults to [read_preview()]. Used by [read_forest_preview()] for the
+#'   app's forest close-up preview.
+#' @return Whatever `reader` returns.
+#' @details A temporary, single-file preview; never persists a cloud in the
+#'   source catalog. Exported (rather than internal-only) so a background
+#'   [callr::r_bg()] worker can call it by namespace-qualified name -- a
+#'   plain closure passed as a callr argument can lose access to sibling
+#'   package-internal helpers it calls, such as [require_data_terms()].
+#' @export
+#' @examples
+#' if (interactive()) {
+#'   # preview_remote_tile(tile_row)
+#' }
+preview_remote_tile <- function(tile, max_bytes = 1024 * 1024^2, path = tempfile(fileext = ".laz"), reader = function(path) read_preview(path, 100000L)) {
   require_data_terms(tile)
   if (grepl("\\.zip$",tile$filename[[1]],ignore.case=TRUE))
     stop("This source delivers an original LAS ZIP. Download and extract it locally, then open the LAS for preview.")
@@ -69,7 +88,7 @@ preview_remote_tile <- function(tile, max_bytes = 200 * 1024^2, path = tempfile(
   if (length(size) != 1L || !is.finite(size) || size <= 0 || size > max_bytes)
     stop(paste("Preview requires a known file size up to", round(max_bytes / 1024^2), "MB. Use a smaller source tile."))
   on.exit(unlink(path), add = TRUE)
-  response <- httr::GET(url, httr::write_disk(path), httr::timeout(180), httr::config(maxfilesize_large = max_bytes))
+  response <- httr::GET(url, httr::write_disk(path), httr::timeout(600), httr::config(maxfilesize_large = max_bytes))
   httr::stop_for_status(response)
   if (httr::status_code(response) != 200L || file.size(path) != size || !valid_las_header(path))
     stop("Incomplete or invalid LAS/LAZ preview download.")
@@ -105,6 +124,22 @@ forest_display_sample <- function(points, window = 100, center_x = 50, center_y 
   preview_points(p, max_points)
 }
 
+#' Read a decimated, spatially windowed preview for the forest close-up viewer
+#' @param path Local LAS/LAZ file path.
+#' @param percent Approximate percentage of source points the reader keeps,
+#'   between 0.1 and 100. The reader pool is also capped at 750,000 points.
+#' @param window,center_x,center_y,voxel Display windowing and optional
+#'   voxel thinning; see [forest_display_sample()].
+#' @return The same translated coordinate table as [preview_points()], with
+#'   a `display_note` attribute describing the sampling actually used.
+#' @details Requires the optional package 'lidR'. Exported so a background
+#'   [callr::r_bg()] worker can call it by namespace-qualified name; see
+#'   [preview_remote_tile()] for why.
+#' @export
+#' @examples
+#' if (interactive() && requireNamespace("lidR", quietly = TRUE)) {
+#'   # read_forest_preview("tile.laz", percent = 5)
+#' }
 read_forest_preview <- function(path, percent = 2, window = 100, center_x = 50, center_y = 50,
                                 voxel = 0) {
   if (!requireNamespace("lidR", quietly = TRUE)) stop("Install lidR to preview LAS/LAZ files.")

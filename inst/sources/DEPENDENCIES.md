@@ -22,10 +22,14 @@ Dependencies retain their own licences; ALS Downloader does not claim authorship
 | [DT](https://CRAN.R-project.org/package=DT) | Required | Not specified |
 | [callr](https://CRAN.R-project.org/package=callr) | Required | Not specified |
 | [zip](https://CRAN.R-project.org/package=zip) | Required | Not specified |
+| [stats](https://stat.ethz.ch/R-manual/R-devel/library/stats/00Index.html) | Bundled with R | Not specified |
+| [tools](https://stat.ethz.ch/R-manual/R-devel/library/tools/00Index.html) | Bundled with R | Not specified |
+| [utils](https://stat.ethz.ch/R-manual/R-devel/library/utils/00Index.html) | Bundled with R | Not specified |
 | [lidR](https://CRAN.R-project.org/package=lidR) | Optional / development | Not specified |
 | [testthat](https://CRAN.R-project.org/package=testthat) | Optional / development | >= 3.0.0 |
 | [knitr](https://CRAN.R-project.org/package=knitr) | Optional / development | Not specified |
 | [rmarkdown](https://CRAN.R-project.org/package=rmarkdown) | Optional / development | Not specified |
+| [tinytex](https://CRAN.R-project.org/package=tinytex) | Optional / development | Not specified |
 
 Browser libraries delivered through Shiny, Leaflet and DT remain subject to
 their upstream package notices. Bundled geography and external map services
