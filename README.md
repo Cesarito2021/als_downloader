@@ -2,6 +2,10 @@
 
 ![ALS Downloader banner: two overlapping airborne LiDAR point clouds, light purple and pale yellow, on black](docs/images/banner.png)
 
+[![R-CMD-check](https://github.com/Cesarito2021/als_downloader/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Cesarito2021/als_downloader/actions/workflows/R-CMD-check.yaml)
+[![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](NEWS.md)
+
 **Discover, inspect and download airborne LiDAR.** ALS Downloader is open-source software for the scientific community and stakeholders, connecting users to aerial laser-scanning point clouds from multiple providers. Once the app is launched and its sources configured, explore the map, draw or upload a study area, inspect acquisition dates and tiles, and download original files **without writing code**. Optional 3D previews support visual inspection. **Parallel downloads in local mode** respect the configured provider limits; hosted transfers run one at a time.
 
 | Access snapshot | Current scope |
