@@ -1,5 +1,9 @@
 # alsdownloader 0.1.0
 
+* Review source use conditions and record unresolved hosting requirements in the
+  downloadable licensing guidance. Complete Sao Paulo and Canada credits and
+  use the Auckland derivative notice for point-cloud figures; acknowledge Leaflet.
+
 * Show indexed survey outlines and distinct in-app / external source reference
   markers in Explorer before AOI search. Keep reference layers across input
   methods and resets; suppress popup interaction while drawing an AOI.

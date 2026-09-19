@@ -213,7 +213,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         if(section == "about") shiny::tagList(
           shiny::p("ALS Downloader connects existing airborne LiDAR catalogues: define an AOI, find surveys, view point clouds and download original files from their providers."),
         shiny::p("Coverage, acquisition dates and classifications depend on source metadata. Visual comparisons support inspection; they do not measure change."),
-        shiny::p("Developed by Cesar Alvites. Software: GPL-3. Data and basemaps retain their own licences and credits."),
+          shiny::p("Developed by Cesar Alvites. Software: GPL-3. Data and basemaps retain their own licences and credits."),
+          shiny::p("Interactive maps use Leaflet and the leaflet R package. Geographic outlines: Natural Earth / World Atlas. We acknowledge the data producers and access services identified in the source catalogue and exported metadata."),
         shiny::p("OpenForest4D is funded by NSF awards 2409885, 2409886 & 2409887."),
         shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader#readme", target = "_blank", rel = "noopener noreferrer", "Read the project guide")
         ) else shiny::tagList(
@@ -484,6 +485,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     shiny::outputOptions(output, "map_source_credits", suspendWhenHidden = FALSE)
     output$licensing_notes <- shiny::downloadHandler(filename = "ALS-Downloader-licensing.txt", content = function(file) {
       paths <- c(system.file("sources", "LICENSING.md", package = "alsdownloader"),
+        system.file("sources", "USE_REVIEW.md", package = "alsdownloader"),
         system.file("NOTICE", package = "alsdownloader"),
         system.file("app", "www", "html2canvas-LICENSE.txt", package = "alsdownloader"))
       writeLines(unlist(lapply(paths, readLines, warn = FALSE)), file, useBytes = TRUE)

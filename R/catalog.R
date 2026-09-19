@@ -185,7 +185,9 @@ search_ot <- function(aoi, folder, max_items) {
     }
     if (identical(dataset, "BR17_SaoPaulo")) {
       rows$license_url <- "https://www.gnu.org/licenses/gpl-3.0.html"
-      rows$citation <- paste("Sao Paulo, Brazil Lidar Survey 2017. Distributed by OpenTopography.",
+      rows$citation <- paste("Sao Paulo City Hall (PMSP) (2024). Sao Paulo, Brazil Lidar Survey 2017. Distributed by OpenTopography.",
+        "https://doi.org/10.5069/G9NV9GD1 .",
+        "Data contributors: Municipality of Sao Paulo, SMDU and M3DC; public cloud hosting: AWS.",
         "Provider lists GNU GPLv3; preserve licence and applicable redistribution terms.",
         "https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.062020.31983.1")
     }

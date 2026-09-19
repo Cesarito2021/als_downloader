@@ -6,6 +6,14 @@ figure_attribution <- function(tiles = NULL) {
     x[is.na(x) | !nzchar(trimws(x))] <- fallback
     x
   }
-  unique(paste0("Source: ", value("citation", "credit not supplied"),
+  credit <- value("citation", "credit not supplied")
+  # The provider specifies different notices for original copies and derived views.
+  if ("dataset" %in% names(tiles)) {
+    auckland <- !is.na(tiles$dataset) & tiles$dataset == "Auckland_2013"
+    credit[auckland] <- sub("Copyright in this work is owned by Auckland Council",
+      "Copyright in the underlying dataset from which this work has been derived is owned by Auckland Council",
+      credit[auckland], fixed = TRUE)
+  }
+  unique(paste0("Source: ", credit,
     " | Licence: ", value("license_url", "not supplied; verify with provider")))
 }

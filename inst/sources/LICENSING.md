@@ -20,6 +20,8 @@ its browser bundles are not distributed in the R package.
 
 Keep the selected dataset's original citation, licence link, version/date and
 any additional acknowledgement. See POLICIES.md for provider-specific evidence.
+See USE_REVIEW.md for the 19 September 2026 access and acknowledgement audit,
+including unresolved conditions for public hosting and source metadata gaps.
 A public URL, a file format, scientific use, or use through this intermediary
 does not establish permission. A citation alone cannot resolve missing rights.
 Do not apply the software's GPL-3 or the screenshot library's MIT licence to

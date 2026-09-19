@@ -30,7 +30,7 @@ search_canelevation <- function(aoi, folder, max_items) {
       acquired_end = NA_character_, size_bytes = NA_real_,
       license_url = "https://open.canada.ca/en/open-government-licence-canada",
       citation = paste("Source: Natural Resources Canada; CanElevation Series LiDAR point clouds.",
-        "Open Government Licence - Canada.",
+        "Contains information licensed under the Open Government Licence - Canada.",
         "https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947"),
       geometry = sf::st_geometry(obj))
     results[[length(results) + 1L]] <- rows
