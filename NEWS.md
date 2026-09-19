@@ -1,5 +1,9 @@
 # alsdownloader 0.1.0
 
+* Automatically compose a centred satellite RGB map for PDF/HTML reports using
+  the actual AOI and selected tile outlines, with scale and source credits.
+  Offer the same map as a PNG; reject stale captures and incomplete imagery.
+
 * Redesign session reports around key information, large figures and concise
   metadata-based conclusions. Include the package citation and OpenForest4D NSF
   acknowledgement; make technical download details an optional appendix.

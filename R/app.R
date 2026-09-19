@@ -47,6 +47,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       shiny::tags$link(rel = "stylesheet", href = "als-assets/explorer.css"),
       shiny::tags$script(src = "als-assets/html2canvas.js"),
       shiny::tags$script(src = "als-assets/figures.js"),
+      shiny::tags$script(src = "als-assets/report-map.js"),
       shiny::tags$script(src = "als-assets/app.js"),
       shiny::tags$script(src = "als-assets/profile.js"),
       shiny::tags$script(src = "als-assets/preview.js"),
@@ -138,7 +139,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::downloadButton("export_selection", "Export selected metadata"),
             shiny::downloadButton("export_script", "Download selection as R script"),
             shiny::tags$details(shiny::tags$summary("Session report: PDF or HTML"),
-              shiny::helpText("A concise visual report with study-area information, figures, conclusions and credits. Save PNG figures from the map or viewers, then attach them here to include those exact views and legends."),
+              shiny::helpText("A concise visual report with study-area information, figures, conclusions and credits. The RGB map is framed automatically around your study area and selected tiles. Attach exported viewer figures below if wanted."),
+              shiny::checkboxInput("report_rgb", "Include centred satellite RGB map", TRUE),
+              shiny::downloadButton("download_report_map", "Save centred RGB map PNG"),
+              shiny::tags$div(id = "report_map_status", role = "status", `aria-live` = "polite"),
               shiny::checkboxInput("report_details", "Include technical appendix (file sample and download-time scenarios)", FALSE),
               shiny::fileInput("report_figures", "Optional exported PNG figures (up to 6, 10 MiB each)", multiple = TRUE, accept = ".png"),
               shiny::helpText("Attached figures may show a different selection; check their embedded labels. Extra figures add pages. PDF requires Pandoc and TinyTeX on the app server."),
@@ -371,6 +375,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       ids <- ids[ids %in% seq_len(nrow(state$tiles))]
       state$tiles[ids, , drop = FALSE]
     })
+    report_map <- report_map_server(input, output, session, shiny::reactive(state$aoi), selected_tiles)
     shiny::observeEvent(input$select_all_tiles, {shiny::req(state$tiles); DT::selectRows(DT::dataTableProxy("tiles"), seq_len(nrow(state$tiles)))})
     shiny::observeEvent(input$clear_tiles, DT::selectRows(DT::dataTableProxy("tiles"), integer()))
     output$selection_summary <- shiny::renderText({
@@ -394,8 +399,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       dir <- tempfile("als-report-"); dir.create(dir)
       on.exit(unlink(dir, recursive = TRUE), add = TRUE)
       figures <- if (is.null(input$report_figures)) character() else input$report_figures$datapath
+      rgb <- if (isTRUE(input$report_rgb)) report_map() else list(path = character(), credits = "")
       path <- tryCatch(als_report(x, dir, format = format, aoi_area_km2 = area, aoi = state$aoi, figures = figures,
-        details = isTRUE(input$report_details)),
+        details = isTRUE(input$report_details), map_image = rgb$path, map_credits = rgb$credits),
         error = function(e) {shiny::showNotification(conditionMessage(e), type = "error", duration = 15); stop(e)})
       file.copy(path, file, overwrite = TRUE)
     }

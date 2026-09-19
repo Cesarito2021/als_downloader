@@ -54,6 +54,11 @@ test_that("unknown sizes do not produce a zero-duration promise and figures embe
   expect_true(grepl("2409886", html, fixed = TRUE))
   expect_true(grepl("2409887", html, fixed = TRUE))
   expect_false(grepl("Technical appendix", html, fixed = TRUE))
+  mapped <- als_report(x, dir, map_image = fig, map_credits = "Test imagery provider")
+  mapped_html <- paste(readLines(mapped, warn = FALSE), collapse = "\n")
+  expect_true(grepl("Satellite RGB context", mapped_html, fixed = TRUE))
+  expect_true(grepl("Test imagery provider", mapped_html, fixed = TRUE))
+  expect_true(grepl("data:image/png;base64,", mapped_html, fixed = TRUE))
 })
 
 test_that("als_report handles an empty selection without erroring", {

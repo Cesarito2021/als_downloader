@@ -8,6 +8,8 @@ params:
   aoi_area_km2: NA
   aoi: NULL
   figures: NULL
+  map_image: NULL
+  map_credits: ""
   details: false
   software_citation: ""
 geometry: margin=0.65in
@@ -77,7 +79,12 @@ if (!has_tiles) cat("No tiles in this selection.\n\n")
 ## Study area and selected coverage
 
 ```{r fig.width=7.2, fig.height=4.1, fig.align="center"}
-if (has_map) {
+if (length(params$map_image)) {
+  if (knitr::is_latex_output()) cat(sprintf("\\begin{center}\n\\includegraphics[width=\\linewidth,height=0.45\\textheight,keepaspectratio]{%s}\n\\end{center}\n\n", params$map_image))
+  else cat(sprintf("![](%s)\n\n", params$map_image))
+  cat("*Satellite RGB context: dashed gold marks the actual study area; dark polygons show selected tile footprints. Imagery dates are not LiDAR acquisition dates.*\n\n")
+  cat(params$map_credits, "\n\n")
+} else if (has_map) {
   aoi_geo <- sf::st_transform(aoi, 4326)
   tiles_geo <- sf::st_transform(tiles, 4326)
   reported <- ifelse(is.na(tiles_geo$acquired_end), tiles_geo$acquired_start, tiles_geo$acquired_end)

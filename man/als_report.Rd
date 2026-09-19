@@ -11,7 +11,9 @@ als_report(
   aoi_area_km2 = NA_real_,
   aoi = NULL,
   figures = character(),
-  details = FALSE
+  details = FALSE,
+  map_image = character(),
+  map_credits = ""
 )
 }
 \arguments{
@@ -40,6 +42,11 @@ unchanged with their embedded legends and credits. Maximum 10 MiB each.}
 
 \item{details}{Include a technical appendix with transfer-time scenarios
 and a sample file table. Defaults to `FALSE` for a concise visual report.}
+
+\item{map_image}{Optional single PNG path, used instead of the geometry-only
+map. The app captures a centred satellite map with AOI and selected tiles.}
+
+\item{map_credits}{Imagery attribution accompanying `map_image`.}
 }
 \value{
 Invisibly, the path to the rendered report file.

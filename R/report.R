@@ -18,6 +18,9 @@
 #'   unchanged with their embedded legends and credits. Maximum 10 MiB each.
 #' @param details Include a technical appendix with transfer-time scenarios
 #'   and a sample file table. Defaults to `FALSE` for a concise visual report.
+#' @param map_image Optional single PNG path, used instead of the geometry-only
+#'   map. The app captures a centred satellite map with AOI and selected tiles.
+#' @param map_credits Imagery attribution accompanying `map_image`.
 #' @return Invisibly, the path to the rendered report file.
 #' @details Content is limited to data already carried by `tiles`: filename,
 #'   dataset, provider, provider-reported acquisition dates, known size and
@@ -32,7 +35,7 @@
 #'   # als_report(tiles, "session-report-out")
 #' }
 als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km2 = NA_real_, aoi = NULL,
-                       figures = character(), details = FALSE) {
+                       figures = character(), details = FALSE, map_image = character(), map_credits = "") {
   format <- match.arg(format)
   if (!is.logical(details) || length(details) != 1L || is.na(details))
     stop("details must be TRUE or FALSE.", call. = FALSE)
@@ -44,7 +47,10 @@ als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km
     stop("Choose an output directory.", call. = FALSE)
   if (!is.character(figures) || length(figures) > 6L || anyNA(figures))
     stop("Supply up to six PNG figure paths.", call. = FALSE)
-  for (p in figures) {
+  if (!is.character(map_image) || length(map_image) > 1L || anyNA(map_image) ||
+      !is.character(map_credits) || length(map_credits) != 1L || is.na(map_credits))
+    stop("Supply one map PNG path and its attribution text.", call. = FALSE)
+  for (p in c(figures, map_image)) {
     if (!file.exists(p) || isTRUE(file.info(p)$isdir) || file.info(p)$size > 10 * 1024^2 ||
         !identical(readBin(p, "raw", n = 8L), as.raw(c(137, 80, 78, 71, 13, 10, 26, 10))))
       stop("Report figures must be PNG files of at most 10 MiB each.", call. = FALSE)
@@ -62,6 +68,11 @@ als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km
     if (!all(file.copy(figures, staged))) stop("Could not prepare report figures.", call. = FALSE)
     figures <- staged
   }
+  if (length(map_image)) {
+    staged_map <- file.path(stage, "study-area-rgb.png")
+    if (!file.copy(map_image, staged_map)) stop("Could not prepare the report map.", call. = FALSE)
+    map_image <- normalizePath(staged_map, winslash = "/", mustWork = TRUE)
+  }
   rmd <- system.file("report", "session-report.Rmd", package = "alsdownloader")
   if (!nzchar(rmd)) stop("Report template not found in the installed package.", call. = FALSE)
   output_file <- paste0("als-session-report.", format)
@@ -70,6 +81,7 @@ als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km
     output_dir = output_dir, intermediates_dir = tempdir(),
     params = list(tiles = tiles, aoi_area_km2 = aoi_area_km2, aoi = aoi,
       figures = normalizePath(figures, winslash = "/", mustWork = TRUE), details = details,
+      map_image = map_image, map_credits = map_credits,
       software_citation = paste(format(utils::readCitationFile(system.file("CITATION", package = "alsdownloader")), style = "text"), collapse = " ")),
     envir = new.env(parent = globalenv()), quiet = TRUE)
   invisible(file.path(output_dir, output_file))

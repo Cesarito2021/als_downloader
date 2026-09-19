@@ -163,8 +163,15 @@ and illustrative transfer-time scenarios.
 Unknown sizes are excluded explicitly. Parallel workers do not determine network
 speed; scenarios are not download completion promises.
 
-To include the current map, point-cloud or comparison view, first use its camera
-button to save a PNG, then attach that PNG in the report panel (up to six figures,
+The report automatically captures a centred satellite RGB map of the actual
+AOI and selected tiles, with dark footprints, a gold study boundary, scale bar
+and credits. The same composition is available as **Save centred RGB map PNG**.
+It does not move the Explore map. If imagery cannot load, the app reports the
+problem; turn off **Include centred satellite RGB map** to use a geometry-only
+map instead. Imagery dates do not represent LiDAR acquisition dates.
+
+To include point-cloud or comparison views, first use their camera buttons to
+save PNGs, then attach them in the report panel (up to six figures,
 10 MiB each). Legends and credits remain embedded; verify that attached figures
 match the study being reported. The compact summary is typically two pages;
 figures and lengthy source credits add pages. Original LAS/LAZ files are unchanged.
