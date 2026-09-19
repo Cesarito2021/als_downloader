@@ -130,7 +130,7 @@ The eight most representative entries are shown below, one or two per continent 
 | CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Configured regional NRCan index; Athabasca search and original COPC decoding verified. The official ArcGIS service can supply index polygons; this adapter reads local GPKG/SHP files. |
 | IGN LiDAR HD, France | [Official record](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | UMR TETIS / INRAE STAC search; Paris sample search and original COPC decoding verified. |
 | AHN6, Netherlands | [AHN](https://www.ahn.nl/dataroom) | Native footprint search and original LAZ download; AHN6 only. |
-| swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native AOI search and original LAS ZIP downloads; extract locally for preview. |
+| swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native AOI search; LAS ZIP files are downloaded and extracted temporarily for 3D view. |
 
 The CanElevation adapter's legal basis is the **[Open Government Licence - Canada](https://open.canada.ca/en/open-government-licence-canada)**, which explicitly permits copying, redistributing and adapting the data, including commercially, with attribution - published directly on the official **[LiDAR Point Clouds - CanElevation Series dataset page](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947)**, the same page that lists the project/tile index files this adapter reads. Unlike the OpenTopography tutorial cited above, no separate official "how to consume this programmatically" guide was found for CanElevation from this session (no outbound network access beyond GitHub); if NRCan publishes one, it should replace or supplement this citation.
 
@@ -218,8 +218,11 @@ Shapefile with its CRS (at most 5 MiB). A small coverage file already listed in
 the record can instead be selected. A single LAS/LAZ asset is mapped automatically;
 for several assets, include a `file_key` column with the exact Zenodo filename
 for each polygon. Multiple polygons for an asset are combined. ZIP assets are
-supported as whole-archive downloads; contents require maintainer verification
-and local extraction before 3D preview. Other archive formats are not supported.
+supported as whole-archive downloads; contents require maintainer verification.
+For 3D view, ZIP files are extracted temporarily (1 GiB download, 2 GiB total
+uncompressed limit). A single LAS/LAZ opens automatically; multiple clouds require
+selecting a member and loading again. No clouds are merged automatically. Other
+archive formats and ZIP inputs to remote comparison are not supported.
 Unknown coverage cannot be inferred from a DOI or an arbitrary map location.
 The approximate option requires a declared centre, 1 to 10,000 m to each side,
 latitude between -85 and 85 degrees, and explicit file selection. Disjoint surveys

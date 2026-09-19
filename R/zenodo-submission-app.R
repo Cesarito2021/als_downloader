@@ -31,7 +31,7 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::actionButton("zenodo_prepare","Validate submission"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
   shiny::tags$details(shiny::tags$summary("Submission status"),
     submission_tracking_ui()),
-  shiny::helpText("No cloud is downloaded or analysed. ZIP assets require downloading the whole archive and local extraction for 3D. Submission is not approval; the maintainer checks coverage, dates, file mapping and terms before publication."))
+  shiny::helpText("No cloud is downloaded or analysed. ZIP assets are downloaded in full and extracted temporarily for 3D view, within size limits. Submission is not approval; the maintainer checks coverage, dates, file mapping and terms before publication."))
 
 zenodo_boundary_download <- function(meta,key) {
   keys<-vapply(meta$files,`[[`,"","key")

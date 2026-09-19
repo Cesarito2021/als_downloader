@@ -17,8 +17,12 @@ tiles, acquisition dates, classification quality or national coverage.
 The browser verification draws small rectangles, performs the application search
 and renders samples decoded above. Rendering reuses those samples; it does not
 repeat the original download through every Plot button. The Swiss render uses
-the separate archived sample, not the Bern ZIP. Direct remote ZIP visualization
-is unsupported: extract locally and upload the LAS/LAZ file.
+the separate archived sample, not the Bern ZIP. A subsequent ZIP visualization
+check passed through the app's Plot button: the original archived Swiss ZIP was
+downloaded and extracted automatically, and sampled points were displayed. A
+100% reader check decoded all 930 source points and verified temporary cleanup.
+ZIP limits are 1 GiB downloaded and 2 GiB uncompressed; multiple-cloud ZIPs require
+explicit member selection. This applies to 3D view, not remote comparison.
 
 ## Coverage shown on the map
 

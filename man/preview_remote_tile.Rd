@@ -9,7 +9,9 @@ preview_remote_tile(
   max_bytes = 1024 * 1024^2,
   path = tempfile(fileext = ".laz"),
   reader = function(path) read_preview(path, 100000L),
-  progress = NULL
+  progress = NULL,
+  zip_member = NULL,
+  max_uncompressed_bytes = 2 * 1024^3
 )
 }
 \arguments{
@@ -26,6 +28,8 @@ defaults to [read_preview()]. Used by [read_forest_preview()] for the
 app's forest close-up preview.}
 
 \item{progress}{Optional function receiving short preview-stage messages.}
+\item{zip_member}{Optional exact LAS/LAZ member name when a ZIP contains multiple point clouds. A single point cloud is selected automatically.}
+\item{max_uncompressed_bytes}{Maximum total uncompressed ZIP size, in bytes.}
 }
 \value{
 Whatever `reader` returns.

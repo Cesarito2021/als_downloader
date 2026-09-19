@@ -1,5 +1,9 @@
 # alsdownloader 0.1.0
 
+* Support temporary ZIP extraction for remote 3D viewing, including Swiss LAS
+  archives. Require explicit selection when several LAS/LAZ members are present;
+  validate archive paths and sizes and clean up extracted data on cancellation.
+
 * Replace country-wide availability shading with configured regional index
   outlines; keep search footprints separate. Soften report and transfer colours.
 * Verify small-area source samples and repair crossing rings in CanElevation

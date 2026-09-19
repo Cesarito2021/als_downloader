@@ -168,10 +168,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::div(class = "als-tile-preview",
               shiny::actionButton("plot_tile", "View selected tile in 3D", class = "als-primary"),
               shiny::textOutput("tile_selection"),
-              shiny::helpText("Select one LAS/LAZ tile. Opens in 3D view (temporary download: up to 1 GB).")))),
+              shiny::helpText("Select one LAS/LAZ tile or ZIP. Opens in 3D view (download up to 1 GiB; ZIP contents up to 2 GiB).")))),
           shiny::tabPanel("3D view",
             shiny::p("One viewer for the tile selected in Explore or a local LAS/LAZ file."),
-            shiny::actionButton("replot_tile", "Rebuild selected map tile"),
+            shiny::actionButton("replot_tile", "View selected map tile"),
+            shiny::uiOutput("zip_member_control"),
             shiny::fileInput("point_file", "Upload a local LAS/LAZ tile (up to 1 GB)", accept = c(".las", ".laz")),
             forest_preview_controls("local_"),
             shiny::actionButton("preview", "View point cloud"),
@@ -201,7 +202,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
       preview_job = NULL, preview_started = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
       preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_attribution = NULL, preview_path = NULL, preview_locked = FALSE,
-      tile_groups = character(0))
+      tile_groups = character(0), zip_members = character(), zip_url = NULL)
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
     shiny::observeEvent(input$welcome_catalogue, {
       shiny::updateTabsetPanel(session, "view", selected = "Data sources")
@@ -600,6 +601,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         shiny::showNotification("Select exactly one tile in the table or click its footprint."); return()
       }
       tile <- sf::st_drop_geometry(state$tiles[selected, , drop = FALSE])
+      member <- if(identical(state$zip_url,tile$url[[1]])) input$zip_member else NULL
+      if(!identical(state$zip_url,tile$url[[1]]))state$zip_members<-character()
+      state$zip_url<-tile$url[[1]]
       if (mode == "hosted") {
         if (!dir.create(hosted_lock, showWarnings = FALSE)) {
           shiny::showNotification("Another hosted transfer is running. Try again later."); return()
@@ -616,7 +620,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       state$preview_path <- tempfile(fileext = ".laz")
       tryCatch({state$preview_job <- background_job("remote_preview_job",
         list(tile, state$preview_path, input$local_percent, as.numeric(input$local_window),
-          input$local_center_x, input$local_center_y, as.numeric(input$local_voxel), input$local_xy_units, input$local_z_units))}, error = function(e) {
+          input$local_center_x, input$local_center_y, as.numeric(input$local_voxel), input$local_xy_units, input$local_z_units, member))}, error = function(e) {
           if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
           state$previewtext <- paste("Could not start preview:", redact_urls_in_text(conditionMessage(e)))
         })
@@ -634,7 +638,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           sprintf("Elapsed: %.0f s. Temporary file: %.1f MiB. You can cancel this preview.", elapsed, received))
         if (is.finite(elapsed) && elapsed > 900) {
           job$kill_tree(); state$preview_job <- NULL
-          unlink(c(state$preview_path, status_file))
+          cleanup_preview_files(state$preview_path)
           if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
           state$previewtext <- "Preview stopped after 15 minutes. Try a smaller tile or download it for local inspection."
         }
@@ -642,8 +646,14 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       }
       state$preview_job <- NULL
       if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
-      if (!is.null(state$preview_path)) unlink(c(state$preview_path, paste0(state$preview_path, ".status")))
+      if (!is.null(state$preview_path)) cleanup_preview_files(state$preview_path)
       tryCatch({p <- job$get_result()
+        if(is.list(p)&&!is.data.frame(p)&&length(p$zip_members)) {
+          state$zip_members<-p$zip_members
+          state$previewtext<-"ZIP contains multiple point clouds. Select a file, then use View selected map tile. The archive will be downloaded again."
+          return()
+        }
+        if(!is.null(attr(p,"archive_member")))state$preview_label<-paste(state$preview_label,"/",attr(p,"archive_member"))
         caption <- paste(nrow(p), "preview points.", attr(p, "units_note"))
         if (!is.null(attr(p, "display_note"))) caption <- paste(caption, attr(p, "display_note"))
         if (state$preview_target == "als-cloud") state$previewtext <- paste(state$preview_label, "-", caption)
@@ -655,11 +665,15 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         })
     })
     output$preview_status <- shiny::renderText(state$previewtext)
+    output$zip_member_control <- shiny::renderUI({
+      if(length(state$zip_members))shiny::selectInput("zip_member","Point cloud within ZIP",
+        choices=c("Select a file"="",stats::setNames(state$zip_members,state$zip_members)))
+    })
     shiny::observeEvent(input$cancel_preview, {
       if (is.null(state$preview_job)) return()
       if (state$preview_job$is_alive()) state$preview_job$kill_tree()
       state$preview_job <- NULL
-      if (!is.null(state$preview_path)) unlink(c(state$preview_path, paste0(state$preview_path, ".status")))
+      if (!is.null(state$preview_path)) cleanup_preview_files(state$preview_path)
       if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
       state$previewtext <- "Preview cancelled. Select a tile and rebuild when ready."
     })
@@ -672,7 +686,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     session$onSessionEnded(function() shiny::isolate({
       if (!is.null(state$job) && state$job$is_alive()) state$job$kill_tree()
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) state$preview_job$kill_tree()
-      if (!is.null(state$preview_path)) unlink(c(state$preview_path, paste0(state$preview_path, ".status")))
+      if (!is.null(state$preview_path)) cleanup_preview_files(state$preview_path)
       release_lock()
       release_output_lock()
       if (!is.null(state$jobdir)) unlink(state$jobdir, recursive = TRUE)

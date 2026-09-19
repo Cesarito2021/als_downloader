@@ -20,8 +20,9 @@ local_preview_job <- function(path, percent, window, x, y, voxel, xy_units = "au
   read_forest_preview(path, percent, window, x, y, voxel, xy_units, z_units)
 }
 
-remote_preview_job <- function(tile, path, percent, window, x, y, voxel, xy_units = "auto", z_units = "auto") {
-  preview_remote_tile(tile, path = path,
+remote_preview_job <- function(tile, path, percent, window, x, y, voxel, xy_units = "auto", z_units = "auto", zip_member = NULL) {
+  tryCatch(preview_remote_tile(tile, path = path, zip_member = zip_member,
     progress = function(message) writeLines(message, paste0(path, ".status")),
-    reader = function(file) read_forest_preview(file, percent, window, x, y, voxel, xy_units, z_units))
+    reader = function(file) read_forest_preview(file, percent, window, x, y, voxel, xy_units, z_units)),
+    als_zip_selection = function(e) list(zip_members=e$members))
 }
