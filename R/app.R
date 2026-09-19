@@ -248,14 +248,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
           editOptions = leaflet.extras::editToolbarOptions()) |>
-        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = c("Countries", "Indexed survey areas", "AOI")) |>
+        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = discovery_groups()) |>
         leaflet::hideGroup("Terrain relief") |>
-        leaflet::setView(0, 20, 2)
-      if(nrow(overview)) map <- leaflet::addPolygons(map, data=overview,
-        group="Indexed survey areas", color="#65b99c", weight=1,
-        fillColor="#65b99c", fillOpacity=.12, label=~dataset,
-        options=leaflet::pathOptions(interactive=FALSE))
-      map
+        leaflet::setView(0, 20, 2, options = list(animate = FALSE))
+      add_discovery_layers(map, world, catalog, overview)
     })
     # Tiles are split into one Leaflet group per acquisition year (see the
     # search handler) so the existing layers control can toggle a single
@@ -266,7 +262,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       for (g in state$tile_groups) p <- p |> leaflet::clearGroup(g)
       p |> leaflet::removeControl("tile_year_legend") |>
         leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
-          overlayGroups = c("Countries", "Indexed survey areas", "AOI"))
+          overlayGroups = discovery_groups())
       state$tile_groups <- character(0)
     }
     set_aoi <- function(x) {
@@ -277,7 +273,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       leaflet::leafletProxy("map") |> leaflet::clearGroup("AOI") |>
         leaflet::addPolygons(data = state$aoi, group = "AOI", color = "#ffe4a3", weight = 3, dashArray = "8,5", fillOpacity = 0,
           options = leaflet::pathOptions(pane = "aoi-outline")) |>
-        leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])
+        leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]], options = list(animate = FALSE))
     }
     clear_aoi <- function() {
       state$aoi <- NULL; state$tiles <- NULL
@@ -292,7 +288,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
           editOptions = leaflet.extras::editToolbarOptions()) |>
-        leaflet::setView(0, 20, 2)
+        leaflet::setView(0, 20, 2, options = list(animate = FALSE))
     }
     output$layer_control <- shiny::renderUI({
       shiny::req(input$aoi_file)
@@ -316,9 +312,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       leaflet::leafletProxy("map") |> leaflet::clearGroup("AOI")
     })
     navigate <- function(id) {
-      if (!nzchar(id)) {leaflet::leafletProxy("map") |> leaflet::setView(0, 20, 2); return()}
+      if (!nzchar(id)) {leaflet::leafletProxy("map") |> leaflet::setView(0, 20, 2, options = list(animate = FALSE)); return()}
       row <- world[which(world$code == suppressWarnings(as.numeric(id))), ]
-      if (nrow(row)) {bb <- sf::st_bbox(row); leaflet::leafletProxy("map") |> leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])}
+      if (nrow(row)) {bb <- sf::st_bbox(row); leaflet::leafletProxy("map") |> leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]], options = list(animate = FALSE))}
     }
     shiny::observeEvent(input$map_shape_click, {
       id <- input$map_shape_click$id
@@ -401,7 +397,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             leaflet::addLegend("bottomright", layerId = "tile_year_legend",
               pal = pal, values = levels_all, title = "Acquisition year") |>
             leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
-              overlayGroups = c("Countries", "Indexed survey areas", "AOI", groups))
+              overlayGroups = c(discovery_groups(), groups))
         }
       }, error = function(e) {state$search <- conditionMessage(e); notify(e)})
     })

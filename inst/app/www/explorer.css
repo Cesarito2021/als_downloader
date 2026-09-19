@@ -91,6 +91,10 @@ a{transition:color .12s ease}a:hover{color:#c3dbe6}
 .als-inline-information .shiny-input-container{width:100%}
 #welcome_information{scroll-margin-top:20px}
 @media(max-width:560px){.als-inline-information{padding:16px}.als-information-heading{flex-direction:column;align-items:flex-start}}
+.als-discovery-legend{max-width:220px;background:rgba(12,24,34,.94);color:#e0eaf0;padding:10px 12px;border:1px solid #415362;border-radius:8px;font-size:12px;line-height:1.5}
+.als-discovery-legend small{display:block;margin-top:5px;line-height:1.35}
+.als-provider-popup{color:#18212a;line-height:1.4}.als-provider-popup ul{padding-left:18px}.als-provider-popup a{color:#175a8a}
+#map.als-drawing .leaflet-reference-pane,#map.als-drawing .leaflet-reference-pane *{pointer-events:none!important}
 :root{--als-button-width:224px;--als-button-height:48px}
 .btn:not(.btn-file):not(.dropdown-toggle),.als-welcome-buttons .als-welcome-button,
 .btn.als-report-btn{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:6px;width:var(--als-button-width);max-width:100%;height:var(--als-button-height);min-height:var(--als-button-height);padding:6px 12px;font-size:14px;line-height:18px;white-space:normal;border-radius:8px;vertical-align:middle}

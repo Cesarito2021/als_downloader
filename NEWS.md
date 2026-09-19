@@ -1,5 +1,9 @@
 # alsdownloader 0.1.0
 
+* Show indexed survey outlines and distinct in-app / external source reference
+  markers in Explorer before AOI search. Keep reference layers across input
+  methods and resets; suppress popup interaction while drawing an AOI.
+
 * Expand project information and the source catalogue below the welcome area;
   retain catalogue access from the map header. Brighten the starfield, restore red adapter markers
   and yellow indexed areas, and simplify rotation controls and author credits.
