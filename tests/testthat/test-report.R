@@ -20,6 +20,7 @@ test_that("als_report renders a self-contained HTML summary without touching ori
   expect_match(html, "a.laz", fixed = TRUE)
   expect_match(html, "usgs3dep", fixed = TRUE)
   expect_match(html, "1.5000", fixed = TRUE)
+  expect_match(html, "Discover, inspect and download airborne LiDAR", fixed = TRUE)
   expect_equal(tiles, report_fixture())
 })
 

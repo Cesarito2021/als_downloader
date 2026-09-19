@@ -13,7 +13,7 @@ params:
 body{max-width:900px;margin:0 auto;padding:0 24px 70px;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:#222}
 h1.title{color:#1c4a5e}
 h2{border-bottom:1px solid #e2e2e2;padding-bottom:4px;margin-top:34px}
-.als-mission{color:#555;font-size:15px;font-style:italic;border-left:3px solid #8fb4c9;padding-left:12px;margin:10px 0 22px}
+blockquote{color:#555;font-size:15px;font-style:italic;border-left:3px solid #8fb4c9;padding-left:12px;margin:10px 0 22px}
 .als-footer-badge{position:fixed;right:18px;bottom:14px;background:#152936;color:#dbe7ee;font-size:11.5px;padding:5px 12px;border-radius:14px;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 table{font-size:13.5px}
 </style>
@@ -31,7 +31,7 @@ has_map <- has_tiles && has_aoi && inherits(tiles, "sf")
 tiles_df <- if (has_tiles && inherits(tiles, "sf")) sf::st_drop_geometry(tiles) else tiles
 ```
 
-<p class="als-mission">Discover, inspect and download airborne LiDAR. Open-source software connecting researchers to aerial laser-scanning point clouds from multiple providers. Draw or upload a study area, inspect acquisition dates and tiles, and download original files without writing code.</p>
+> Discover, inspect and download airborne LiDAR. Open-source software connecting researchers to aerial laser-scanning point clouds from multiple providers. Draw or upload a study area, inspect acquisition dates and tiles, and download original files without writing code.
 
 Generated `r format(Sys.time(), "%Y-%m-%d %H:%M")` by [ALS Downloader](https://github.com/Cesarito2021/als_downloader). This report summarises a search/download selection at the time it was generated; it does not certify data quality, coverage completeness or licence clearance. Verify each dataset's own terms before use.
 
@@ -127,4 +127,6 @@ if (has_tiles) {
 
 Collection dates are provider-reported and may be unknown; publication or filename dates are never substituted. Downloads preserve original tiles, including portions outside the study area. This report is generated locally and is not transmitted anywhere.
 
+<!-- HTML-only: a fixed-position badge has no PDF/print equivalent, so pandoc
+     drops this raw block when rendering to pdf_document. That is expected. -->
 <div class="als-footer-badge">ALS Downloader</div>
