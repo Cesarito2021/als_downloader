@@ -39,7 +39,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(!pixels||!canvas.clientWidth)return;
     const w=Math.min(1100,Math.round(canvas.clientWidth)),h=canvas.clientHeight;
     canvas.width=w;canvas.height=h;ctx.fillStyle='#050b12';ctx.fillRect(0,0,w,h);
-    for(let i=0;i<95;i++){ctx.fillStyle=i%4?'#304252':'#718494';ctx.fillRect((i*137.51)%w,(i*71.13)%h,1,1);}
+    // Two faint, fixed nebula glows behind the starfield for a bit of depth;
+    // subtle enough to never compete with the globe's red/yellow coverage colours.
+    const neb1=ctx.createRadialGradient(w*.14,h*.1,0,w*.14,h*.1,w*.4);
+    neb1.addColorStop(0,'#3a2f5e3d');neb1.addColorStop(1,'#3a2f5e00');
+    ctx.fillStyle=neb1;ctx.fillRect(0,0,w,h);
+    const neb2=ctx.createRadialGradient(w*.88,h*.9,0,w*.88,h*.9,w*.45);
+    neb2.addColorStop(0,'#1f4a4a3d');neb2.addColorStop(1,'#1f4a4a00');
+    ctx.fillStyle=neb2;ctx.fillRect(0,0,w,h);
+    for(let i=0;i<200;i++){
+      const x=(i*137.51)%w,y=(i*71.13+(i%17)*23)%h,tier=i%11;
+      ctx.fillStyle=tier===0?'#dbe7ee':tier<4?'#718494':'#304252';
+      const size=tier===0?1.6:1;
+      ctx.fillRect(x,y,size,size);
+    }
     const r=Math.min(w*.43,h*.435),cx=w/2,cy=h/2,phi=lat*Math.PI/180,lambda=lon*Math.PI/180;
     const glow=ctx.createRadialGradient(cx,cy,r*.9,cx,cy,r*1.1);glow.addColorStop(0,'#559ec480');glow.addColorStop(1,'#559ec400');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
     const img=ctx.getImageData(0,0,w,h),out=img.data;
