@@ -85,44 +85,6 @@
     let groups=[],palette='Red',paletteB='Blue',showA=true,showB=true,focusCentral=true;
     let initialPitch=1.08,pointSize=1.8,labels=[],camera=null,crs='';
     let ordered=[],xmin=0,xmax=0,ymin=0,ymax=0,scale=1;
-    const dc=document.getElementById('als-compare-density');
-    // A simple binned count of loaded Z values per campaign: how much of each
-    // cloud sits at each elevation, not a fitted or modeled distribution.
-    function renderDensity(){
-      if(!dc||!dc.clientWidth)return;
-      const w=dc.clientWidth,h=220,dpr=Math.min(devicePixelRatio||1,2);
-      dc.width=w*dpr;dc.height=h*dpr;const g=dc.getContext('2d');g.scale(dpr,dpr);
-      g.fillStyle='#05080c';g.fillRect(0,0,w,h);
-      g.font='12px system-ui';
-      if(!points.length){g.fillStyle='#adbeca';g.fillText('Load two clouds to see their elevation distribution.',20,30);return;}
-      const za=[],zb=[];
-      for(let i=0;i<points.length;i++)(groups[i]===1?zb:za).push(points[i][2]);
-      const left=56,right=16,top=34,bottom=30,pw=Math.max(10,w-left-right),ph=Math.max(10,h-top-bottom);
-      const all=za.concat(zb);
-      let zmin=Math.min(...all),zmax=Math.max(...all);
-      if(!isFinite(zmin)||!isFinite(zmax))return;
-      if(zmin===zmax){zmin-=1;zmax+=1;}
-      const bins=32,binWidth=(zmax-zmin)/bins;
-      function hist(arr){const counts=new Array(bins).fill(0);
-        for(const z of arr){let i=Math.floor((z-zmin)/binWidth);if(i<0)i=0;if(i>=bins)i=bins-1;counts[i]++;}
-        return counts;}
-      const ha=hist(za),hb=hist(zb),maxCount=Math.max(1,...ha,...hb);
-      function bars(counts,color){g.fillStyle=color;
-        for(let i=0;i<bins;i++){const bh=counts[i]/maxCount*ph;
-          g.fillRect(left+i/bins*pw,top+ph-bh,pw/bins-1,bh);}}
-      g.save();g.beginPath();g.rect(left,top,pw,ph);g.clip();g.globalAlpha=.55;
-      bars(ha,'#ff6369');bars(hb,'#4b9eff');g.globalAlpha=1;g.restore();
-      g.strokeStyle='#33404e';g.lineWidth=1;g.beginPath();
-      g.moveTo(left,top);g.lineTo(left,top+ph);g.lineTo(left+pw,top+ph);g.stroke();
-      g.fillStyle='#c7d6df';g.textAlign='center';g.font='11px system-ui';
-      g.fillText(zmin.toFixed(1)+' m',left,top+ph+16);g.fillText(zmax.toFixed(1)+' m',left+pw,top+ph+16);
-      g.textAlign='left';g.font='12px system-ui';
-      const mean=arr=>arr.reduce((a,b)=>a+b,0)/arr.length;
-      g.fillStyle='#ff9fa3';
-      g.fillText('A: n='+za.length+(za.length?', mean '+mean(za).toFixed(2)+' m':' (hidden or none loaded)'),left,20);
-      g.fillStyle='#9fc8ff';
-      g.fillText('B: n='+zb.length+(zb.length?', mean '+mean(zb).toFixed(2)+' m':' (hidden or none loaded)'),left+Math.min(260,pw/2+20),20);
-    }
     const profile = window.ALSProfile ? window.ALSProfile([ca,cb],
       ()=>({points,groups,origin,extent,labels,crs,palette,paletteB,showA,showB,focusCentral,palettes,camera,pitch,exag}),
       drawBoth, ()=>{pitch=0;yaw=0;zoom=1;drawBoth();}) : null;
@@ -184,7 +146,6 @@
         if(ctxB)profile.renderOverlay(ctxB,cb);
         profile.renderChart();
       }
-      renderDensity();
     }
     function fit(){yaw=initialYaw;pitch=initialPitch;zoom=1;drawBoth();}
     function attach(c){
