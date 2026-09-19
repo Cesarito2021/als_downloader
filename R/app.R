@@ -138,7 +138,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::downloadButton("export_manifest", "Export all tile metadata"),
             shiny::downloadButton("export_selection", "Export selected metadata"),
             shiny::downloadButton("export_script", "Download selection as R script"),
-            shiny::tags$details(shiny::tags$summary("Session report: PDF or HTML"),
+            shiny::tags$details(shiny::tags$summary("PDF study report"),
               shiny::helpText("A concise visual report with study-area information, figures, conclusions and credits. The RGB map is framed automatically around your study area and selected tiles. Attach exported viewer figures below if wanted."),
               shiny::checkboxInput("report_rgb", "Include centred satellite RGB map", TRUE),
               shiny::downloadButton("download_report_map", "Save centred RGB map PNG"),
@@ -146,7 +146,6 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
               shiny::checkboxInput("report_details", "Include technical appendix (file sample and download-time scenarios)", FALSE),
               shiny::fileInput("report_figures", "Optional exported PNG figures (up to 6, 10 MiB each)", multiple = TRUE, accept = ".png"),
               shiny::helpText("Attached figures may show a different selection; check their embedded labels. Extra figures add pages. PDF requires Pandoc and TinyTeX on the app server."),
-              shiny::downloadButton("download_report", "Download HTML report"),
               shiny::downloadButton("download_report_pdf", "Download PDF report")),
             shiny::div(class = "als-tile-preview",
               shiny::textOutput("tile_selection"),
@@ -392,8 +391,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     write_report <- function(file, format) {
       x <- selected_tiles(); shiny::req(nrow(x))
       if (format == "pdf" && !(requireNamespace("tinytex", quietly = TRUE) && isTRUE(tinytex::is_tinytex()))) {
-        shiny::showNotification("PDF needs TinyTeX. Use Download HTML report instead.", type = "error", duration = 15)
-        stop("PDF is unavailable; download the HTML report instead.", call. = FALSE)
+        shiny::showNotification("PDF reports require a working TinyTeX installation on the app server.", type = "error", duration = 15)
+        stop("PDF reports require a working TinyTeX installation.", call. = FALSE)
       }
       area <- if (is.null(state$aoi)) NA_real_ else aoi_area(state$aoi)
       dir <- tempfile("als-report-"); dir.create(dir)
@@ -405,8 +404,6 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         error = function(e) {shiny::showNotification(conditionMessage(e), type = "error", duration = 15); stop(e)})
       file.copy(path, file, overwrite = TRUE)
     }
-    output$download_report <- shiny::downloadHandler(filename = "als-session-report.html",
-      content = function(file) write_report(file, "html"))
     output$download_report_pdf <- shiny::downloadHandler(filename = "als-session-report.pdf", contentType = "application/pdf",
       content = function(file) write_report(file, "pdf"))
     output$tile_selection <- shiny::renderText({

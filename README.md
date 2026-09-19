@@ -154,7 +154,7 @@ Software: **GPL-3**, without warranty. Source availability, spatial coverage and
 
 ### Session reports
 
-In Explore, open **Session report: PDF or HTML** after selecting tiles. The
+In Explore, open **PDF study report** after selecting tiles. The
 report includes the study-area footprint map, provider-reported dates, tile
 counts, known storage in GiB, concise conclusions, software citation and credits.
 The closing acknowledgement recognises OpenForest4D and NSF awards 2409885,
@@ -175,5 +175,5 @@ save PNGs, then attach them in the report panel (up to six figures,
 10 MiB each). Legends and credits remain embedded; verify that attached figures
 match the study being reported. The compact summary is typically two pages;
 figures and lengthy source credits add pages. Original LAS/LAZ files are unchanged.
-HTML requires rmarkdown and Pandoc; PDF additionally requires a working TinyTeX
-installation on the app server. HTML remains available if PDF is unavailable.
+The app offers one report format: PDF. It requires rmarkdown, Pandoc and a
+working TinyTeX installation on the app server.

@@ -1,5 +1,7 @@
 # alsdownloader 0.1.0
 
+* Simplify the app to one PDF report download while retaining PNG figure exports.
+
 * Automatically compose a centred satellite RGB map for PDF/HTML reports using
   the actual AOI and selected tile outlines, with scale and source credits.
   Offer the same map as a PNG; reject stale captures and incomplete imagery.

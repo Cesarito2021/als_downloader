@@ -1,7 +1,7 @@
 /* Centred report composition: original study geometry, selected tiles and RGB. */
 (function () {
   let busy = false, bypass = null;
-  const ids = ['download_report', 'download_report_pdf', 'download_report_map'];
+  const ids = ['download_report_pdf', 'download_report_map'];
   const status = text => { const el = document.getElementById('report_map_status'); if (el) el.textContent = text; };
   function finish(message) { busy = false; status(message); }
   document.addEventListener('click', event => {

@@ -22,7 +22,7 @@ report_map_server <- function(input, output, session, aoi, tiles) {
       if (is.null(region) || !nrow(region) || !inherits(x, "sf") || !nrow(x))
         stop("Draw or upload a study area and select tiles before creating a report map.")
       action <- input$report_map_request$action
-      if (!action %in% c("download_report", "download_report_pdf", "download_report_map")) stop("Unknown report action.")
+      if (!action %in% c("download_report_pdf", "download_report_map")) stop("Unknown report action.")
       clear()
       map$key <- current(); map$token <- digest::digest(list(map$key, Sys.time(), stats::runif(1)))
       map$action <- action
