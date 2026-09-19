@@ -24,6 +24,10 @@
 .als-header{box-shadow:0 1px 0 rgba(0,0,0,.35)}
 .als-header h1{font-weight:600}
 .als-sidebar{box-shadow:2px 0 14px rgba(0,0,0,.22)}
+.btn.als-report-btn{display:block;width:100%;padding:12px 14px;margin:0 0 16px;background:#167d8d;color:#fff;border:1px solid #45aab7;border-radius:8px;font-weight:600;white-space:normal}
+.btn.als-report-btn:hover,.btn.als-report-btn:focus{background:#116877;color:#fff;border-color:#79d2dc}
+.btn.als-report-btn:focus-visible{outline:3px solid #a0e7ee;outline-offset:3px}
+.btn.als-report-btn .fa{margin-right:6px}
 .nav-tabs>li>a{transition:color .15s ease,box-shadow .15s ease;border-radius:var(--als-radius) var(--als-radius) 0 0}
 .nav-tabs>li.active>a,.nav-tabs>li.active>a:hover,.nav-tabs>li.active>a:focus{box-shadow:inset 0 -2px 0 var(--als-accent)}
 a{transition:color .12s ease}a:hover{color:#c3dbe6}
