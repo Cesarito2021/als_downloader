@@ -7,6 +7,10 @@
 #'   terms. Defaults to two; hosted mode always uses one.
 #' @param host,port Bind address and optional port passed to [shiny::runApp()].
 #' @param launch.browser Whether to open a browser. Defaults to interactive use.
+#' @param submission_dir Optional private directory for Zenodo proposals and
+#'   approved indexes. No directory is created until a proposal is submitted.
+#' @param reviewer Optional trusted maintainer name; enables private review UI
+#'   only in local mode. Never enable on a public deployment without authentication.
 #' @return Invisibly, the return value of [shiny::runApp()]. Runs until stopped.
 #' @details Launch is explicit: loading the package does not start a browser,
 #'   contact providers, change the working directory or install packages.
@@ -16,10 +20,12 @@
 #' if (interactive()) launch_app()
 launch_app <- function(mode = c("local", "hosted"), tile_index_dir = NULL,
                        provider_limit = 2L, host = "127.0.0.1", port = NULL,
-                       launch.browser = interactive()) {
+                       launch.browser = interactive(), submission_dir = NULL, reviewer = NULL) {
+  if (!is.null(reviewer) && !host %in% c("127.0.0.1", "localhost", "::1"))
+    stop("The private reviewer interface must bind to localhost.")
   old <- options(shiny.maxRequestSize = 1024 * 1024^2)
   on.exit(options(old), add = TRUE)
-  shiny::runApp(als_app(match.arg(mode), tile_index_dir, provider_limit),
+  shiny::runApp(als_app(match.arg(mode), tile_index_dir, provider_limit, submission_dir, reviewer),
                 host = host, port = port, launch.browser = launch.browser)
 }
 
@@ -29,8 +35,13 @@ launch_app <- function(mode = c("local", "hosted"), tile_index_dir = NULL,
 #' @export
 #' @examples
 #' if (interactive()) shiny::runApp(als_app())
-als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) {
+als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, submission_dir = NULL, reviewer = NULL) {
   mode <- match.arg(mode, c("local", "hosted"))
+  valid_setting <- function(x) is.character(x) && length(x)==1L && !is.na(x) && nzchar(trimws(x))
+  if (!is.null(submission_dir) && !valid_setting(submission_dir)) stop("Use a private submission directory path.")
+  if (!is.null(reviewer) && !valid_setting(reviewer)) stop("Identify the reviewing maintainer.")
+  if (!is.null(reviewer) && (mode != "local" || is.null(submission_dir)))
+    stop("Private review requires local mode and a configured submission_dir.")
   assets <- system.file("app", "www", package = "alsdownloader")
   shiny::addResourcePath("als-assets", assets)
   shiny::addResourcePath("als-data", system.file("extdata", package = "alsdownloader"))
@@ -56,6 +67,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       shiny::span("Discover, inspect and download airborne LiDAR")),
       shiny::div(class = "als-header-actions",
         shiny::actionButton("suggest_source", "Share your dataset"),
+        if (!is.null(reviewer)) shiny::actionButton("zenodo_review_open", "Review Zenodo requests"),
         shiny::span(class = "mode-label", paste(toupper(mode), "MODE")))),
     shiny::div(class = "als-layout",
       shiny::conditionalPanel("input.enter_map > 0", class = "als-sidebar-toggle",
@@ -193,6 +205,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     })
     source_check_summary <- source_preflight_server(input, output, session, state, mode, hosted_lock)
     source_submission_server(input, output, session, source_check_summary)
+    zenodo_submission_server(input, output, session, submission_dir, reviewer)
     comparison_server(input, output, session, state, mode, hosted_lock)
     output$map <- leaflet::renderLeaflet({
       world$catalog <- world$code %in% catalog$country_code
@@ -293,10 +306,15 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       has_local_index <- !is.null(local_index_dir) && nzchar(trimws(local_index_dir))
       providers <- c("usgs3dep", "ahn6", "swisstopo", "ignfr")
       if (has_local_index) providers <- c(providers, "opentopography", "contributed", "canelevation")
+      approved_dir <- if (is.null(submission_dir)) NULL else file.path(submission_dir, "approved")
+      if (!is.null(approved_dir) && length(list.files(approved_dir, "\\.tiles\\.geojson$")))
+        providers <- c(providers, "zenodo-approved")
       tryCatch({
         outcome <- shiny::withProgress(message = "Searching sources", value = .2, {
           out <- lapply(providers, function(p) tryCatch(
-            find_tiles(state$aoi, p, as.character(input$dates[1]), as.character(input$dates[2]), local_index_dir),
+            find_tiles(state$aoi, if (p == "zenodo-approved") "contributed" else p,
+              as.character(input$dates[1]), as.character(input$dates[2]),
+              if (p == "zenodo-approved") approved_dir else local_index_dir),
             error = function(e) e))
           names(out) <- providers
           out

@@ -4,7 +4,13 @@
 \alias{als_app}
 \title{Create the Shiny application object}
 \usage{
-als_app(mode = "local", tile_index_dir = NULL, provider_limit = 2L)
+als_app(
+  mode = "local",
+  tile_index_dir = NULL,
+  provider_limit = 2L,
+  submission_dir = NULL,
+  reviewer = NULL
+)
 }
 \arguments{
 \item{mode}{`"local"` for configurable transfers or `"hosted"` for a serial
@@ -15,6 +21,12 @@ directory. Not exposed as a server path control in hosted mode.}
 
 \item{provider_limit}{Transfer concurrency ceiling after checking provider
 terms. Defaults to two; hosted mode always uses one.}
+
+\item{submission_dir}{Optional private directory for Zenodo proposals and
+approved indexes. No directory is created until a proposal is submitted.}
+
+\item{reviewer}{Optional trusted maintainer name; enables private review UI
+only in local mode. Never enable on a public deployment without authentication.}
 }
 \value{
 A `shiny.appobj` suitable for [shiny::runApp()] or a deployment entry point.

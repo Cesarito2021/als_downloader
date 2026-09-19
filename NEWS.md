@@ -1,5 +1,9 @@
 # alsdownloader 0.1.0
 
+* Add a five-field Zenodo contribution form, automatic metadata retrieval,
+  polygon/file mapping, a private deduplicated queue and explicit maintainer
+  approval. Only approved coverage enters searches; no real records are bundled.
+
 * Simplify the app to one PDF report download while retaining PNG figure exports.
 
 * Automatically compose a centred satellite RGB map for PDF/HTML reports using

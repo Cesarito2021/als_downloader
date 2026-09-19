@@ -77,13 +77,14 @@ search_europe <- function(aoi, provider, max_items) {
 }
 
 valid_tile_container <- function(path,tile) {
-  if (identical(tile$provider,"swisstopo") && grepl("\\.las\\.zip$",tile$filename,ignore.case=TRUE)) {
+  if ((identical(tile$provider,"swisstopo") && grepl("\\.las\\.zip$",tile$filename,ignore.case=TRUE)) ||
+      (identical(tile$provider,"contributed") && grepl("^https://zenodo\\.org/records/[0-9]+/files/",tile$url) && grepl("\\.zip$",tile$filename,ignore.case=TRUE))) {
     if (!file.exists(path)) return(FALSE)
     members <- tryCatch(suppressWarnings(utils::unzip(path,list=TRUE)),error=function(e)NULL)
     if (is.null(members) || !nrow(members)) return(FALSE)
     names <- gsub("\\\\","/",members$Name)
     return(!any(grepl("(^/|^[A-Za-z]:|(^|/)\\.\\.(/|$))",names)) &&
-      any(grepl("\\.las$",names,ignore.case=TRUE) & members$Length>=227))
+      any(grepl("\\.(las|laz)$",names,ignore.case=TRUE) & members$Length>=227))
   }
   valid_las_header(path)
 }

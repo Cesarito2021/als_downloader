@@ -80,7 +80,7 @@ transfer_tile <- function(tile, output_dir, retries, timeout, progress_dir = NUL
         stop("Downloaded byte count does not match Content-Length.")
       if (is.finite(tile$size_bytes) && file.size(part) != tile$size_bytes)
         stop("Downloaded size does not match the catalog.")
-      if (!valid_tile_container(part,tile)) stop("Downloaded file lacks the expected LAS/LAZ header or Swiss LAS ZIP directory.")
+      if (!valid_tile_container(part,tile)) stop("Downloaded file lacks the expected LAS/LAZ header or supported point-cloud ZIP directory.")
       if (file.exists(dest)) unlink(dest)
       if (!file.rename(part, dest)) stop("Could not finalize the downloaded file.")
       result$status <- "downloaded"

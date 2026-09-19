@@ -5,6 +5,8 @@
 #'   Required properties are tile_id, dataset, url, acquired_start, acquired_end,
 #'   platform, license_url and citation. Dates may be null when unknown.
 #'   Platform must be ALS or UAV-LiDAR. Coordinates must be EPSG:4326.
+#'   Assets must be direct HTTPS LAS/LAZ files or Zenodo record ZIP files.
+#'   ZIP files are downloaded intact and require local extraction for preview.
 #' @export
 #' @examples
 #' read_tile_index(system.file("extdata", "contribution-template.geojson",
@@ -28,8 +30,9 @@ read_tile_index <- function(path) {
         (!is.null(p$acquired_start) && !is.null(p$acquired_end) && p$acquired_start > p$acquired_end)) stop("Invalid acquisition interval.")
     u <- httr::parse_url(p$url)
     if (!identical(u$scheme, "https") || is.null(u$hostname) || !is.null(u$username) || !is.null(u$password) ||
-        length(u$query) || !is.null(u$fragment) || !grepl("\\.(las|laz)$", u$path, ignore.case = TRUE))
-      stop("Use stable direct HTTPS LAS/LAZ URLs without credentials or query tokens.")
+        length(u$query) || !is.null(u$fragment) || !(grepl("\\.(las|laz)$", u$path, ignore.case = TRUE) ||
+          (identical(u$hostname,"zenodo.org") && grepl("^records/[0-9]+/files/[^/]+\\.zip$",u$path,ignore.case=TRUE))))
+      stop("Use stable HTTPS LAS/LAZ or Zenodo record ZIP URLs without credentials or query tokens.")
     if (!grepl("^https://[^[:space:]]+$", p$license_url)) stop("A public license URL is required.")
     if (!is.null(p$size_bytes) && (!is.numeric(p$size_bytes) || length(p$size_bytes) != 1L ||
         !is.finite(p$size_bytes) || p$size_bytes <= 0)) stop("size_bytes must be positive or null.")
@@ -45,7 +48,7 @@ read_tile_index <- function(path) {
     x <- f$properties[[key]]; if (is.null(x)) missing else x
   }, missing)
   rows <- sf::st_sf(tile_id = value("tile_id"), provider = "contributed", dataset = value("dataset"),
-    filename = basename(value("url")), url = value("url"), acquired_start = value("acquired_start"),
+    filename = utils::URLdecode(basename(value("url"))), url = value("url"), acquired_start = value("acquired_start"),
     acquired_end = value("acquired_end"), size_bytes = value("size_bytes", NA_real_),
     license_url = value("license_url"), citation = value("citation"), geometry = sf::st_geometry(g))
   if (anyDuplicated(paste(rows$dataset, rows$tile_id)) || anyDuplicated(rows$url)) stop("Duplicate tile identifiers or URLs.")

@@ -26,6 +26,8 @@ source_request <- function(input) {
 
 source_submission_ui <- function() shiny::modalDialog(
   title="Share your dataset",size="l",easyClose=FALSE,
+  shiny::tabsetPanel(shiny::tabPanel("Share a Zenodo dataset", zenodo_submission_ui()),
+  shiny::tabPanel("Other data sources",
   shiny::p("Have aerial LiDAR data other researchers could use? We would love to add it. Tell us a bit about it below, run a quick compatibility check, and send your request to Cesar Alvites for review - it only takes a few minutes."),
   shiny::p("Your point clouds stay right where they are; we only need a link. If your dataset covers a whole survey area, a small GeoJSON index (one footprint and file link per tile) lets people search it by area. Please don't upload point clouds here."),
   shiny::tags$details(shiny::tags$summary("What is a tile index? (advanced)"),
@@ -48,7 +50,7 @@ source_submission_ui <- function() shiny::modalDialog(
   shiny::textAreaInput("source_notes","Anything else worth knowing - sensor, location, quirks? (optional)",rows=2),
   shiny::checkboxInput("source_open_license","I confirm this is aerial laser data under an explicit open-data license that permits reuse.",FALSE),
   source_preflight_ui(),shiny::textOutput("source_form_status"),shiny::uiOutput("source_submission"),
-  shiny::helpText("Sending opens a private email draft for you to review and send yourself from your own mail app - nothing goes out automatically. We only use your email to follow up about this dataset; please don't post it in public GitHub issues."),
+  shiny::helpText("Sending opens a private email draft for you to review and send yourself from your own mail app - nothing goes out automatically. We only use your email to follow up about this dataset; please don't post it in public GitHub issues."))),
   footer=shiny::modalButton("Close"))
 
 source_submission_server <- function(input,output,session,check) {

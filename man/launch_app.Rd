@@ -10,7 +10,9 @@ launch_app(
   provider_limit = 2L,
   host = "127.0.0.1",
   port = NULL,
-  launch.browser = interactive()
+  launch.browser = interactive(),
+  submission_dir = NULL,
+  reviewer = NULL
 )
 }
 \arguments{
@@ -26,6 +28,12 @@ terms. Defaults to two; hosted mode always uses one.}
 \item{host, port}{Bind address and optional port passed to [shiny::runApp()].}
 
 \item{launch.browser}{Whether to open a browser. Defaults to interactive use.}
+
+\item{submission_dir}{Optional private directory for Zenodo proposals and
+approved indexes. No directory is created until a proposal is submitted.}
+
+\item{reviewer}{Optional trusted maintainer name; enables private review UI
+only in local mode. Never enable on a public deployment without authentication.}
 }
 \value{
 Invisibly, the return value of [shiny::runApp()]. Runs until stopped.

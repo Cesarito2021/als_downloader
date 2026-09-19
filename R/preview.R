@@ -104,7 +104,7 @@ preview_remote_tile <- function(tile, max_bytes = 1024 * 1024^2, path = tempfile
   stage("Checking source access...")
   require_data_terms(tile)
   if (grepl("\\.zip$",tile$filename[[1]],ignore.case=TRUE))
-    stop("This source delivers an original LAS ZIP. Download and extract it locally, then open the LAS for preview.")
+    stop("This source delivers a point-cloud ZIP archive. Download and extract it locally, then open its LAS/LAZ files for preview.")
   if (!requireNamespace("lidR", quietly = TRUE)) stop("Install lidR to preview tiles.")
   url <- tile$url[[1]]
   if (!grepl("^https://", url)) stop("Only HTTPS tile URLs are supported.")

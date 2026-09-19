@@ -20,6 +20,8 @@ Reads metadata only. Does not contact asset URLs or approve a source.
   Required properties are tile_id, dataset, url, acquired_start, acquired_end,
   platform, license_url and citation. Dates may be null when unknown.
   Platform must be ALS or UAV-LiDAR. Coordinates must be EPSG:4326.
+  Assets must be direct HTTPS LAS/LAZ files or Zenodo record ZIP files.
+  ZIP files are downloaded intact and require local extraction for preview.
 }
 \examples{
 read_tile_index(system.file("extdata", "contribution-template.geojson",

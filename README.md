@@ -177,3 +177,48 @@ match the study being reported. The compact summary is typically two pages;
 figures and lengthy source credits add pages. Original LAS/LAZ files are unchanged.
 The app offers one report format: PDF. It requires rmarkdown, Pandoc and a
 working TinyTeX installation on the app server.
+
+### Community Zenodo submissions
+
+**Share your dataset → Share a Zenodo dataset** asks for five items: the public
+Zenodo link or DOI, surveyed coverage, acquisition dates (unknown is allowed),
+ALS/UAV platform and an optional private contact email. Reading metadata retrieves
+the version DOI, title, authors, licence, description, notes, filenames and sizes.
+Publication dates are never substituted for survey dates. No point cloud is
+downloaded or analysed during submission.
+
+Coverage can be uploaded as GeoJSON, a single-layer GeoPackage or a zipped
+Shapefile with its CRS (at most 5 MiB). A small coverage file already listed in
+the record can instead be selected. A single LAS/LAZ asset is mapped automatically;
+for several assets, include a `file_key` column with the exact Zenodo filename
+for each polygon. Multiple polygons for an asset are combined. ZIP assets are
+supported as whole-archive downloads; contents require maintainer verification
+and local extraction before 3D preview. Other archive formats are not supported.
+Unknown coverage cannot be inferred from a DOI or an arbitrary map location.
+
+For a local maintainer installation, configure a persistent private directory:
+
+```r
+launch_app(submission_dir = "~/als-private-review", reviewer = "Your name")
+```
+
+The **Review Zenodo requests** screen shows pending coverage, files and credits.
+The maintainer must confirm the file/footprint mapping, aerial LiDAR content,
+dates and licence obligations before approving. Approval rechecks metadata and
+saves an index; only approved indexes participate in subsequent AOI searches.
+Rejection, reviewer identity and decision notes are recorded privately. Identical
+proposals are deduplicated. Source data remain on Zenodo with their own licences;
+approval does not relicense them. No email is sent automatically.
+
+On a public deployment, configure `submission_dir` on persistent private storage
+outside web assets and omit `reviewer`. Review the same queue from a separate
+trusted local installation; the built-in reviewer UI is not an authentication
+system. `launch_app()` restricts reviewer mode to localhost. Protect queue access
+and apply deployment-level submission rate limits before opening a public service.
+If no queue is configured, users can save their proposal JSON and share it
+privately; a maintainer can enqueue it with `submit_zenodo()`.
+
+The R equivalents are `inspect_zenodo()`, `prepare_zenodo_submission()`,
+`submit_zenodo()`, `zenodo_submissions()` and `review_zenodo_submission()`.
+No community records ship pre-approved. Tests use fictitious local metadata and
+polygons; live-record acceptance and public-service load testing remain separate.
