@@ -508,7 +508,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       tryCatch({
         state$preview_job <- background_job("local_preview_job", list(preview_path,
           input$local_percent, as.numeric(input$local_window), input$local_center_x,
-          input$local_center_y, as.numeric(input$local_voxel)))
+          input$local_center_y, as.numeric(input$local_voxel), input$local_xy_units, input$local_z_units))
       }, error = function(e) {
         unlink(preview_path)
         state$previewtext <- paste("Could not start preview:", redact_urls_in_text(conditionMessage(e)))
@@ -543,7 +543,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       state$preview_path <- tempfile(fileext = ".laz")
       tryCatch({state$preview_job <- background_job("remote_preview_job",
         list(tile, state$preview_path, input$local_percent, as.numeric(input$local_window),
-          input$local_center_x, input$local_center_y, as.numeric(input$local_voxel)))}, error = function(e) {
+          input$local_center_x, input$local_center_y, as.numeric(input$local_voxel), input$local_xy_units, input$local_z_units))}, error = function(e) {
           if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
           state$previewtext <- paste("Could not start preview:", redact_urls_in_text(conditionMessage(e)))
         })
@@ -571,11 +571,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
       if (!is.null(state$preview_path)) unlink(c(state$preview_path, paste0(state$preview_path, ".status")))
       tryCatch({p <- job$get_result()
-        caption <- paste(nrow(p), "preview points. Elevation uses source units; confirm CRS and vertical datum.")
+        caption <- paste(nrow(p), "preview points.", attr(p, "units_note"))
         if (!is.null(attr(p, "display_note"))) caption <- paste(caption, attr(p, "display_note"))
         if (state$preview_target == "als-cloud") state$previewtext <- paste(state$preview_label, "-", caption)
         else state$tiletext <- paste(state$preview_label, "-", caption)
-        session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), classification = unname(attr(p, "classification")), intensity = unname(attr(p, "intensity")), label = state$preview_label, attribution = as.list(state$preview_attribution), origin = unname(attr(p, "origin"))))},
+        session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), classification = unname(attr(p, "classification")), intensity = unname(attr(p, "intensity")), units = attr(p, "units"), units_note = attr(p, "units_note"), label = state$preview_label, attribution = as.list(state$preview_attribution), origin = unname(attr(p, "origin"))))},
         error = function(e) {
           message <- paste("Preview failed:", redact_urls_in_text(conditionMessage(e)))
           if (state$preview_target == "als-cloud") state$previewtext <- message else state$tiletext <- message

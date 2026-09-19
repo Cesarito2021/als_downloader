@@ -10,7 +10,9 @@ read_forest_preview(
   window = 100,
   center_x = 50,
   center_y = 50,
-  voxel = 0
+  voxel = 0,
+  xy_units = "auto",
+  z_units = "auto"
 )
 }
 \arguments{
@@ -21,6 +23,11 @@ between 0.1 and 100. The reader pool is also capped at 750,000 points.}
 
 \item{window, center_x, center_y, voxel}{Display windowing and optional
 voxel thinning; see [forest_display_sample()].}
+
+\item{xy_units, z_units}{Source horizontal and elevation units: `auto`, `m`,
+`ft` (international foot) or `us-ft` (US survey foot). Explicit choices
+require confirmation from source documentation. Both must be known to
+scale display coordinates to metres; unknown units remain unchanged.}
 }
 \value{
 The same translated coordinate table as [preview_points()], with

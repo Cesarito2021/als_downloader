@@ -27,7 +27,7 @@
     (classes[code] || ['Class '+code, '#a8a4cf']);
   function viewer(c) {
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Greyscale',colourBy='auto',activeMode='elevation';
-    let initialPitch=0,pointSize=1.8,classification=[],classColors=[],intensity=[],intensityRange=[0,0],sourceLabel="Point-cloud preview",attribution=[];
+    let initialPitch=0,pointSize=1.8,classification=[],classColors=[],intensity=[],intensityRange=[0,0],sourceLabel="Point-cloud preview",attribution=[],unitLabel="source units (unverified)",unitNote="";
     const classLegend=document.createElement('div');
     classLegend.className='als-classification-legend';
     classLegend.setAttribute('aria-label','Source classification legend');
@@ -38,7 +38,7 @@
       classLegend.style.display=points.length?'flex':'none';
       if(!points.length)return;
       if(activeMode!=='classification'){
-        classLegend.textContent=(colourBy==='auto'?'Automatic: ':'')+(activeMode==='intensity'?'Intensity (raw source values)':activeMode==='missing'?'Intensity unavailable; points shown in grey':'Elevation (source Z)')+' | '+palette;
+        classLegend.textContent=(colourBy==='auto'?'Automatic: ':'')+(activeMode==='intensity'?'Intensity (raw source values)':activeMode==='missing'?'Intensity unavailable; points shown in grey':'Elevation ('+unitLabel+')')+' | '+palette;
         return;
       }
       const counts=new Map();
@@ -113,7 +113,7 @@
         'ALS Downloader | '+sourceLabel,
         'Colour: '+activeMode+(colourBy==='auto'?' (automatic)':'')+(activeMode==='classification'?' | Source class colours':' | '+palette)+' | Z exaggeration '+exag+'x',
         activeMode==='classification'?'Source classification keys shown above.':classLegend.textContent,
-        points.length.toLocaleString()+' sampled points. Source labels and raw values; no new classification or height normalization.',...attribution
+        points.length.toLocaleString()+' sampled points. No new classification or height normalization.',unitNote,...attribution
       ],document.getElementById('preview_export_status'),activeMode==='classification'?[...classLegend.children].map(el=>({label:el.textContent,color:el.firstChild.style.backgroundColor})):[]);
     };
     const observer=new ResizeObserver(draw);observer.observe(c);draw();
@@ -129,7 +129,7 @@
       });
       const validIntensity=intensity.filter(v=>v!==null);
       intensityRange=validIntensity.length?validIntensity.reduce((r,v)=>[Math.min(r[0],v),Math.max(r[1],v)],[Infinity,-Infinity]):[0,0];
-      sourceLabel=data.label||'Point-cloud preview';attribution=Array.isArray(data.attribution)?data.attribution:['Source credit and licence not supplied. Check original source before publication.'];
+      unitLabel=data.units||'source units (unverified)';unitNote=data.units_note||'Coordinate units not supplied; verify original source.';sourceLabel=data.label||'Point-cloud preview';attribution=Array.isArray(data.attribution)?data.attribution:['Source credit and licence not supplied. Check original source before publication.'];
       classColors=classification.map(code=>classInfo(code)[1]);
       if(saveButton)saveButton.disabled=!points.length;
       resolveMode();

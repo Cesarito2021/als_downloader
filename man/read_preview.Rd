@@ -4,12 +4,17 @@
 \alias{read_preview}
 \title{Read a small preview from a local LAS or LAZ file}
 \usage{
-read_preview(path, max_points = 100000L)
+read_preview(path, max_points = 100000L, xy_units = "auto", z_units = "auto")
 }
 \arguments{
 \item{path}{Local point-cloud filename.}
 
 \item{max_points}{Maximum preview size, between one and one million.}
+
+\item{xy_units, z_units}{Source horizontal and elevation units: `auto`, `m`,
+`ft` (international foot) or `us-ft` (US survey foot). Explicit choices
+require confirmation from source documentation. Both must be known to
+scale display coordinates to metres; unknown units remain unchanged.}
 }
 \value{
 The same translated coordinate table as [preview_points()].

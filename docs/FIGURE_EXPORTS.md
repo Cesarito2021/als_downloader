@@ -1,5 +1,16 @@
 # Colour controls and PNG figures
 
+Coordinate units are resolved separately for X/Y and Z. When both are known,
+previews use metres: international feet use 0.3048 m and US survey feet use
+1200/3937 m. A horizontal CRS alone does not establish elevation units. The
+preview controls allow users to confirm missing units from source documentation.
+Otherwise the single-cloud viewer keeps original values and labels the units
+unverified; metric voxel thinning and comparison require resolved units.
+Comparison still requires matching source CRS definitions. Unit conversion
+does not align vertical datums or calculate height above ground.
+Original files are unchanged; PNG notes retain the conversion and any user
+confirmation. See [PROJ unit conversion](https://proj.org/en/stable/operations/conversions/unitconvert.html).
+
 The single-cloud viewer uses source data, without running a classifier.
 **Automatic** selects source classification if any class above 1 is present;
 otherwise it uses non-zero source intensity, then source elevation. Select

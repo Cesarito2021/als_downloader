@@ -46,6 +46,10 @@ preview_points <- function(points, max_points = 100000L) {
 #' Read a small preview from a local LAS or LAZ file
 #' @param path Local point-cloud filename.
 #' @param max_points Maximum preview size, between one and one million.
+#' @param xy_units,z_units Source horizontal and elevation units: `auto`, `m`,
+#'   `ft` (international foot) or `us-ft` (US survey foot). Explicit choices
+#'   require confirmation from source documentation. Both must be known to
+#'   scale display coordinates to metres; unknown units remain unchanged.
 #' @return The same translated coordinate table as [preview_points()].
 #' @details Requires the optional package 'lidR'. Reader-side decimation limits
 #'   retained points before they enter R. The file may still need to be scanned
@@ -55,7 +59,7 @@ preview_points <- function(points, max_points = 100000L) {
 #' if (interactive() && requireNamespace("lidR", quietly = TRUE)) {
 #'   # p <- read_preview("tile.laz", max_points = 50000)
 #' }
-read_preview <- function(path, max_points = 100000L) {
+read_preview <- function(path, max_points = 100000L, xy_units = "auto", z_units = "auto") {
   if (!requireNamespace("lidR", quietly = TRUE)) stop("Install lidR to preview LAS/LAZ files.", call. = FALSE)
   if (length(max_points) != 1L || !is.finite(max_points) || max_points < 1 || max_points > 1e6 || max_points != floor(max_points))
     stop("Invalid preview point budget.", call. = FALSE)
@@ -68,7 +72,10 @@ read_preview <- function(path, max_points = 100000L) {
   every <- max(1, ceiling(n / max_points))
   las <- lidR::readLAS(path, select = "xyzci", filter = paste("-keep_every_nth", every))
   if (is.null(las)) stop("Reader returned no preview points.")
-  preview_points(las@data, max_points)
+  units <- display_unit_info(sf::st_crs(header), xy_units, z_units)
+  out <- preview_points(scale_display_points(las@data, units), max_points)
+  attr(out, "units") <- units$label; attr(out, "units_note") <- units$note
+  out
 }
 
 #' Download one remote tile temporarily and read a bounded preview
@@ -151,6 +158,7 @@ forest_display_sample <- function(points, window = 100, center_x = 50, center_y 
 
 #' Read a decimated, spatially windowed preview for the forest close-up viewer
 #' @param path Local LAS/LAZ file path.
+#' @inheritParams read_preview
 #' @param percent Approximate percentage of source points the reader keeps,
 #'   between 0.1 and 100. The reader pool is also capped at 750,000 points.
 #' @param window,center_x,center_y,voxel Display windowing and optional
@@ -166,7 +174,7 @@ forest_display_sample <- function(points, window = 100, center_x = 50, center_y 
 #'   # read_forest_preview("tile.laz", percent = 5)
 #' }
 read_forest_preview <- function(path, percent = 2, window = 100, center_x = 50, center_y = 50,
-                                voxel = 0) {
+                                voxel = 0, xy_units = "auto", z_units = "auto") {
   if (!requireNamespace("lidR", quietly = TRUE)) stop("Install lidR to preview LAS/LAZ files.")
   if (!is.finite(percent) || percent < .1 || percent > 100) stop("Choose a display percentage between 0.1 and 100.")
   h <- lidR::readLASheader(path)
@@ -176,21 +184,27 @@ read_forest_preview <- function(path, percent = 2, window = 100, center_x = 50, 
   every <- max(1, ceiling(100 / percent), ceiling(n / 750000))
   las <- lidR::readLAS(path, select = "xyzci", filter = paste("-keep_every_nth", every))
   if (is.null(las) || !nrow(las@data)) stop("No points read for display.")
-  out <- forest_display_sample(las@data, window, center_x, center_y, voxel)
+  units <- display_unit_info(sf::st_crs(h), xy_units, z_units)
+  if (voxel > 0 && !units$known) stop("Confirm horizontal and elevation units before metre-based voxel thinning.")
+  out <- forest_display_sample(scale_display_points(las@data, units), window, center_x, center_y, voxel)
+  attr(out, "units") <- units$label; attr(out, "units_note") <- units$note
   attr(out, "display_note") <- sprintf("%s source points; reader retains about %.2f%% (bounded pool); XY window %.0f%% of each axis; %s. No denoising or height normalization.",
     format(n, scientific = FALSE, trim = TRUE), 100 / every, window,
-    if (voxel > 0) paste("one sampled return per", voxel, "source-unit voxel") else "no voxel thinning")
+    if (voxel > 0) paste("one sampled return per", voxel, "metre voxel") else "no voxel thinning")
   out
 }
 
 forest_preview_controls <- function(prefix) {
   shiny::tags$details(shiny::tags$summary("Forest close-up and display sampling"),
     shiny::helpText("Choose a small wooded window to see crown silhouettes. These controls affect the preview only; no noise removal, normalization or changes to downloaded files. Rebuild the preview after changes."),
+    shiny::selectInput(paste0(prefix, "xy_units"), "Source horizontal units (X/Y)", source_unit_choices()),
+    shiny::selectInput(paste0(prefix, "z_units"), "Source elevation units (Z)", source_unit_choices()),
+    shiny::helpText("Known units are converted to metres for display only. X/Y and Z can differ. If metadata are missing, choose units only after checking provider documentation, then rebuild the preview."),
     shiny::numericInput(paste0(prefix, "percent"), "Reader sampling target (%)", 2, min = .1, max = 100, step = .5),
     shiny::selectInput(paste0(prefix, "window"), "XY display window", c("Full tile" = 100, "Close-up: 25% of each axis" = 25, "Detail: 10% of each axis" = 10), selected = 100),
     shiny::sliderInput(paste0(prefix, "center_x"), "Window center X (%)", 0, 100, 50),
     shiny::sliderInput(paste0(prefix, "center_y"), "Window center Y (%)", 0, 100, 50),
-    shiny::selectInput(paste0(prefix, "voxel"), "Optional spatial thinning (source coordinate units)", c("None" = 0, "0.5-unit voxels" = .5, "1-unit voxels" = 1, "2-unit voxels" = 2)),
+    shiny::selectInput(paste0(prefix, "voxel"), "Optional spatial thinning (metres; units must be known)", c("None" = 0, "0.5-unit voxels" = .5, "1-unit voxels" = 1, "2-unit voxels" = 2)),
     shiny::selectInput(paste0(prefix, "pose"), "Camera", c("Top-down" = "top", "Forest silhouette" = "forest", "Oblique overview" = "overview"), selected = "top"),
     shiny::sliderInput(paste0(prefix, "point_size"), "Display point size", .7, 3, 1.5, step = .1),
     shiny::helpText("Reader pool: at most 750,000 points; display: at most 150,000. Very large files may retain less than the requested percentage. This is not automatic forest detection."))

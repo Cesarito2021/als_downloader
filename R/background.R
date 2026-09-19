@@ -15,13 +15,13 @@ background_job <- function(task, args = list()) {
   }, args = list(task, args, source), libpath = .libPaths(), supervise = TRUE)
 }
 
-local_preview_job <- function(path, percent, window, x, y, voxel) {
+local_preview_job <- function(path, percent, window, x, y, voxel, xy_units = "auto", z_units = "auto") {
   on.exit(unlink(path))
-  read_forest_preview(path, percent, window, x, y, voxel)
+  read_forest_preview(path, percent, window, x, y, voxel, xy_units, z_units)
 }
 
-remote_preview_job <- function(tile, path, percent, window, x, y, voxel) {
+remote_preview_job <- function(tile, path, percent, window, x, y, voxel, xy_units = "auto", z_units = "auto") {
   preview_remote_tile(tile, path = path,
     progress = function(message) writeLines(message, paste0(path, ".status")),
-    reader = function(file) read_forest_preview(file, percent, window, x, y, voxel))
+    reader = function(file) read_forest_preview(file, percent, window, x, y, voxel, xy_units, z_units))
 }

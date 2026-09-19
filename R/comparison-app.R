@@ -10,8 +10,12 @@ comparison_ui <- function() {
       shiny::column(6, shiny::selectInput("epoch_b", "B | latest cloud", choices = character()),
       shiny::actionButton("download_epoch_b", "Select B tiles for download"))),
     shiny::selectInput("compare_side_m", "Preview square side", choices = c("100 m (default)" = 100, "250 m" = 250, "500 m" = 500, "1 km" = 1000), selected = 100),
+    shiny::tags$details(shiny::tags$summary("Source elevation units"),
+      shiny::helpText("Display axes use metres. Horizontal units come from the CRS; elevation units are checked separately. If Z units are absent, confirm them from provider documentation before loading. Unit conversion does not align vertical datums."),
+      shiny::selectInput("compare_z_units_a", "A: source elevation units", source_unit_choices()),
+      shiny::selectInput("compare_z_units_b", "B: source elevation units", source_unit_choices())),
     shiny::helpText("A small window is placed in the largest shared footprint and clipped to your AOI. Draw a smaller AOI in Explore to choose its location. The automatic location is not guaranteed to represent the forest."),
-    shiny::helpText("Visualization only: square side 100 m to 1 km (100 m = 0.01 km2; 1 km = 1 km2). At most four tiles and 600 MB per campaign, 300 MB per tile. Both clouds require the same embedded projected CRS in metres."),
+    shiny::helpText("Visualization only: square side 100 m to 1 km (100 m = 0.01 km2; 1 km = 1 km2). At most four tiles and 600 MB per campaign, 300 MB per tile. Both clouds require the same embedded projected CRS and known coordinate units; feet are scaled to metres for display."),
     shiny::textOutput("compare_availability"), shiny::uiOutput("compare_load_control"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
     shiny::tags$div(class = "als-compare-split",
@@ -82,7 +86,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
     shiny::updateSelectInput(session, "epoch_a", choices = choices, selected = "")
     shiny::updateSelectInput(session, "epoch_b", choices = choices, selected = "")
   }, ignoreNULL = FALSE)
-  shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b, input$compare_opt_in, input$compare_side_m), {
+  shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b, input$compare_opt_in, input$compare_side_m, input$compare_z_units_a, input$compare_z_units_b), {
     stop_job(); cmp$result <- NULL; cmp$status <- "Choose two campaigns, then load the AOI comparison."
     session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = list(), origin = c(0, 0, 0)))
   }, ignoreNULL = FALSE)
@@ -124,7 +128,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
       cmp$dates <- NULL
       cmp$files <- NULL
       state$comparison_busy <- TRUE; cmp$status <- "Loading both clouds inside the overlapping area..."
-      cmp$job <- background_job("compare_campaigns", list(a, b, overlap, cmp$directory))
+      cmp$job <- background_job("compare_campaigns", list(a, b, overlap, cmp$directory, input$compare_z_units_a, input$compare_z_units_b))
     }, error = function(e) {cmp$status <- conditionMessage(e); cleanup()})
   })
   shiny::observe({
@@ -145,16 +149,17 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
       r <- cmp$result
       reference <- sf::st_crs(r$crs)
       crs_label <- if (!is.na(reference$epsg)) paste0("EPSG:", reference$epsg) else reference$Name
+      crs_label <- paste("Source", crs_label, "| display coordinates scaled to metres")
       cmp$status <- sprintf("A: %s overlap points | B: %s overlap points | %.4f km2. Overlay ready for visualization only.", r$counts[1], r$counts[2], r$overlap_km2)
       session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = rbind(r$a, r$b),
         groups = c(rep(0L, nrow(r$a)), rep(1L, nrow(r$b))), origin = r$origin, labels = cmp$labels,
-        crs = crs_label, attribution = as.list(cmp$attribution)))
+        crs = crs_label, attribution = as.list(c(cmp$attribution, r$unit_notes))))
     }, error = function(e) {cmp$status <- paste("Comparison could not be completed:", conditionMessage(e))})
     cleanup()
   })
   shiny::observeEvent(input$compare_cancel, {stop_job(); cmp$status <- "Comparison cancelled."})
   output$compare_status <- shiny::renderText(cmp$status)
-  output$compare_metadata <- shiny::renderText({shiny::req(cmp$result); paste(paste(c("A", "B"), cmp$labels, collapse = "\n"), cmp$result$method, cmp$result$crs, sep = "\n\n")})
+  output$compare_metadata <- shiny::renderText({shiny::req(cmp$result); paste(paste(c("A", "B"), cmp$labels, collapse = "\n"), paste(cmp$result$unit_notes, collapse = "\n"), cmp$result$method, cmp$result$crs, sep = "\n\n")})
   shiny::observeEvent(list(input$compare_palette_a, input$compare_palette_b, input$compare_exaggeration, input$compare_show_a, input$compare_show_b, input$compare_focus),
     session$sendCustomMessage("als-view", list(target = "als-compare-cloud", palette = input$compare_palette_a,
       paletteB = input$compare_palette_b, exaggeration = input$compare_exaggeration, showA = input$compare_show_a, showB = input$compare_show_b, focusCentral = input$compare_focus)))

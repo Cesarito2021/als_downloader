@@ -1,5 +1,9 @@
 # alsdownloader 0.1.0
 
+* Convert known horizontal and elevation units independently to metres for
+  display, including international and US survey feet. Preserve source files
+  and report uncertain units; allow documented user confirmation when needed.
+
 * Put USGS 3DEP first in catalogue cards and explain the optional GeoJSON index example.
 * Hide comparison controls when distinct acquisition periods are unavailable;
   reject duplicate source files and overlapping or unknown selected periods.
