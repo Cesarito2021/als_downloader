@@ -5,6 +5,8 @@
 #'   Coordinates are translated to a local origin for display precision.
 #'   An optional numeric `Classification` column is retained as an aligned
 #'   `classification` attribute; missing or invalid codes become `NA`.
+#'   Optional numeric `Intensity` is retained as an aligned `intensity`
+#'   attribute. No classification or intensity is inferred.
 #' @details Sampling is deterministic and affects only the returned preview.
 #'   The source cloud is not modified. Elevation is not normalized canopy height.
 #' @export
@@ -19,6 +21,7 @@ preview_points <- function(points, max_points = 100000L) {
       max_points > 1e6 || max_points != floor(max_points)) stop("Invalid preview point budget.", call. = FALSE)
   finite <- is.finite(points$X) & is.finite(points$Y) & is.finite(points$Z)
   classification <- if (is.numeric(points$Classification)) points$Classification[finite] else NULL
+  intensity <- if (is.numeric(points$Intensity)) points$Intensity[finite] else NULL
   points <- points[finite, c("X", "Y", "Z")]
   if (!nrow(points)) stop("No finite points to preview.", call. = FALSE)
   idx <- unique(round(seq(1, nrow(points), length.out = min(nrow(points), max_points))))
@@ -31,6 +34,11 @@ preview_points <- function(points, max_points = 100000L) {
     classification[!is.finite(classification) | classification < 0 | classification > 255 |
       classification != floor(classification)] <- NA_real_
     attr(points, "classification") <- as.integer(classification)
+  }
+  if (!is.null(intensity)) {
+    intensity <- intensity[idx]
+    intensity[!is.finite(intensity) | intensity < 0 | intensity > 65535] <- NA_real_
+    attr(points, "intensity") <- intensity
   }
   points
 }
@@ -58,7 +66,7 @@ read_preview <- function(path, max_points = 100000L) {
     n <- header@PHB[["Extended Number of point records"]]
   if (is.null(n) || !is.finite(n) || n < 1) stop("Point count is missing from LAS header.")
   every <- max(1, ceiling(n / max_points))
-  las <- lidR::readLAS(path, select = "xyzc", filter = paste("-keep_every_nth", every))
+  las <- lidR::readLAS(path, select = "xyzci", filter = paste("-keep_every_nth", every))
   if (is.null(las)) stop("Reader returned no preview points.")
   preview_points(las@data, max_points)
 }
@@ -110,7 +118,7 @@ preview_remote_tile <- function(tile, max_bytes = 1024 * 1024^2, path = tempfile
 forest_display_sample <- function(points, window = 100, center_x = 50, center_y = 50,
                                   voxel = 0, max_points = 150000L) {
   p <- as.data.frame(points)
-  p <- p[intersect(c("X", "Y", "Z", "Classification"), names(p))]
+  p <- p[intersect(c("X", "Y", "Z", "Classification", "Intensity"), names(p))]
   p <- p[is.finite(p$X) & is.finite(p$Y) & is.finite(p$Z), , drop = FALSE]
   if (!nrow(p)) stop("No finite display points.")
   if (!is.finite(window) || window < 5 || window > 100 ||
@@ -160,7 +168,7 @@ read_forest_preview <- function(path, percent = 2, window = 100, center_x = 50, 
   if (is.null(n) || n == 0) n <- h@PHB[["Number of point records"]]
   if (is.null(n) || !is.finite(n) || n < 1) stop("Missing LAS point count.")
   every <- max(1, ceiling(100 / percent), ceiling(n / 750000))
-  las <- lidR::readLAS(path, select = "xyzc", filter = paste("-keep_every_nth", every))
+  las <- lidR::readLAS(path, select = "xyzci", filter = paste("-keep_every_nth", every))
   if (is.null(las) || !nrow(las@data)) stop("No points read for display.")
   out <- forest_display_sample(las@data, window, center_x, center_y, voxel)
   attr(out, "display_note") <- sprintf("%s source points; reader retains about %.2f%% (bounded pool); XY window %.0f%% of each axis; %s. No denoising or height normalization.",
@@ -180,4 +188,13 @@ forest_preview_controls <- function(prefix) {
     shiny::selectInput(paste0(prefix, "pose"), "Camera", c("Top-down" = "top", "Forest silhouette" = "forest", "Oblique overview" = "overview"), selected = "top"),
     shiny::sliderInput(paste0(prefix, "point_size"), "Display point size", .7, 3, 1.5, step = .1),
     shiny::helpText("Reader pool: at most 750,000 points; display: at most 150,000. Very large files may retain less than the requested percentage. This is not automatic forest detection."))
+}
+
+preview_palettes <- function() c("Greyscale", "Viridis", "Magma", "Plasma", "Cividis",
+  "Grey", "Black", "Light purple", "Pale yellow", "Blue", "Red", "Cyan", "Orange")
+
+figure_button <- function(id, label, disabled = FALSE) {
+  shiny::tags$button(id = id, type = "button", class = "btn btn-default als-camera-button",
+    disabled = if (disabled) NA else NULL, title = label, `aria-label` = label,
+    shiny::icon("camera"), label)
 }

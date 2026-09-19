@@ -30,3 +30,7 @@ a{transition:color .12s ease}a:hover{color:#c3dbe6}
 .als-globe-intro,.modal-content{box-shadow:0 8px 28px rgba(0,0,0,.3)}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0b131a}::-webkit-scrollbar-thumb{background:#2a3b47;border-radius:6px}::-webkit-scrollbar-thumb:hover{background:#3a4f5c}
 @media(prefers-reduced-motion:reduce){.btn,.btn:hover,.nav-tabs>li>a,a{transition:none}}
+
+.als-camera-button { margin: 10px 10px 10px 0; }
+.als-camera-button .fa-camera { margin-right: 6px; }
+#map_export_status, #preview_export_status { color: #a9bdc9; font-size: 13px; }

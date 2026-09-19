@@ -28,3 +28,13 @@ test_that("classification stays aligned through filtering, cropping and sampling
   expect_identical(attr(invalid,"classification"), c(2L,NA_integer_,NA_integer_,NA_integer_))
   expect_null(attr(preview_points(p[c("X","Y","Z")]), "classification"))
 })
+
+
+test_that("intensity stays aligned with retained source returns", {
+  p <- data.frame(X=c(NA,0:10),Y=c(NA,0:10),Z=c(NA,0:10),Intensity=c(99,100:110))
+  out <- forest_display_sample(p,window=50,voxel=2,max_points=3)
+  expect_equal(attr(out,"intensity"),out$X+attr(out,"origin")[["X"]]+100)
+  expect_null(attr(preview_points(p[c("X","Y","Z")]),"intensity"))
+  p$Intensity <- rep(-1,nrow(p))
+  expect_true(all(is.na(attr(preview_points(p),"intensity"))))
+})

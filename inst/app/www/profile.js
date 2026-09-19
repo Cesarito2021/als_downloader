@@ -63,21 +63,21 @@
       const length=Math.hypot(end[0]-start[0],end[1]-start[1]);
       const selected=section(s.points,s.groups,start,end,strip);
       const w=canvas.clientWidth||canvases[0].clientWidth,h=300,dpr=Math.min(devicePixelRatio||1,2);
-      canvas.width=w*dpr;canvas.height=h*dpr;const g=canvas.getContext('2d');g.scale(dpr,dpr);g.fillStyle='#05080c';g.fillRect(0,0,w,h);
+      canvas.width=w*dpr;canvas.height=h*dpr;const g=canvas.getContext('2d');g.scale(dpr,dpr);g.fillStyle=(s.palette==='Black'||s.paletteB==='Black')?'#eef2f5':'#05080c';g.fillRect(0,0,w,h);
       const left=70,right=20,top=42,bottom=52,pw=w-left-right,ph=h-top-bottom;
       let zs=selected.map(p=>p[1]).sort((a,b)=>a-b),zmin=zs[0]??0,zmax=zs.at(-1)??s.extent[2];
       if(s.focusCentral&&zs.length>100){zmin=zs[Math.floor((zs.length-1)*.01)];zmax=zs[Math.ceil((zs.length-1)*.99)];}
       const pad=Math.max(.5,(zmax-zmin)*.05);zmin-=pad;zmax+=pad;
-      g.font='12px system-ui';g.fillStyle='#e0eaf0';g.fillText('A: '+s.palette+'  |  B: '+s.paletteB, left,20);
+      g.font='12px system-ui';g.fillStyle=(s.palette==='Black'||s.paletteB==='Black')?'#243542':'#e0eaf0';g.fillText('A: '+s.palette+'  |  B: '+s.paletteB, left,20);
       g.strokeStyle='#33404e';g.lineWidth=1;
       for(let i=0;i<=4;i++){const x=left+pw*i/4,y=top+ph*i/4;g.beginPath();g.moveTo(x,top);g.lineTo(x,top+ph);g.moveTo(left,y);g.lineTo(left+pw,y);g.stroke();
-        g.fillStyle='#c7d6df';g.textAlign='center';g.fillText((length*i/4).toFixed(1),x,top+ph+19);
+        g.fillStyle=(s.palette==='Black'||s.paletteB==='Black')?'#243542':'#c7d6df';g.textAlign='center';g.fillText((length*i/4).toFixed(1),x,top+ph+19);
         g.textAlign='right';g.fillText((s.origin[2]+zmax-(zmax-zmin)*i/4).toFixed(1),left-8,y+4);}
       g.save();g.beginPath();g.rect(left,top,pw,ph);g.clip();
       for(const p of selected){if((p[2]===0&&!s.showA)||(p[2]===1&&!s.showB))continue;
         g.fillStyle=color(p[2]===1?s.paletteB:s.palette,p[1],s);g.globalAlpha=.9;
         g.fillRect(left+p[0]/length*pw-1,top+(zmax-p[1])/(zmax-zmin)*ph-1,3,3);}
-      g.restore();g.fillStyle='#c7d6df';g.textAlign='center';g.fillText('Distance from line start (m)',left+pw/2,h-10);
+      g.restore();g.fillStyle=(s.palette==='Black'||s.paletteB==='Black')?'#243542':'#c7d6df';g.textAlign='center';g.fillText('Distance from line start (m)',left+pw/2,h-10);
       g.save();g.translate(16,top+ph/2);g.rotate(-Math.PI/2);g.fillText('Elevation (m)',0,0);g.restore();
       const hasA=selected.some(p=>p[2]===0),hasB=selected.some(p=>p[2]===1);
       hint.textContent='Profile strip: '+strip+' m wide, shown in both panels. '+(!hasA||!hasB?'No sampled points from '+(!hasA&&!hasB?'either cloud':!hasA?'A':'B')+' in this strip. Widen or redraw it. ':'')+'Sampled points only; gaps are not interpolated. '+(s.focusCentral?'Central 98% elevation framing; disable focus to show all elevations.':'All sampled elevations shown.');

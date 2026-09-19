@@ -1,5 +1,6 @@
 (function () {
   const palettes = {
+    Greyscale: [[40,48,57],[245,248,250]],
     Viridis: [[68,1,84],[71,44,122],[59,82,139],[44,113,142],[33,145,140],[39,173,129],[94,201,98],[170,220,50],[253,231,37]],
     Magma: [[0,0,4],[28,16,68],[79,18,123],[129,37,129],[181,54,122],[229,80,100],[251,135,97],[254,194,135],[252,253,191]],
     Plasma: [[13,8,135],[126,3,168],[204,71,120],[248,149,64],[240,249,33]],
@@ -25,8 +26,8 @@
   const classInfo = code => code == null ? ['Classification unavailable', '#8895a5'] :
     (classes[code] || ['Class '+code, '#a8a4cf']);
   function viewer(c) {
-    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Classification';
-    let initialPitch=0,pointSize=1.8,classification=[],classColors=[];
+    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Greyscale',colourBy='auto',activeMode='elevation';
+    let initialPitch=0,pointSize=1.8,classification=[],classColors=[],intensity=[],intensityRange=[0,0],sourceLabel="Point-cloud preview";
     const classLegend=document.createElement('div');
     classLegend.className='als-classification-legend';
     classLegend.setAttribute('aria-label','Source classification legend');
@@ -34,8 +35,12 @@
     c.insertAdjacentElement('afterend',classLegend);
     function updateLegend(){
       classLegend.replaceChildren();
-      classLegend.style.display=palette==='Classification' && points.length?'flex':'none';
+      classLegend.style.display=points.length?'flex':'none';
       if(!points.length)return;
+      if(activeMode!=='classification'){
+        classLegend.textContent=(colourBy==='auto'?'Automatic: ':'')+(activeMode==='intensity'?'Intensity (raw source values)':activeMode==='missing'?'Intensity unavailable; points shown in grey':'Elevation (source Z)')+' | '+palette;
+        return;
+      }
       const counts=new Map();
       for(const code of classification)counts.set(code,(counts.get(code)||0)+1);
       for(const [code,count] of [...counts].sort((a,b)=>(a[0]??256)-(b[0]??256))){
@@ -45,12 +50,17 @@
         classLegend.append(item);
       }
     }
+    function resolveMode(){
+      activeMode=colourBy==='auto'?(classification.some(x=>x!==null&&x>1)?'classification':intensity.some(x=>x!==null&&x>0)?'intensity':'elevation'):colourBy;
+      if(activeMode==='intensity'&&!intensity.some(x=>x!==null))activeMode='missing';
+      updateLegend();
+    }
     function draw() {
       if (!c.clientWidth) return;
       const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
       c.width=w*dpr;c.height=h*dpr;
       const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
-      ctx.fillStyle='#05080c';ctx.fillRect(0,0,w,h);
+      ctx.fillStyle=activeMode!=='classification'&&palette==='Black'?'#eef2f5':'#05080c';ctx.fillRect(0,0,w,h);
       ctx.fillStyle='#adbeca';ctx.font='12px system-ui';
       if(!points.length){ctx.fillText('Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
       const co=Math.cos(yaw),si=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
@@ -63,9 +73,11 @@
       }).sort((a,b)=>a[2]-b[2]);
       // Fit projected bounds to the landscape canvas, with room for the legend.
       const scale=Math.min((w-60)/Math.max(xmax-xmin,1),(h-110)/Math.max(ymax-ymin,1))*zoom;
-      const lut=palette==='Classification'?null:makeLut(palettes[palette]);
+      const lut=makeLut(palettes[palette]);
       for(const p of ordered){
-        ctx.fillStyle=palette==='Classification'?classColors[p[4]]:lut[Math.round(255*p[3]/(extent[2]||1))];
+        const value=activeMode==='intensity'?intensity[p[4]]:p[3];
+        const ratio=activeMode==='intensity'?(value-intensityRange[0])/(intensityRange[1]-intensityRange[0]||1):p[3]/(extent[2]||1);
+        ctx.fillStyle=activeMode==='classification'?classColors[p[4]]:activeMode==='missing'||value===null?'#8895a5':lut[Math.max(0,Math.min(255,Math.round(255*ratio)))];
         ctx.fillRect((p[0]-(xmin+xmax)/2)*scale+w/2,(p[1]-(ymin+ymax)/2)*scale+(h-45)/2,pointSize,pointSize);
       }
       function legend(name,x,width,label){
@@ -75,10 +87,10 @@
         ctx.fillStyle=gradient;ctx.fillRect(x,h-40,width,7);
         ctx.fillStyle='#c7d6df';ctx.fillText(label+' '+name+' · Z ×'+exag,x,h-50);
         if(stops.every(p=>p.every((v,i)=>v===stops[0][i])))return;
-        ctx.fillText(Number(origin[2]).toFixed(1),x,h-15);
-        ctx.textAlign='right';ctx.fillText((Number(origin[2])+extent[2]).toFixed(1),x+width,h-15);
+        ctx.fillText((activeMode==='intensity'?intensityRange[0]:Number(origin[2])).toFixed(1),x,h-15);
+        ctx.textAlign='right';ctx.fillText((activeMode==='intensity'?intensityRange[1]:Number(origin[2])+extent[2]).toFixed(1),x+width,h-15);
       }
-      if(palette!=='Classification')legend(palette,20,180,'Elevation');
+      if(activeMode==='intensity'||activeMode==='elevation')legend(palette,20,180,activeMode==='intensity'?'Intensity':'Elevation');
     }
     function fit(){yaw=initialYaw;pitch=initialPitch;zoom=1;draw();}
     c.onpointerdown=e=>{drag=[e.clientX,e.clientY];c.setPointerCapture(e.pointerId);c.focus();};
@@ -94,6 +106,16 @@
       if(e.key==='ArrowUp')pitch=Math.min(1.5,pitch+.1);if(e.key==='ArrowDown')pitch=Math.max(0,pitch-.1);
       if(e.key==='+'||e.key==='=')zoom=Math.min(8,zoom*1.15);if(e.key==='-')zoom=Math.max(.4,zoom/1.15);draw();
     };
+    const saveButton=c.id==='als-cloud'?document.getElementById('export_preview_png'):null;
+    if(saveButton)saveButton.onclick=()=>{
+      if(!points.length)return;
+      window.ALSFigures.save(c,'als-point-cloud.png',[
+        'ALS Downloader | '+sourceLabel,
+        'Colour: '+activeMode+(colourBy==='auto'?' (automatic)':'')+(activeMode==='classification'?' | Source class colours':' | '+palette)+' | Z exaggeration '+exag+'x',
+        activeMode==='classification'?'Source classification keys shown above.':classLegend.textContent,
+        points.length.toLocaleString()+' sampled points. Source labels and raw values; no new classification or height normalization.'
+      ],document.getElementById('preview_export_status'),activeMode==='classification'?[...classLegend.children].map(el=>({label:el.textContent,color:el.firstChild.style.backgroundColor})):[]);
+    };
     const observer=new ResizeObserver(draw);observer.observe(c);draw();
     return {dispose(){observer.disconnect();classLegend.remove();},load(data){
       points=data.points;origin=data.origin;extent=[0,0,0];
@@ -101,14 +123,23 @@
         const code=Array.isArray(data.classification)?data.classification[i]:(i===0?data.classification:null);
         return Number.isInteger(code)&&code>=0&&code<=255?code:null;
       });
+      intensity=points.map((_,i)=>{
+        const v=Array.isArray(data.intensity)?data.intensity[i]:(i===0?data.intensity:null);
+        return typeof v==='number'&&Number.isFinite(v)&&v>=0?v:null;
+      });
+      const validIntensity=intensity.filter(v=>v!==null);
+      intensityRange=validIntensity.length?validIntensity.reduce((r,v)=>[Math.min(r[0],v),Math.max(r[1],v)],[Infinity,-Infinity]):[0,0];
+      sourceLabel=data.label||'Point-cloud preview';
       classColors=classification.map(code=>classInfo(code)[1]);
-      updateLegend();
+      if(saveButton)saveButton.disabled=!points.length;
+      resolveMode();
       let sx=0,sy=0,sxx=0,syy=0,sxy=0;
       for(const p of points){for(let j=0;j<3;j++)extent[j]=Math.max(extent[j],p[j]);sx+=p[0];sy+=p[1];sxx+=p[0]*p[0];syy+=p[1]*p[1];sxy+=p[0]*p[1];}
       const n=points.length||1;
       initialYaw=-.5*Math.atan2(2*(sxy-sx*sy/n),sxx-sx*sx/n-syy+sy*sy/n);
       fit();},
-      update(data){if(data.focusCentral!=null){}if(data.exaggeration!=null)exag=data.exaggeration;if(data.palette==='Classification'||palettes[data.palette]){palette=data.palette;updateLegend();}
+      update(data){if(data.focusCentral!=null){}if(data.exaggeration!=null)exag=data.exaggeration;if(data.palette==='Classification')colourBy='classification';else if(palettes[data.palette])palette=data.palette;
+        if(['auto','classification','intensity','elevation'].includes(data.colourBy))colourBy=data.colourBy;resolveMode();
         if(data.pointSize!=null)pointSize=Math.max(.7,Math.min(3,data.pointSize));
         if(data.pose){initialPitch=data.pose==='top'?0:(data.pose==='forest'?1.38:1.08);fit();}
         if(data.fit)fit();else draw();}};
@@ -124,6 +155,8 @@
     // A simple binned count of loaded Z values per campaign: how much of each
     // cloud sits at each elevation, not a fitted or modeled distribution.
     function renderDensity(){
+      const densityButton=document.getElementById('export_density_png');
+      if(densityButton){densityButton.disabled=!points.length;densityButton.onclick=()=>window.ALSFigures.save(dc,'als-elevation-distribution.png',['ALS Downloader | Elevation distribution',...labels,'Sampled source elevations; not a calculated difference.']);}
       if(!dc||!dc.clientWidth)return;
       const w=dc.clientWidth,h=220,dpr=Math.min(devicePixelRatio||1,2);
       dc.width=w*dpr;dc.height=h*dpr;const g=dc.getContext('2d');g.scale(dpr,dpr);
@@ -184,7 +217,7 @@
       const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
       c.width=w*dpr;c.height=h*dpr;
       const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
-      ctx.fillStyle='#05080c';ctx.fillRect(0,0,w,h);
+      ctx.fillStyle=activePalette==='Black'?'#eef2f5':'#05080c';ctx.fillRect(0,0,w,h);
       ctx.fillStyle='#adbeca';ctx.font='12px system-ui';
       if(!points.length){ctx.fillText('Choose two overlapping clouds to view together.',20,35);return ctx;}
       const visible=groupFilter===0?showA:showB;

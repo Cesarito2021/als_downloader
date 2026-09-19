@@ -45,6 +45,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
   ui <- shiny::fluidPage(
     shiny::tags$head(shiny::tags$meta(name = "viewport", content = "width=device-width, initial-scale=1"),
       shiny::tags$link(rel = "stylesheet", href = "als-assets/explorer.css"),
+      shiny::tags$script(src = "als-assets/html2canvas.js"),
+      shiny::tags$script(src = "als-assets/figures.js"),
       shiny::tags$script(src = "als-assets/app.js"),
       shiny::tags$script(src = "als-assets/profile.js"),
       shiny::tags$script(src = "als-assets/preview.js"),
@@ -110,6 +112,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
                   shiny::tags$a(class = "als-globe-credit", href = "https://github.com/Cesarito2021/als_downloader", target = "_blank", rel = "noopener noreferrer", "GitHub"),
                   shiny::tags$a(class = "als-globe-credit", href = "https://www.naturalearthdata.com/about/terms-of-use/", "Natural Earth")))),
             shiny::conditionalPanel("input.enter_map > 0", leaflet::leafletOutput("map", height = "60vh"),
+            figure_button("export_map_png", "Save map PNG"),
+            shiny::checkboxInput("map_export_basemap", "Include basemap in image", TRUE),
+            shiny::tags$span(id="map_export_status", role="status"),
             shiny::div(class = "map-caption", "Before you draw: red marks a country with an in-app search adapter, yellow a country with only a linked official portal. This is country-level source availability, not confirmed survey coverage at your site -- draw or upload your study area and search to see actual tile footprints."),
             shiny::textOutput("search_status"), DT::DTOutput("tiles"),
             shiny::actionButton("select_all_tiles", "Select all results"),
@@ -131,7 +136,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::helpText("Preview decimation does not alter your source file. Large local tiles can also be read with read_preview() in R."),
             shiny::textOutput("preview_status"),
             shiny::tags$canvas(id = "als-cloud", role = "img", tabindex = "0", `aria-label` = "Interactive point-cloud preview. Arrow keys rotate; plus and minus zoom; zero resets."),
-            shiny::selectInput("palette", "Colour by", c("Source classification" = "Classification", "Elevation - Viridis" = "Viridis", "Elevation - Magma" = "Magma"), selected = "Classification"),
+            figure_button("export_preview_png", "Save point-cloud PNG", TRUE),
+            shiny::tags$span(id="preview_export_status", role="status"),
+            shiny::selectInput("colour_by", "Colour by", c("Automatic"="auto", "Source classification"="classification", "Intensity"="intensity", "Elevation"="elevation"), selected="auto"),
+            shiny::selectInput("palette", "Palette for intensity / elevation", preview_palettes(), selected="Greyscale"),
+            shiny::helpText("Automatic uses source classes when any labelled classes are present, then non-zero intensity, then elevation. Classification has fixed categorical colours. Intensity is raw sensor return strength, not calibrated reflectance."),
             shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 1, step = 1),
             shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Classification colours use the labels supplied in the file; no automatic classification. Elevation colours show source Z, not canopy height.")),
           comparison_ui(),
@@ -157,6 +166,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       world$catalog <- world$code %in% catalog$country_code
       world$implemented <- world$code %in% catalog$country_code[catalog$implemented]
       leaflet::leaflet(world) |>
+        leaflet::addMapPane("aoi-outline", zIndex = 450) |>
         leaflet::addProviderTiles("Esri.WorldImagery", group = "Satellite RGB") |>
         leaflet::addTiles("https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
           group = "Terrain relief", attribution = "Terrain: Esri, Airbus DS, USGS, NGA, NASA, CGIAR, NLS, OS, NMA, Geodatastyrelsen, GSA, GSI and GIS User Community",
@@ -190,7 +200,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       bb <- sf::st_bbox(state$aoi)
       clear_tile_layers()
       leaflet::leafletProxy("map") |> leaflet::clearGroup("Study area") |>
-        leaflet::addPolygons(data = state$aoi, group = "Study area", color = "#f1cb82", fillOpacity = .1) |>
+        leaflet::addPolygons(data = state$aoi, group = "Study area", color = "#ffe4a3", weight = 3, dashArray = "8,5", fillOpacity = 0,
+          options = leaflet::pathOptions(pane = "aoi-outline")) |>
         leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])
     }
     clear_aoi <- function() {
@@ -492,7 +503,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         if (!is.null(attr(p, "display_note"))) caption <- paste(caption, attr(p, "display_note"))
         if (state$preview_target == "als-cloud") state$previewtext <- paste(state$preview_label, "-", caption)
         else state$tiletext <- paste(state$preview_label, "-", caption)
-        session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), classification = unname(attr(p, "classification")), origin = unname(attr(p, "origin"))))},
+        session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), classification = unname(attr(p, "classification")), intensity = unname(attr(p, "intensity")), label = state$preview_label, origin = unname(attr(p, "origin"))))},
         error = function(e) {
           message <- paste("Preview failed:", redact_urls_in_text(conditionMessage(e)))
           if (state$preview_target == "als-cloud") state$previewtext <- message else state$tiletext <- message
@@ -503,6 +514,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     shiny::observeEvent(input$local_pose, session$sendCustomMessage("als-view", list(target = "als-cloud", pose = input$local_pose)))
     shiny::observeEvent(input$local_point_size, session$sendCustomMessage("als-view", list(target = "als-cloud", pointSize = input$local_point_size)))
     shiny::observeEvent(input$exaggeration, session$sendCustomMessage("als-view", list(target = "als-cloud", exaggeration = input$exaggeration)))
+    shiny::observeEvent(input$colour_by, session$sendCustomMessage("als-view", list(target = "als-cloud", colourBy = input$colour_by)))
     shiny::observeEvent(input$palette, session$sendCustomMessage("als-view", list(target = "als-cloud", palette = input$palette)))
     session$onSessionEnded(function() shiny::isolate({
       if (!is.null(state$job) && state$job$is_alive()) state$job$kill_tree()

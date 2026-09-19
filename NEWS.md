@@ -1,5 +1,8 @@
 # alsdownloader 0.1.0
 
+* Preserve source intensity and offer automatic classification/intensity/elevation selection, with all 13 existing and greyscale palette choices.
+* Add camera-icon PNG exports for the AOI/tile map, single point cloud and elevation distribution; retain comparison/profile exports. Include legends and attribution, with an optional basemap-free map export.
+
 * Default single-cloud previews to source classification colours, with an observed-class legend. Preserve class codes through sampling; use grey for unclassified or unavailable labels. Apply the same colours to the browser COPC prototype.
 
 * Introduce an R package and Shiny application for aerial laser scanning discovery and original-file downloads.

@@ -30,3 +30,7 @@ Imagery dates are independent of LiDAR acquisition dates.
 The welcome globe is an original canvas rendering of the bundled Natural Earth /
 World Atlas country outlines. It uses no Apple imagery or proprietary globe tiles.
 Its country tint indicates catalog presence only, not measured LiDAR coverage.
+
+html2canvas 1.4.1 (MIT), Copyright Niklas von Hertzen and contributors.
+Bundled unminified distribution: https://github.com/niklasvh/html2canvas/tree/v1.4.1
+Licence: app/www/html2canvas-LICENSE.txt. Used for local map image exports.

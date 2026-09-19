@@ -16,6 +16,8 @@ A data frame of sampled coordinates with an `origin` attribute.
   Coordinates are translated to a local origin for display precision.
   An optional numeric `Classification` column is retained as an aligned
   `classification` attribute; missing or invalid codes become `NA`.
+  Optional numeric `Intensity` is retained as an aligned `intensity`
+  attribute. No classification or intensity is inferred.
 }
 \description{
 Make a bounded point-cloud preview
