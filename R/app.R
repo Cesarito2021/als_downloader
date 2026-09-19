@@ -106,6 +106,18 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
                 shiny::p(class = "als-globe-mission",
                   "Discover, inspect and download airborne LiDAR. Open-source software connecting researchers to aerial laser-scanning point clouds from multiple providers. Draw or upload a study area, inspect acquisition dates and tiles, and download original files without writing code."),
                 shiny::p(class = "als-globe-author", "by Cesar Alvites"),
+                shiny::div(class = "als-welcome-reading",
+                  shiny::tags$details(class = "als-welcome-about",
+                    shiny::tags$summary("About the project: mission and guide"),
+                    shiny::h3("Airborne LiDAR, easier to discover"),
+                    shiny::p("Our mission is to make existing aerial laser-scanning data easier to find and use in research. ALS Downloader brings provider catalogues into one workflow: locate your study area, review available surveys, inspect point clouds and download original tiles."),
+                    shiny::p("Explore acquisition dates and source classifications, compare sampled clouds visually, and export figures with available source credits. Coverage and dates depend on provider metadata; visual comparisons do not calculate change."),
+                    shiny::p("Developed and maintained by Cesar Alvites. The software is open source (GPL-3); datasets and basemaps retain their own licences and access conditions."),
+                    shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/blob/main/README.md", target = "_blank", rel = "noopener noreferrer", "Read the full README and getting-started guide (GitHub)")),
+                  shiny::div(class = "als-welcome-catalogue",
+                    shiny::h3("Explore the source catalogue"),
+                    shiny::p("See the providers, countries and access options currently listed. The catalogue distinguishes in-app sources from links to external portals; listing a country does not mean full survey coverage."),
+                    shiny::actionButton("welcome_catalogue", "Browse source catalogue", class = "als-link-btn"))),
                 shiny::div(class = "als-globe-actions",
                   shiny::tags$button(id = "globe_reset", type = "button", class = "als-link-btn", "Reset globe"),
                   shiny::actionButton("enter_map", "Open map", class = "als-primary"),
@@ -158,6 +170,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_attribution = NULL, preview_path = NULL, preview_locked = FALSE,
       tile_groups = character(0))
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
+    shiny::observeEvent(input$welcome_catalogue, {
+      shiny::updateTabsetPanel(session, "view", selected = "Sources and access")
+    })
     shiny::observeEvent(input$enter_map, ignoreNULL = FALSE, {
       session$sendCustomMessage("als-toggle-class",
         list(selector = ".als-layout", class = "als-map-open", on = isTRUE(input$enter_map > 0)))

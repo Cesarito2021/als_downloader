@@ -34,3 +34,14 @@ a{transition:color .12s ease}a:hover{color:#c3dbe6}
 .als-camera-button { margin: 10px 10px 10px 0; }
 .als-camera-button .fa-camera { margin-right: 6px; }
 #map_export_status, #preview_export_status { color: #a9bdc9; font-size: 13px; }
+
+/* Optional reading on the welcome page, before entering the map. */
+.als-welcome-reading{max-width:860px;margin:18px auto;display:grid;grid-template-columns:1fr 1fr;gap:14px;text-align:left;align-items:start}
+.als-welcome-about,.als-welcome-catalogue{border:1px solid #2a3b47;border-radius:12px;padding:18px 20px;background:#0d1721;color:#c7d6df;line-height:1.6}
+.als-welcome-about summary{cursor:pointer;font-size:16px;font-weight:600;color:#e0eaf0}
+.als-welcome-reading h3{font-size:17px;margin:0 0 10px;color:#e0eaf0}
+.als-welcome-about h3{margin-top:18px}
+.als-welcome-reading p{font-size:14px;margin-bottom:12px}
+.als-welcome-reading a{color:#9ed5ed;text-decoration:underline}
+.als-welcome-reading summary:focus-visible,.als-welcome-reading a:focus-visible,.als-welcome-reading button:focus-visible{outline:2px solid #9ed5ed;outline-offset:4px}
+@media(max-width:700px){.als-welcome-reading{grid-template-columns:1fr}}

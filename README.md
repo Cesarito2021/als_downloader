@@ -35,6 +35,9 @@ Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6,
 ![Welcome globe rotating, showing catalog presence by country](docs/images/globe-rotate.gif)
 
 The [complete source table](inst/sources/SOURCES.md) records the current catalogue.
+The welcome page also includes an expandable **About the project** introduction
+with a link to this guide, and **Browse source catalogue** opens the app's source
+table without starting a map search.
 
 | Control | Purpose |
 |---|---|
