@@ -1,9 +1,9 @@
 zenodo_submission_ui <- function() shiny::tagList(
-  shiny::p("Share your LiDAR with the community through Zenodo. Your files stay on Zenodo. Only approved footprints and download links enter ALS Downloader."),
+  shiny::p("Share your LiDAR with the community through Zenodo. A prepared coverage polygon file linked to the download assets is required. Your files stay on Zenodo. Only approved footprints and download links enter ALS Downloader."),
   shiny::textInput("zenodo_link","1. Zenodo DOI or product link",placeholder="https://zenodo.org/records/... or 10.5281/zenodo...."),
   shiny::actionButton("zenodo_inspect","Read Zenodo metadata"),shiny::textOutput("zenodo_metadata_status"),
   shiny::tags$details(shiny::tags$summary("Retrieved description, citation and licence"),shiny::verbatimTextOutput("zenodo_metadata_details")),
-  shiny::selectInput("zenodo_boundary_source","2. Coverage polygons",c("Upload a coverage file"="upload")),
+  shiny::selectInput("zenodo_boundary_source","2. Coverage polygons (required)",c("Upload a coverage file"="upload")),
   shiny::conditionalPanel("input.zenodo_boundary_source == 'upload'",
     shiny::fileInput("zenodo_boundary","GeoJSON, GeoPackage or zipped Shapefile (5 MiB maximum)",accept=c(".geojson",".gpkg",".zip"))),
   shiny::helpText("Use actual surveyed coverage with its CRS, not a location point. With several cloud files, include a file_key column matching each Zenodo filename. Multiple polygons for one file are combined; the original file is downloaded once. Use a single-layer GeoPackage."),

@@ -197,6 +197,12 @@ non-overlapping acquisition periods still applies.
 
 ### Community Zenodo submissions
 
+Only proposals with an existing georeferenced coverage polygon file and a clear
+mapping to the download assets are eligible for submission. The app does not
+generate missing coverage from point clouds. A general study-area outline is
+insufficient if it does not describe the available LiDAR coverage. Demonstration
+datasets must meet the same requirements before being presented as ready to submit.
+
 **Share your dataset → Share a Zenodo dataset** asks for five items: the public
 Zenodo link or DOI, surveyed coverage, acquisition dates (unknown is allowed),
 ALS/UAV platform and an optional private contact email. Reading metadata retrieves

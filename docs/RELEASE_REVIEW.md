@@ -7,7 +7,9 @@ been performed. These remain maintainer decisions.
 
 - Five-field Zenodo form, metadata import, explicit polygon/file mapping,
   deduplication and private approval queue. [Live checks](ZENODO_LIVE_CHECKS.md)
-  cover Brazil and Sabah; Sabah proposals are isolated test requests only.
+  document isolated Sabah test requests, pending coverage/file validation.
+  Submission examples must have prepared coverage polygons and verified file
+  mapping; the incomplete Brazil record is excluded from examples.
 - **Compare campaigns → Source campaign + my LAS/LAZ** works with one available
   source campaign. A real USGS download and local upload completed through the
   background worker. The local QA cloud had a deliberately added 2 m offset;

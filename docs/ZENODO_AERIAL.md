@@ -12,6 +12,11 @@ A LAS/LAZ extension or a `lidar` keyword alone does not establish an aerial plat
 
 ## Initial selection
 
+This historical discovery list is not a list of submission-ready datasets.
+Community submissions require existing coverage polygons linked to the files.
+Records lacking verified coverage/file mapping, including the EBA record below,
+are excluded from submission examples and automatic catalogue integration.
+
 | Country / study area | Dataset and creators | Aerial acquisition / files | Verification and limitations |
 |---|---|---|---|
 | Italy · Sila National Park | [Sila — Nicola Puletti / CREA](https://zenodo.org/records/3633629) | July 2019 ALS: `merged.las`; `myLas_norm_lt22.las` is normalized and truncated at 22 m | CC BY 4.0. Public byte-range access and 1,024 point records decoded; no full-file checksum check. Exclude the terrestrial `ID_*.las` files. [Evidence](ITALY_PULETTI.md). |
