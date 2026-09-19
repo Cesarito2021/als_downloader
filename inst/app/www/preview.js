@@ -14,8 +14,8 @@
     return 'rgb('+colors[i].map((x,j)=>Math.round(x+(colors[i+1][j]-x)*t)).join(',')+')';
   });
   function viewer(c) {
-    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=1.08,exag=2,zoom=1,drag=null,palette='Viridis';
-    let initialPitch=1.08,pointSize=1.8;
+    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Viridis';
+    let initialPitch=0,pointSize=1.8;
     function draw() {
       if (!c.clientWidth) return;
       const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
@@ -62,7 +62,7 @@
       if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','0'].includes(e.key))return;
       e.preventDefault();if(e.key==='0'){fit();return;}
       if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;
-      if(e.key==='ArrowUp')pitch=Math.min(1.5,pitch+.1);if(e.key==='ArrowDown')pitch=Math.max(.1,pitch-.1);
+      if(e.key==='ArrowUp')pitch=Math.min(1.5,pitch+.1);if(e.key==='ArrowDown')pitch=Math.max(0,pitch-.1);
       if(e.key==='+'||e.key==='=')zoom=Math.min(8,zoom*1.15);if(e.key==='-')zoom=Math.max(.4,zoom/1.15);draw();
     };
     const observer=new ResizeObserver(draw);observer.observe(c);draw();
@@ -75,15 +75,15 @@
       fit();},
       update(data){if(data.focusCentral!=null){}if(data.exaggeration!=null)exag=data.exaggeration;if(palettes[data.palette])palette=data.palette;
         if(data.pointSize!=null)pointSize=Math.max(.7,Math.min(3,data.pointSize));
-        if(data.pose){initialPitch=data.pose==='forest'?1.38:1.08;fit();}
+        if(data.pose){initialPitch=data.pose==='top'?0:(data.pose==='forest'?1.38:1.08);fit();}
         if(data.fit)fit();else draw();}};
   }
   // Two synced side-by-side panels: A and B always show one campaign each, sharing
   // one camera (rotation/zoom) and one profile-line selection drawn across both.
   function comparisonViewer(ca, cb) {
-    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=1.08,exag=1,zoom=1,drag=null;
+    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=1,zoom=1,drag=null;
     let groups=[],palette='Red',paletteB='Blue',showA=true,showB=true,focusCentral=true;
-    let initialPitch=1.08,pointSize=1.8,labels=[],camera=null,crs='';
+    let initialPitch=0,pointSize=1.8,labels=[],camera=null,crs='';
     let ordered=[],xmin=0,xmax=0,ymin=0,ymax=0,scale=1;
     const dc=document.getElementById('als-compare-density');
     // A simple binned count of loaded Z values per campaign: how much of each
@@ -200,7 +200,7 @@
         if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','0'].includes(e.key))return;
         e.preventDefault();if(e.key==='0'){fit();return;}
         if(e.key==='ArrowLeft')yaw-=.1;if(e.key==='ArrowRight')yaw+=.1;
-        if(e.key==='ArrowUp')pitch=Math.min(1.5,pitch+.1);if(e.key==='ArrowDown')pitch=Math.max(.1,pitch-.1);
+        if(e.key==='ArrowUp')pitch=Math.min(1.5,pitch+.1);if(e.key==='ArrowDown')pitch=Math.max(0,pitch-.1);
         if(e.key==='+'||e.key==='=')zoom=Math.min(8,zoom*1.15);if(e.key==='-')zoom=Math.max(.4,zoom/1.15);drawBoth();
       };
       const observer=new ResizeObserver(drawBoth);observer.observe(c);
@@ -217,7 +217,7 @@
       fit();},
       update(data){if(data.focusCentral!=null)focusCentral=data.focusCentral;if(data.exaggeration!=null)exag=data.exaggeration;if(palettes[data.palette])palette=data.palette;
         if(data.pointSize!=null)pointSize=Math.max(.7,Math.min(3,data.pointSize));
-        if(data.pose){initialPitch=data.pose==='forest'?1.38:1.08;fit();}
+        if(data.pose){initialPitch=data.pose==='top'?0:(data.pose==='forest'?1.38:1.08);fit();}
         if(palettes[data.paletteB])paletteB=data.paletteB;if(data.showA!=null)showA=data.showA;if(data.showB!=null)showB=data.showB;
         if(data.fit)fit();else drawBoth();}};
   }

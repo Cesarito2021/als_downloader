@@ -166,7 +166,7 @@ forest_preview_controls <- function(prefix) {
     shiny::sliderInput(paste0(prefix, "center_x"), "Window center X (%)", 0, 100, 50),
     shiny::sliderInput(paste0(prefix, "center_y"), "Window center Y (%)", 0, 100, 50),
     shiny::selectInput(paste0(prefix, "voxel"), "Optional spatial thinning (source coordinate units)", c("None" = 0, "0.5-unit voxels" = .5, "1-unit voxels" = 1, "2-unit voxels" = 2)),
-    shiny::selectInput(paste0(prefix, "pose"), "Camera", c("Forest silhouette" = "forest", "Oblique overview" = "overview")),
+    shiny::selectInput(paste0(prefix, "pose"), "Camera", c("Top-down" = "top", "Forest silhouette" = "forest", "Oblique overview" = "overview"), selected = "top"),
     shiny::sliderInput(paste0(prefix, "point_size"), "Display point size", .7, 3, 1.5, step = .1),
     shiny::helpText("Reader pool: at most 750,000 points; display: at most 150,000. Very large files may retain less than the requested percentage. This is not automatic forest detection."))
 }
