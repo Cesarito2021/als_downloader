@@ -67,7 +67,7 @@ The OpenTopography adapter follows the tile-index selection and download workflo
 
 | Control | Purpose |
 |---|---|
-| G - Upload | Upload a local LAS/LAZ tile (up to 200 MB), or plot a tile selected in Explore. |
+| G - Upload | Upload a local LAS/LAZ tile (up to 1 GB), or plot a tile selected in Explore. |
 | H - Viewer | Rotate (drag or arrow keys), zoom (scroll or +/-), reset (0). Colours show source elevation, not canopy height. |
 | I - Exaggeration | Vertical exaggeration slider (1-12x), plus elevation palette selection. |
 

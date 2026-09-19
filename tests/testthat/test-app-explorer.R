@@ -75,3 +75,28 @@ test_that("opening the map does not error the server-driven layout-class observe
     session$flushReact()
   })
 })
+
+test_that("search results are grouped and legended by acquisition year, including undated tiles", {
+  square <- sf::st_sfc(sf::st_polygon(list(matrix(
+    c(0,0, 1,0, 1,1, 0,1, 0,0), ncol = 2, byrow = TRUE))), crs = 4326)
+  ring <- sf::st_sfc(rep(list(sf::st_polygon(list(matrix(
+    c(0,0, 1,0, 1,1, 0,1, 0,0), ncol = 2, byrow = TRUE)))), 3), crs = 4326)
+  fake_tiles <- function(aoi, provider, start, end, tile_index_dir) {
+    if (!identical(provider, "usgs3dep")) return(alsdownloader:::empty_tiles())
+    sf::st_sf(tile_id = paste0("t", 1:3), provider = "usgs3dep", dataset = "3DEP",
+      filename = paste0("f", 1:3, ".laz"), url = paste0("https://example.org/f", 1:3, ".laz"),
+      acquired_start = c("2018-01-01", "2020-06-01", NA), acquired_end = c("2018-03-01", "2020-08-01", NA),
+      size_bytes = NA_real_, license_url = "https://example.org", citation = "Test fixture",
+      geometry = ring)
+  }
+  app <- als_app()
+  shiny::testServer(app, {
+    session$flushReact()
+    local_mocked_bindings(find_tiles = fake_tiles, .package = "alsdownloader")
+    state$aoi <- sf::st_sf(geometry = square)
+    session$setInputs(search = 1)
+    session$flushReact()
+    expect_equal(nrow(state$tiles), 3L)
+    expect_setequal(state$tile_groups, c("Tiles: 2018", "Tiles: 2020", "Tiles: Unknown"))
+  })
+})

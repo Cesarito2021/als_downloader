@@ -17,7 +17,7 @@
 launch_app <- function(mode = c("local", "hosted"), tile_index_dir = NULL,
                        provider_limit = 2L, host = "127.0.0.1", port = NULL,
                        launch.browser = interactive()) {
-  old <- options(shiny.maxRequestSize = 200 * 1024^2)
+  old <- options(shiny.maxRequestSize = 1024 * 1024^2)
   on.exit(options(old), add = TRUE)
   shiny::runApp(als_app(match.arg(mode), tile_index_dir, provider_limit),
                 host = host, port = port, launch.browser = launch.browser)
@@ -121,11 +121,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::div(class = "als-tile-preview",
               shiny::textOutput("tile_selection"),
               shiny::actionButton("plot_tile", "Plot selected tile in 3D", class = "als-primary"),
-              shiny::helpText("Select one footprint or result. Plot opens the shared 3D preview; one source file up to 200 MB is downloaded temporarily.")))),
+              shiny::helpText("Select one footprint or result. Plot opens the shared 3D preview; one source file up to 1 GB is downloaded temporarily.")))),
           shiny::tabPanel("3D preview",
             shiny::p("One viewer for the tile selected in Explore or a local LAS/LAZ file."),
             shiny::actionButton("replot_tile", "Rebuild selected map tile"),
-            shiny::fileInput("point_file", "Upload a local LAS/LAZ tile (up to 200 MB)", accept = c(".las", ".laz")),
+            shiny::fileInput("point_file", "Upload a local LAS/LAZ tile (up to 1 GB)", accept = c(".las", ".laz")),
             forest_preview_controls("local_"),
             shiny::actionButton("preview", "Build bounded preview"),
             shiny::helpText("Preview decimation does not alter your source file. Large local tiles can also be read with read_preview() in R."),
@@ -143,7 +143,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "Draw or upload a study area to begin.",
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
       preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
-      preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE)
+      preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE,
+      tile_groups = character(0))
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
     shiny::observeEvent(input$enter_map, ignoreNULL = FALSE, {
       session$sendCustomMessage("als-toggle-class",
@@ -167,15 +168,28 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
           editOptions = leaflet.extras::editToolbarOptions()) |>
-        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = c("Countries", "Study area", "Tiles")) |>
+        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = c("Countries", "Study area")) |>
         leaflet::hideGroup("Terrain relief") |>
         leaflet::setView(0, 20, 2)
     })
+    # Tiles are split into one Leaflet group per acquisition year (see the
+    # search handler) so the existing layers control can toggle a single
+    # year on/off; clearing them all back to just "Countries"/"Study area"
+    # has to walk whatever group names the last search created.
+    clear_tile_layers <- function() {
+      p <- leaflet::leafletProxy("map")
+      for (g in state$tile_groups) p <- p |> leaflet::clearGroup(g)
+      p |> leaflet::removeControl("tile_year_legend") |>
+        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
+          overlayGroups = c("Countries", "Study area"))
+      state$tile_groups <- character(0)
+    }
     set_aoi <- function(x) {
       state$aoi <- read_aoi(x); state$tiles <- NULL
       state$search <- "Study area updated. Search to verify tile coverage."
       bb <- sf::st_bbox(state$aoi)
-      leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::clearGroup("Study area") |>
+      clear_tile_layers()
+      leaflet::leafletProxy("map") |> leaflet::clearGroup("Study area") |>
         leaflet::addPolygons(data = state$aoi, group = "Study area", color = "#f1cb82", fillOpacity = .1) |>
         leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])
     }
@@ -183,8 +197,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       state$aoi <- NULL; state$tiles <- NULL
       state$search <- "Draw or upload a study area to begin."
       shiny::updateRadioButtons(session, "aoi_method", selected = "draw")
-      leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::clearGroup("Study area") |>
-        leaflet::removeControl("tile_year_legend") |> leaflet::setView(0, 20, 2)
+      clear_tile_layers()
+      leaflet::leafletProxy("map") |> leaflet::clearGroup("Study area") |> leaflet::setView(0, 20, 2)
     }
     output$layer_control <- shiny::renderUI({
       shiny::req(input$aoi_file)
@@ -204,7 +218,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     })
     shiny::observeEvent(input$map_draw_deleted_features, {
       state$aoi <- NULL; state$tiles <- NULL; state$search <- "Study area removed."
-      leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::clearGroup("Study area")
+      clear_tile_layers()
+      leaflet::leafletProxy("map") |> leaflet::clearGroup("Study area")
     })
     navigate <- function(id) {
       if (!nzchar(id)) {leaflet::leafletProxy("map") |> leaflet::setView(0, 20, 2); return()}
@@ -225,7 +240,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     shiny::observeEvent(input$search, {
       shiny::req(state$aoi)
       state$tiles <- NULL
-      leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::removeControl("tile_year_legend")
+      clear_tile_layers()
       state$search <- "Searching all configured sources..."
       local_index_dir <- if (mode == "local") input$indexes else tile_index_dir
       has_local_index <- !is.null(local_index_dir) && nzchar(trimws(local_index_dir))
@@ -247,20 +262,37 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
           else "No matching records in the searched sources and interval. This does not establish that no LiDAR data exist here."
         if (any(!ok)) state$search <- paste0(state$search, " (", sum(!ok), " source(s) unavailable: ", paste(names(outcome)[!ok], collapse = ", "), ".)")
         if (nrow(result)) {
-          # Colour footprints by acquisition year (final date; start when the
-          # end date is unknown) instead of one flat colour, so overlapping
-          # surveys from different years are visually distinguishable at a
-          # glance. Tiles with no provider-reported date stay a neutral grey,
-          # never a guessed year.
+          # Colour and group footprints by acquisition year (final date; start
+          # when the end date is unknown) instead of one flat colour, so
+          # overlapping surveys from different years are visually
+          # distinguishable -- and, since each year is its own Leaflet group,
+          # a user can hide/show one year at a time from the existing layers
+          # control instead of reading a blended legend. A discrete palette
+          # (one swatch per real year present, plus "Unknown") is used
+          # instead of a continuous one, which produced a blank legend when
+          # a search returned only one distinct year or only undated tiles.
           reported <- ifelse(is.na(result$acquired_end), result$acquired_start, result$acquired_end)
-          year <- suppressWarnings(as.integer(substr(reported, 1, 4)))
-          pal <- leaflet::colorNumeric("viridis", domain = year, na.color = "#8a97a1")
-          leaflet::leafletProxy("map") |>
-            leaflet::addPolygons(data = result, group = "Tiles",
-              layerId = paste0("tile:", seq_len(nrow(result))), color = "#1c2b35", weight = 1,
-              fillColor = pal(year), fillOpacity = .55, label = ~filename) |>
-            leaflet::addLegend("bottomright", group = "Tiles", layerId = "tile_year_legend",
-              pal = pal, values = year, title = "Acquisition year", na.label = "Unknown")
+          year_num <- suppressWarnings(as.integer(substr(reported, 1, 4)))
+          year_label <- ifelse(is.na(year_num), "Unknown", as.character(year_num))
+          levels_all <- c(sort(unique(year_label[year_label != "Unknown"])),
+            if ("Unknown" %in% year_label) "Unknown")
+          pal <- leaflet::colorFactor("viridis", domain = levels_all)
+          proxy <- leaflet::leafletProxy("map")
+          groups <- character(0)
+          for (lv in levels_all) {
+            idx <- which(year_label == lv)
+            grp <- paste0("Tiles: ", lv)
+            groups <- c(groups, grp)
+            proxy <- proxy |> leaflet::addPolygons(data = result[idx, , drop = FALSE], group = grp,
+              layerId = paste0("tile:", idx), color = "#1c2b35", weight = 1,
+              fillColor = pal(lv), fillOpacity = .55, label = ~filename)
+          }
+          state$tile_groups <- groups
+          proxy |>
+            leaflet::addLegend("bottomright", layerId = "tile_year_legend",
+              pal = pal, values = levels_all, title = "Acquisition year") |>
+            leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
+              overlayGroups = c("Countries", "Study area", groups))
         }
       }, error = function(e) {state$search <- conditionMessage(e); notify(e)})
     })
@@ -460,7 +492,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         else state$tiletext <- paste(state$preview_label, "-", caption)
         session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), origin = unname(attr(p, "origin"))))},
         error = function(e) {
-          message <- "Preview failed: check provider access, known file size (up to 200 MB), LAS/LAZ format and lidR installation."
+          message <- "Preview failed: check provider access, known file size (up to 1 GB), LAS/LAZ format and lidR installation."
           if (state$preview_target == "als-cloud") state$previewtext <- message else state$tiletext <- message
         })
     })
@@ -479,5 +511,5 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       if (!is.null(state$jobdir)) unlink(state$jobdir, recursive = TRUE)
     }))
   }
-  shiny::shinyApp(ui, server, options = list(shiny.maxRequestSize = 200 * 1024^2))
+  shiny::shinyApp(ui, server, options = list(shiny.maxRequestSize = 1024 * 1024^2))
 }

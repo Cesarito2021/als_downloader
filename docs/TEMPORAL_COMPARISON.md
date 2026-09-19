@@ -24,7 +24,7 @@ There is no denoising, height normalization, difference grid, change classificat
 
 ## Resource limits
 
-- At most four source tiles and 200 MB per campaign; at most 100 MB per tile.
+- At most four source tiles and 600 MB per campaign; at most 300 MB per tile.
 - At most 50 million source points per tile and two million retained overlap points per campaign.
 - At most 50,000 display points per cloud; thinning affects the view only.
 - Source files are downloaded temporarily and removed after completion, cancellation or session exit.

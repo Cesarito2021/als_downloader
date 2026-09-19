@@ -9,7 +9,7 @@ comparison_ui <- function() {
       shiny::actionButton("download_epoch_b", "Select B tiles for download"))),
     shiny::selectInput("compare_side_m", "Preview square side", choices = c("100 m (default)" = 100, "250 m" = 250, "500 m" = 500, "1 km" = 1000), selected = 100),
     shiny::helpText("A small window is placed in the largest shared footprint and clipped to your AOI. Draw a smaller AOI in Explore to choose its location. The automatic location is not guaranteed to represent the forest."),
-    shiny::helpText("Visualization only: square side 100 m to 1 km (100 m = 0.01 km2; 1 km = 1 km2). At most four tiles and 200 MB per campaign, 100 MB per tile. Both clouds require the same embedded projected CRS in metres."),
+    shiny::helpText("Visualization only: square side 100 m to 1 km (100 m = 0.01 km2; 1 km = 1 km2). At most four tiles and 600 MB per campaign, 300 MB per tile. Both clouds require the same embedded projected CRS in metres."),
     shiny::textOutput("compare_availability"), shiny::uiOutput("compare_load_control"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
     shiny::tags$div(class = "als-compare-split",

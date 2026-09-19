@@ -54,7 +54,7 @@ read_preview <- function(path, max_points = 100000L) {
 }
 
 # Temporary, single-file preview; never persists a cloud in the source catalog.
-preview_remote_tile <- function(tile, max_bytes = 200 * 1024^2, path = tempfile(fileext = ".laz"), reader = function(path) read_preview(path, 100000L)) {
+preview_remote_tile <- function(tile, max_bytes = 1024 * 1024^2, path = tempfile(fileext = ".laz"), reader = function(path) read_preview(path, 100000L)) {
   require_data_terms(tile)
   if (grepl("\\.zip$",tile$filename[[1]],ignore.case=TRUE))
     stop("This source delivers an original LAS ZIP. Download and extract it locally, then open the LAS for preview.")
@@ -69,7 +69,7 @@ preview_remote_tile <- function(tile, max_bytes = 200 * 1024^2, path = tempfile(
   if (length(size) != 1L || !is.finite(size) || size <= 0 || size > max_bytes)
     stop(paste("Preview requires a known file size up to", round(max_bytes / 1024^2), "MB. Use a smaller source tile."))
   on.exit(unlink(path), add = TRUE)
-  response <- httr::GET(url, httr::write_disk(path), httr::timeout(180), httr::config(maxfilesize_large = max_bytes))
+  response <- httr::GET(url, httr::write_disk(path), httr::timeout(600), httr::config(maxfilesize_large = max_bytes))
   httr::stop_for_status(response)
   if (httr::status_code(response) != 200L || file.size(path) != size || !valid_las_header(path))
     stop("Incomplete or invalid LAS/LAZ preview download.")
