@@ -21,7 +21,33 @@ test_that("als_report renders a self-contained HTML summary without touching ori
   expect_match(html, "usgs3dep", fixed = TRUE)
   expect_match(html, "1.5000", fixed = TRUE)
   expect_match(html, "Discover, inspect and download airborne LiDAR", fixed = TRUE)
+  expect_true(grepl("GiB", html, fixed = TRUE))
+  expect_true(grepl("unknown size", html, fixed = TRUE))
+  expect_true(grepl("not measured speeds", html, fixed = TRUE))
   expect_equal(tiles, report_fixture())
+})
+
+test_that("report figures reject non-PNG files and excessive attachments", {
+  bad <- tempfile(); writeLines("not an image", bad)
+  on.exit(unlink(bad))
+  expect_error(als_report(report_fixture(), tempfile(), figures = bad), "PNG files")
+  expect_error(als_report(report_fixture(), tempfile(), figures = rep(bad, 7)), "six PNG")
+})
+
+test_that("unknown sizes do not produce a zero-duration promise and figures embed", {
+  skip_if_not_installed("rmarkdown")
+  skip_if_not(rmarkdown::pandoc_available())
+  x <- report_fixture(); x$size_bytes <- c(NA, -1)
+  dir <- tempfile(); fig <- tempfile(fileext = ".png")
+  on.exit(unlink(c(dir, fig), recursive = TRUE))
+  grDevices::png(fig, width = 400, height = 400)
+  graphics::plot(1:5, main = "Synthetic test figure")
+  grDevices::dev.off()
+  path <- als_report(x, dir, figures = fig)
+  html <- paste(readLines(path, warn = FALSE), collapse = "\n")
+  expect_true(grepl("cannot[[:space:]]+be[[:space:]]+estimated", html))
+  expect_true(grepl("data:image/png;base64,", html, fixed = TRUE))
+  expect_true(grepl("Attached figure 1", html, fixed = TRUE))
 })
 
 test_that("als_report handles an empty selection without erroring", {

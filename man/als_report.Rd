@@ -9,7 +9,8 @@ als_report(
   output_dir,
   format = c("html", "pdf"),
   aoi_area_km2 = NA_real_,
-  aoi = NULL
+  aoi = NULL,
+  figures = character()
 )
 }
 \arguments{
@@ -20,8 +21,8 @@ request is made and no source file is read.}
 \item{output_dir}{Directory to write the report into. Created if it does
 not already exist.}
 
-\item{format}{`"html"` (default; always available, self-contained, no
-extra install required) or `"pdf"` (requires a working `tinytex`
+\item{format}{`"html"` (default; self-contained, requires Pandoc) or
+`"pdf"` (requires Pandoc and a working `tinytex`
 installation; falls back to `"html"` with a warning otherwise).}
 
 \item{aoi_area_km2}{Optional study-area size in square kilometres, shown
@@ -32,6 +33,9 @@ for context only.}
 report includes a simple map figure of the tile footprints and the
 study area outline. Geometry only -- not a basemap image, and nothing
 is fetched to draw it.}
+
+\item{figures}{Optional paths to up to six exported PNG figures, included
+unchanged with their embedded legends and credits. Maximum 10 MiB each.}
 }
 \value{
 Invisibly, the path to the rendered report file.
@@ -42,8 +46,10 @@ Generate an HTML or PDF summary of a search/download selection
 \details{
 Content is limited to data already carried by `tiles`: filename,
   dataset, provider, provider-reported acquisition dates, known size and
-  the recorded citation/licence per tile. Nothing is inferred, estimated
-  or fetched. The report is written only to `output_dir` and is never
+  the recorded citation/licence per tile. Transfer-time scenarios use
+  known bytes and illustrative aggregate speeds, not CPU core counts.
+  Unknown file sizes are explicitly excluded. Nothing is fetched.
+  The report is written only to `output_dir` and is never
   transmitted anywhere.
 }
 \examples{

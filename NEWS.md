@@ -1,5 +1,9 @@
 # alsdownloader 0.1.0
 
+* Offer PDF and HTML session reports with study-area footprints, reported dates,
+  known storage in GiB, clearly labelled transfer-speed scenarios and source
+  credits. Attach exported PNG views with their legends and attribution.
+
 * Convert known horizontal and elevation units independently to metres for
   display, including international and US survey feet. Preserve source files
   and report uncertain units; allow documented user confirmation when needed.

@@ -151,3 +151,19 @@ ALS Downloader connects users to existing airborne LiDAR data held by external p
 Software: **GPL-3**, without warranty. Source availability, spatial coverage and suitability are not guaranteed. Natural Earth supplies public-domain globe outlines; basemap credits remain visible. [Third-party notices](inst/NOTICE). The MIT licence belongs to the bundled html2canvas screenshot library, not the entire package or provider data. See [software, data and figure licensing](inst/sources/LICENSING.md).
 
 [Release checks and outstanding CRAN considerations](docs/CRAN_READINESS.md).
+
+### Session reports
+
+In Explore, open **Session report: PDF or HTML** after selecting tiles. The
+report includes the study-area footprint map, provider-reported dates, tile
+counts, known storage in GiB, illustrative transfer-time scenarios and credits.
+Unknown sizes are excluded explicitly. Parallel workers do not determine network
+speed; scenarios are not download completion promises.
+
+To include the current map, point-cloud or comparison view, first use its camera
+button to save a PNG, then attach that PNG in the report panel (up to six figures,
+10 MiB each). Legends and credits remain embedded; verify that attached figures
+match the study being reported. The compact summary is typically two pages;
+figures and lengthy source credits add pages. Original LAS/LAZ files are unchanged.
+HTML requires rmarkdown and Pandoc; PDF additionally requires a working TinyTeX
+installation on the app server. HTML remains available if PDF is unavailable.

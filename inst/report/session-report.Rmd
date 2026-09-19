@@ -7,6 +7,9 @@ params:
   tiles: NULL
   aoi_area_km2: NA
   aoi: NULL
+  figures: NULL
+geometry: margin=0.7in
+fontsize: 10pt
 ---
 
 <style>
@@ -31,9 +34,9 @@ has_map <- has_tiles && has_aoi && inherits(tiles, "sf")
 tiles_df <- if (has_tiles && inherits(tiles, "sf")) sf::st_drop_geometry(tiles) else tiles
 ```
 
-> Discover, inspect and download airborne LiDAR. Open-source software connecting researchers to aerial laser-scanning point clouds from multiple providers. Draw or upload a study area, inspect acquisition dates and tiles, and download original files without writing code.
+Discover, inspect and download airborne LiDAR.
 
-Generated `r format(Sys.time(), "%Y-%m-%d %H:%M")` by [ALS Downloader](https://github.com/Cesarito2021/als_downloader). This report summarises a search/download selection at the time it was generated; it does not certify data quality, coverage completeness or licence clearance. Verify each dataset's own terms before use.
+Generated `r format(Sys.time(), "%Y-%m-%d %H:%M")` by [ALS Downloader](https://github.com/Cesarito2021/als_downloader). Selected source metadata; not a completed-download certificate.
 
 ## Study area
 
@@ -45,7 +48,7 @@ if (length(aoi_area_km2) == 1 && is.finite(aoi_area_km2)) {
 }
 ```
 
-```{r fig.width=7.2, fig.height=5.6, fig.align="center"}
+```{r fig.width=7.2, fig.height=3.4, fig.align="center"}
 if (has_map) {
   aoi_geo <- sf::st_transform(aoi, 4326)
   tiles_geo <- sf::st_transform(tiles, 4326)
@@ -53,7 +56,7 @@ if (has_map) {
   year <- suppressWarnings(as.integer(substr(reported, 1, 4)))
   years <- sort(unique(stats::na.omit(year)))
   n_year <- length(years)
-  cols <- grDevices::hcl.colors(max(n_year, 2), "Viridis")
+  cols <- grDevices::hcl.colors(max(n_year, 2), "Set 2")
   fill <- if (n_year > 0) cols[match(year, years)] else rep(NA_character_, nrow(tiles_geo))
   fill[is.na(fill)] <- "#8a97a1"
   combined <- c(sf::st_geometry(aoi_geo), sf::st_geometry(tiles_geo))
@@ -75,41 +78,59 @@ if (has_map) {
 if (!has_tiles) {
   cat("No tiles in this selection.\n")
 } else {
-  known <- is.finite(tiles_df$size_bytes)
-  total_gb <- sum(tiles_df$size_bytes[known], na.rm = TRUE) / 1024^3
+  bytes <- suppressWarnings(as.numeric(tiles_df$size_bytes))
+  known <- is.finite(bytes) & bytes > 0
+  total_gb <- sum(bytes[known]) / 1024^3
   providers <- sort(unique(tiles_df$provider))
-  cat(sprintf("- **%d** tile(s) in this selection\n", nrow(tiles_df)))
-  cat(sprintf("- **%.3f GB** known total size (%d file(s) with unknown size)\n", total_gb, sum(!known)))
-  cat(sprintf("- **%d** provider(s): %s\n", length(providers), paste(providers, collapse = ", ")))
+  cat(sprintf("- **%d** selected tile(s), **%d** provider(s)\n", nrow(tiles_df), length(providers)))
+  cat(sprintf("- Providers: %s\n", paste(providers, collapse = ", ")))
+  cat(sprintf("- **%.3f GiB** known source-file storage; **%d** file(s) have unknown size\n", total_gb, sum(!known)))
+  if (any(!known)) cat("- Storage is incomplete: unknown files are excluded, not treated as empty.\n")
+  dates <- sort(unique(na.omit(c(as.character(tiles_df$acquired_start), as.character(tiles_df$acquired_end)))))
+  dates <- dates[nzchar(dates)]
+  if (length(dates)) cat(sprintf("- Reported acquisition dates: **%s to %s** (interval endpoints, not continuous coverage)\n", min(dates), max(dates)))
+  else cat("- Acquisition dates: not reported\n")
+
 }
 ```
-
-### By provider
 
 ```{r}
-if (has_tiles) {
-  size <- ifelse(is.finite(tiles_df$size_bytes), tiles_df$size_bytes, 0)
-  by_provider <- stats::aggregate(size, by = list(Provider = tiles_df$provider), FUN = sum)
-  names(by_provider)[2] <- "known_bytes"
-  counts <- as.data.frame(table(Provider = tiles_df$provider), responseName = "Tiles")
-  by_provider <- merge(counts, by_provider, by = "Provider")
-  by_provider[["Known size (GB)"]] <- round(by_provider$known_bytes / 1024^3, 2)
-  by_provider$known_bytes <- NULL
-  print(knitr::kable(by_provider))
-}
+if (knitr::is_latex_output()) cat("\\newpage\n")
 ```
 
-## Tiles
+## Download planning
+
+Storage covers original compressed source tiles, including points outside the study area. Allow additional space for temporary downloads, extraction, decompressed LAS and derived products; their sizes are not estimated here. 1 GiB = 1,024 MiB.
+
+```{r}
+if (has_tiles && any(known)) {
+  speed <- c(5, 20, 50)
+  minutes <- sum(bytes[known]) / 1024^2 / speed / 60
+  scenario <- data.frame(`Aggregate transfer (MiB/s)` = speed,
+    `Time for known bytes (minutes)` = ifelse(minutes < 0.1, "<0.1", sprintf("%.1f", minutes)), check.names = FALSE)
+  print(knitr::kable(scenario, row.names = FALSE))
+} else cat("No usable file sizes: storage and transfer time cannot be estimated.\n\n")
+```
+
+Illustrative ideal transfer times, **not measured speeds or completion promises**. Unknown sizes, retries, throttling, disk writes and processing are excluded. Four workers share the connection and provider limits; four CPU cores do not imply four times the download speed.
+
+## Selection sample (first 5 files)
 
 ```{r}
 if (has_tiles) {
   cols <- intersect(c("filename", "dataset", "provider", "acquired_start", "acquired_end", "size_bytes"), names(tiles_df))
-  show <- tiles_df[, cols, drop = FALSE]
+  show <- utils::head(tiles_df[, cols, drop = FALSE], 5L)
+  # Keep long filenames out of the compact printed table.
+  cols <- intersect(c("filename", "acquired_start", "acquired_end", "size_bytes"), names(show))
+  show <- show[, cols, drop = FALSE]
+  show$filename <- ifelse(nchar(show$filename) > 28, paste0(substr(show$filename, 1, 25), "..."), show$filename)
   if ("size_bytes" %in% names(show)) show$size_bytes <- round(show$size_bytes / 1024^2, 2)
-  names(show) <- c("File", "Dataset", "Provider", "Collection start", "Collection end", "Size (MB)")[seq_along(cols)]
+  names(show) <- c(filename="File", acquired_start="Start", acquired_end="End", size_bytes="MiB")[cols]
   print(knitr::kable(show, row.names = FALSE))
 }
 ```
+
+Export selected metadata in the app for full filenames and the complete selection. Dates are provider-reported; publication dates are never substituted.
 
 ## Citations and licences
 
@@ -118,15 +139,26 @@ if (has_tiles) {
   cols <- intersect(c("citation", "license_url"), names(tiles_df))
   if (length(cols) == 2) {
     pairs <- unique(tiles_df[, cols, drop = FALSE])
-    for (i in seq_len(nrow(pairs))) cat("-", pairs$citation[i], "-", pairs$license_url[i], "\n\n")
+    for (i in seq_len(nrow(pairs))) {
+      credit <- if (is.na(pairs$citation[i]) || !nzchar(pairs$citation[i])) "Source credit not supplied" else pairs$citation[i]
+      link <- pairs$license_url[i]
+      terms <- if (!is.na(link) && grepl("^https?://", link)) paste0("[Licence and source terms](<", link, ">)") else "Licence link not supplied"
+      cat("-", credit, "-", terms, "\n\n")
+    }
   }
 }
 ```
 
----
+Source datasets retain their own terms. This report does not certify data quality, complete coverage or licence clearance. Reports are generated by the app server; local mode keeps them on this computer.
 
-Collection dates are provider-reported and may be unknown; publication or filename dates are never substituted. Downloads preserve original tiles, including portions outside the study area. This report is generated locally and is not transmitted anywhere.
-
-<!-- HTML-only: a fixed-position badge has no PDF/print equivalent, so pandoc
-     drops this raw block when rendering to pdf_document. That is expected. -->
-<div class="als-footer-badge">ALS Downloader</div>
+```{r attached-figures, out.width="100%", out.height="7in", fig.align="center"}
+if (length(params$figures)) {
+  for (i in seq_along(params$figures)) {
+    if (knitr::is_latex_output()) cat("\\newpage\n")
+    cat(sprintf("\n\n## Attached figure %d\n\n", i))
+    cat("User-selected exported view; its embedded labels, sampling notes and credits apply. It may differ from the current tile selection. Visual comparisons do not measure change.\n\n")
+    if (knitr::is_latex_output()) cat(sprintf("\\includegraphics[width=\\linewidth,height=0.75\\textheight,keepaspectratio]{%s}\n", params$figures[i]))
+    else cat(sprintf("![](%s)\n\n", params$figures[i]))
+  }
+}
+```
