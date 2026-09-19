@@ -57,18 +57,18 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       shiny::conditionalPanel("input.enter_map > 0", class = "als-sidebar-toggle",
         shiny::tags$details(class = "als-sidebar", open = "open",
         shiny::tags$summary("Study area and downloads"),
-          shiny::uiOutput("country_access"),
           shiny::fileInput("aoi_file", "Upload study area", accept = c(".zip", ".gpkg", ".geojson", ".json", ".fgb")),
         shiny::uiOutput("layer_control"),
         shiny::helpText("Or draw a polygon or rectangle on the map. ZIP uploads must include Shapefile companion files."),
         shiny::textOutput("aoi_status"),
-          shiny::selectInput("provider", "Search provider", c("USGS 3DEP" = "usgs3dep", "OpenTopography" = "opentopography", "Netherlands - AHN6" = "ahn6", "Switzerland - swissSURFACE3D" = "swisstopo", "France - IGN LiDAR HD" = "ignfr", "Canada - CanElevation" = "canelevation", "Approved contributed indexes" = "contributed")),
-        if (mode == "local") shiny::textInput("indexes", "Approved tile-index directory", value = if (is.null(tile_index_dir)) "" else tile_index_dir),
+        if (mode == "local") shiny::textInput("indexes", "Local tile-index directory (optional)", value = if (is.null(tile_index_dir)) "" else tile_index_dir),
+        if (mode == "local") shiny::helpText("Only needed to also check OpenTopography, CanElevation or an approved contributed index against a local folder of tile indexes."),
         shiny::dateRangeInput("dates", "Acquisition interval", start = "2000-01-01", end = Sys.Date()),
         shiny::actionButton("search", "Find intersecting tiles", class = "als-primary"),
+        shiny::helpText("Checks every configured source automatically; no provider to pick."),
         shiny::tags$hr(),
         if (mode == "local") shiny::tagList(
-          shiny::textInput("destination", "Local output directory", value = ""),
+          shiny::textInput("destination", "Local output directory (optional)", value = "", placeholder = "Leave blank to use a temporary folder"),
           shiny::numericInput("workers", "Download workers", policy$recommended, min = 1, max = policy$maximum),
           shiny::helpText(paste("Recommended:", policy$recommended, "| maximum:", policy$maximum, "| provider ceiling:", provider_limit)))
         else shiny::helpText("Hosted downloads use one worker. Select up to 10 tiles per batch. Files are delivered through your browser."),
@@ -128,8 +128,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "Draw or upload a study area to begin.",
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
       preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
-      preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE,
-      country = "")
+      preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE)
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
     source_check_summary <- source_preflight_server(input, output, session, state, mode, hosted_lock)
     source_submission_server(input, output, session, source_check_summary)
@@ -181,23 +180,12 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       state$aoi <- NULL; state$tiles <- NULL; state$search <- "Study area removed."
       leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::clearGroup("Study area")
     })
-    navigate <- function(id) {
-      if (!nzchar(id)) {leaflet::leafletProxy("map") |> leaflet::setView(0, 20, 2); return()}
-      row <- world[which(world$code == suppressWarnings(as.numeric(id))), ]
-      if (nrow(row)) {bb <- sf::st_bbox(row); leaflet::leafletProxy("map") |> leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])}
-    }
     shiny::observeEvent(input$map_shape_click, {
       id <- input$map_shape_click$id
       if (!is.null(id) && startsWith(as.character(id), "tile:")) {
         index <- suppressWarnings(as.integer(sub("^tile:", "", id)))
         if (!is.null(state$tiles) && !is.na(index) && index >= 1L && index <= nrow(state$tiles))
           DT::selectRows(DT::dataTableProxy("tiles"), index)
-        return()
-      }
-      if (!is.null(id) && id %in% world$id) {
-        navigate(as.character(id))
-        if (as.character(id) %in% as.character(catalog$country_code))
-          state$country <- as.character(id)
       }
     })
     output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else sprintf("Study area: %.4f km^2", aoi_area(state$aoi)))
@@ -205,14 +193,31 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       shiny::req(state$aoi)
       state$tiles <- NULL
       leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::removeControl("tile_year_legend")
-      state$search <- "Searching provider..."
+      state$search <- "Checking every configured source for this area..."
       tryCatch({
-        result <- shiny::withProgress(message = "Finding source tiles", value = .2, {
-          find_tiles(state$aoi, input$provider, as.character(input$dates[1]), as.character(input$dates[2]),
-            if (mode == "local") input$indexes else tile_index_dir)
+        # No provider picker: every network source is checked automatically, plus
+        # any local-index sources for which a tile-index directory is configured.
+        # A failure on one source (no coverage, network error, missing index) never
+        # blocks the others; it is reported alongside whatever results did come back.
+        local_dir <- if (mode == "local") input$indexes else tile_index_dir
+        providers <- c("usgs3dep", "ahn6", "swisstopo", "ignfr")
+        if (!is.null(local_dir) && nzchar(local_dir)) providers <- c(providers, "opentopography", "contributed", "canelevation")
+        found <- list(); failed <- character()
+        shiny::withProgress(message = "Checking sources", value = 0, {
+          for (p in providers) {
+            shiny::incProgress(1 / length(providers), detail = p)
+            tiles <- tryCatch(find_tiles(state$aoi, p, as.character(input$dates[1]), as.character(input$dates[2]),
+                if (p %in% c("opentopography", "contributed", "canelevation")) local_dir else NULL),
+              error = function(e) {failed[[p]] <<- conditionMessage(e); NULL})
+            if (!is.null(tiles) && nrow(tiles)) found[[p]] <- tiles
+          }
         })
+        result <- if (length(found)) do.call(rbind, found) else empty_tiles()
         state$tiles <- result
-        state$search <- if (nrow(result)) paste(nrow(result), "intersecting tiles. Select rows below; acquisition dates may be unknown.") else "No matching records in this source and interval. This does not establish that no LiDAR data exist here."
+        state$search <- paste(c(
+          if (nrow(result)) paste(nrow(result), "intersecting tiles across", length(found), "source(s). Select rows below; acquisition dates may be unknown.")
+            else "No matching records from any configured source for this area and interval. This does not establish that no LiDAR data exist here.",
+          if (length(failed)) paste0(names(failed), ": ", failed)), collapse = " | ")
         if (nrow(result)) {
           # Colour footprints by acquisition year (final date; start when the
           # end date is unknown) instead of one flat colour, so overlapping
@@ -237,11 +242,6 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       DT::datatable(sf::st_drop_geometry(state$tiles)[c("filename", "dataset", "provider", "acquired_end", "acquired_start", "size_bytes", "license_url", "citation")],
         colnames = c("File", "Dataset", "Source adapter", "Collection date (end)", "Collection start", "Size (bytes)", "License", "Producer / citation"),
         rownames = FALSE, selection = "multiple", options = list(scrollX = TRUE, pageLength = 8))
-    })
-    output$country_access <- shiny::renderUI({
-      id <- state$country
-      if (is.null(id) || !nzchar(id)) return(shiny::helpText("Click a country on the map to see its official data access links."))
-      country_source_links(catalog, id)
     })
     output$sources <- DT::renderDT(DT::datatable(catalog, rownames = FALSE, options = list(scrollX = TRUE, pageLength = 15)))
     selected_tiles <- shiny::reactive({
@@ -319,15 +319,16 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
           state$lock_owned <- TRUE
         }
         jobdir <- tempfile("als-job-"); dir.create(jobdir)
-        destination <- if (mode == "hosted") file.path(jobdir, "files") else input$destination
-        if (is.null(destination) || !nzchar(trimws(destination))) stop("Choose a local output directory.")
+        destination <- if (mode == "hosted") file.path(jobdir, "files")
+          else if (nzchar(trimws(input$destination))) input$destination
+          else {auto <- file.path(jobdir, "files"); dir.create(auto); auto}
         state$jobdir <- jobdir; state$destination <- destination; state$finished <- FALSE
         state$job <- callr::r_bg(function(tiles, path, workers, mode, ceiling, progress) {
           alsdownloader::download_tiles(tiles, path, workers = workers, mode = mode,
             provider_limit = ceiling, progress_dir = progress)
         }, args = list(rows, destination, if (mode == "hosted") 1L else input$workers,
           mode, provider_limit, file.path(jobdir, "progress")), supervise = TRUE)
-        state$jobtext <- "Download started in a background process."
+        state$jobtext <- paste("Download started in a background process. Saving to", destination)
       }, error = function(e) {release_lock(); notify(e)})
     })
     shiny::observe({
@@ -338,8 +339,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       state$jobtext <- paste(completed, "tiles reported.")
       if (!job$is_alive()) {
         state$finished <- TRUE; release_lock(); release_output_lock()
-        tryCatch({result <- job$get_result(); state$jobtext <- sprintf("Complete: %s successful, %s failed. See manifest.csv.",
-          sum(result$status != "failed"), sum(result$status == "failed"))},
+        tryCatch({result <- job$get_result(); state$jobtext <- sprintf("Complete: %s successful, %s failed. Files saved in %s (see manifest.csv).",
+          sum(result$status != "failed"), sum(result$status == "failed"), state$destination)},
           error = function(e) state$jobtext <- "Download stopped. Retry the selection to resume verified files.")
       }
     })
