@@ -109,7 +109,16 @@ res = 1, output_dir)`, guarded by `requireNamespace("lidR")`:
   stayed out of.
 - No invented point-density numbers where a provider does not publish one.
 
-## 6. A downloadable session report (HTML by default, PDF optional)
+## 6. A downloadable session report (HTML by default, PDF optional) - DONE
+
+Implemented: `R/report.R` (`als_report()`, exported), `inst/report/session-report.Rmd`,
+a "Download session report" button in `R/app.R` next to **Download selected
+tiles**, and `tests/testthat/test-report.R`. Matches the rescoped design
+below exactly (HTML-only in the app; `format = "pdf"` available when calling
+`als_report()` directly in R and `tinytex` is installed, with a warning and
+an automatic HTML fallback otherwise). Not yet exercised against a real
+`rmarkdown::render()` pass in this session (no R here) - verify via the
+next CI run before trusting it end to end.
 
 Inspired by another of the maintainer's apps (CSF-Ind), which renders a
 PDF report via `rmarkdown`/`tinytex` after processing a dataset. The idea

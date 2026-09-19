@@ -100,6 +100,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::downloadButton("export_manifest", "Export all tile metadata"),
             shiny::downloadButton("export_selection", "Export selected metadata"),
             shiny::downloadButton("export_script", "Download selection as R script"),
+            shiny::downloadButton("download_report", "Download session report"),
             shiny::div(class = "als-tile-preview",
               shiny::textOutput("tile_selection"),
               shiny::actionButton("plot_tile", "Plot selected tile in 3D", class = "als-primary"),
@@ -259,6 +260,14 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     })
     output$export_script <- shiny::downloadHandler(filename = "download-selected-tiles.R", content = function(file) {
       x <- selected_tiles(); shiny::req(nrow(x)); writeLines(selection_script(x), file, useBytes = TRUE)
+    })
+    output$download_report <- shiny::downloadHandler(filename = "als-session-report.html", content = function(file) {
+      x <- selected_tiles(); shiny::req(nrow(x))
+      area <- if (is.null(state$aoi)) NA_real_ else aoi_area(state$aoi)
+      dir <- tempfile("als-report-"); dir.create(dir)
+      on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+      path <- als_report(x, dir, aoi_area_km2 = area)
+      file.copy(path, file, overwrite = TRUE)
     })
     output$tile_selection <- shiny::renderText({
       selected <- input$tiles_rows_selected

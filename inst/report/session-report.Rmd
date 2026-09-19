@@ -1,0 +1,85 @@
+---
+title: "ALS Downloader session report"
+output:
+  html_document:
+    self_contained: true
+params:
+  tiles: NULL
+  aoi_area_km2: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, results = "asis")
+tiles <- params$tiles
+aoi_area_km2 <- params$aoi_area_km2
+has_tiles <- !is.null(tiles) && is.data.frame(tiles) && nrow(tiles) > 0
+```
+
+Generated `r format(Sys.time(), "%Y-%m-%d %H:%M")` by [ALS Downloader](https://github.com/Cesarito2021/als_downloader). This report summarises a search/download selection at the time it was generated; it does not certify data quality, coverage completeness or licence clearance. Verify each dataset's own terms before use.
+
+## Study area
+
+```{r}
+if (length(aoi_area_km2) == 1 && is.finite(aoi_area_km2)) {
+  cat(sprintf("Approximately **%.4f km2**.\n", aoi_area_km2))
+} else {
+  cat("Not recorded.\n")
+}
+```
+
+## Summary
+
+```{r}
+if (!has_tiles) {
+  cat("No tiles in this selection.\n")
+} else {
+  known <- is.finite(tiles$size_bytes)
+  total_gb <- sum(tiles$size_bytes[known], na.rm = TRUE) / 1024^3
+  providers <- sort(unique(tiles$provider))
+  cat(sprintf("- **%d** tile(s) in this selection\n", nrow(tiles)))
+  cat(sprintf("- **%.3f GB** known total size (%d file(s) with unknown size)\n", total_gb, sum(!known)))
+  cat(sprintf("- **%d** provider(s): %s\n", length(providers), paste(providers, collapse = ", ")))
+}
+```
+
+### By provider
+
+```{r}
+if (has_tiles) {
+  size <- ifelse(is.finite(tiles$size_bytes), tiles$size_bytes, 0)
+  by_provider <- stats::aggregate(size, by = list(Provider = tiles$provider), FUN = sum)
+  names(by_provider)[2] <- "known_bytes"
+  counts <- as.data.frame(table(Provider = tiles$provider), responseName = "Tiles")
+  by_provider <- merge(counts, by_provider, by = "Provider")
+  by_provider[["Known size (GB)"]] <- round(by_provider$known_bytes / 1024^3, 3)
+  by_provider$known_bytes <- NULL
+  print(knitr::kable(by_provider))
+}
+```
+
+## Tiles
+
+```{r}
+if (has_tiles) {
+  cols <- intersect(c("filename", "dataset", "provider", "acquired_start", "acquired_end", "size_bytes"), names(tiles))
+  show <- tiles[, cols, drop = FALSE]
+  names(show) <- c("File", "Dataset", "Provider", "Collection start", "Collection end", "Size (bytes)")[seq_along(cols)]
+  print(knitr::kable(show, row.names = FALSE))
+}
+```
+
+## Citations and licences
+
+```{r}
+if (has_tiles) {
+  cols <- intersect(c("citation", "license_url"), names(tiles))
+  if (length(cols) == 2) {
+    pairs <- unique(tiles[, cols, drop = FALSE])
+    for (i in seq_len(nrow(pairs))) cat("-", pairs$citation[i], "-", pairs$license_url[i], "\n\n")
+  }
+}
+```
+
+---
+
+Collection dates are provider-reported and may be unknown; publication or filename dates are never substituted. Downloads preserve original tiles, including portions outside the study area. This report is generated locally and is not transmitted anywhere.
