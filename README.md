@@ -197,14 +197,15 @@ non-overlapping acquisition periods still applies.
 
 ### Community Zenodo submissions
 
-Only proposals with an existing georeferenced coverage polygon file and a clear
-mapping to the download assets are eligible for submission. The app does not
-generate missing coverage from point clouds. A general study-area outline is
-insufficient if it does not describe the available LiDAR coverage. Demonstration
-datasets must meet the same requirements before being presented as ready to submit.
+Contributors choose whether they have coverage polygons. If not, they may declare
+an approximate square using a map centre and the distance from centre to each
+side: the default 1,000 m produces a 2 x 2 km square. Select the corresponding files and confirm
+that the square encloses them. It remains labelled approximate in review, email,
+catalogue dataset names and citations after approval. It can produce search
+matches in areas without points. No coverage is inferred or verified from clouds.
 
 **Share your dataset → Share a Zenodo dataset** asks for five items: the public
-Zenodo link or DOI, surveyed coverage, acquisition dates (unknown is allowed),
+Zenodo link or DOI, coverage polygons or a declared approximate extent, acquisition dates (unknown is allowed),
 ALS/UAV platform and an optional private contact email. Reading metadata retrieves
 the version DOI, title, authors, licence, description, notes, filenames and sizes.
 Publication dates are never substituted for survey dates. No point cloud is
@@ -218,6 +219,9 @@ for each polygon. Multiple polygons for an asset are combined. ZIP assets are
 supported as whole-archive downloads; contents require maintainer verification
 and local extraction before 3D preview. Other archive formats are not supported.
 Unknown coverage cannot be inferred from a DOI or an arbitrary map location.
+The approximate option requires a declared centre, 1 to 10,000 m to each side,
+latitude between -85 and 85 degrees, and explicit file selection. Disjoint surveys
+should use separate proposals or polygons rather than a large square bridging gaps.
 
 For a local maintainer installation, configure a persistent private directory:
 

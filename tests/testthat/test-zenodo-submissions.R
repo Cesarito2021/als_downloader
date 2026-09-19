@@ -6,25 +6,6 @@ zenodo_fixture <- function(keys="survey.laz") {
 }
 zenodo_shape <- function() sf::st_sf(geometry=sf::st_as_sfc(sf::st_bbox(c(xmin=1,ymin=1,xmax=1.01,ymax=1.01),crs=4326)))
 
-test_that("coverage polygons are required and legacy approximate proposals are rejected", {
-  m<-zenodo_fixture();g<-zenodo_shape()
-  expect_error(zenodo_build(m,NULL,"2018","ALS"))
-  point<-sf::st_sf(geometry=sf::st_sfc(sf::st_point(c(1,1)),crs=4326))
-  expect_error(zenodo_build(m,point,"2018","ALS"),"polygons")
-  p<-zenodo_build(m,g,"2018","ALS")
-  p$index$features[[1]]$properties$coverage_method<-"author_approximate_square"
-  queue<-tempfile();on.exit(unlink(queue,recursive=TRUE))
-  expect_error(submit_zenodo(p,queue),"no longer accepted")
-  expect_false(dir.exists(queue))
-  g$coverage_method<-"author_approximate_square"
-  expect_error(zenodo_build(m,g,"2018","ALS"),"no longer accepted")
-  # A saved legacy request also cannot be approved under the new policy.
-  zenodo_write(p,file.path(queue,"requests",paste0(p$id,".json")))
-  local_mocked_bindings(inspect_zenodo=function(...)m,.package="alsdownloader")
-  expect_error(review_zenodo_submission(queue,p$id,"approve","Reviewer",TRUE),"no longer accepted")
-  expect_false(dir.exists(file.path(queue,"approved")))
-})
-
 test_that("mail preview, failure and retry preserve pending approval and deduplicate", {
   queue<-tempfile();on.exit(unlink(queue,recursive=TRUE))
   config<-list(from="app@example.org",to="owner@example.org",review_url="http://127.0.0.1:8792/",preview=TRUE)

@@ -70,8 +70,6 @@ zenodo_boundary <- function(boundary) {
   path <- if(is.list(boundary) && !inherits(boundary,"sf")) boundary$datapath else boundary
   if(is.character(path) && (length(path)!=1 || !file.exists(path) || file.size(path)>5*1024^2)) stop("Coverage file must be at most 5 MiB.")
   g <- read_aoi(boundary)
-  if("coverage_method" %in% names(g) && any(g$coverage_method=="author_approximate_square",na.rm=TRUE))
-    stop("Approximate squares are no longer accepted. Upload coverage polygons linked to the point-cloud files.")
   if(nrow(g)>10000L || nrow(sf::st_coordinates(g))>100000L) stop("Use at most 10,000 polygons and 100,000 vertices.")
   g
 }
@@ -95,6 +93,15 @@ zenodo_build <- function(metadata,boundary,acquired,platform,email="") {
   g$file_key <- as.character(g$file_key)
   # Keep one downloadable asset per row even if its footprint has several pieces.
   unique_keys <- unique(g$file_key)
+  approximate <- "coverage_method" %in% names(g) && any(g$coverage_method=="author_approximate_square",na.rm=TRUE)
+  if(approximate) {
+    fields<-c("extent_longitude","extent_latitude","extent_distance_m")
+    if(!all(fields %in% names(g)) || anyNA(g$coverage_method) ||
+       !all(g$coverage_method=="author_approximate_square") ||
+       any(vapply(sf::st_drop_geometry(g)[fields],function(x)length(unique(x))!=1L,logical(1))))
+      stop("An approximate proposal must describe one centre and distance for its selected files.")
+    g<-zenodo_square(g$extent_longitude[1],g$extent_latitude[1],g$extent_distance_m[1],unique_keys)
+  }
   shapes <- lapply(unique_keys,function(k)sf::st_union(sf::st_geometry(g[g$file_key==k,])))
   rows <- sf::st_sf(file_key=unique_keys,geometry=do.call(c,shapes))
   index <- report_geojson(rows)
@@ -112,6 +119,16 @@ zenodo_build <- function(metadata,boundary,acquired,platform,email="") {
       acquired_start=if(is.na(dates[1]))NULL else dates[1],acquired_end=if(is.na(dates[2]))NULL else dates[2],
       platform=platform,license_url=metadata$license_url,citation=metadata$citation,size_bytes=file$size,
       file_key=file$key,checksum=file$checksum,zenodo_doi=metadata$doi)
+    if(approximate) {
+      props<-index$features[[i]]$properties
+      props$dataset<-paste(metadata$title,"[approximate extent]")
+      props$citation<-paste(metadata$citation,"Search extent is an author-declared approximate square; LiDAR coverage within it is not verified.")
+      props$coverage_method<-"author_approximate_square"
+      props$extent_longitude<-g$extent_longitude[1]
+      props$extent_latitude<-g$extent_latitude[1]
+      props$extent_distance_m<-g$extent_distance_m[1]
+      index$features[[i]]$properties<-props
+    }
   }
   scratch <- tempfile(fileext=".geojson");on.exit(unlink(scratch))
   jsonlite::write_json(index,scratch,auto_unbox=TRUE,null="null",digits=NA)
@@ -154,8 +171,6 @@ zenodo_write <- function(x,path) {
 #' @export
 submit_zenodo <- function(proposal,queue) {
   if(!identical(proposal$schema,"als-zenodo-proposal-v1") || !grepl("^[a-f0-9]{64}$",proposal$id)) stop("Invalid proposal.")
-  if(any(vapply(proposal$index$features,function(f)identical(f$properties$coverage_method,"author_approximate_square"),logical(1))))
-    stop("Approximate squares are no longer accepted. Prepare a new proposal with coverage polygons.")
   if(length(queue)!=1 || !is.character(queue) || !nzchar(queue)) stop("Configure a private review queue.")
   path <- file.path(queue,"requests",paste0(proposal$id,".json"))
   dir.create(dirname(path),recursive=TRUE,showWarnings=FALSE)

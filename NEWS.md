@@ -1,9 +1,9 @@
 # alsdownloader 0.1.0
 
-* Require supplied coverage polygons for Zenodo submissions. Accept polygon
-  files from the record or a separate upload, linked through exact file_key
-  filenames. Remove the centre-and-distance alternative and reject legacy
-  approximate-square proposals.
+* Let Zenodo contributors select existing boundary files or declare an approximate
+  square from a map centre and metric half-width. Require explicit asset selection
+  and confirmation; preserve approximate labels in review, mail and catalogue.
+  Default to 1 km from centre to each side and enforce a maximum of 10 km.
 
 * Add optional SMTP notifications for queued Zenodo proposals, private email
   previews, delivery receipts and links to the matching local review screen.
