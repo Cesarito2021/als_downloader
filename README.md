@@ -32,10 +32,11 @@ The [complete source table](inst/sources/SOURCES.md) records the current catalog
 
 | Control | Purpose |
 |---|---|
-| W1 - Globe | Rotate to explore countries represented in the active catalog. |
-| W2 - Red shading | Country has an in-app search-and-download adapter. Not complete national survey coverage. |
-| W3 - Yellow shading | Country has only a linked official source; download from the provider's own portal. |
-| W4 - Open map | Open the map to draw or upload an area of interest. |
+| W1 - Globe | Rotates on its own; drag or use arrow keys to take over, or click **Reset globe** to return to the start view and resume auto-rotation. |
+| W2 - Legend | Top-right key: red for an in-app search-and-download adapter, yellow for a linked official source only. |
+| W3 - Red shading | Country has an in-app search-and-download adapter. Not complete national survey coverage. |
+| W4 - Yellow shading | Country has only a linked official source; download from the provider's own portal. |
+| W5 - Open map | Open the map to draw or upload an area of interest. |
 
 ## 2. Search, download and plot
 

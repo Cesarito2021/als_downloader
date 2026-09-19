@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   for(let y=H/6;y<H;y+=H/6){t.moveTo(0,y);t.lineTo(W,y);}t.stroke();
   const countries=new Set(canvas.dataset.countries.split(',').map(Number));
   const implemented=new Set((canvas.dataset.implemented||'').split(',').filter(Boolean).map(Number));
-  let pixels,lon=-65,lat=18,drag=null,pending=false;
+  let pixels,lon=-65,lat=18,drag=null,pending=false,autorotate=true;
   function ring(coords,shift){
     let prev=coords[0][0];const points=coords.map(([raw,y])=>{let x=raw;while(x-prev>180)x-=360;while(x-prev< -180)x+=360;prev=x;return [x,y];});
     const first=points[0],last=points[points.length-1];
@@ -29,7 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         t.strokeStyle='#6c958b';t.lineWidth=.65;t.stroke();}
     }
     pixels=t.getImageData(0,0,W,H).data;canvas.dataset.ready='true';draw();
+    requestAnimationFrame(spin);
   }catch(e){document.getElementById('globe_status').textContent='Globe unavailable. Open the map to continue.';}
+  // Throttled to ~16 fps: the per-pixel software projection in draw() is too
+  // costly to re-run at a full 60 fps just for a slow ambient spin.
+  let lastSpin=0;
+  function spin(ts){if(autorotate&&ts-lastSpin>60){lon+=.12;lastSpin=ts;draw();}requestAnimationFrame(spin);}
   function draw(){
     if(!pixels||!canvas.clientWidth)return;
     const w=Math.min(900,Math.round(canvas.clientWidth)),h=canvas.clientHeight;
@@ -48,11 +53,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     ctx.putImageData(img,0,0);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#93cbd37f';ctx.lineWidth=2;ctx.stroke();
   }
   function redraw(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;draw();});}
-  canvas.onpointerdown=e=>{drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);canvas.focus();};
+  canvas.onpointerdown=e=>{autorotate=false;drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);canvas.focus();};
   canvas.onpointermove=e=>{if(!drag)return;lon-=(e.clientX-drag[0])*.35;lat=Math.max(-75,Math.min(75,lat+(e.clientY-drag[1])*.25));drag=[e.clientX,e.clientY];redraw();};
   canvas.onpointerup=canvas.onpointercancel=()=>drag=null;
-  function reset(){lon=-65;lat=18;redraw();}
+  function reset(){lon=-65;lat=18;autorotate=true;redraw();}
   document.getElementById('globe_reset').onclick=reset;
-  canvas.onkeydown=e=>{if(e.key==='0'){e.preventDefault();reset();return;}if(!e.key.startsWith('Arrow'))return;e.preventDefault();lon+=e.key==='ArrowLeft'?-10:e.key==='ArrowRight'?10:0;lat=Math.max(-75,Math.min(75,lat+(e.key==='ArrowUp'?10:e.key==='ArrowDown'?-10:0)));redraw();};
+  canvas.onkeydown=e=>{if(e.key==='0'){e.preventDefault();reset();return;}if(!e.key.startsWith('Arrow'))return;e.preventDefault();autorotate=false;lon+=e.key==='ArrowLeft'?-10:e.key==='ArrowRight'?10:0;lat=Math.max(-75,Math.min(75,lat+(e.key==='ArrowUp'?10:e.key==='ArrowDown'?-10:0)));redraw();};
   new ResizeObserver(redraw).observe(canvas);
 });
