@@ -2,7 +2,7 @@
 
 Generated from `inst/extdata/providers.csv`; see [access and attribution policy](README.md).
 
-36 source/product entries, not a count of individual datasets or tiles.
+37 source/product entries, not a count of individual datasets or tiles.
 An available adapter is a technical capability, not blanket permission for every asset.
 
 | Source | Country | Adapter | Access and limitations | Reviewed |
@@ -22,6 +22,7 @@ An available adapter is a technical capability, not blanket permission for every
 | [GeoSN Saxony laser clouds](https://www.geodaten.sachsen.de/downloadbereich-digitale-hoehenmodelle-4851.html) | Germany | Not implemented; reference only | Saxony only: original LSC LAZ delivered in 2 km ZIP tiles with acquisition information; select LSC not raster models; in-app adapter pending | 2026-09-17 |
 | [NEON discrete return LiDAR](https://www.neonscience.org/resources/learning-hub/tutorials/neon-discrete-point-clouds) | United States | Not implemented; reference only | DP1.30003.001: 1 km LAZ tiles and spatial metadata; user account/API token required for download; in-app adapter pending | 2026-09-17 |
 | [ORNL Brazilian forest surveys](https://daac.ornl.gov/CMS/guides/LiDAR_Forest_Inventory_Brazil.html) | Brazil | Not implemented; reference only | Original LAZ with CSV/KMZ tile inventory; Earthdata access workflow required; authenticated transfer and in-app adapter pending | 2026-09-17 |
+| [Paisagens Sustentaveis LiDAR (Embrapa)](https://www.paisagenslidar.cnptia.embrapa.br/) | Brazil | Not implemented; reference only | Map-based catalog of LiDAR/forest-inventory surveys by state and collection year; per-site files hosted on Redape (Embrapa's Dataverse) with a DOI citation and checksum each; no bulk area-of-interest search API confirmed; licence not confirmed per dataset | 2026-09-19 |
 | [LINZ aerial LiDAR collections](https://www.linz.govt.nz/products-services/data/types-linz-data/elevation-data/provincial-growth-fund-lidar-programme) | New Zealand | Not implemented; reference only | Official programme includes source point clouds and regional coverage; follow point-cloud access channels; in-app adapter pending | 2026-09-17 |
 | [IGN PNOA LiDAR products](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga) | Spain | Not implemented; reference only | CNIG download manual limits unregistered downloads to 20 products; an earlier automated download-init returned HTTP 403 so there is no anonymous in-app adapter; the official portal remains available for manual browsing and download | 2026-09-18 |
 | [Tirol laser-scan data](https://www.tirol.gv.at/sicherheit/geoinformation/geodaten-tiris/laserscandaten) | Austria | Not implemented; reference only | Free derived elevation products only; original LAS/LAZ supplied by request with processing charges; other eight Austrian states not reviewed; in-app adapter pending | 2026-09-18 |

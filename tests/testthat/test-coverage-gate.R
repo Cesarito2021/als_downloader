@@ -1,6 +1,6 @@
 test_that("unverified research footprints are excluded from active coverage", {
   catalog <- provider_catalog()
-  expect_equal(nrow(catalog), 36L)
+  expect_equal(nrow(catalog), 37L)
   expect_false(any(catalog$id %in% c("sila_zenodo", "treelims_zenodo", "eba_zenodo", "pnoa")))
   expect_false(any(catalog$name == "OpenTopography AUS11_Victor"))
   expect_false(exists("zenodo_source_ui", envir=asNamespace("alsdownloader"), inherits=FALSE))

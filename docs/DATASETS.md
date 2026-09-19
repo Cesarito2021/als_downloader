@@ -2,7 +2,7 @@
 
 Generated from `inst/extdata/providers.csv` by `tools/update_source_docs.py`; see [SOURCES.md](../inst/sources/SOURCES.md) for the full access/licence text behind each entry, and the [README](../README.md) for a handful of representative examples.
 
-**8 available in-app (in-app search and download) and 28 portal-only (linked official source, no in-app adapter) entries, 36 total.**
+**8 available in-app (in-app search and download) and 29 portal-only (linked official source, no in-app adapter) entries, 37 total.**
 
 - 🟢 **Available in-app** - search and download inside the app.
 - 🔗 **Portal only** - follow the official link and download there; no in-app adapter yet.
@@ -27,6 +27,7 @@ Generated from `inst/extdata/providers.csv` by `tools/update_source_docs.py`; se
 |---|---|---|
 | Brazil | [ORNL Brazilian forest surveys](https://daac.ornl.gov/CMS/guides/LiDAR_Forest_Inventory_Brazil.html) | 🔗 Portal only |
 | Brazil | [OpenTopography BR17_SaoPaulo](https://portal.opentopography.org/datasetMetadata?otCollectionID=OT.062020.31983.1) | 🟢 Available in-app |
+| Brazil | [Paisagens Sustentaveis LiDAR (Embrapa)](https://www.paisagenslidar.cnptia.embrapa.br/) | 🔗 Portal only |
 
 ## Europe
 
