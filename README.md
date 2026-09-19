@@ -52,7 +52,7 @@ The [complete source table](inst/sources/SOURCES.md) records the current catalog
 |---|---|
 | A - Header | Application and local/hosted mode. |
 | B - Study area | Draw a polygon/rectangle or upload GeoJSON, GeoPackage or a zipped Shapefile. |
-| C - Search | Select a provider and acquisition interval; find intersecting tiles. |
+| C - Search | Set an acquisition interval; find intersecting tiles across every source usable in this deployment. |
 | D - Download | Select files and download originals to your chosen folder. |
 | E - Map | Inspect the study area and returned tile footprints, coloured by acquisition year with an automatic legend (grey where the provider reports no date). |
 | F - Results | Review metadata; select one tile and click **Plot selected tile in 3D**. |
