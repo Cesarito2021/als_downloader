@@ -38,6 +38,8 @@ The [complete source table](inst/sources/SOURCES.md) records the current catalog
 The welcome page also includes an expandable **About the project** introduction
 with a link to this guide, and **Browse source catalogue** opens the app's source
 table without starting a map search.
+Sources appear as lightweight searchable cards with bundled icons, country,
+adapter status and expandable access notes. The detailed table remains available.
 
 | Control | Purpose |
 |---|---|

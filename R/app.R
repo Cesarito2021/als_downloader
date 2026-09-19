@@ -161,7 +161,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
             shiny::p("Software: GPL-3. The screenshot library html2canvas is MIT-licensed; its notice is included. Dataset and basemap licences remain separate. Keep source credits and licence links with figures and downloads; scientific use does not waive provider terms. Local-file and uploaded boundary rights must be checked with their source."),
             shiny::downloadButton("licensing_notes", "Download licence guidance and software notices"),
-            DT::DTOutput("sources")))))
+            shiny::textInput("catalogue_search", "Find a source or country", placeholder = "e.g. France, USGS, OpenTopography"),
+            shiny::uiOutput("source_cards"),
+            shiny::tags$details(class = "als-source-table", shiny::tags$summary("View detailed source table"), DT::DTOutput("sources"))))))
   )
   server <- function(input, output, session) {
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "Draw or upload a study area to begin.",
@@ -333,6 +335,22 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         rownames = FALSE, selection = "multiple", options = list(scrollX = TRUE, pageLength = 8))
     })
     output$sources <- DT::renderDT(DT::datatable(catalog, rownames = FALSE, options = list(scrollX = TRUE, pageLength = 15)))
+    output$source_cards <- shiny::renderUI({
+      query <- if (is.null(input$catalogue_search)) "" else tolower(trimws(input$catalogue_search))
+      rows <- catalog[grepl(query, tolower(paste(catalog$name, catalog$country)), fixed = TRUE), , drop = FALSE]
+      if (!nrow(rows)) return(shiny::p(role = "status", "No matching sources. Try another name or country."))
+      rows <- rows[order(!rows$implemented, rows$country, rows$name), , drop = FALSE]
+      shiny::tagList(shiny::p(role = "status", paste(nrow(rows), "sources listed. Check each source's access conditions.")),
+        shiny::div(class = "als-source-grid", lapply(seq_len(nrow(rows)), function(i) {
+          source <- rows[i, ]
+          shiny::tags$article(class = "als-source-card",
+            shiny::div(class = "als-source-card-top", shiny::span(class = "als-source-icon", `aria-hidden` = "true", shiny::icon("plane")),
+              shiny::span(class = if (source$implemented) "als-source-status available" else "als-source-status", if (source$implemented) "In-app adapter" else "External portal")),
+            shiny::h3(source$name), shiny::p(class = "als-source-country", source$country),
+            shiny::tags$details(shiny::tags$summary("Access and availability"), shiny::p(source$access)),
+            shiny::tags$a(href = source$info_url, target = "_blank", rel = "noopener noreferrer", paste("View source:", source$name)))
+        })))
+    })
     selected_tiles <- shiny::reactive({
       shiny::req(state$tiles)
       ids <- input$tiles_rows_selected

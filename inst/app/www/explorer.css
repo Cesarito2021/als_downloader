@@ -45,3 +45,19 @@ a{transition:color .12s ease}a:hover{color:#c3dbe6}
 .als-welcome-reading a{color:#9ed5ed;text-decoration:underline}
 .als-welcome-reading summary:focus-visible,.als-welcome-reading a:focus-visible,.als-welcome-reading button:focus-visible{outline:2px solid #9ed5ed;outline-offset:4px}
 @media(max-width:700px){.als-welcome-reading{grid-template-columns:1fr}}
+
+/* Catalogue cards use the icon font already shipped with Shiny; no image requests. */
+.als-source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:16px;margin:18px 0 24px}
+.als-source-card{display:flex;flex-direction:column;min-width:0;border:1px solid #2a3b47;border-radius:12px;padding:20px;background:#0d1721;overflow-wrap:anywhere}
+.als-source-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.als-source-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:10px;background:#172c3b;color:#a8d4e9;font-size:21px}
+.als-source-status{font-size:12px;border:1px solid #59606a;border-radius:20px;padding:4px 10px;color:#d2d6df}
+.als-source-status.available{border-color:#3b6b61;color:#a4dccb}
+.als-source-card h3{font-size:18px;line-height:1.4;margin:0 0 6px;color:#e0eaf0}
+.als-source-country{color:#9eb1bf;font-size:14px}
+.als-source-card details{margin:6px 0 20px;line-height:1.55;font-size:13px;color:#c7d6df}
+.als-source-card summary,.als-source-table>summary{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.als-source-card details p{margin-top:10px}
+.als-source-card>a{margin-top:auto;color:#9ed5ed;text-decoration:underline;font-size:13px}
+.als-source-card a:focus-visible,.als-source-card summary:focus-visible,.als-source-table>summary:focus-visible{outline:2px solid #9ed5ed;outline-offset:4px}
+.als-source-table{margin-bottom:24px}
