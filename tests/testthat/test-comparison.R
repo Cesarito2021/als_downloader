@@ -100,7 +100,7 @@ test_that("visual comparison starts without campaigns or analysis controls", {
   expect_false(grepl('difference_csv|compare_resolution|compare_verified',ui))
   shiny::testServer(app,{
     session$flushReact()
-    expect_match(output$aoi_status,'No study area')
+    expect_match(output$aoi_status,'No AOI')
     expect_match(output$compare_status,'Choose two point-cloud sources')
   })
 })

@@ -2,7 +2,7 @@
 
 ### Download planning
 
-Storage covers original compressed source tiles, including points outside the study area. Allow additional space for temporary downloads, extraction, decompressed LAS and derived products; their sizes are not estimated here. 1 GiB = 1,024 MiB.
+Storage covers original compressed source tiles, including points outside the AOI. Allow additional space for temporary downloads, extraction, decompressed LAS and derived products; their sizes are not estimated here. 1 GiB = 1,024 MiB.
 
 ```{r, eval=params$details}
 if (has_tiles && any(known)) {

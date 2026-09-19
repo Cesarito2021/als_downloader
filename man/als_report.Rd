@@ -28,13 +28,13 @@ not already exist.}
 `"pdf"` (requires Pandoc and a working `tinytex`
 installation; falls back to `"html"` with a warning otherwise).}
 
-\item{aoi_area_km2}{Optional study-area size in square kilometres, shown
+\item{aoi_area_km2}{Optional AOI size in square kilometres, shown
 for context only.}
 
-\item{aoi}{Optional `sf` polygon (the study area) as passed to
+\item{aoi}{Optional `sf` polygon (the AOI) as passed to
 [find_tiles()]. When supplied alongside `tiles` with geometry, the
 report includes a simple map figure of the tile footprints and the
-study area outline. Geometry only -- not a basemap image, and nothing
+AOI outline. Geometry only -- not a basemap image, and nothing
 is fetched to draw it.}
 
 \item{figures}{Optional paths to up to six exported PNG figures, included

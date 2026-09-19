@@ -7,12 +7,12 @@
 #' @param format `"html"` (default; self-contained, requires Pandoc) or
 #'   `"pdf"` (requires Pandoc and a working `tinytex`
 #'   installation; falls back to `"html"` with a warning otherwise).
-#' @param aoi_area_km2 Optional study-area size in square kilometres, shown
+#' @param aoi_area_km2 Optional AOI size in square kilometres, shown
 #'   for context only.
-#' @param aoi Optional `sf` polygon (the study area) as passed to
+#' @param aoi Optional `sf` polygon (the AOI) as passed to
 #'   [find_tiles()]. When supplied alongside `tiles` with geometry, the
 #'   report includes a simple map figure of the tile footprints and the
-#'   study area outline. Geometry only -- not a basemap image, and nothing
+#'   AOI outline. Geometry only -- not a basemap image, and nothing
 #'   is fetched to draw it.
 #' @param figures Optional paths to up to six exported PNG figures, included
 #'   unchanged with their embedded legends and credits. Maximum 10 MiB each.
@@ -69,7 +69,7 @@ als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km
     figures <- staged
   }
   if (length(map_image)) {
-    staged_map <- file.path(stage, "study-area-rgb.png")
+    staged_map <- file.path(stage, "aoi-rgb.png")
     if (!file.copy(map_image, staged_map)) stop("Could not prepare the report map.", call. = FALSE)
     map_image <- normalizePath(staged_map, winslash = "/", mustWork = TRUE)
   }

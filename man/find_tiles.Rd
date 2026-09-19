@@ -2,7 +2,7 @@
 % Please edit documentation in R/catalog.R
 \name{find_tiles}
 \alias{find_tiles}
-\title{Find point-cloud tiles intersecting a study area}
+\title{Find point-cloud tiles intersecting an AOI}
 \usage{
 find_tiles(
   aoi,
@@ -42,7 +42,7 @@ An `sf` table of assets with stable identifiers, canonical URLs,
   acquisition dates, citation information and tile geometry in EPSG:4326.
 }
 \description{
-Find point-cloud tiles intersecting a study area
+Find point-cloud tiles intersecting an AOI
 }
 \details{
 Network access occurs only when this function is explicitly called
@@ -52,6 +52,6 @@ Network access occurs only when this function is explicitly called
 }
 \examples{
 if (interactive()) {
-  # tiles <- find_tiles("study-area.gpkg", provider = "usgs3dep")
+  # tiles <- find_tiles("aoi.gpkg", provider = "usgs3dep")
 }
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/aoi.R
 \name{read_aoi}
 \alias{read_aoi}
-\title{Read and validate a polygon study area}
+\title{Read and validate a polygon AOI}
 \usage{
 read_aoi(x, layer = NULL)
 }
@@ -17,7 +17,7 @@ is more than one layer.}
 An `sf` polygon object in EPSG:4326. Empty geometries are removed.
 }
 \description{
-Read and validate a polygon study area
+Read and validate a polygon AOI
 }
 \details{
 Zipped Shapefiles must contain one Shapefile with a declared CRS.

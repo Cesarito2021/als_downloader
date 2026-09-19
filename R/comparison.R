@@ -33,7 +33,7 @@ comparison_availability <- function(tiles, aoi, a, b, opted_in = FALSE, side_m =
   unavailable <- function(message) list(ready = FALSE, message = message)
   groups <- campaign_groups(tiles)
   if (is.null(aoi) || length(groups) < 2L)
-    return(unavailable("Comparison needs at least two point-cloud campaigns in the same study area. Search the AOI first."))
+    return(unavailable("Comparison needs at least two point-cloud campaigns in the same AOI. Search the AOI first."))
   time_message <- comparison_time_message(tiles)
   if (!is.null(time_message)) return(unavailable(time_message))
   if (!isTRUE(opted_in)) return(unavailable("Comparison is optional. Tick the checkbox to choose two clouds."))

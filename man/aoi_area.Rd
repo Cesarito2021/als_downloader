@@ -2,7 +2,7 @@
 % Please edit documentation in R/aoi.R
 \name{aoi_area}
 \alias{aoi_area}
-\title{Calculate study-area size}
+\title{Calculate AOI size}
 \usage{
 aoi_area(aoi)
 }
@@ -14,7 +14,7 @@ Geodesic union area in square kilometres, without double-counting
   overlapping polygons.
 }
 \description{
-Calculate study-area size
+Calculate AOI size
 }
 \examples{
 ring <- matrix(c(0,0, 1,0, 1,1, 0,1, 0,0), ncol = 2, byrow = TRUE)

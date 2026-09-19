@@ -76,11 +76,11 @@
             });
           }});
         const credit=map.querySelector('.leaflet-control-attribution')?.textContent||'';
-        await save(canvas,'als-study-area-tiles.png',[
+        await save(canvas,'als-aoi-tiles.png',[
           'ALS Downloader | Area of interest and visible tile footprints',
           document.getElementById('search_status')?.textContent||'',
           include?credit:'Basemap omitted. '+credit,
-          'Dashed gold outline: area of interest. Tile colours: reported acquisition years. Country shading: catalogue availability, not survey coverage.',
+          'Dashed gold outline: area of interest. Tile colours: reported acquisition years. Green outlines: configured regional indexes; no national coverage implied.',
           ...(document.getElementById('map_source_credits')?.textContent||'Source credit and licence not supplied.').split('\n'),
           'Source and basemap terms apply. Check uploaded boundary rights. Footprints rendered from source metadata.'
         ],status);

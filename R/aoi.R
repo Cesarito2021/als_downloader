@@ -1,4 +1,4 @@
-#' Read and validate a polygon study area
+#' Read and validate a polygon AOI
 #'
 #' @param x An `sf` or `sfc` polygon, a path to a vector file, or a Shiny
 #'   upload object containing `name` and `datapath`.
@@ -18,14 +18,14 @@ read_aoi <- function(x, layer = NULL) {
     name <- if (is.list(x) && !is.null(x$name)) x$name[[1]] else x
     path <- if (is.list(x) && !is.null(x$datapath)) x$datapath[[1]] else x
     if (!is.character(path) || length(path) != 1L || !file.exists(path))
-      stop("Study-area file does not exist.", call. = FALSE)
+      stop("AOI file does not exist.", call. = FALSE)
     ext <- tolower(tools::file_ext(name))
     if (ext == "zip") {
       members <- utils::unzip(path, list = TRUE)
       nms <- gsub("\\\\", "/", members$Name)
       if (any(grepl("(^/|^[A-Za-z]:|(^|/)\\.\\.(/|$))", nms)) ||
           sum(members$Length) > 200 * 1024^2)
-        stop("Unsafe or oversized study-area ZIP archive.", call. = FALSE)
+        stop("Unsafe or oversized AOI ZIP archive.", call. = FALSE)
       folder <- tempfile("als-aoi-")
       dir.create(folder)
       on.exit(unlink(folder, recursive = TRUE), add = TRUE)
@@ -45,19 +45,19 @@ read_aoi <- function(x, layer = NULL) {
       x <- sf::st_read(path, layer = layer, quiet = TRUE)
     } else x <- sf::st_read(path, quiet = TRUE)
   }
-  if (is.na(sf::st_crs(x))) stop("Study area has no CRS. Assign its known CRS first.", call. = FALSE)
+  if (is.na(sf::st_crs(x))) stop("AOI has no CRS. Assign its known CRS first.", call. = FALSE)
   x <- sf::st_zm(sf::st_transform(x, 4326), drop = TRUE, what = "ZM")
   x <- sf::st_make_valid(x)
   x <- x[!sf::st_is_empty(x), , drop = FALSE]
   if (!nrow(x) || !all(as.character(sf::st_geometry_type(x)) %in% c("POLYGON", "MULTIPOLYGON")))
-    stop("Study area must contain nonempty polygons only.", call. = FALSE)
+    stop("AOI must contain nonempty polygons only.", call. = FALSE)
   bb <- sf::st_bbox(x)
   if (any(!is.finite(bb)) || bb[[1]] < -180 || bb[[3]] > 180 || bb[[2]] < -90 || bb[[4]] > 90)
-    stop("Study-area coordinates are outside longitude/latitude bounds.", call. = FALSE)
+    stop("AOI coordinates are outside longitude/latitude bounds.", call. = FALSE)
   x
 }
 
-#' Calculate study-area size
+#' Calculate AOI size
 #' @param aoi Polygon input accepted by [read_aoi()].
 #' @return Geodesic union area in square kilometres, without double-counting
 #'   overlapping polygons.

@@ -20,7 +20,7 @@ report_map_server <- function(input, output, session, aoi, tiles) {
     tryCatch({
       x <- tiles(); region <- aoi()
       if (is.null(region) || !nrow(region) || !inherits(x, "sf") || !nrow(x))
-        stop("Draw or upload a study area and select tiles before creating a report map.")
+        stop("Draw or upload an AOI and select tiles before creating a report map.")
       action <- input$report_map_request$action
       if (!action %in% c("download_report_pdf", "download_report_map")) stop("Unknown report action.")
       clear()
@@ -30,7 +30,7 @@ report_map_server <- function(input, output, session, aoi, tiles) {
         aoi = report_geojson(region), tiles = report_geojson(x), sources = as.list(figure_attribution(x))))
     }, error = function(e) {
       message <- conditionMessage(e)
-      if (!nzchar(message)) message <- "Draw or upload a study area and select tiles first."
+      if (!nzchar(message)) message <- "Draw or upload an AOI and select tiles first."
       session$sendCustomMessage("als-report-map-error", message)
     })
   })
@@ -57,7 +57,7 @@ report_map_server <- function(input, output, session, aoi, tiles) {
       stop("The RGB map is not ready. Please create the report again.", call. = FALSE)
     list(path = map$path, credits = map$credits)
   }
-  output$download_report_map <- shiny::downloadHandler(filename = "als-study-area-rgb.png",
+  output$download_report_map <- shiny::downloadHandler(filename = "als-aoi-rgb.png",
     contentType = "image/png", content = function(file) file.copy(get()$path, file))
   get
 }

@@ -32,7 +32,7 @@
       legend.onAdd = () => {
         const el = L.DomUtil.create('div');
         el.style.cssText='background:rgba(255,255,255,.94);padding:12px 16px;color:#18212a;font:16px Arial;line-height:1.6';
-        el.innerHTML='<b>Study area and selected LiDAR tiles</b><br><span style="border-top:4px dashed #b58927;display:inline-block;width:30px"></span> Study area<br><span style="border-top:3px solid #18212a;display:inline-block;width:30px"></span> Selected tile footprints';
+        el.innerHTML='<b>AOI and selected LiDAR tiles</b><br><span style="border-top:4px dashed #b58927;display:inline-block;width:30px"></span> AOI<br><span style="border-top:3px solid #18212a;display:inline-block;width:30px"></span> Selected tile footprints';
         return el;
       }; legend.addTo(map);
       if (!L.tileLayer.provider) throw Error('RGB map provider is not available. Open Explore and retry.');

@@ -72,7 +72,7 @@ Discover, inspect and download airborne LiDAR. A visual summary of your selected
 
 ```{r}
 key <- data.frame(
-  Information = c("Report date", "Study area", "Selected data", "Acquisition interval", "Known storage"),
+  Information = c("Report date", "Area of interest (AOI)", "Selected data", "Acquisition interval", "Known storage"),
   Value = c(format(Sys.time(), "%Y-%m-%d %H:%M"), area_label,
     sprintf("Tiles: %d | Providers: %d", if (has_tiles) nrow(tiles) else 0, length(providers)),
     date_label, sprintf("%.3f GiB | Files with unknown size: %d", total_gb, sum(!known))))
@@ -87,13 +87,13 @@ if (length(providers)) cat("\nProviders:", paste(providers, collapse = ", "), "\
 if (!has_tiles) cat("No tiles in this selection.\n\n")
 ```
 
-## Study area and selected coverage
+## AOI and selected coverage
 
 ```{r fig.width=7.2, fig.height=4.1, fig.align="center"}
 if (length(params$map_image)) {
   if (knitr::is_latex_output()) cat(sprintf("\\begin{center}\n\\includegraphics[width=\\linewidth,height=0.45\\textheight,keepaspectratio]{%s}\n\\end{center}\n\n", params$map_image))
   else cat(sprintf("![](%s)\n\n", params$map_image))
-  cat("*Satellite RGB context: dashed gold marks the actual study area; dark polygons show selected tile footprints. Imagery dates are not LiDAR acquisition dates.*\n\n")
+  cat("*Satellite RGB context: dashed gold marks the actual AOI; dark polygons show selected tile footprints. Imagery dates are not LiDAR acquisition dates.*\n\n")
   cat(params$map_credits, "\n\n")
 } else if (has_map) {
   aoi_geo <- sf::st_transform(aoi, 4326)
@@ -118,9 +118,9 @@ if (length(params$map_image)) {
   plot(sf::st_geometry(aoi_geo), add = TRUE, border = "#dc2626", lwd = 2, col = NA)
   if (n_year > 0) legend("topright", legend = c(as.character(years), "Unknown"),
     fill = c(cols[seq_len(n_year)], "#8a97a1"), bty = "n", cex = .8, title = "Acquisition year")
-  cat("\n\n*Tile footprints (fill = acquisition year) and the study area outline (red). Geometry only, not a basemap image.*\n\n")
+  cat("\n\n*Tile footprints (fill = acquisition year) and the AOI outline (red). Geometry only, not a basemap image.*\n\n")
 } else if (has_tiles) {
-  cat("Study area geometry was not supplied to this report; the map is omitted.\n\n")
+  cat("AOI geometry was not supplied to this report; the map is omitted.\n\n")
 }
 ```
 
@@ -152,7 +152,7 @@ if (has_tiles) {
 } else cat("No data conclusions can be drawn from an empty selection.\n")
 ```
 
-Figures support visual inspection. They do not establish measured change, point-cloud alignment or data quality. Confirm acquisition dates, coordinate references and elevation units before quantitative analysis. Downloads preserve complete source tiles, including points outside the study area.
+Figures support visual inspection. They do not establish measured change, point-cloud alignment or data quality. Confirm acquisition dates, coordinate references and elevation units before quantitative analysis. Downloads preserve complete source tiles, including points outside the AOI.
 
 ## Software citation
 

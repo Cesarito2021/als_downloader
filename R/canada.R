@@ -35,7 +35,7 @@ search_canelevation <- function(aoi, folder, max_items) {
       geometry = sf::st_geometry(obj))
     results[[length(results) + 1L]] <- rows
     if (sum(vapply(results, nrow, integer(1))) > max_items)
-      stop("Search exceeds max_items; use a smaller study area.", call. = FALSE)
+      stop("Search exceeds max_items; use a smaller AOI.", call. = FALSE)
   }
   if (!length(results)) return(empty_tiles())
   ans <- do.call(rbind, results)

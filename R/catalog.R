@@ -28,7 +28,7 @@ request_json <- function(url, body = NULL, query = NULL) {
   }, error = function(e) stop("Provider request failed. Check connectivity, access and service status.", call. = FALSE))
 }
 
-#' Find point-cloud tiles intersecting a study area
+#' Find point-cloud tiles intersecting an AOI
 #' @param aoi Polygon input accepted by [read_aoi()].
 #' @param provider Either `"usgs3dep"` (Planetary Computer) or
 #'   `"opentopography"` (local TileIndex archives), or `"contributed"`
@@ -55,7 +55,7 @@ request_json <- function(url, body = NULL, query = NULL) {
 #' @export
 #' @examples
 #' if (interactive()) {
-#'   # tiles <- find_tiles("study-area.gpkg", provider = "usgs3dep")
+#'   # tiles <- find_tiles("aoi.gpkg", provider = "usgs3dep")
 #' }
 find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo", "ignfr", "canelevation"),
                        start = NULL, end = NULL, tile_index_dir = NULL,
@@ -191,7 +191,7 @@ search_ot <- function(aoi, folder, max_items) {
     }
     results[[length(results) + 1L]] <- rows
     if (sum(vapply(results, nrow, integer(1))) > max_items)
-      stop("Search exceeds max_items; use a smaller study area.", call. = FALSE)
+      stop("Search exceeds max_items; use a smaller AOI.", call. = FALSE)
   }
   if (!length(results)) return(empty_tiles())
   ans <- do.call(rbind, results)

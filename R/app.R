@@ -79,15 +79,15 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         shiny::tags$summary("Options"),
         shiny::h3(class = "als-sidebar-heading", "Search inputs"),
         shiny::div(class = "als-section",
-          shiny::radioButtons("aoi_method", "Area of interest", c("Draw on the map" = "draw", "Upload a file" = "upload"), selected = "draw", inline = TRUE),
+          shiny::radioButtons("aoi_method", "Area of interest (AOI)", c("Draw on the map" = "draw", "Upload a file" = "upload"), selected = "draw", inline = TRUE),
           shiny::conditionalPanel("input.aoi_method == 'upload'",
-            shiny::fileInput("aoi_file", "Upload study area", accept = c(".zip", ".gpkg", ".geojson", ".json", ".fgb")),
+            shiny::fileInput("aoi_file", "Upload AOI", accept = c(".zip", ".gpkg", ".geojson", ".json", ".fgb")),
             shiny::uiOutput("layer_control"),
             shiny::helpText("ZIP uploads must include Shapefile companion files.")),
           shiny::conditionalPanel("input.aoi_method == 'draw'",
             shiny::helpText("Geometry: polygon or rectangle.")),
           shiny::textOutput("aoi_status"),
-          shiny::actionButton("reset_aoi", "Clear study area", class = "als-reset-btn")),
+          shiny::actionButton("reset_aoi", "Clear AOI", class = "als-reset-btn")),
         shiny::div(class = "als-section",
           shiny::dateRangeInput("dates", "Acquisition period", start = "2000-01-01", end = Sys.Date()),
           shiny::actionButton("search", "Find ALS data", class = "als-action-btn")),
@@ -97,7 +97,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
               shiny::textOutput("report_selection_summary"),
             shiny::tags$details(shiny::tags$summary("Report options"),
               shiny::checkboxInput("report_rgb", "Satellite RGB basemap (Esri World Imagery)", TRUE),
-              shiny::downloadButton("download_report_map", "Download study-area map (PNG)"),
+              shiny::downloadButton("download_report_map", "Download aoi map (PNG)"),
               shiny::tags$div(id = "report_map_status", role = "status", `aria-live` = "polite"),
               shiny::checkboxInput("report_details", "Include technical appendix (file sample and download-time scenarios)", FALSE),
               shiny::fileInput("report_figures", "Optional exported PNG figures (up to 6, 10 MiB each)", multiple = TRUE, accept = ".png"),
@@ -130,7 +130,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
                     shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-coverage"), "Indexed survey areas"))),
                 shiny::p(id = "globe_status", class = "als-globe-caption", "Regional indexes shown where configured. Search an area for additional coverage."),
                 shiny::p(class = "als-globe-mission",
-                  "Discover, inspect and download airborne LiDAR. Open-source software connecting researchers to aerial laser-scanning point clouds from multiple providers. Draw or upload a study area, inspect acquisition dates and tiles, and download original files without writing code."),
+                  "Discover, inspect and download airborne LiDAR. Open-source software connecting researchers to aerial laser-scanning point clouds from multiple providers. Draw or upload an area of interest (AOI), inspect acquisition dates and tiles, and download original files without writing code."),
                 shiny::p(class = "als-globe-author", "by Cesar Alvites"),
                 shiny::div(class = "als-welcome-buttons", role = "group", `aria-label` = "Explore ALS Downloader",
                   shiny::actionButton("enter_map", "Open map", icon = shiny::icon("map"), class = "als-welcome-button als-welcome-map"),
@@ -140,7 +140,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
                   shiny::tags$details(id = "welcome_about_content", class = "als-welcome-about",
                     shiny::tags$summary("About the project: mission and guide"),
                     shiny::h3("Airborne LiDAR"),
-                    shiny::p("Our mission is to make existing aerial laser-scanning data easier to find and use in research. ALS Downloader brings provider catalogues into one workflow: locate a study area, review available surveys, inspect point clouds and download original tiles."),
+                    shiny::p("Our mission is to make existing aerial laser-scanning data easier to find and use in research. ALS Downloader brings provider catalogues into one workflow: locate an AOI, review available surveys, inspect point clouds and download original tiles."),
                     shiny::p("Explore acquisition dates and source classifications, compare sampled clouds visually, and export figures with available source credits. Coverage and dates depend on provider metadata; visual comparisons do not calculate change."),
                     shiny::p("Developed and maintained by Cesar Alvites. The software is open source (GPL-3); datasets and basemaps retain their own licences and access conditions."),
                     shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/blob/main/README.md", target = "_blank", rel = "noopener noreferrer", "Read the full README and getting-started guide (GitHub)")),
@@ -224,11 +224,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         leaflet::addPolygons(layerId = ~id, group = "Countries", color = "#60717c", weight = .5,
           fill = FALSE, label = ~name,
           options = leaflet::pathOptions(interactive = FALSE)) |>
-        leaflet.extras::addDrawToolbar(targetGroup = "Study area", polygonOptions = leaflet.extras::drawPolygonOptions(showArea = TRUE),
+        leaflet.extras::addDrawToolbar(targetGroup = "AOI", polygonOptions = leaflet.extras::drawPolygonOptions(showArea = TRUE),
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
           editOptions = leaflet.extras::editToolbarOptions()) |>
-        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = c("Countries", "Indexed survey areas", "Study area")) |>
+        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = c("Countries", "Indexed survey areas", "AOI")) |>
         leaflet::hideGroup("Terrain relief") |>
         leaflet::setView(0, 20, 2)
       if(nrow(overview)) map <- leaflet::addPolygons(map, data=overview,
@@ -239,23 +239,23 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     })
     # Tiles are split into one Leaflet group per acquisition year (see the
     # search handler) so the existing layers control can toggle a single
-    # year on/off; clearing them all back to just "Countries"/"Study area"
+    # year on/off; clearing them all back to just "Countries"/"AOI"
     # has to walk whatever group names the last search created.
     clear_tile_layers <- function() {
       p <- leaflet::leafletProxy("map")
       for (g in state$tile_groups) p <- p |> leaflet::clearGroup(g)
       p |> leaflet::removeControl("tile_year_legend") |>
         leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
-          overlayGroups = c("Countries", "Indexed survey areas", "Study area"))
+          overlayGroups = c("Countries", "Indexed survey areas", "AOI"))
       state$tile_groups <- character(0)
     }
     set_aoi <- function(x) {
       state$aoi <- read_aoi(x); state$tiles <- NULL
-      state$search <- "Study area updated. Search to verify tile coverage."
+      state$search <- "AOI updated. Search to verify tile coverage."
       bb <- sf::st_bbox(state$aoi)
       clear_tile_layers()
-      leaflet::leafletProxy("map") |> leaflet::clearGroup("Study area") |>
-        leaflet::addPolygons(data = state$aoi, group = "Study area", color = "#ffe4a3", weight = 3, dashArray = "8,5", fillOpacity = 0,
+      leaflet::leafletProxy("map") |> leaflet::clearGroup("AOI") |>
+        leaflet::addPolygons(data = state$aoi, group = "AOI", color = "#ffe4a3", weight = 3, dashArray = "8,5", fillOpacity = 0,
           options = leaflet::pathOptions(pane = "aoi-outline")) |>
         leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])
     }
@@ -266,8 +266,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       clear_tile_layers()
       leaflet::leafletProxy("map") |>
         leaflet.extras::removeDrawToolbar(clearFeatures = TRUE) |>
-        leaflet::clearGroup("Study area") |>
-        leaflet.extras::addDrawToolbar(targetGroup = "Study area",
+        leaflet::clearGroup("AOI") |>
+        leaflet.extras::addDrawToolbar(targetGroup = "AOI",
           polygonOptions = leaflet.extras::drawPolygonOptions(showArea = TRUE),
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
@@ -291,9 +291,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       tryCatch(set_aoi(leaflet_draw_collection_to_sf(input$map_draw_edited_features)), error = notify)
     })
     shiny::observeEvent(input$map_draw_deleted_features, {
-      state$aoi <- NULL; state$tiles <- NULL; state$search <- "Study area removed."
+      state$aoi <- NULL; state$tiles <- NULL; state$search <- "AOI removed."
       clear_tile_layers()
-      leaflet::leafletProxy("map") |> leaflet::clearGroup("Study area")
+      leaflet::leafletProxy("map") |> leaflet::clearGroup("AOI")
     })
     navigate <- function(id) {
       if (!nzchar(id)) {leaflet::leafletProxy("map") |> leaflet::setView(0, 20, 2); return()}
@@ -310,9 +310,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       }
       if (!is.null(id) && id %in% world$id) navigate(as.character(id))
     })
-    output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else {
+    output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No AOI selected." else {
       area <- aoi_area(state$aoi)
-      paste0(sprintf("Study area: %.4f km^2", area), if (area > 1000)
+      paste0(sprintf("AOI: %.4f km^2", area), if (area > 1000)
         ". Large-area search: results are limited to 10,000 tiles per source. Split state-wide areas into smaller regions if a source reaches its limit. 3D shows one tile; comparison shows only a 100-1000 m window, not the whole state." else "")
     })
     shiny::observeEvent(input$search, {
@@ -381,7 +381,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             leaflet::addLegend("bottomright", layerId = "tile_year_legend",
               pal = pal, values = levels_all, title = "Acquisition year") |>
             leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
-              overlayGroups = c("Countries", "Indexed survey areas", "Study area", groups))
+              overlayGroups = c("Countries", "Indexed survey areas", "AOI", groups))
         }
       }, error = function(e) {state$search <- conditionMessage(e); notify(e)})
     })
