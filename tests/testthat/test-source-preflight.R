@@ -47,7 +47,7 @@ test_that("other-source proposals use stable non-Zenodo links and optional conta
   x$source_email<-"invalid";expect_false(source_request(x)$valid);x$source_email<-""
   x$source_year<-"2050";expect_false(source_request(x)$valid);x$source_year<-""
   x$source_repository_confirm<-FALSE;expect_false(source_request(x)$valid);x$source_repository_confirm<-TRUE
-  x$source_origin<-"10.5281/zenodo.12345";expect_match(source_request(x)$message,"Share Zenodo dataset")
+  x$source_origin<-"10.5281/zenodo.12345";expect_match(source_request(x)$message,"Zenodo dataset")
   x$source_origin<-"https://repository.example.org/record/123"
   for(url in c("https://drive.google.com/file/123","https://data.example.org/a.laz?X-Amz-Signature=secret","https://user:secret@data.example.org/a.laz")) {
     x$source_url<-url;expect_false(source_request(x)$valid)

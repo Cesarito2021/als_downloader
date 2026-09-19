@@ -1,7 +1,7 @@
 comparison_ui <- function() {
-  shiny::tabPanel("Compare campaigns",
+  shiny::tabPanel("3D comparison",
     shiny::h3("Two point clouds, overlapping area only"),
-    shiny::radioButtons("compare_source", "Comparison sources", c("Two source campaigns"="remote", "Source campaign + my LAS/LAZ"="local"),inline=TRUE),
+    shiny::radioButtons("compare_source", "Comparison sources", c("Two source point clouds"="remote", "Source point cloud + my LAS/LAZ"="local"),inline=TRUE),
     shiny::conditionalPanel("input.compare_source === 'local'",
       shiny::fileInput("compare_local_file","B | Upload your point cloud (LAS/LAZ, up to 1 GB)",accept=c(".las",".laz")),
       shiny::textOutput("compare_local_status"),
@@ -10,7 +10,7 @@ comparison_ui <- function() {
     shiny::textOutput("compare_time_message"),
     shiny::conditionalPanel("output.compare_temporal_ready === 'yes'",
     shiny::checkboxInput("compare_opt_in", "I want to compare two point clouds in this study area", FALSE),
-    shiny::p("Search an AOI in Explore, then choose source campaign A and either another source campaign or your local cloud B. Source-to-source comparison requires separate acquisition periods. Local-cloud dates are unverified. This is visualization only; downloads remain separate."),
+    shiny::p("Search an AOI in Explore, then choose source point cloud A and either another source point cloud or your local cloud B. Source-to-source comparison requires separate acquisition periods. Local-cloud dates are unverified. This is visualization only; downloads remain separate."),
     shiny::fluidRow(shiny::column(6, shiny::selectInput("epoch_a", "A | first / earlier cloud", choices = character()),
       shiny::actionButton("download_epoch_a", "Select A tiles for download")),
       shiny::column(6, shiny::conditionalPanel("input.compare_source !== 'local'",shiny::selectInput("epoch_b", "B | latest cloud", choices = character()),
@@ -21,7 +21,7 @@ comparison_ui <- function() {
       shiny::selectInput("compare_z_units_a", "A: source elevation units", source_unit_choices()),
       shiny::selectInput("compare_z_units_b", "B: source elevation units", source_unit_choices())),
     shiny::helpText("A small window is placed in the largest shared footprint and clipped to your AOI. Draw a smaller AOI in Explore to choose its location. The automatic location is not guaranteed to represent the forest."),
-    shiny::helpText("Visualization only: square side 100 m to 1 km. Remote limits: four tiles and 600 MB per campaign, 300 MB per tile. One local file up to 1 GB is supported. Both clouds require the same embedded projected CRS and known coordinate units; feet are scaled to metres for display. No vertical-datum transformation is performed."),
+    shiny::helpText("Visualization only: square side 100 m to 1 km. Remote limits: four tiles and 600 MB per source, 300 MB per tile. One local file up to 1 GB is supported. Both clouds require the same embedded projected CRS and known coordinate units; feet are scaled to metres for display. No vertical-datum transformation is performed."),
     shiny::textOutput("compare_availability"), shiny::uiOutput("compare_load_control"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
     shiny::tags$div(class = "als-compare-split",
@@ -37,23 +37,23 @@ comparison_ui <- function() {
       figure_button("export_cloud", "Download cloud views (PNG)", TRUE)),
     shiny::tags$p(id="profile_hint",role="status",`aria-live`="polite","Load two clouds to draw a profile. Drawing switches both panels to a plan view: click the start and end in either one, or drag a line in any direction; the same segment appears in both. Escape cancels drawing."),
     shiny::tags$div(id="profile_panel",hidden=NA,
-      shiny::h4("Profile along the selected line (both campaigns)"),
-      shiny::tags$canvas(id="als-compare-profile",class="als-profile-canvas",role="img",`aria-label`="Distance and elevation profile of sampled points from both campaigns"),
+      shiny::h4("Profile along the selected line (both point clouds)"),
+      shiny::tags$canvas(id="als-compare-profile",class="als-profile-canvas",role="img",`aria-label`="Distance and elevation profile of sampled points from both point clouds"),
       shiny::tags$div(class="als-profile-tools",
         figure_button("export_profile", "Download profile (PNG)", TRUE))),
     shiny::tags$div(class="als-density-panel",
-      shiny::h4("Elevation distribution (both campaigns)"),
+      shiny::h4("Elevation distribution (both point clouds)"),
       shiny::tags$canvas(id="als-compare-density", class="als-density-canvas", role="img",
-        `aria-label`="Elevation density histograms for campaigns A and B, with each campaign's sample count and mean elevation."),
+        `aria-label`="Elevation density histograms for point clouds A and B, with each cloud's sample count and mean elevation."),
       figure_button("export_density_png", "Download distribution (PNG)", TRUE),
-      shiny::helpText("Sampled point counts by elevation. This is not a probability density or a calculated difference between campaigns.")),
+      shiny::helpText("Sampled point counts by elevation. This is not a probability density or a calculated difference between point clouds.")),
     shiny::helpText("Cloud views use one shared elevation scale. Profiles and distributions distinguish A and B in red and blue by default. Similar appearances do not establish that the surveys are identical."),
-    shiny::fluidRow(shiny::column(6,shiny::selectInput("compare_cloud_mode","Cloud view colours",c("Shared elevation scale"="shared","Campaign colours"="campaign"))),
+    shiny::fluidRow(shiny::column(6,shiny::selectInput("compare_cloud_mode","Cloud view colours",c("Shared elevation scale"="shared","Source colours"="campaign"))),
       shiny::column(6,shiny::selectInput("compare_shared_palette","Shared elevation palette",c("Greens","Viridis","Magma","Plasma","Cividis","Greyscale"),selected="Greens"))),
     shiny::helpText("Both clouds share the same minimum and maximum source elevation in metres. This is not height above ground. Vertical exaggeration affects display only: 1x is true proportions, 2x doubles vertical differences."),
-    shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A profile / campaign colour", preview_palettes(), selected = "Red")),
-      shiny::column(4, shiny::selectInput("compare_palette_b", "B profile / campaign colour", preview_palettes(), selected = "Blue")),
-      shiny::column(4, shiny::sliderInput("compare_exaggeration", "Vertical exaggeration", 1, 12, 1, step = 1))),
+    shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A profile / source colour", preview_palettes(), selected = "Red")),
+      shiny::column(4, shiny::selectInput("compare_palette_b", "B profile / source colour", preview_palettes(), selected = "Blue")),
+      shiny::column(4, shiny::sliderInput("compare_exaggeration", "Vertical scale factor", 1, 12, 1, step = 1))),
     shiny::checkboxInput("compare_focus", "Focus camera on central 98% (display only; turn off to fit all points)", TRUE),
     shiny::checkboxInput("compare_show_a", "Show A", TRUE), shiny::checkboxInput("compare_show_b", "Show B", TRUE),
     shiny::helpText("One shared origin, camera and elevation scale. Up to 50,000 display points per cloud. PNG exports contain figures only, not analytical results. Provider footprints may contain gaps in actual point coverage."),
@@ -62,7 +62,7 @@ comparison_ui <- function() {
 
 comparison_server <- function(input, output, session, state, mode, hosted_lock) {
   cmp <- shiny::reactiveValues(job = NULL, directory = NULL, locked = FALSE, result = NULL,
-    status = "Search an AOI to discover campaigns.", labels = NULL, attribution = NULL, dates = NULL, files = NULL)
+    status = "Search an AOI to discover point clouds.", labels = NULL, attribution = NULL, dates = NULL, files = NULL)
   state$comparison_busy <- FALSE
   cleanup <- function() {
     if (isTRUE(cmp$locked)) {unlink(hosted_lock, recursive = TRUE); cmp$locked <- FALSE}
@@ -82,7 +82,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   output$compare_temporal_ready <- shiny::renderText(if (is_local() || is.null(comparison_time_message(state$tiles))) "yes" else "no")
   shiny::outputOptions(output, "compare_temporal_ready", suspendWhenHidden = FALSE)
   output$compare_time_message <- shiny::renderText({
-    if(is_local())return("Compare one available source campaign with your own cloud. Two dated source campaigns are not required in this mode.")
+    if(is_local())return("Compare one available source point cloud with your own cloud. Two dated source point clouds are not required in this mode.")
     message <- comparison_time_message(state$tiles)
     if (is.null(message)) "Two acquisition periods are available. Select a pair to check shared coverage. Two separate flights in the same year can qualify." else message
   })
@@ -98,23 +98,23 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   })
   shiny::observeEvent(state$tiles, {
     g <- groups(); choices <- if (length(g)) stats::setNames(names(g), paste0(names(g), " [", lengths(g), " tiles]")) else character()
-    choices <- c("Choose a point-cloud campaign" = "", choices)
+    choices <- c("Choose a point-cloud source" = "", choices)
     shiny::updateSelectInput(session, "epoch_a", choices = choices, selected = "")
     shiny::updateSelectInput(session, "epoch_b", choices = choices, selected = "")
   }, ignoreNULL = FALSE)
   shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b, input$compare_opt_in, input$compare_side_m, input$compare_z_units_a, input$compare_z_units_b,input$compare_source,input$compare_local_file,input$compare_local_refs), {
-    stop_job(); cmp$result <- NULL; cmp$status <- "Choose two campaigns, then load the AOI comparison."
+    stop_job(); cmp$result <- NULL; cmp$status <- "Choose two point-cloud sources, then load the AOI comparison."
     session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = list(), origin = c(0, 0, 0)))
   }, ignoreNULL = FALSE)
   choose_download <- function(key) {
     if (is.null(key) || !nzchar(key) || !key %in% names(groups())) {
-      shiny::showNotification("Search an AOI and choose a campaign first."); return()
+      shiny::showNotification("Search an AOI and choose a source first."); return()
     }
     indexes <- groups()[[key]]
     if (!length(indexes)) return()
     DT::selectRows(DT::dataTableProxy("tiles"), indexes)
     shiny::updateTabsetPanel(session, "view", selected = "Explore")
-    shiny::showNotification("Only this campaign's tiles are selected. Review them and use Download selected tiles.")
+    shiny::showNotification("Only this source's tiles are selected. Review them and use Download selected tiles.")
   }
   shiny::observeEvent(input$download_epoch_a, choose_download(input$epoch_a))
   shiny::observeEvent(input$download_epoch_b, {if(!is_local())choose_download(input$epoch_b)})
@@ -127,10 +127,10 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
     cmp$result <- NULL
     tryCatch({
       g <- groups()
-      if (is.null(input$epoch_a) || !input$epoch_a %in% names(g)) stop("Choose source campaign A.")
+      if (is.null(input$epoch_a) || !input$epoch_a %in% names(g)) stop("Choose source point cloud A.")
       ia <- g[[input$epoch_a]]
       if(is_local()) b<-local_tile() else {
-        if(is.null(input$epoch_b) || !input$epoch_b %in% names(g) || identical(input$epoch_a,input$epoch_b))stop("Choose two distinct campaigns.")
+        if(is.null(input$epoch_b) || !input$epoch_b %in% names(g) || identical(input$epoch_a,input$epoch_b))stop("Choose two distinct acquisition periods.")
         b<-state$tiles[g[[input$epoch_b]],]
       }
       if (is.null(state$aoi)) stop("Draw/upload an AOI first.")

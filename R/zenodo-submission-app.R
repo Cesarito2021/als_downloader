@@ -1,3 +1,8 @@
+submission_tracking_ui <- function() shiny::tagList(
+  shiny::textInput("zenodo_tracking_id", "Submission reference", placeholder="Paste the full reference received after submission"),
+  shiny::actionButton("zenodo_track", "Check status"), shiny::textOutput("zenodo_tracking_status"),
+  shiny::helpText("Use the reference issued by this app. Email-only requests are followed up by email."))
+
 zenodo_submission_ui <- function() shiny::tagList(
   shiny::p("Share your LiDAR with the community through Zenodo. Provide coverage polygons or declare an approximate extent for review. Your files stay on Zenodo. Only approved entries and download links enter ALS Downloader."),
   shiny::textInput("zenodo_link","1. Zenodo DOI or product link",placeholder="https://zenodo.org/records/... or 10.5281/zenodo...."),
@@ -24,9 +29,8 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::textInput("zenodo_email","5. Contact email (optional, private)"),
   shiny::helpText("If notifications are enabled, your proposal summary and optional contact are emailed to the maintainer through this instance's mail provider. They are not included in the public catalogue."),
   shiny::actionButton("zenodo_prepare","Check my proposal"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
-  shiny::tags$details(shiny::tags$summary("Track a proposal"),
-    shiny::textInput("zenodo_tracking_id","Proposal reference",placeholder="Paste the full reference received after submission"),
-    shiny::actionButton("zenodo_track","Check status"),shiny::textOutput("zenodo_tracking_status")),
+  shiny::tags$details(shiny::tags$summary("Track your submission"),
+    submission_tracking_ui()),
   shiny::helpText("No cloud is downloaded or analysed. ZIP assets require downloading the whole archive and local extraction for 3D. Submission is not approval; the maintainer checks coverage, dates, file mapping and terms before publication."))
 
 zenodo_boundary_download <- function(meta,key) {
@@ -43,6 +47,10 @@ zenodo_boundary_download <- function(meta,key) {
 }
 
 zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NULL) {
+  shiny::observeEvent(input$track_submission, {
+    shiny::showModal(shiny::modalDialog(title="Track your submission",
+      submission_tracking_ui(), footer=shiny::modalButton("Close"), easyClose=TRUE))
+  })
   meta<-shiny::reactiveVal(NULL); proposal<-shiny::reactiveVal(NULL)
   message<-shiny::reactiveVal("Paste your Zenodo link to begin. Nothing is published automatically.")
   fail<-function(e)message(conditionMessage(e))
@@ -134,7 +142,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     shiny::updateSelectInput(session,"zenodo_review_id",choices=stats::setNames(rows$id,paste(rows$title,substr(rows$id,1,8),sep=" | ")))
   }
   open_review<-function(selected=NULL){
-    shiny::showModal(shiny::modalDialog(title="Private Zenodo review",size="l",
+    shiny::showModal(shiny::modalDialog(title="Review submissions",size="l",
       shiny::p("ALS Downloader team | Private maintainer panel. Proposals remain inactive until approved. No point-cloud analysis is performed."),
       shiny::selectInput("zenodo_review_id","Pending proposal",choices=character()),
       shiny::actionButton("zenodo_review_refresh","Refresh queue"),shiny::textOutput("zenodo_queue_status"),

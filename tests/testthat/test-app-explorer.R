@@ -43,7 +43,7 @@ test_that("reset area of interest clears only the study area and results, not jo
     session$flushReact()
     expect_null(state$aoi)
     expect_null(state$tiles)
-    expect_match(state$search, "Draw or upload a study area")
+    expect_match(state$search, "No search results yet")
     expect_match(state$jobtext, "Complete: 1 successful")
   })
 })
@@ -62,7 +62,7 @@ test_that("reset (general) clears the study area, results and job text", {
     session$flushReact()
     expect_null(state$aoi)
     expect_null(state$tiles)
-    expect_match(state$search, "Draw or upload a study area")
+    expect_match(state$search, "No search results yet")
     expect_match(state$jobtext, "No active download")
   })
 })
@@ -73,6 +73,35 @@ test_that("opening the map does not error the server-driven layout-class observe
     session$flushReact()
     expect_no_error(session$setInputs(enter_map = 1))
     session$flushReact()
+  })
+})
+
+test_that("report and transfer panels follow available results and job lifecycle", {
+  shiny::testServer(als_app(), {
+    session$flushReact()
+    expect_identical(output$report_ready, "no")
+    expect_identical(output$download_visible, "no")
+    state$tiles <- sf::st_sf(tile_id = "one", size_bytes = 1024,
+      acquired_start = "2020-01-01", acquired_end = "2020-12-31", provider = "test",
+      dataset = "Test", filename = "one.laz", url = "https://example.org/one.laz",
+      license_url = "https://example.org/license", citation = "Test fixture",
+      geometry = sf::st_as_sfc(sf::st_bbox(c(xmin=0,ymin=0,xmax=1,ymax=1),crs=4326)))
+    session$flushReact()
+    expect_identical(output$report_ready, "yes")
+    state$tiles <- NULL
+    session$flushReact()
+    expect_identical(output$report_ready, "no")
+    state$job <- list(is_alive = function() TRUE, kill_tree = function() NULL)
+    state$finished <- FALSE
+    session$flushReact()
+    expect_identical(output$download_visible, "yes")
+    expect_identical(output$download_running, "yes")
+    session$setInputs(cancel = 1)
+    session$flushReact()
+    expect_identical(output$download_running, "no")
+    expect_identical(output$download_visible, "yes")
+    expect_match(output$job_status, "Canceled")
+    state$job <- NULL
   })
 })
 

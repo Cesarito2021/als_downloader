@@ -101,7 +101,7 @@ test_that("visual comparison starts without campaigns or analysis controls", {
   shiny::testServer(app,{
     session$flushReact()
     expect_match(output$aoi_status,'No study area')
-    expect_match(output$compare_status,'Choose two campaigns')
+    expect_match(output$compare_status,'Choose two point-cloud sources')
   })
 })
 

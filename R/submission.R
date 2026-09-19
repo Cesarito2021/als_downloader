@@ -6,7 +6,7 @@ source_request <- function(input) {
   boundary<-value("source_boundary")
   if(any(!nzchar(c(origin,url,licence,platform))))return(fail("Add a public record link, data/index link, licence link and acquisition platform."))
   if(any(nchar(c(origin,url,licence,platform,year,email,boundary))>1000))return(fail("Keep each field under 1,000 characters."))
-  if(grepl("zenodo\\.org|10\\.5281/zenodo",paste(origin,url),ignore.case=TRUE))return(fail("For Zenodo records, use the Share Zenodo dataset tab."))
+  if(grepl("zenodo\\.org|10\\.5281/zenodo",paste(origin,url),ignore.case=TRUE))return(fail("For Zenodo records, use the Zenodo dataset tab."))
   if(grepl("^10\\.[0-9]{4,9}/[^[:space:]]+$",origin))origin<-paste0("https://doi.org/",origin)
   public_url<-function(x){
     u<-tryCatch(httr::parse_url(x),error=function(e)NULL)
@@ -29,8 +29,8 @@ source_request <- function(input) {
 }
 
 source_submission_ui <- function() shiny::modalDialog(
-  title="Share ALS data",size="l",easyClose=FALSE,
-  shiny::tabsetPanel(shiny::tabPanel("Share Zenodo dataset",zenodo_submission_ui()),
+  title="Contribute ALS data",size="l",easyClose=FALSE,
+  shiny::tabsetPanel(shiny::tabPanel("Zenodo dataset",zenodo_submission_ui()),
     shiny::tabPanel("Other data source",
       shiny::p("Share a stable, public institutional or scientific repository. The ALS Downloader team reviews access, coverage and licensing before integration."),
       shiny::textInput("source_origin","1. Dataset record link or DOI *"),

@@ -1,5 +1,11 @@
 # alsdownloader 0.1.0
 
+* Place the PDF download and its options in a results-dependent sidebar section;
+  show transfer status and cancellation only when relevant. Simplify Explorer
+  actions and use consistent 3D view, comparison and contribution terminology.
+* Clear Leaflet's drawn features as well as the application AOI on reset, and
+  keep administrator tile-index configuration outside the public interface.
+
 * Prevent country shading from capturing clicks while drawing an AOI. Expose
   the PDF report and storage summary, including a report of all search results
   when no tiles are selected.

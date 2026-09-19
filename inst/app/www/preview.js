@@ -63,7 +63,7 @@
       const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
       ctx.fillStyle=activeMode!=='classification'&&palette==='Black'?'#eef2f5':'#05080c';ctx.fillRect(0,0,w,h);
       ctx.fillStyle='#adbeca';ctx.font='12px system-ui';
-      if(!points.length){ctx.fillText('Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
+      if(!points.length){ctx.fillText('Select a tile to plot, or upload a local point cloud in 3D view.',20,35);return;}
       const co=Math.cos(yaw),si=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
       let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
       const ordered=points.map((p,i)=>{
@@ -112,7 +112,7 @@
       if(!points.length)return;
       window.ALSFigures.save(c,'als-point-cloud.png',[
         'ALS Downloader | '+sourceLabel,
-        'Colour: '+activeMode+(colourBy==='auto'?' (automatic)':'')+(activeMode==='classification'?' | Source class colours':' | '+palette)+' | Z exaggeration '+exag+'x',
+        'Colour: '+activeMode+(colourBy==='auto'?' (automatic)':'')+(activeMode==='classification'?' | Source class colours':' | '+palette)+' | Vertical scale factor '+exag+'x',
         activeMode==='classification'?'Source classification keys shown above.':classLegend.textContent,
         points.length.toLocaleString()+' sampled points. No new classification or height normalization.',unitNote,...attribution
       ],document.getElementById('preview_export_status'),activeMode==='classification'?[...classLegend.children].map(el=>({label:el.textContent,color:el.firstChild.style.backgroundColor})):[]);

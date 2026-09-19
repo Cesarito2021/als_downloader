@@ -91,10 +91,10 @@
       for(const item of scaled){g.drawImage(item.c,0,y,width,item.h);y+=item.h;}
       g.fillStyle='#e0eaf0';g.font='18px sans-serif';
       const lines=['ALS Downloader | Visual overlay of sampled points; no calculated change.',
-        'A: '+(s.labels[0]||'Earlier campaign')+' | '+s.palette+(s.showA?'':' (hidden)'),
-        'B: '+(s.labels[1]||'Later campaign')+' | '+s.paletteB+(s.showB?'':' (hidden)'),
-        'Cloud views: '+(s.cloudMode==='shared'?s.sharedPalette+' | shared source elevation scale':'campaign colours')+'. Profile colours identify A and B.',
-        'Cloud Z exaggeration: '+s.exag+'x. Profile axes show distance and elevation in metres.',
+        'A: '+(s.labels[0]||'Source A')+' | '+s.palette+(s.showA?'':' (hidden)'),
+        'B: '+(s.labels[1]||'Source B')+' | '+s.paletteB+(s.showB?'':' (hidden)'),
+        'Cloud views: '+(s.cloudMode==='shared'?s.sharedPalette+' | shared source elevation scale':'source colours')+'. Profile colours identify A and B.',
+        'Vertical scale factor: '+s.exag+'x. Profile axes show distance and elevation in metres.',
         'CRS: '+(s.crs||'See original source metadata')+'. Vertical reference is supplied by the provider; no alignment applied.',
         end?'Strip width: '+strip+' m. Start XY: '+start.map((v,i)=>(v+s.origin[i]).toFixed(2)).join(', ')+'; end XY: '+end.map((v,i)=>(v+s.origin[i]).toFixed(2)).join(', '):'No profile selected.',
         'Framing: '+(s.focusCentral?'central 98%':'all points')+'. Cite original surveys; this figure is not evidence of quantified change.',...s.attribution];
