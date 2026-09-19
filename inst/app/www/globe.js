@@ -11,11 +11,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   for(let y=H/6;y<H;y+=H/6){t.moveTo(0,y);t.lineTo(W,y);}t.stroke();
   const coverage=JSON.parse(canvas.dataset.coverage||'{"features":[]}');
   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const motionButton=document.getElementById('globe_motion');
+  const adapters=JSON.parse(canvas.dataset.adapters||'[]');
   let pixels,lon=-65,lat=18,drag=null,pending=false,autorotate=!reducedMotion;
-  function setRotation(on){autorotate=on;motionButton.textContent=on?'Pause rotation':'Resume rotation';canvas.dataset.rotating=String(on);}
+  function setRotation(on){autorotate=on;canvas.dataset.rotating=String(on);}
   setRotation(autorotate);
-  motionButton.onclick=()=>setRotation(!autorotate);
   function ring(coords,shift){
     let prev=coords[0][0];const points=coords.map(([raw,y])=>{let x=raw;while(x-prev>180)x-=360;while(x-prev< -180)x+=360;prev=x;return [x,y];});
     const first=points[0],last=points[points.length-1];
@@ -34,9 +33,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
       for(const poly of polys)for(const shift of [-360,0,360]){
         t.beginPath();poly.forEach(coords=>ring(coords,shift));
-        t.fillStyle='rgba(45,156,112,0.65)';t.fill('evenodd');
-        t.strokeStyle='#2e8060';t.lineWidth=.7;t.stroke();
+        t.fillStyle='rgba(234,179,8,0.8)';t.fill('evenodd');
+        t.strokeStyle='#fde047';t.lineWidth=.7;t.stroke();
       }
+    }
+    // Country reference markers identify adapters, never national survey coverage.
+    for(const f of world.features.filter(f=>adapters.includes(Number(f.id)))){
+      const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
+      const ring=polys.reduce((a,b)=>a[0].length>b[0].length?a:b)[0];
+      const xs=ring.map(p=>p[0]),ys=ring.map(p=>p[1]);
+      const x=((Math.min(...xs)+Math.max(...xs))/2+180)*W/360;
+      const y=(90-(Math.min(...ys)+Math.max(...ys))/2)*H/180;
+      t.beginPath();t.arc(x,y,6,0,Math.PI*2);t.fillStyle='#f04444';t.fill();t.strokeStyle='#fff0db';t.lineWidth=1;t.stroke();
     }
     pixels=t.getImageData(0,0,W,H).data;canvas.dataset.ready='true';draw();
     requestAnimationFrame(spin);
@@ -57,12 +65,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const neb2=ctx.createRadialGradient(w*.88,h*.9,0,w*.88,h*.9,w*.45);
     neb2.addColorStop(0,'#1f4a4a3d');neb2.addColorStop(1,'#1f4a4a00');
     ctx.fillStyle=neb2;ctx.fillRect(0,0,w,h);
-    for(let i=0;i<320;i++){
-      const x=(i*137.51)%w,y=(i*71.13+(i%17)*23)%h,tier=i%11;
-      ctx.fillStyle=tier===0?'#dbe7ee':tier<4?'#718494':'#304252';
-      const size=tier===0?2:1;
+    for(let i=0;i<480;i++){
+      const random=n=>{const v=Math.sin(n*127.1+311.7)*43758.5453;return v-Math.floor(v);};
+      const x=random(i+1)*w,y=random(i+1103)*h,tier=i%11;
+      ctx.fillStyle=tier===0?'#ffffff':tier<4?'#bacbdc':'#698399';
+      const size=tier===0?2.5:1.3;
       ctx.fillRect(x,y,size,size);
-      if(i%47===0){ctx.fillStyle='#c9e3f066';ctx.fillRect(x-2,y+.5,6,1);ctx.fillRect(x+.5,y-2,1,6);}
+      if(i%47===0){ctx.fillStyle='#e4f3ffb3';ctx.fillRect(x-2,y+.5,6,1);ctx.fillRect(x+.5,y-2,1,6);}
     }
     const r=Math.min(w*.43,h*.435),cx=w/2,cy=h/2,phi=lat*Math.PI/180,lambda=lon*Math.PI/180;
     const glow=ctx.createRadialGradient(cx,cy,r*.9,cx,cy,r*1.1);glow.addColorStop(0,'#559ec480');glow.addColorStop(1,'#559ec400');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);

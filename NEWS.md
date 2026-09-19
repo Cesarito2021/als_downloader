@@ -1,5 +1,11 @@
 # alsdownloader 0.1.0
 
+* Move project information and the source catalogue into dialogs; retain catalogue
+  access from the map header. Brighten the starfield, restore red adapter markers
+  and yellow indexed areas, and simplify rotation controls and author credits.
+* Limit hosted remote viewing to 250 MiB downloads and 500 MiB uncompressed ZIP
+  contents; local limits remain 1 GiB and 2 GiB respectively.
+
 * Support temporary ZIP extraction for remote 3D viewing, including Swiss LAS
   archives. Require explicit selection when several LAS/LAZ members are present;
   validate archive paths and sizes and clean up extracted data on cancellation.
