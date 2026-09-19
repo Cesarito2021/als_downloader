@@ -4,7 +4,8 @@
 \alias{als_report}
 \title{Generate an HTML or PDF summary of a search/download selection}
 \usage{
-als_report(tiles, output_dir, format = c("html", "pdf"), aoi_area_km2 = NA_real_)
+als_report(tiles, output_dir, format = c("html", "pdf"), aoi_area_km2 = NA_real_,
+  aoi = NULL)
 }
 \arguments{
 \item{tiles}{An `sf` or data frame as returned by [find_tiles()] or
@@ -20,6 +21,12 @@ installation; falls back to `"html"` with a warning otherwise).}
 
 \item{aoi_area_km2}{Optional study-area size in square kilometres, shown
 for context only.}
+
+\item{aoi}{Optional `sf` polygon (the study area) as passed to
+[find_tiles()]. When supplied alongside `tiles` with geometry, the
+report includes a simple map figure of the tile footprints and the
+study area outline. Geometry only -- not a basemap image, and nothing
+is fetched to draw it.}
 }
 \value{
 Invisibly, the path to the rendered report file.

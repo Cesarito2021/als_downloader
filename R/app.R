@@ -272,7 +272,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       area <- if (is.null(state$aoi)) NA_real_ else aoi_area(state$aoi)
       dir <- tempfile("als-report-"); dir.create(dir)
       on.exit(unlink(dir, recursive = TRUE), add = TRUE)
-      path <- als_report(x, dir, aoi_area_km2 = area)
+      path <- als_report(x, dir, aoi_area_km2 = area, aoi = state$aoi)
       file.copy(path, file, overwrite = TRUE)
     })
     output$tile_selection <- shiny::renderText({

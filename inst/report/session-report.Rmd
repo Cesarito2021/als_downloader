@@ -6,14 +6,32 @@ output:
 params:
   tiles: NULL
   aoi_area_km2: NA
+  aoi: NULL
 ---
+
+<style>
+body{max-width:900px;margin:0 auto;padding:0 24px 70px;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:#222}
+h1.title{color:#1c4a5e}
+h2{border-bottom:1px solid #e2e2e2;padding-bottom:4px;margin-top:34px}
+.als-mission{color:#555;font-size:15px;font-style:italic;border-left:3px solid #8fb4c9;padding-left:12px;margin:10px 0 22px}
+.als-footer-badge{position:fixed;right:18px;bottom:14px;background:#152936;color:#dbe7ee;font-size:11.5px;padding:5px 12px;border-radius:14px;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+table{font-size:13.5px}
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, results = "asis")
 tiles <- params$tiles
 aoi_area_km2 <- params$aoi_area_km2
+aoi <- params$aoi
 has_tiles <- !is.null(tiles) && is.data.frame(tiles) && nrow(tiles) > 0
+has_aoi <- inherits(aoi, "sf") && nrow(aoi) > 0
+has_map <- has_tiles && has_aoi && inherits(tiles, "sf")
+# The map figure needs geometry; every table below only ever needs the
+# plain attribute columns, so it uses this geometry-free copy instead.
+tiles_df <- if (has_tiles && inherits(tiles, "sf")) sf::st_drop_geometry(tiles) else tiles
 ```
+
+<p class="als-mission">Discover, inspect and download airborne LiDAR. Open-source software connecting researchers to aerial laser-scanning point clouds from multiple providers. Draw or upload a study area, inspect acquisition dates and tiles, and download original files without writing code.</p>
 
 Generated `r format(Sys.time(), "%Y-%m-%d %H:%M")` by [ALS Downloader](https://github.com/Cesarito2021/als_downloader). This report summarises a search/download selection at the time it was generated; it does not certify data quality, coverage completeness or licence clearance. Verify each dataset's own terms before use.
 
@@ -21,9 +39,33 @@ Generated `r format(Sys.time(), "%Y-%m-%d %H:%M")` by [ALS Downloader](https://g
 
 ```{r}
 if (length(aoi_area_km2) == 1 && is.finite(aoi_area_km2)) {
-  cat(sprintf("Approximately **%.4f km2**.\n", aoi_area_km2))
+  cat(sprintf("Approximately **%.4f km2**.\n\n", aoi_area_km2))
 } else {
-  cat("Not recorded.\n")
+  cat("Not recorded.\n\n")
+}
+```
+
+```{r fig.width=7.2, fig.height=5.6, fig.align="center"}
+if (has_map) {
+  aoi_geo <- sf::st_transform(aoi, 4326)
+  tiles_geo <- sf::st_transform(tiles, 4326)
+  reported <- ifelse(is.na(tiles_geo$acquired_end), tiles_geo$acquired_start, tiles_geo$acquired_end)
+  year <- suppressWarnings(as.integer(substr(reported, 1, 4)))
+  years <- sort(unique(stats::na.omit(year)))
+  n_year <- length(years)
+  cols <- grDevices::hcl.colors(max(n_year, 2), "Viridis")
+  fill <- if (n_year > 0) cols[match(year, years)] else rep(NA_character_, nrow(tiles_geo))
+  fill[is.na(fill)] <- "#8a97a1"
+  combined <- c(sf::st_geometry(aoi_geo), sf::st_geometry(tiles_geo))
+  bb <- sf::st_bbox(combined)
+  plot(sf::st_geometry(tiles_geo), col = fill, border = "#1c2b35",
+    xlim = bb[c("xmin", "xmax")], ylim = bb[c("ymin", "ymax")], main = "")
+  plot(sf::st_geometry(aoi_geo), add = TRUE, border = "#dc2626", lwd = 2, col = NA)
+  if (n_year > 0) legend("topright", legend = c(as.character(years), "Unknown"),
+    fill = c(cols[seq_len(n_year)], "#8a97a1"), bty = "n", cex = .8, title = "Acquisition year")
+  cat("\n\n*Tile footprints (fill = acquisition year) and the study area outline (red). Geometry only, not a basemap image.*\n\n")
+} else if (has_tiles) {
+  cat("Study area geometry was not supplied to this report; only the tile footprints below are known.\n\n")
 }
 ```
 
@@ -33,10 +75,10 @@ if (length(aoi_area_km2) == 1 && is.finite(aoi_area_km2)) {
 if (!has_tiles) {
   cat("No tiles in this selection.\n")
 } else {
-  known <- is.finite(tiles$size_bytes)
-  total_gb <- sum(tiles$size_bytes[known], na.rm = TRUE) / 1024^3
-  providers <- sort(unique(tiles$provider))
-  cat(sprintf("- **%d** tile(s) in this selection\n", nrow(tiles)))
+  known <- is.finite(tiles_df$size_bytes)
+  total_gb <- sum(tiles_df$size_bytes[known], na.rm = TRUE) / 1024^3
+  providers <- sort(unique(tiles_df$provider))
+  cat(sprintf("- **%d** tile(s) in this selection\n", nrow(tiles_df)))
   cat(sprintf("- **%.3f GB** known total size (%d file(s) with unknown size)\n", total_gb, sum(!known)))
   cat(sprintf("- **%d** provider(s): %s\n", length(providers), paste(providers, collapse = ", ")))
 }
@@ -46,12 +88,12 @@ if (!has_tiles) {
 
 ```{r}
 if (has_tiles) {
-  size <- ifelse(is.finite(tiles$size_bytes), tiles$size_bytes, 0)
-  by_provider <- stats::aggregate(size, by = list(Provider = tiles$provider), FUN = sum)
+  size <- ifelse(is.finite(tiles_df$size_bytes), tiles_df$size_bytes, 0)
+  by_provider <- stats::aggregate(size, by = list(Provider = tiles_df$provider), FUN = sum)
   names(by_provider)[2] <- "known_bytes"
-  counts <- as.data.frame(table(Provider = tiles$provider), responseName = "Tiles")
+  counts <- as.data.frame(table(Provider = tiles_df$provider), responseName = "Tiles")
   by_provider <- merge(counts, by_provider, by = "Provider")
-  by_provider[["Known size (GB)"]] <- round(by_provider$known_bytes / 1024^3, 3)
+  by_provider[["Known size (GB)"]] <- round(by_provider$known_bytes / 1024^3, 2)
   by_provider$known_bytes <- NULL
   print(knitr::kable(by_provider))
 }
@@ -61,9 +103,10 @@ if (has_tiles) {
 
 ```{r}
 if (has_tiles) {
-  cols <- intersect(c("filename", "dataset", "provider", "acquired_start", "acquired_end", "size_bytes"), names(tiles))
-  show <- tiles[, cols, drop = FALSE]
-  names(show) <- c("File", "Dataset", "Provider", "Collection start", "Collection end", "Size (bytes)")[seq_along(cols)]
+  cols <- intersect(c("filename", "dataset", "provider", "acquired_start", "acquired_end", "size_bytes"), names(tiles_df))
+  show <- tiles_df[, cols, drop = FALSE]
+  if ("size_bytes" %in% names(show)) show$size_bytes <- round(show$size_bytes / 1024^2, 2)
+  names(show) <- c("File", "Dataset", "Provider", "Collection start", "Collection end", "Size (MB)")[seq_along(cols)]
   print(knitr::kable(show, row.names = FALSE))
 }
 ```
@@ -72,9 +115,9 @@ if (has_tiles) {
 
 ```{r}
 if (has_tiles) {
-  cols <- intersect(c("citation", "license_url"), names(tiles))
+  cols <- intersect(c("citation", "license_url"), names(tiles_df))
   if (length(cols) == 2) {
-    pairs <- unique(tiles[, cols, drop = FALSE])
+    pairs <- unique(tiles_df[, cols, drop = FALSE])
     for (i in seq_len(nrow(pairs))) cat("-", pairs$citation[i], "-", pairs$license_url[i], "\n\n")
   }
 }
@@ -83,3 +126,5 @@ if (has_tiles) {
 ---
 
 Collection dates are provider-reported and may be unknown; publication or filename dates are never substituted. Downloads preserve original tiles, including portions outside the study area. This report is generated locally and is not transmitted anywhere.
+
+<div class="als-footer-badge">ALS Downloader</div>

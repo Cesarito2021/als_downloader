@@ -9,6 +9,11 @@
 #'   installation; falls back to `"html"` with a warning otherwise).
 #' @param aoi_area_km2 Optional study-area size in square kilometres, shown
 #'   for context only.
+#' @param aoi Optional `sf` polygon (the study area) as passed to
+#'   [find_tiles()]. When supplied alongside `tiles` with geometry, the
+#'   report includes a simple map figure of the tile footprints and the
+#'   study area outline. Geometry only -- not a basemap image, and nothing
+#'   is fetched to draw it.
 #' @return Invisibly, the path to the rendered report file.
 #' @details Content is limited to data already carried by `tiles`: filename,
 #'   dataset, provider, provider-reported acquisition dates, known size and
@@ -20,12 +25,12 @@
 #' if (interactive()) {
 #'   # als_report(tiles, "session-report-out")
 #' }
-als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km2 = NA_real_) {
+als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km2 = NA_real_, aoi = NULL) {
   format <- match.arg(format)
   if (!requireNamespace("rmarkdown", quietly = TRUE))
     stop("Install rmarkdown to generate a session report.", call. = FALSE)
-  if (inherits(tiles, "sf")) tiles <- sf::st_drop_geometry(tiles)
   if (!is.data.frame(tiles)) stop("tiles must be a data frame returned by find_tiles().", call. = FALSE)
+  if (!is.null(aoi) && !inherits(aoi, "sf")) stop("aoi must be an sf polygon, as passed to find_tiles().", call. = FALSE)
   if (length(output_dir) != 1L || !is.character(output_dir) || !nzchar(output_dir))
     stop("Choose an output directory.", call. = FALSE)
   if (format == "pdf" && !(requireNamespace("tinytex", quietly = TRUE) && isTRUE(tinytex::is_tinytex()))) {
@@ -40,7 +45,7 @@ als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km
   output_format <- if (format == "pdf") rmarkdown::pdf_document() else rmarkdown::html_document(self_contained = TRUE)
   rmarkdown::render(rmd, output_format = output_format, output_file = output_file,
     output_dir = output_dir, intermediates_dir = tempdir(),
-    params = list(tiles = tiles, aoi_area_km2 = aoi_area_km2),
+    params = list(tiles = tiles, aoi_area_km2 = aoi_area_km2, aoi = aoi),
     envir = new.env(parent = globalenv()), quiet = TRUE)
   invisible(file.path(output_dir, output_file))
 }
