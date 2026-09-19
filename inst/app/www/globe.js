@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function spin(ts){if(autorotate&&ts-lastSpin>60){lon+=.12;lastSpin=ts;draw();}requestAnimationFrame(spin);}
   function draw(){
     if(!pixels||!canvas.clientWidth)return;
-    const w=Math.min(900,Math.round(canvas.clientWidth)),h=canvas.clientHeight;
+    const w=Math.min(1100,Math.round(canvas.clientWidth)),h=canvas.clientHeight;
     canvas.width=w;canvas.height=h;ctx.fillStyle='#050b12';ctx.fillRect(0,0,w,h);
     for(let i=0;i<95;i++){ctx.fillStyle=i%4?'#304252':'#718494';ctx.fillRect((i*137.51)%w,(i*71.13)%h,1,1);}
     const r=Math.min(w*.43,h*.435),cx=w/2,cy=h/2,phi=lat*Math.PI/180,lambda=lon*Math.PI/180;

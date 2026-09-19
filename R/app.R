@@ -54,9 +54,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         shiny::actionButton("suggest_source", "Share your dataset"),
         shiny::span(class = "mode-label", paste(toupper(mode), "MODE")))),
     shiny::div(class = "als-layout",
-      shiny::tags$details(class = "als-sidebar", open = "open",
+      shiny::conditionalPanel("input.enter_map > 0", class = "als-sidebar-toggle",
+        shiny::tags$details(class = "als-sidebar", open = "open",
         shiny::tags$summary("Study area and downloads"),
-        shiny::selectInput("country", "Explore a country", choices = c("World" = "", stats::setNames(catalog$country_code[catalog$country_code > 0 & !duplicated(catalog$country_code)], catalog$country[catalog$country_code > 0 & !duplicated(catalog$country_code)]))),
           shiny::uiOutput("country_access"),
           shiny::fileInput("aoi_file", "Upload study area", accept = c(".zip", ".gpkg", ".geojson", ".json", ".fgb")),
         shiny::uiOutput("layer_control"),
@@ -76,15 +76,12 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         shiny::textOutput("selection_summary"),
         shiny::helpText("Downloads preserve original tiles, including portions outside the AOI. 3D inspection is optional."),
         shiny::actionButton("cancel", "Cancel job"),
-        shiny::textOutput("job_status"), shiny::uiOutput("bundle_control")),
+        shiny::textOutput("job_status"), shiny::uiOutput("bundle_control"))),
       shiny::div(class = "als-main",
         shiny::tabsetPanel(id = "view",
           shiny::tabPanel("Explore",
             shiny::conditionalPanel("input.enter_map == 0",
               shiny::div(class = "als-globe-intro",
-                shiny::h2("Explore aerial LiDAR around the world"),
-                shiny::p("Discover, inspect and download. Define your study area, inspect source tiles and acquisition dates, and download original files from their providers."),
-                shiny::p("Open-source software for researchers and stakeholders. Use the configured app without writing code; parallel downloads are available in local mode within provider limits."),
                 shiny::div(class = "als-globe-wrap",
                   shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Rotatable world globe. Drag or use arrow keys to rotate. Red countries have an in-app download adapter; yellow countries link to an official source you must visit directly.",
                     `data-countries` = paste(unique(catalog$country_code), collapse = ","),
@@ -92,10 +89,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
                   shiny::tags$div(class = "als-globe-legend", `aria-hidden` = "true",
                     shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-red"), "In-app download"),
                     shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-yellow"), "Portal link only"))),
-                shiny::p(id = "globe_status", "Drag or use arrow keys to rotate. Red marks countries with an in-app download adapter; yellow marks countries with only a linked official source you must visit directly. Neither reflects measured survey coverage. Open the map, or choose a country below, to see its links."),
-                shiny::tags$button(id = "globe_reset", type = "button", class = "btn", "Reset globe"), " ",
-                shiny::actionButton("enter_map", "Open map", class = "als-primary"),
-                shiny::p(shiny::tags$a(href = "https://www.naturalearthdata.com/about/terms-of-use/", "Made with Natural Earth - public-domain cartography")))),
+                shiny::p(id = "globe_status", class = "als-globe-caption", "Drag to rotate. Neither colour reflects measured survey coverage."),
+                shiny::div(class = "als-globe-actions",
+                  shiny::tags$button(id = "globe_reset", type = "button", class = "als-link-btn", "Reset globe"),
+                  shiny::actionButton("enter_map", "Open map", class = "als-primary"),
+                  shiny::tags$a(class = "als-globe-credit", href = "https://www.naturalearthdata.com/about/terms-of-use/", "Natural Earth")))),
             shiny::conditionalPanel("input.enter_map > 0", leaflet::leafletOutput("map", height = "60vh"),
             shiny::div(class = "map-caption", "Red marks countries with an in-app download adapter; yellow marks countries with only a linked official source you must visit directly. Neither reflects continuous survey coverage. Search results show source tile footprints."),
             shiny::textOutput("search_status"), DT::DTOutput("tiles"),
@@ -130,7 +128,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "Draw or upload a study area to begin.",
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
       preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
-      preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE)
+      preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE,
+      country = "")
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
     source_check_summary <- source_preflight_server(input, output, session, state, mode, hosted_lock)
     source_submission_server(input, output, session, source_check_summary)
@@ -187,7 +186,6 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       row <- world[which(world$code == suppressWarnings(as.numeric(id))), ]
       if (nrow(row)) {bb <- sf::st_bbox(row); leaflet::leafletProxy("map") |> leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])}
     }
-    shiny::observeEvent(input$country, navigate(input$country))
     shiny::observeEvent(input$map_shape_click, {
       id <- input$map_shape_click$id
       if (!is.null(id) && startsWith(as.character(id), "tile:")) {
@@ -199,7 +197,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       if (!is.null(id) && id %in% world$id) {
         navigate(as.character(id))
         if (as.character(id) %in% as.character(catalog$country_code))
-          shiny::updateSelectInput(session, "country", selected=as.character(id))
+          state$country <- as.character(id)
       }
     })
     output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else sprintf("Study area: %.4f km^2", aoi_area(state$aoi)))
@@ -241,8 +239,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         rownames = FALSE, selection = "multiple", options = list(scrollX = TRUE, pageLength = 8))
     })
     output$country_access <- shiny::renderUI({
-      id <- input$country
-      if (is.null(id) || !nzchar(id)) return(shiny::helpText("Choose a country to see its official data access links."))
+      id <- state$country
+      if (is.null(id) || !nzchar(id)) return(shiny::helpText("Click a country on the map to see its official data access links."))
       country_source_links(catalog, id)
     })
     output$sources <- DT::renderDT(DT::datatable(catalog, rownames = FALSE, options = list(scrollX = TRUE, pageLength = 15)))
