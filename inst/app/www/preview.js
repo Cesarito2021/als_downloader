@@ -164,9 +164,13 @@
       g.font='12px system-ui';
       if(!points.length){g.fillStyle='#adbeca';g.fillText('Load two clouds to see their elevation distribution.',20,30);return;}
       const za=[],zb=[];
-      for(let i=0;i<points.length;i++)(groups[i]===1?zb:za).push(points[i][2]);
+      for(let i=0;i<points.length;i++){
+        const isB=groups[i]===1;
+        if(isB?showB:showA)(isB?zb:za).push(Number(points[i][2])+Number(origin[2]));
+      }
       const left=56,right=16,top=34,bottom=30,pw=Math.max(10,w-left-right),ph=Math.max(10,h-top-bottom);
       const all=za.concat(zb);
+      if(!all.length){g.fillStyle='#adbeca';g.fillText('Both clouds are hidden. Show A or B to see elevations.',20,30);return;}
       let zmin=Math.min(...all),zmax=Math.max(...all);
       if(!isFinite(zmin)||!isFinite(zmax))return;
       if(zmin===zmax){zmin-=1;zmax+=1;}

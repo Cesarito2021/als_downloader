@@ -1,3 +1,5 @@
+> Historical working notes follow. For the current release candidate, read [Release review](RELEASE_REVIEW.md) and [submission comments](../cran-comments.md). Statements below about older commits are not evidence for the current revision.
+
 # Release candidate 0.1.0: readiness review
 
 No submission has been made to CRAN. Passing local checks does not guarantee acceptance.
@@ -134,3 +136,4 @@ criteria. Do not add artificial functions just to increase the count.
 5. Confirm the final package name, version and maintainer address, review any remaining check notes and prepare a truthful submission comment. No `--as-cran` run is an acceptance guarantee.
 
 References: [CRAN Repository Policy](https://cran.r-project.org/web/packages/policies.html), [third-party notices](../inst/NOTICE), [contributor contact handling](CONTRIBUTOR_PRIVACY.md).
+

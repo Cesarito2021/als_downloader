@@ -1,5 +1,8 @@
 # alsdownloader 0.1.0
 
+* Show absolute source elevations in comparison distributions, consistent with
+  cloud legends and profiles, and respect the visibility of each cloud.
+
 * Compare one source campaign with a user-uploaded LAS/LAZ cloud, with shared
   coverage, CRS and unit checks, bounded display samples and session cleanup.
   Retain the distinct-date gate for comparisons between two source campaigns.
