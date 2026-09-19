@@ -16,3 +16,15 @@ test_that("display crop and voxel thinning keep actual source coordinates", {
   expect_lte(nrow(alsdownloader:::forest_display_sample(points,max_points=100)),100)
   expect_error(alsdownloader:::forest_display_sample(points,window=0),'Invalid')
 })
+
+test_that("classification stays aligned through filtering, cropping and sampling", {
+  p <- data.frame(X=c(NA, 0:10), Y=c(NA, 0:10), Z=c(NA, 0:10),
+    Classification=c(99, 0:10))
+  sampled <- forest_display_sample(p, window=50, center_x=50, center_y=50, voxel=2, max_points=3)
+  expect_equal(attr(sampled, "classification"),
+    as.integer(sampled$X + attr(sampled, "origin")[["X"]]))
+  expect_named(sampled, c("X", "Y", "Z"))
+  invalid <- preview_points(data.frame(X=1:4,Y=1:4,Z=1:4,Classification=c(2,NA,300,2.5)))
+  expect_identical(attr(invalid,"classification"), c(2L,NA_integer_,NA_integer_,NA_integer_))
+  expect_null(attr(preview_points(p[c("X","Y","Z")]), "classification"))
+})

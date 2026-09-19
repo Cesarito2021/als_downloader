@@ -53,22 +53,23 @@ export async function preview(url, signal) {
   const nodes = Object.entries(subtree.nodes).sort(([a], [b]) =>
     Number(a.split('-')[0]) - Number(b.split('-')[0]));
   const lazPerf = await Las.PointData.createLazPerf({locateFile: () => 'laz-perf.wasm'});
-  const origin = copc.header.min, points = [];
+  const origin = copc.header.min, points = [], classification = [];
   let decoded = 0;
   for (const [, node] of nodes) {
     if (signal.aborted) throw new Error('Preview canceled.');
     if (node.pointCount <= 0 || node.pointCount > 750000 ||
         decoded + node.pointCount > 750000 || node.pointDataLength > 4 * 1024 * 1024) continue;
     if (points.length >= 100000) break;
-    const view = await Copc.loadPointDataView(get, copc, node, {lazPerf, include: ['X', 'Y', 'Z']});
+    const view = await Copc.loadPointDataView(get, copc, node, {lazPerf, include: ['X', 'Y', 'Z', 'Classification']});
     decoded += node.pointCount;
     const xyz = ['X', 'Y', 'Z'].map(view.getter);
+    const getClass = view.getter('Classification');
     const every = Math.max(1, Math.ceil(view.pointCount / (100000 - points.length)));
     for (let i = 0; i < view.pointCount; i += every) {
       const p = xyz.map((f, j) => f(i) - origin[j]);
-      if (p.every(Number.isFinite)) points.push(p);
+      if (p.every(Number.isFinite)) { points.push(p); classification.push(getClass(i)); }
     }
   }
   if (!points.length) throw new Error('No root-page nodes fit the preview budget.');
-  return {points, origin, ...get.stats(), decoded};
+  return {points, classification, origin, ...get.stats(), decoded};
 }

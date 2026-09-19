@@ -131,9 +131,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::helpText("Preview decimation does not alter your source file. Large local tiles can also be read with read_preview() in R."),
             shiny::textOutput("preview_status"),
             shiny::tags$canvas(id = "als-cloud", role = "img", tabindex = "0", `aria-label` = "Interactive point-cloud preview. Arrow keys rotate; plus and minus zoom; zero resets."),
-            shiny::selectInput("palette", "Elevation palette", c("Viridis", "Magma")),
+            shiny::selectInput("palette", "Colour by", c("Source classification" = "Classification", "Elevation - Viridis" = "Viridis", "Elevation - Magma" = "Magma"), selected = "Classification"),
             shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 1, step = 1),
-            shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Colors show source elevation, not canopy height.")),
+            shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Classification colours use the labels supplied in the file; no automatic classification. Elevation colours show source Z, not canopy height.")),
           comparison_ui(),
           shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Research deposits require verified polygon coverage or a tile index. Official national portals also provide external access; find a country in the table below for its official source link. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have an in-app search adapter. Verify dataset terms and citations before downloading."),
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
@@ -492,7 +492,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         if (!is.null(attr(p, "display_note"))) caption <- paste(caption, attr(p, "display_note"))
         if (state$preview_target == "als-cloud") state$previewtext <- paste(state$preview_label, "-", caption)
         else state$tiletext <- paste(state$preview_label, "-", caption)
-        session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), origin = unname(attr(p, "origin"))))},
+        session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), classification = unname(attr(p, "classification")), origin = unname(attr(p, "origin"))))},
         error = function(e) {
           message <- paste("Preview failed:", redact_urls_in_text(conditionMessage(e)))
           if (state$preview_target == "als-cloud") state$previewtext <- message else state$tiletext <- message

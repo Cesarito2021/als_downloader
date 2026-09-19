@@ -3,6 +3,8 @@
 #' @param max_points Maximum displayed points, between one and one million.
 #' @return A data frame of sampled coordinates with an `origin` attribute.
 #'   Coordinates are translated to a local origin for display precision.
+#'   An optional numeric `Classification` column is retained as an aligned
+#'   `classification` attribute; missing or invalid codes become `NA`.
 #' @details Sampling is deterministic and affects only the returned preview.
 #'   The source cloud is not modified. Elevation is not normalized canopy height.
 #' @export
@@ -15,13 +17,21 @@ preview_points <- function(points, max_points = 100000L) {
     stop("points must contain numeric X, Y and Z columns.", call. = FALSE)
   if (length(max_points) != 1L || !is.finite(max_points) || max_points < 1 ||
       max_points > 1e6 || max_points != floor(max_points)) stop("Invalid preview point budget.", call. = FALSE)
-  points <- points[is.finite(points$X) & is.finite(points$Y) & is.finite(points$Z), c("X", "Y", "Z")]
+  finite <- is.finite(points$X) & is.finite(points$Y) & is.finite(points$Z)
+  classification <- if (is.numeric(points$Classification)) points$Classification[finite] else NULL
+  points <- points[finite, c("X", "Y", "Z")]
   if (!nrow(points)) stop("No finite points to preview.", call. = FALSE)
   idx <- unique(round(seq(1, nrow(points), length.out = min(nrow(points), max_points))))
   points <- points[idx, , drop = FALSE]
   origin <- vapply(points, min, numeric(1))
   points[] <- Map(function(x, offset) x - offset, points, origin)
   attr(points, "origin") <- origin
+  if (!is.null(classification)) {
+    classification <- classification[idx]
+    classification[!is.finite(classification) | classification < 0 | classification > 255 |
+      classification != floor(classification)] <- NA_real_
+    attr(points, "classification") <- as.integer(classification)
+  }
   points
 }
 
@@ -48,7 +58,7 @@ read_preview <- function(path, max_points = 100000L) {
     n <- header@PHB[["Extended Number of point records"]]
   if (is.null(n) || !is.finite(n) || n < 1) stop("Point count is missing from LAS header.")
   every <- max(1, ceiling(n / max_points))
-  las <- lidR::readLAS(path, select = "xyz", filter = paste("-keep_every_nth", every))
+  las <- lidR::readLAS(path, select = "xyzc", filter = paste("-keep_every_nth", every))
   if (is.null(las)) stop("Reader returned no preview points.")
   preview_points(las@data, max_points)
 }
@@ -99,7 +109,8 @@ preview_remote_tile <- function(tile, max_bytes = 1024 * 1024^2, path = tempfile
 # comparison-analysis points are never rewritten or filtered by these controls.
 forest_display_sample <- function(points, window = 100, center_x = 50, center_y = 50,
                                   voxel = 0, max_points = 150000L) {
-  p <- as.data.frame(points)[c("X", "Y", "Z")]
+  p <- as.data.frame(points)
+  p <- p[intersect(c("X", "Y", "Z", "Classification"), names(p))]
   p <- p[is.finite(p$X) & is.finite(p$Y) & is.finite(p$Z), , drop = FALSE]
   if (!nrow(p)) stop("No finite display points.")
   if (!is.finite(window) || window < 5 || window > 100 ||
@@ -149,7 +160,7 @@ read_forest_preview <- function(path, percent = 2, window = 100, center_x = 50, 
   if (is.null(n) || n == 0) n <- h@PHB[["Number of point records"]]
   if (is.null(n) || !is.finite(n) || n < 1) stop("Missing LAS point count.")
   every <- max(1, ceiling(100 / percent), ceiling(n / 750000))
-  las <- lidR::readLAS(path, select = "xyz", filter = paste("-keep_every_nth", every))
+  las <- lidR::readLAS(path, select = "xyzc", filter = paste("-keep_every_nth", every))
   if (is.null(las) || !nrow(las@data)) stop("No points read for display.")
   out <- forest_display_sample(las@data, window, center_x, center_y, voxel)
   attr(out, "display_note") <- sprintf("%s source points; reader retains about %.2f%% (bounded pool); XY window %.0f%% of each axis; %s. No denoising or height normalization.",

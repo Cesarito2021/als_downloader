@@ -14,6 +14,8 @@ preview_points(points, max_points = 100000L)
 \value{
 A data frame of sampled coordinates with an `origin` attribute.
   Coordinates are translated to a local origin for display precision.
+  An optional numeric `Classification` column is retained as an aligned
+  `classification` attribute; missing or invalid codes become `NA`.
 }
 \description{
 Make a bounded point-cloud preview

@@ -13,9 +13,38 @@
     const v=n/255*(colors.length-1),i=Math.min(colors.length-2,Math.floor(v)),t=v-i;
     return 'rgb('+colors[i].map((x,j)=>Math.round(x+(colors[i+1][j]-x)*t)).join(',')+')';
   });
+  // LAS source codes, not inferred land cover. Other codes keep their numbers.
+  const classes = {
+    0: ['Never classified', '#8895a5'], 1: ['Unclassified', '#b4bfca'],
+    2: ['Ground', '#cba574'], 3: ['Low vegetation', '#c6df85'],
+    4: ['Medium vegetation', '#78c679'], 5: ['High vegetation', '#28a96b'],
+    6: ['Building', '#ed8b73'], 7: ['Low noise', '#cf83cf'],
+    9: ['Water', '#65b9ef'], 17: ['Bridge deck', '#e3c46a'],
+    18: ['High noise', '#b695ed']
+  };
+  const classInfo = code => code == null ? ['Classification unavailable', '#8895a5'] :
+    (classes[code] || ['Class '+code, '#a8a4cf']);
   function viewer(c) {
-    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Viridis';
-    let initialPitch=0,pointSize=1.8;
+    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Classification';
+    let initialPitch=0,pointSize=1.8,classification=[],classColors=[];
+    const classLegend=document.createElement('div');
+    classLegend.className='als-classification-legend';
+    classLegend.setAttribute('aria-label','Source classification legend');
+    classLegend.style.cssText='display:none;flex-wrap:wrap;gap:8px 18px;padding:12px 16px;background:#101b24;border:1px solid #273744;border-radius:0 0 8px 8px;color:#d8e2e9;font:12px system-ui;max-height:120px;overflow:auto';
+    c.insertAdjacentElement('afterend',classLegend);
+    function updateLegend(){
+      classLegend.replaceChildren();
+      classLegend.style.display=palette==='Classification' && points.length?'flex':'none';
+      if(!points.length)return;
+      const counts=new Map();
+      for(const code of classification)counts.set(code,(counts.get(code)||0)+1);
+      for(const [code,count] of [...counts].sort((a,b)=>(a[0]??256)-(b[0]??256))){
+        const [name,color]=classInfo(code),item=document.createElement('span'),swatch=document.createElement('span');
+        swatch.style.cssText='display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;background:'+color;
+        item.append(swatch,document.createTextNode((code==null?'':code+' \u00b7 ')+name+' \u00b7 '+(100*count/points.length).toFixed(1)+'%'));
+        classLegend.append(item);
+      }
+    }
     function draw() {
       if (!c.clientWidth) return;
       const w=c.clientWidth,h=c.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
@@ -26,17 +55,17 @@
       if(!points.length){ctx.fillText('Select a tile to plot, or upload a local point cloud in 3D preview.',20,35);return;}
       const co=Math.cos(yaw),si=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
       let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
-      const ordered=points.map(p=>{
+      const ordered=points.map((p,i)=>{
         const x=p[0]-extent[0]/2,y=p[1]-extent[1]/2,z=(p[2]-extent[2]/2)*exag;
         const rx=x*co-y*si,ry=x*si+y*co,py=ry*cp-z*sp;
         xmin=Math.min(xmin,rx);xmax=Math.max(xmax,rx);ymin=Math.min(ymin,py);ymax=Math.max(ymax,py);
-        return [rx,py,ry*sp+z*cp,p[2]];
+        return [rx,py,ry*sp+z*cp,p[2],i];
       }).sort((a,b)=>a[2]-b[2]);
       // Fit projected bounds to the landscape canvas, with room for the legend.
       const scale=Math.min((w-60)/Math.max(xmax-xmin,1),(h-110)/Math.max(ymax-ymin,1))*zoom;
-      const lut=makeLut(palettes[palette]);
+      const lut=palette==='Classification'?null:makeLut(palettes[palette]);
       for(const p of ordered){
-        ctx.fillStyle=lut[Math.round(255*p[3]/(extent[2]||1))];
+        ctx.fillStyle=palette==='Classification'?classColors[p[4]]:lut[Math.round(255*p[3]/(extent[2]||1))];
         ctx.fillRect((p[0]-(xmin+xmax)/2)*scale+w/2,(p[1]-(ymin+ymax)/2)*scale+(h-45)/2,pointSize,pointSize);
       }
       function legend(name,x,width,label){
@@ -49,7 +78,7 @@
         ctx.fillText(Number(origin[2]).toFixed(1),x,h-15);
         ctx.textAlign='right';ctx.fillText((Number(origin[2])+extent[2]).toFixed(1),x+width,h-15);
       }
-      legend(palette,20,180,'Elevation');
+      if(palette!=='Classification')legend(palette,20,180,'Elevation');
     }
     function fit(){yaw=initialYaw;pitch=initialPitch;zoom=1;draw();}
     c.onpointerdown=e=>{drag=[e.clientX,e.clientY];c.setPointerCapture(e.pointerId);c.focus();};
@@ -66,14 +95,20 @@
       if(e.key==='+'||e.key==='=')zoom=Math.min(8,zoom*1.15);if(e.key==='-')zoom=Math.max(.4,zoom/1.15);draw();
     };
     const observer=new ResizeObserver(draw);observer.observe(c);draw();
-    return {dispose(){observer.disconnect();},load(data){
+    return {dispose(){observer.disconnect();classLegend.remove();},load(data){
       points=data.points;origin=data.origin;extent=[0,0,0];
+      classification=points.map((_,i)=>{
+        const code=Array.isArray(data.classification)?data.classification[i]:(i===0?data.classification:null);
+        return Number.isInteger(code)&&code>=0&&code<=255?code:null;
+      });
+      classColors=classification.map(code=>classInfo(code)[1]);
+      updateLegend();
       let sx=0,sy=0,sxx=0,syy=0,sxy=0;
       for(const p of points){for(let j=0;j<3;j++)extent[j]=Math.max(extent[j],p[j]);sx+=p[0];sy+=p[1];sxx+=p[0]*p[0];syy+=p[1]*p[1];sxy+=p[0]*p[1];}
       const n=points.length||1;
       initialYaw=-.5*Math.atan2(2*(sxy-sx*sy/n),sxx-sx*sx/n-syy+sy*sy/n);
       fit();},
-      update(data){if(data.focusCentral!=null){}if(data.exaggeration!=null)exag=data.exaggeration;if(palettes[data.palette])palette=data.palette;
+      update(data){if(data.focusCentral!=null){}if(data.exaggeration!=null)exag=data.exaggeration;if(data.palette==='Classification'||palettes[data.palette]){palette=data.palette;updateLegend();}
         if(data.pointSize!=null)pointSize=Math.max(.7,Math.min(3,data.pointSize));
         if(data.pose){initialPitch=data.pose==='top'?0:(data.pose==='forest'?1.38:1.08);fit();}
         if(data.fit)fit();else draw();}};
