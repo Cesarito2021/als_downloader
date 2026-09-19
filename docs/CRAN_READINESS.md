@@ -100,8 +100,12 @@ implemented adapters - all 235 other tests already passed. Fixed in commit
 on that commit passed `--as-cran` (warnings as failures) on Windows, macOS,
 Ubuntu-release and Ubuntu-devel - the first fully green run this session has
 directly confirmed against the branch's actual current head, not a
-historical revision. Re-check this after every further change; a passing
-run today does not cover commits made after it.
+historical revision. Confirmed again on the next two commits
+(`fee02cd`, `8b9b38f`,
+[run 35407457831](https://github.com/Cesarito2021/als_downloader/actions/runs/35407457831)):
+Ubuntu-release's own log reports **`Status: OK`** - zero errors, zero
+warnings, zero notes, all 236 tests passing. Re-check this after every
+further change; a passing run today does not cover commits made after it.
 
 ## Before submission
 
