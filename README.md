@@ -231,7 +231,8 @@ dates and licence obligations before approving. Approval rechecks metadata and
 saves an index; only approved indexes participate in subsequent AOI searches.
 Rejection, reviewer identity and decision notes are recorded privately. Identical
 proposals are deduplicated. Source data remain on Zenodo with their own licences;
-approval does not relicense them. No email is sent automatically.
+approval does not relicense them. Optional [email notifications](docs/ZENODO_EMAIL_SETUP.md)
+require administrator configuration.
 
 On a public deployment, configure `submission_dir` on persistent private storage
 outside web assets and omit `reviewer`. Review the same queue from a separate

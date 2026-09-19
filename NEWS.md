@@ -1,5 +1,10 @@
 # alsdownloader 0.1.0
 
+* Require supplied coverage polygons for Zenodo submissions. Accept polygon
+  files from the record or a separate upload, linked through exact file_key
+  filenames. Remove the centre-and-distance alternative and reject legacy
+  approximate-square proposals.
+
 * Add optional SMTP notifications for queued Zenodo proposals, private email
   previews, delivery receipts and links to the matching local review screen.
   Opening a link never approves a proposal; explicit maintainer review remains

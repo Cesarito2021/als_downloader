@@ -70,6 +70,8 @@ zenodo_boundary <- function(boundary) {
   path <- if(is.list(boundary) && !inherits(boundary,"sf")) boundary$datapath else boundary
   if(is.character(path) && (length(path)!=1 || !file.exists(path) || file.size(path)>5*1024^2)) stop("Coverage file must be at most 5 MiB.")
   g <- read_aoi(boundary)
+  if("coverage_method" %in% names(g) && any(g$coverage_method=="author_approximate_square",na.rm=TRUE))
+    stop("Approximate squares are no longer accepted. Upload coverage polygons linked to the point-cloud files.")
   if(nrow(g)>10000L || nrow(sf::st_coordinates(g))>100000L) stop("Use at most 10,000 polygons and 100,000 vertices.")
   g
 }
@@ -152,6 +154,8 @@ zenodo_write <- function(x,path) {
 #' @export
 submit_zenodo <- function(proposal,queue) {
   if(!identical(proposal$schema,"als-zenodo-proposal-v1") || !grepl("^[a-f0-9]{64}$",proposal$id)) stop("Invalid proposal.")
+  if(any(vapply(proposal$index$features,function(f)identical(f$properties$coverage_method,"author_approximate_square"),logical(1))))
+    stop("Approximate squares are no longer accepted. Prepare a new proposal with coverage polygons.")
   if(length(queue)!=1 || !is.character(queue) || !nzchar(queue)) stop("Configure a private review queue.")
   path <- file.path(queue,"requests",paste0(proposal$id,".json"))
   dir.create(dirname(path),recursive=TRUE,showWarnings=FALSE)

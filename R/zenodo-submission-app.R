@@ -3,10 +3,11 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::textInput("zenodo_link","1. Zenodo DOI or product link",placeholder="https://zenodo.org/records/... or 10.5281/zenodo...."),
   shiny::actionButton("zenodo_inspect","Read Zenodo metadata"),shiny::textOutput("zenodo_metadata_status"),
   shiny::tags$details(shiny::tags$summary("Retrieved description, citation and licence"),shiny::verbatimTextOutput("zenodo_metadata_details")),
-  shiny::selectInput("zenodo_boundary_source","2. Coverage polygons (required)",c("Upload a coverage file"="upload")),
+  shiny::selectInput("zenodo_boundary_source","2. Coverage polygons (required)",c("Upload your polygons"="upload")),
   shiny::conditionalPanel("input.zenodo_boundary_source == 'upload'",
     shiny::fileInput("zenodo_boundary","GeoJSON, GeoPackage or zipped Shapefile (5 MiB maximum)",accept=c(".geojson",".gpkg",".zip"))),
-  shiny::helpText("Use actual surveyed coverage with its CRS, not a location point. With several cloud files, include a file_key column matching each Zenodo filename. Multiple polygons for one file are combined; the original file is downloaded once. Use a single-layer GeoPackage."),
+  shiny::helpText("Select a polygon file found in Zenodo, or upload your polygons if they are stored elsewhere. Provide the actual LiDAR coverage with its CRS. A general study-area boundary may include places without data."),
+  shiny::helpText("To connect polygons to point clouds, include a file_key attribute with the exact Zenodo filename, for example plot_001.laz. For an archive, use its ZIP filename. Several polygons may refer to the same file. With only one eligible asset, the link is automatic. No separate polygon-ID field is needed in this form. Use a single-layer GeoPackage."),
   shiny::textInput("zenodo_acquired","3. Acquisition year or interval (blank if unknown)",placeholder="2018, 2016-2018, or 2018-05-01 / 2018-06-30"),
   shiny::selectInput("zenodo_platform","4. LiDAR acquisition platform",c("Choose a platform"="","Aircraft / helicopter ALS"="ALS","UAV LiDAR"="UAV-LiDAR")),
   shiny::textInput("zenodo_email","5. Contact email (optional, private)"),
@@ -39,11 +40,12 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     m<-shiny::withProgress(message="Reading Zenodo metadata",value=.3,inspect_zenodo(input$zenodo_link));meta(m)
     keys<-vapply(m$files,`[[`,"","key");sizes<-vapply(m$files,`[[`,0,"size")
     small<-keys[grepl("\\.(geojson|gpkg|zip)$",keys,ignore.case=TRUE)&sizes<=5*1024^2]
-    shiny::updateSelectInput(session,"zenodo_boundary_source",choices=c("Upload a coverage file"="upload",stats::setNames(small,small)),selected="upload")
+    shiny::updateSelectInput(session,"zenodo_boundary_source",choices=c("Upload your polygons"="upload",stats::setNames(small,small)),selected="upload")
     message("Metadata ready. Confirm coverage, acquisition dates and platform; then check your proposal.")
   },error=fail))
   output$zenodo_metadata_status<-shiny::renderText({m<-meta();if(is.null(m))return("No record loaded.");paste(m$title,"|",m$doi,"|",length(m$files),"files | Licence:",m$license)})
-  output$zenodo_metadata_details<-shiny::renderText({m<-meta();shiny::req(m);paste(m$citation,m$license_url,gsub("<[^>]*>"," ",m$description),m$acknowledgement,sep="\n\n")})
+  output$zenodo_metadata_details<-shiny::renderText({m<-meta();shiny::req(m);paste(m$citation,m$license_url,gsub("<[^>]*>"," ",m$description),m$acknowledgement,
+    paste("Zenodo filenames (use these exact values for file_key):",paste(vapply(m$files,`[[`,"","key"),collapse="\n"),sep="\n"),sep="\n\n")})
   shiny::observeEvent(input$zenodo_prepare,tryCatch({
     m<-meta();if(is.null(m))stop("Read the Zenodo metadata first.")
     if(zenodo_record_id(input$zenodo_link)!=m$id)stop("The link changed; read its metadata again.")
