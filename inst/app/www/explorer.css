@@ -61,3 +61,15 @@ a{transition:color .12s ease}a:hover{color:#c3dbe6}
 .als-source-card>a{margin-top:auto;color:#9ed5ed;text-decoration:underline;font-size:13px}
 .als-source-card a:focus-visible,.als-source-card summary:focus-visible,.als-source-table>summary:focus-visible{outline:2px solid #9ed5ed;outline-offset:4px}
 .als-source-table{margin-bottom:24px}
+
+.als-welcome-buttons{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;max-width:860px;margin:20px auto}
+.als-welcome-buttons .als-welcome-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:12px 22px;border-radius:10px;font-size:15px;font-weight:600;border:1px solid transparent;text-decoration:none;transition:background-color .15s,border-color .15s}
+.als-welcome-buttons .als-welcome-map{background:#b7dacd;color:#102b24;border-color:#b7dacd}
+.als-welcome-buttons .als-welcome-guide{background:#28233e;color:#e0d7f5;border-color:#615078}
+.als-welcome-buttons .als-welcome-sources{background:#173342;color:#c3e4f3;border-color:#426a80}
+.als-welcome-buttons .als-welcome-map:hover{background:#cde9df}
+.als-welcome-buttons .als-welcome-guide:hover{background:#3a3054;border-color:#a995c7}
+.als-welcome-buttons .als-welcome-sources:hover{background:#254b5e;border-color:#87b7ce}
+.als-welcome-buttons .als-welcome-button:focus-visible{outline:2px solid #fff;outline-offset:4px}
+@media(max-width:560px){.als-welcome-buttons{flex-direction:column}.als-welcome-buttons .als-welcome-button{width:100%}}
+@media(prefers-reduced-motion:reduce){.als-welcome-buttons .als-welcome-button{transition:none}}
