@@ -20,19 +20,19 @@ read_forest_preview(
 between 0.1 and 100. The reader pool is also capped at 750,000 points.}
 
 \item{window, center_x, center_y, voxel}{Display windowing and optional
-voxel thinning; see \code{\link[=forest_display_sample]{forest_display_sample()}}.}
+voxel thinning; see [forest_display_sample()].}
 }
 \value{
-The same translated coordinate table as \code{\link[=preview_points]{preview_points()}}, with
-a \code{display_note} attribute describing the sampling actually used.
+The same translated coordinate table as [preview_points()], with
+  a `display_note` attribute describing the sampling actually used.
 }
 \description{
 Read a decimated, spatially windowed preview for the forest close-up viewer
 }
 \details{
 Requires the optional package 'lidR'. Exported so a background
-  \code{\link[callr:r_bg]{callr::r_bg()}} worker can call it by namespace-qualified name; see
-  \code{\link[=preview_remote_tile]{preview_remote_tile()}} for why.
+  [callr::r_bg()] worker can call it by namespace-qualified name; see
+  [preview_remote_tile()] for why.
 }
 \examples{
 if (interactive() && requireNamespace("lidR", quietly = TRUE)) {

@@ -4,8 +4,13 @@
 \alias{als_report}
 \title{Generate an HTML or PDF summary of a search/download selection}
 \usage{
-als_report(tiles, output_dir, format = c("html", "pdf"), aoi_area_km2 = NA_real_,
-  aoi = NULL)
+als_report(
+  tiles,
+  output_dir,
+  format = c("html", "pdf"),
+  aoi_area_km2 = NA_real_,
+  aoi = NULL
+)
 }
 \arguments{
 \item{tiles}{An `sf` or data frame as returned by [find_tiles()] or

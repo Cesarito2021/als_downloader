@@ -45,3 +45,10 @@
 * Raise the point-cloud preview size ceiling from 200 MB to 1 GB, for both a remote result's "Plot selected tile in 3D" and a locally uploaded LAS/LAZ file, since the previous limit rejected many real tiles outright before the existing point-count decimation ever ran. Raise the Compare campaigns per-campaign/per-tile budget the same way, from 200 MB/100 MB to 600 MB/300 MB.
 * Show the real error when a tile or local-file preview fails, instead of one fixed generic message ("check provider access, known file size..."). The actual reason (an oversized file, a missing LAS point count, a failed download, a missing `lidR` install, etc.) is now shown directly, with any signed request URL's query string stripped first.
 * Fix "Plot selected tile in 3D" and the local-file preview failing with `could not find function "require_data_terms"` in a background process: they called their reader functions as plain closures passed into `callr::r_bg()`, whose captured environment does not reliably carry the rest of the package namespace into the background process, so an internal helper the reader called by name could fail to resolve there even though the reader itself started running. `preview_remote_tile()` and `read_forest_preview()` are now exported and called by namespace-qualified name inside the background process instead, the same way `download_tiles()` already was.
+# Development review, 19 September 2026
+
+- Resolve all application background tasks against the installed package or
+  current development source, fixing preview helper lookup failures.
+- Correct signed URL redaction in error messages.
+- Add real subprocess regression tests and an isolated, bounded browser COPC
+  prototype under tools/copc (not part of the installed Shiny application).

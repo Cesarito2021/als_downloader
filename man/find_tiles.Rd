@@ -6,8 +6,8 @@
 \usage{
 find_tiles(
   aoi,
-  provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo",
-    "ignfr", "canelevation"),
+  provider = c("usgs3dep", "opentopography", "contributed", "ahn6", "swisstopo", "ignfr",
+    "canelevation"),
   start = NULL,
   end = NULL,
   tile_index_dir = NULL,

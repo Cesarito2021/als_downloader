@@ -94,7 +94,7 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
       }
       check$directory <- tempfile("als-source-test-");dir.create(check$directory)
       state$source_test_busy <- TRUE;check$percent <- 5;check$message <- "Starting connection check"
-      check$job <- callr::r_bg(function(check_link,url,directory) check_link(url,directory),args=list(source_preflight,trimws(input$source_url),check$directory),supervise=TRUE)
+      check$job <- background_job("source_preflight", list(trimws(input$source_url), check$directory))
     },error=function(e){cleanup();check$message <- conditionMessage(e)})
   })
   shiny::observe({

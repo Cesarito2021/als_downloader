@@ -114,9 +114,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
       cmp$dates <- NULL
       cmp$files <- NULL
       state$comparison_busy <- TRUE; cmp$status <- "Loading both clouds inside the overlapping area..."
-      cmp$job <- callr::r_bg(function(compare, a, b, aoi, directory)
-        compare(a, b, aoi, directory),
-        args = list(compare_campaigns, a, b, overlap, cmp$directory), supervise = TRUE)
+      cmp$job <- background_job("compare_campaigns", list(a, b, overlap, cmp$directory))
     }, error = function(e) {cmp$status <- conditionMessage(e); cleanup()})
   })
   shiny::observe({
