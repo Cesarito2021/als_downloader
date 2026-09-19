@@ -10,7 +10,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   for(let x=0;x<W;x+=W/12){t.moveTo(x,0);t.lineTo(x,H);}
   for(let y=H/6;y<H;y+=H/6){t.moveTo(0,y);t.lineTo(W,y);}t.stroke();
   const coverage=JSON.parse(canvas.dataset.coverage||'{"features":[]}');
-  let pixels,lon=-65,lat=18,drag=null,pending=false,autorotate=true;
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motionButton=document.getElementById('globe_motion');
+  let pixels,lon=-65,lat=18,drag=null,pending=false,autorotate=!reducedMotion;
+  function setRotation(on){autorotate=on;motionButton.textContent=on?'Pause rotation':'Resume rotation';canvas.dataset.rotating=String(on);}
+  setRotation(autorotate);
+  motionButton.onclick=()=>setRotation(!autorotate);
   function ring(coords,shift){
     let prev=coords[0][0];const points=coords.map(([raw,y])=>{let x=raw;while(x-prev>180)x-=360;while(x-prev< -180)x+=360;prev=x;return [x,y];});
     const first=points[0],last=points[points.length-1];
@@ -39,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Throttled to ~16 fps: the per-pixel software projection in draw() is too
   // costly to re-run at a full 60 fps just for a slow ambient spin.
   let lastSpin=0;
-  function spin(ts){if(autorotate&&ts-lastSpin>60){lon+=.12;lastSpin=ts;draw();}requestAnimationFrame(spin);}
+  function spin(ts){if(ts-lastSpin>60){const elapsed=Math.min(ts-lastSpin,150);lastSpin=ts;if(autorotate&&!document.hidden&&canvas.offsetParent){lon+=elapsed*.004;draw();}}requestAnimationFrame(spin);}
   function draw(){
     if(!pixels||!canvas.clientWidth)return;
     const w=Math.min(1100,Math.round(canvas.clientWidth)),h=canvas.clientHeight;
@@ -52,11 +57,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const neb2=ctx.createRadialGradient(w*.88,h*.9,0,w*.88,h*.9,w*.45);
     neb2.addColorStop(0,'#1f4a4a3d');neb2.addColorStop(1,'#1f4a4a00');
     ctx.fillStyle=neb2;ctx.fillRect(0,0,w,h);
-    for(let i=0;i<200;i++){
+    for(let i=0;i<320;i++){
       const x=(i*137.51)%w,y=(i*71.13+(i%17)*23)%h,tier=i%11;
       ctx.fillStyle=tier===0?'#dbe7ee':tier<4?'#718494':'#304252';
-      const size=tier===0?1.6:1;
+      const size=tier===0?2:1;
       ctx.fillRect(x,y,size,size);
+      if(i%47===0){ctx.fillStyle='#c9e3f066';ctx.fillRect(x-2,y+.5,6,1);ctx.fillRect(x+.5,y-2,1,6);}
     }
     const r=Math.min(w*.43,h*.435),cx=w/2,cy=h/2,phi=lat*Math.PI/180,lambda=lon*Math.PI/180;
     const glow=ctx.createRadialGradient(cx,cy,r*.9,cx,cy,r*1.1);glow.addColorStop(0,'#559ec480');glow.addColorStop(1,'#559ec400');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
@@ -71,11 +77,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     ctx.putImageData(img,0,0);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#93cbd37f';ctx.lineWidth=2;ctx.stroke();
   }
   function redraw(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;draw();});}
-  canvas.onpointerdown=e=>{autorotate=false;drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);canvas.focus();};
+  canvas.onpointerdown=e=>{setRotation(false);drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);canvas.focus();};
   canvas.onpointermove=e=>{if(!drag)return;lon-=(e.clientX-drag[0])*.35;lat=Math.max(-75,Math.min(75,lat+(e.clientY-drag[1])*.25));drag=[e.clientX,e.clientY];redraw();};
   canvas.onpointerup=canvas.onpointercancel=()=>drag=null;
-  function reset(){lon=-65;lat=18;autorotate=true;redraw();}
+  function reset(){lon=-65;lat=18;setRotation(!reducedMotion);redraw();}
   document.getElementById('globe_reset').onclick=reset;
-  canvas.onkeydown=e=>{if(e.key==='0'){e.preventDefault();reset();return;}if(!e.key.startsWith('Arrow'))return;e.preventDefault();autorotate=false;lon+=e.key==='ArrowLeft'?-10:e.key==='ArrowRight'?10:0;lat=Math.max(-75,Math.min(75,lat+(e.key==='ArrowUp'?10:e.key==='ArrowDown'?-10:0)));redraw();};
+  canvas.onkeydown=e=>{if(e.key==='0'){e.preventDefault();reset();return;}if(!e.key.startsWith('Arrow'))return;e.preventDefault();setRotation(false);lon+=e.key==='ArrowLeft'?-10:e.key==='ArrowRight'?10:0;lat=Math.max(-75,Math.min(75,lat+(e.key==='ArrowUp'?10:e.key==='ArrowDown'?-10:0)));redraw();};
   new ResizeObserver(redraw).observe(canvas);
 });

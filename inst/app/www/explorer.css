@@ -83,3 +83,19 @@ a{transition:color .12s ease}a:hover{color:#c3dbe6}
 .als-welcome-buttons .als-welcome-button:focus-visible{outline:2px solid #fff;outline-offset:4px}
 @media(max-width:560px){.als-welcome-buttons{flex-direction:column}.als-welcome-buttons .als-welcome-button{width:100%}}
 @media(prefers-reduced-motion:reduce){.als-welcome-buttons .als-welcome-button{transition:none}}
+
+/* Shared action dimensions; map tools and file-input widgets retain their own geometry. */
+:root{--als-button-width:224px;--als-button-height:48px}
+.btn:not(.btn-file):not(.dropdown-toggle),.als-welcome-buttons .als-welcome-button,
+.btn.als-report-btn{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:6px;width:var(--als-button-width);max-width:100%;height:var(--als-button-height);min-height:var(--als-button-height);padding:6px 12px;font-size:14px;line-height:18px;white-space:normal;border-radius:8px;vertical-align:middle}
+.als-sidebar .btn:not(.btn-file):not(.dropdown-toggle){display:flex;margin-left:auto;margin-right:auto}
+.als-header-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px}
+.als-header-actions .btn{margin-bottom:0}
+.als-welcome-buttons{align-items:center}
+.als-globe-mission{max-width:600px;margin:12px auto 8px;font-size:16px;line-height:1.6}
+.als-globe-author{font-style:normal;color:#a5b6c2;margin-bottom:20px}
+.als-welcome-buttons .als-welcome-map{background:#214c60;color:#e0f0f8;border-color:#578096}
+.als-welcome-buttons .als-welcome-map:hover{background:#2d6277}
+.btn:not(.btn-file):focus-visible{outline:2px solid #add9eb;outline-offset:3px}
+@media(max-width:700px){.als-header{flex-direction:column;align-items:stretch}.als-header-actions{justify-content:center}.als-result-actions{justify-content:center}}
+@media(max-width:560px){.als-welcome-buttons{align-items:center}.als-globe-actions{flex-direction:column}}
