@@ -80,6 +80,7 @@ read_preview <- function(path, max_points = 100000L) {
 #' @param reader Function called with `path` once the download completes;
 #'   defaults to [read_preview()]. Used by [read_forest_preview()] for the
 #'   app's forest close-up preview.
+#' @param progress Optional function receiving short preview-stage messages.
 #' @return Whatever `reader` returns.
 #' @details A temporary, single-file preview; never persists a cloud in the
 #'   source catalog. Exported (rather than internal-only) so a background
@@ -91,7 +92,9 @@ read_preview <- function(path, max_points = 100000L) {
 #' if (interactive()) {
 #'   # preview_remote_tile(tile_row)
 #' }
-preview_remote_tile <- function(tile, max_bytes = 1024 * 1024^2, path = tempfile(fileext = ".laz"), reader = function(path) read_preview(path, 100000L)) {
+preview_remote_tile <- function(tile, max_bytes = 1024 * 1024^2, path = tempfile(fileext = ".laz"), reader = function(path) read_preview(path, 100000L), progress = NULL) {
+  stage <- function(message) if (is.function(progress)) progress(message)
+  stage("Checking source access...")
   require_data_terms(tile)
   if (grepl("\\.zip$",tile$filename[[1]],ignore.case=TRUE))
     stop("This source delivers an original LAS ZIP. Download and extract it locally, then open the LAS for preview.")
@@ -100,16 +103,19 @@ preview_remote_tile <- function(tile, max_bytes = 1024 * 1024^2, path = tempfile
   if (!grepl("^https://", url)) stop("Only HTTPS tile URLs are supported.")
   if (tile$provider[[1]] == "usgs3dep")
     url <- request_json("https://planetarycomputer.microsoft.com/api/sas/v1/sign", query = list(href = redact_url(url)))$href
+  stage("Checking source file size...")
   head <- httr::HEAD(url, httr::timeout(30))
   httr::stop_for_status(head)
   size <- suppressWarnings(as.numeric(httr::headers(head)[["content-length"]]))
   if (length(size) != 1L || !is.finite(size) || size <= 0 || size > max_bytes)
     stop(paste("Preview requires a known file size up to", round(max_bytes / 1024^2), "MB. Use a smaller source tile."))
   on.exit(unlink(path), add = TRUE)
+  stage(sprintf("Downloading %.1f MiB from the provider...", size / 1024^2))
   response <- httr::GET(url, httr::write_disk(path), httr::timeout(600), httr::config(maxfilesize_large = max_bytes))
   httr::stop_for_status(response)
   if (httr::status_code(response) != 200L || file.size(path) != size || !valid_las_header(path))
     stop("Incomplete or invalid LAS/LAZ preview download.")
+  stage("Reading and sampling the downloaded cloud. Large files may take several minutes...")
   reader(path)
 }
 

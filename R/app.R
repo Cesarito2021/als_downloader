@@ -148,6 +148,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::fileInput("point_file", "Upload a local LAS/LAZ tile (up to 1 GB)", accept = c(".las", ".laz")),
             forest_preview_controls("local_"),
             shiny::actionButton("preview", "Build bounded preview"),
+            shiny::actionButton("cancel_preview", "Cancel preview"),
             shiny::helpText("Preview decimation does not alter your source file. Large local tiles can also be read with read_preview() in R."),
             shiny::textOutput("preview_status"),
             shiny::tags$canvas(id = "als-cloud", role = "img", tabindex = "0", `aria-label` = "Interactive point-cloud preview. Arrow keys rotate; plus and minus zoom; zero resets."),
@@ -170,7 +171,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
   server <- function(input, output, session) {
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "Draw or upload a study area to begin.",
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
-      preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
+      preview_job = NULL, preview_started = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
       preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_attribution = NULL, preview_path = NULL, preview_locked = FALSE,
       tile_groups = character(0))
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
@@ -269,7 +270,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       }
       if (!is.null(id) && id %in% world$id) navigate(as.character(id))
     })
-    output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else sprintf("Study area: %.4f km^2", aoi_area(state$aoi)))
+    output$aoi_status <- shiny::renderText(if (is.null(state$aoi)) "No study area selected." else {
+      area <- aoi_area(state$aoi)
+      paste0(sprintf("Study area: %.4f km^2", area), if (area > 1000)
+        ". Large-area search: results are limited to 10,000 tiles per source. Split state-wide areas into smaller regions if a source reaches its limit. 3D shows one tile; comparison shows only a 100-1000 m window, not the whole state." else "")
+    })
     shiny::observeEvent(input$search, {
       shiny::req(state$aoi)
       state$tiles <- NULL
@@ -291,9 +296,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         result <- if (any(ok)) do.call(rbind, outcome[ok]) else empty_tiles()
         state$tiles <- result
         state$search <- if (nrow(result))
-            paste0(nrow(result), " intersecting tiles across ", sum(ok), " source(s). Select rows below; acquisition dates may be unknown.")
+            paste0(nrow(result), " intersecting tiles from ", length(unique(result$provider)), " source(s); ", length(providers), " sources searched. Select rows below; acquisition dates may be unknown.")
           else "No matching records in the searched sources and interval. This does not establish that no LiDAR data exist here."
-        if (any(!ok)) state$search <- paste0(state$search, " (", sum(!ok), " source(s) unavailable: ", paste(names(outcome)[!ok], collapse = ", "), ".)")
+        if (any(!ok)) state$search <- paste0(state$search, " Incomplete search. ", paste(vapply(which(!ok), function(i)
+          paste0(names(outcome)[i], ": ", redact_urls_in_text(conditionMessage(outcome[[i]]))), character(1)), collapse = " | "))
         if (nrow(result)) {
           # Colour and group footprints by acquisition year (final date; start
           # when the end date is unknown) instead of one flat colour, so
@@ -341,7 +347,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       query <- if (is.null(input$catalogue_search)) "" else tolower(trimws(input$catalogue_search))
       rows <- catalog[grepl(query, tolower(paste(catalog$name, catalog$country)), fixed = TRUE), , drop = FALSE]
       if (!nrow(rows)) return(shiny::p(role = "status", "No matching sources. Try another name or country."))
-      rows <- rows[order(!rows$implemented, rows$country, rows$name), , drop = FALSE]
+      rows <- rows[order(rows$id != "usgs3dep", !rows$implemented, rows$country, rows$name), , drop = FALSE]
       shiny::tagList(shiny::p(role = "status", paste(nrow(rows), "sources listed. Check each source's access conditions.")),
         shiny::div(class = "als-source-grid", lapply(seq_len(nrow(rows)), function(i) {
           source <- rows[i, ]
@@ -494,6 +500,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       state$preview_label <- input$point_file$name
       state$preview_attribution <- figure_attribution()
       state$previewtext <- "Reading a bounded point sample..."
+      state$preview_started <- Sys.time()
+      session$sendCustomMessage("als-points", list(target = "als-cloud", points = list(), origin = c(0, 0, 0)))
       preview_path <- tempfile(fileext = paste0(".", tools::file_ext(input$point_file$name)))
       state$preview_path <- preview_path
       file.copy(input$point_file$datapath, preview_path)
@@ -530,6 +538,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       state$preview_label <- tile$filename[[1]]
       state$preview_attribution <- figure_attribution(tile)
       state$previewtext <- paste("Downloading and sampling:", state$preview_label)
+      state$preview_started <- Sys.time()
       session$sendCustomMessage("als-points", list(target = "als-cloud", points = list(), origin = c(0, 0, 0)))
       state$preview_path <- tempfile(fileext = ".laz")
       tryCatch({state$preview_job <- background_job("remote_preview_job",
@@ -542,10 +551,25 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     shiny::observe({
       shiny::invalidateLater(500, session)
       job <- state$preview_job
-      if (is.null(job) || job$is_alive()) return()
+      if (is.null(job)) return()
+      if (job$is_alive()) {
+        elapsed <- as.numeric(difftime(Sys.time(), state$preview_started, units = "secs"))
+        status_file <- paste0(state$preview_path, ".status")
+        stage <- if (file.exists(status_file)) tryCatch(readLines(status_file, warn = FALSE), error = function(e) character()) else character()
+        received <- if (file.exists(state$preview_path)) file.size(state$preview_path) / 1024^2 else 0
+        state$previewtext <- paste(state$preview_label, "-", if (length(stage)) stage[1] else "Starting/reading preview...",
+          sprintf("Elapsed: %.0f s. Temporary file: %.1f MiB. You can cancel this preview.", elapsed, received))
+        if (is.finite(elapsed) && elapsed > 900) {
+          job$kill_tree(); state$preview_job <- NULL
+          unlink(c(state$preview_path, status_file))
+          if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
+          state$previewtext <- "Preview stopped after 15 minutes. Try a smaller tile or download it for local inspection."
+        }
+        return()
+      }
       state$preview_job <- NULL
       if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
-      if (!is.null(state$preview_path)) unlink(state$preview_path)
+      if (!is.null(state$preview_path)) unlink(c(state$preview_path, paste0(state$preview_path, ".status")))
       tryCatch({p <- job$get_result()
         caption <- paste(nrow(p), "preview points. Elevation uses source units; confirm CRS and vertical datum.")
         if (!is.null(attr(p, "display_note"))) caption <- paste(caption, attr(p, "display_note"))
@@ -558,6 +582,14 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         })
     })
     output$preview_status <- shiny::renderText(state$previewtext)
+    shiny::observeEvent(input$cancel_preview, {
+      if (is.null(state$preview_job)) return()
+      if (state$preview_job$is_alive()) state$preview_job$kill_tree()
+      state$preview_job <- NULL
+      if (!is.null(state$preview_path)) unlink(c(state$preview_path, paste0(state$preview_path, ".status")))
+      if (isTRUE(state$preview_locked)) {release_lock(); state$preview_locked <- FALSE}
+      state$previewtext <- "Preview cancelled. Select a tile and rebuild when ready."
+    })
     output$tile_preview_status <- shiny::renderText(state$tiletext)
     shiny::observeEvent(input$local_pose, session$sendCustomMessage("als-view", list(target = "als-cloud", pose = input$local_pose)))
     shiny::observeEvent(input$local_point_size, session$sendCustomMessage("als-view", list(target = "als-cloud", pointSize = input$local_point_size)))
@@ -567,7 +599,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     session$onSessionEnded(function() shiny::isolate({
       if (!is.null(state$job) && state$job$is_alive()) state$job$kill_tree()
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) state$preview_job$kill_tree()
-      if (!is.null(state$preview_path)) unlink(state$preview_path)
+      if (!is.null(state$preview_path)) unlink(c(state$preview_path, paste0(state$preview_path, ".status")))
       release_lock()
       release_output_lock()
       if (!is.null(state$jobdir)) unlink(state$jobdir, recursive = TRUE)

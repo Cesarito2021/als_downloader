@@ -40,6 +40,17 @@ with a link to this guide, and **Browse source catalogue** opens the app's sourc
 table without starting a map search.
 Sources appear as lightweight searchable cards with bundled icons, country,
 adapter status and expandable access notes. The detailed table remains available.
+USGS 3DEP appears first. The optional contribution index example is a GeoJSON map
+of file footprints and download links, not a point-cloud upload or registration.
+
+For large study areas, the current search limit is 10,000 tiles per source;
+source errors are reported as an incomplete search. State-wide performance has
+not been benchmarked: use smaller regions when a source reaches its limit.
+Single-cloud previews download one source tile temporarily and show transfer
+and reading progress, with cancellation and a 15-minute overall time limit.
+Comparison requires two known, non-overlapping acquisition periods and shared
+coverage; separate flights within a year can qualify. It displays a bounded
+100-1000 m window, not the entire state or a calculated change product.
 
 | Control | Purpose |
 |---|---|

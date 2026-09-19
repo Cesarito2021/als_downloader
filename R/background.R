@@ -22,5 +22,6 @@ local_preview_job <- function(path, percent, window, x, y, voxel) {
 
 remote_preview_job <- function(tile, path, percent, window, x, y, voxel) {
   preview_remote_tile(tile, path = path,
+    progress = function(message) writeLines(message, paste0(path, ".status")),
     reader = function(file) read_forest_preview(file, percent, window, x, y, voxel))
 }

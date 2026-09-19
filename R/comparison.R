@@ -10,14 +10,41 @@ campaign_groups <- function(tiles) {
   split(seq_len(nrow(tiles)), label)
 }
 
+campaign_periods <- function(tiles) {
+  lapply(campaign_groups(tiles), function(i) {
+    start <- suppressWarnings(as.Date(tiles$acquired_start[i]))
+    end <- suppressWarnings(as.Date(tiles$acquired_end[i]))
+    if (anyNA(start) || anyNA(end) || any(start > end)) return(NULL)
+    c(start = min(start), end = max(end))
+  })
+}
+
+comparison_time_message <- function(tiles) {
+  periods <- Filter(Negate(is.null), campaign_periods(tiles))
+  if (length(periods) < 2L)
+    return("Comparison unavailable: this search has fewer than two dated acquisition periods. One survey cannot be compared with itself. Try a wider date interval; unknown dates need verification.")
+  if (max(vapply(periods, function(x) as.numeric(x[1]), numeric(1))) <=
+      min(vapply(periods, function(x) as.numeric(x[2]), numeric(1))))
+    return("Comparison unavailable: the reported acquisition periods overlap or are the same. Separate tiles or projects do not establish a second survey date.")
+  NULL
+}
+
 comparison_availability <- function(tiles, aoi, a, b, opted_in = FALSE, side_m = 100) {
   unavailable <- function(message) list(ready = FALSE, message = message)
   groups <- campaign_groups(tiles)
   if (is.null(aoi) || length(groups) < 2L)
     return(unavailable("Comparison needs at least two point-cloud campaigns in the same study area. Search the AOI first."))
+  time_message <- comparison_time_message(tiles)
+  if (!is.null(time_message)) return(unavailable(time_message))
   if (!isTRUE(opted_in)) return(unavailable("Comparison is optional. Tick the checkbox to choose two clouds."))
   if (is.null(a) || is.null(b) || !a %in% names(groups) || !b %in% names(groups) || identical(a, b))
     return(unavailable("Choose two different point-cloud campaigns from this AOI."))
+  periods <- campaign_periods(tiles)
+  pa <- periods[[a]]; pb <- periods[[b]]
+  if (is.null(pa) || is.null(pb) || !(pa[2] < pb[1] || pb[2] < pa[1]))
+    return(unavailable("Choose two known, non-overlapping acquisition periods. These campaigns have identical, overlapping or unknown dates."))
+  if (length(intersect(tiles$url[groups[[a]]], tiles$url[groups[[b]]])))
+    return(unavailable("These campaigns share a source file. A cloud cannot be compared with itself."))
   tryCatch({
     region <- comparison_region(tiles[groups[[a]], ], tiles[groups[[b]], ], aoi, side_m)
     list(ready = TRUE, message = sprintf("Ready: %s m square window, clipped to shared coverage (%.4f km2). Visualization only.", side_m, aoi_area(region$overlap)))

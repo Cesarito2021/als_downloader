@@ -1,5 +1,11 @@
 # alsdownloader 0.1.0
 
+* Put USGS 3DEP first in catalogue cards and explain the optional GeoJSON index example.
+* Hide comparison controls when distinct acquisition periods are unavailable;
+  reject duplicate source files and overlapping or unknown selected periods.
+* Show preview transfer/reading progress, allow cancellation, and bound preview
+  runtime. Explain large-area search limits and show incomplete-source errors.
+
 * Clarify software versus dataset licences and include available source citations
   and licence links in map, point-cloud, comparison and profile PNG exports.
 

@@ -8,7 +8,8 @@ preview_remote_tile(
   tile,
   max_bytes = 1024 * 1024^2,
   path = tempfile(fileext = ".laz"),
-  reader = function(path) read_preview(path, 100000L)
+  reader = function(path) read_preview(path, 100000L),
+  progress = NULL
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ download, in bytes.}
 \item{reader}{Function called with `path` once the download completes;
 defaults to [read_preview()]. Used by [read_forest_preview()] for the
 app's forest close-up preview.}
+
+\item{progress}{Optional function receiving short preview-stage messages.}
 }
 \value{
 Whatever `reader` returns.

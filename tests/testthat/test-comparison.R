@@ -64,8 +64,9 @@ test_that("visual comparison starts without campaigns or analysis controls", {
 })
 
 test_that("comparison is optional and requires an eligible pair in the same AOI", {
-  a <- box_cloud();a$dataset <- 'A';a$provider <- 'test';a$acquired_start <- NA_character_;a$acquired_end <- NA_character_
-  b <- a;b$dataset <- 'B';c <- a;c$dataset <- 'C'
+  a <- box_cloud();a$dataset <- 'A';a$provider <- 'test';a$acquired_start <- '2020-01-01';a$acquired_end <- '2020-01-31'
+  b <- a;b$dataset <- 'B';b$acquired_start <- '2021-01-01';b$acquired_end <- '2021-01-31'
+  c <- a;c$dataset <- 'C';c$acquired_start <- '2022-01-01';c$acquired_end <- '2022-01-31'
   tiles <- rbind(a,b,c);keys <- names(campaign_groups(tiles))
   gate <- comparison_availability
   expect_false(gate(a,a,keys[1],keys[2],TRUE)$ready)
@@ -76,4 +77,25 @@ test_that("comparison is optional and requires an eligible pair in the same AOI"
   expect_false(gate(tiles,NULL,keys[1],keys[2],TRUE)$ready)
   sf::st_geometry(b) <- sf::st_geometry(box_cloud(2000))
   expect_false(gate(rbind(a,b),box_cloud(width=4000),keys[1],keys[2],TRUE)$ready)
+})
+
+test_that("multiple files or projects do not imply distinct survey times", {
+  a <- box_cloud(); a$dataset <- 'A'; a$provider <- 'test'
+  a$acquired_start <- '2020-01-01'; a$acquired_end <- '2020-01-31'; a$url <- 'https://example.org/a.laz'
+  b <- a; b$dataset <- 'B'; b$url <- 'https://example.org/b.laz'
+  expect_match(comparison_time_message(rbind(a,b)), 'overlap or are the same')
+  b$acquired_start <- NA_character_
+  expect_match(comparison_time_message(rbind(a,b)), 'fewer than two')
+  b$acquired_start <- '2020-03-01'; b$acquired_end <- '2020-03-31'
+  tiles <- rbind(a,b); keys <- names(campaign_groups(tiles))
+  expect_null(comparison_time_message(tiles))
+  expect_true(comparison_availability(tiles,a,keys[1],keys[2],TRUE)$ready)
+  tiles$url[2] <- tiles$url[1]
+  expect_match(comparison_availability(tiles,a,keys[1],keys[2],TRUE)$message, 'share a source file')
+})
+
+test_that("a state-sized footprint still produces only a bounded comparison window", {
+  state <- box_cloud(width=500000,height=600000)
+  result <- comparison_region(state,state,state,1000)
+  expect_equal(aoi_area(result$overlap),1,tolerance=.01)
 })

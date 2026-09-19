@@ -1,6 +1,8 @@
 comparison_ui <- function() {
   shiny::tabPanel("Compare campaigns",
     shiny::h3("Two point clouds, overlapping area only"),
+    shiny::textOutput("compare_time_message"),
+    shiny::conditionalPanel("output.compare_temporal_ready === 'yes'",
     shiny::checkboxInput("compare_opt_in", "I want to compare two point clouds in this study area", FALSE),
     shiny::p("Search an AOI in Explore, then choose two campaigns. Collection dates are supplied by the provider; the final acquisition date represents a multi-date survey. Publication dates and filename dates are not substituted. The overlay is for visualization only. Downloads remain separate."),
     shiny::fluidRow(shiny::column(6, shiny::selectInput("epoch_a", "A | first / earlier cloud", choices = character()),
@@ -43,7 +45,7 @@ comparison_ui <- function() {
     shiny::checkboxInput("compare_focus", "Focus camera on central 98% (display only; turn off to fit all points)", TRUE),
     shiny::checkboxInput("compare_show_a", "Show A", TRUE), shiny::checkboxInput("compare_show_b", "Show B", TRUE),
     shiny::helpText("One shared origin, camera and elevation scale. Up to 50,000 display points per cloud. PNG exports contain figures only, not analytical results. Provider footprints may contain gaps in actual point coverage."),
-    shiny::tags$details(shiny::tags$summary("Source and display information"), shiny::verbatimTextOutput("compare_metadata")))
+    shiny::tags$details(shiny::tags$summary("Source and display information"), shiny::verbatimTextOutput("compare_metadata"))))
 }
 
 comparison_server <- function(input, output, session, state, mode, hosted_lock) {
@@ -61,6 +63,12 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   }
   stop_job <- function() {if (!is.null(cmp$job) && cmp$job$is_alive()) cmp$job$kill_tree(); cmp$job <- NULL; cleanup()}
   groups <- shiny::reactive(campaign_groups(state$tiles))
+  output$compare_temporal_ready <- shiny::renderText(if (is.null(comparison_time_message(state$tiles))) "yes" else "no")
+  shiny::outputOptions(output, "compare_temporal_ready", suspendWhenHidden = FALSE)
+  output$compare_time_message <- shiny::renderText({
+    message <- comparison_time_message(state$tiles)
+    if (is.null(message)) "Two acquisition periods are available. Select a pair to check shared coverage. Two separate flights in the same year can qualify." else message
+  })
   availability <- shiny::reactive(comparison_availability(state$tiles, state$aoi, input$epoch_a, input$epoch_b, input$compare_opt_in, if (is.null(input$compare_side_m)) 100 else input$compare_side_m))
   output$compare_availability <- shiny::renderText(availability()$message)
   output$compare_load_control <- shiny::renderUI({
