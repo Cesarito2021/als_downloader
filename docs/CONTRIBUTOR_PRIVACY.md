@@ -1,15 +1,44 @@
 # Contributor contact and approval
 
-The app requires a contact email to prepare a private submission. It does not publish that address in a GitHub issue, send email automatically, or store requests in a database. Form values remain in the Shiny session; the connection worker writes temporary progress text that is removed after completion or cancellation. The external data host sees the connection request but is not sent the contact email as a separate field.
+## Zenodo proposals
 
-**Send my request** opens the user's mail client. The user reviews and sends the draft to Cesar Alvites. The maintainer can reply using that email thread after review and integration. Email handling then follows the sender's and recipient's mail-service policies. There is no automated mail service configured.
+The contact email is optional and private. When the administrator configures a
+submission directory, clicking **Submit for maintainer review** stores a JSON
+proposal there: metadata, coverage polygons, file mapping, acquisition interval,
+platform, optional email and submission time. It persists across app sessions.
+No point cloud is stored in this queue. Identical metadata/coverage proposals
+are deduplicated. A saved proposal JSON also contains the optional email; share
+that file privately.
 
-Suggested acceptance reply (send only after integration):
+The private reviewer sees the proposal and may approve or reject it. Decisions
+retain reviewer identity, time and optional notes. Approved public indexes omit
+the contact email and contain dataset metadata, coverage and download links.
+No email is sent automatically. Zenodo receives metadata or explicitly requested
+small coverage-file requests, not the contributor's contact email.
 
-> Subject: Your dataset has been added to ALS Downloader
->
-> Thank you for contributing [dataset name, DOI]. Your source is now included in ALS Downloader: [app or catalog link]. Data remain hosted by the original provider with the stated license and attribution. Please reply to this email if the access link or metadata change.
->
-> Cesar Alvites, developer and maintainer
+Store the queue outside public web assets with filesystem access restricted to
+the service and maintainer. Use persistent storage for hosted submissions and
+omit the reviewer option on the public app; use a separate trusted local review
+session. Establish retention and deletion handling with contributors before
+opening a public service. The current app has no automated retention/deletion
+service; maintainers manage those private files directly.
 
-For approval-time statistics, create a metadata-only GitHub issue with the title `Dataset suggestion: ...`; do not copy the contributor's email. Apply `source-approved` only after acceptance. Email-only requests are excluded from GitHub statistics, so these figures do not represent every request.
+## Other data sources
+
+The separate generic-source form requires a contact email to prepare a private
+email draft. **Send my request** opens the user's mail client; the user reviews
+and sends it. That form does not itself persist a request or send an email.
+Email handling follows the sender's and recipient's mail-service policies.
+
+## Local comparison files
+
+Local LAS/LAZ comparison uploads belong to the Shiny session, not the contribution
+queue or catalogue. A hosted instance receives the upload on its server. The
+comparison's staged file is deleted on completion, cancellation or session close;
+Shiny manages its upload temporary files. Never describe hosted uploads as staying
+only on the visitor's computer.
+
+An acknowledgement email may be sent manually after integration, with dataset
+name, DOI and catalogue link. Do not publish private contact details in issues.
+Historical GitHub issue statistics exclude private queue/email requests and must
+not be presented as complete contribution statistics.
