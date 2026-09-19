@@ -37,6 +37,48 @@ test_that("als_report validates its inputs before touching rmarkdown", {
   expect_error(als_report(report_fixture(), character(0)), "output directory")
 })
 
+sf_report_fixture <- function() {
+  square <- function(x, y, w) sf::st_sfc(sf::st_polygon(list(matrix(
+    c(x, y, x + w, y, x + w, y + w, x, y + w, x, y), ncol = 2, byrow = TRUE))), crs = 4326)
+  sf::st_sf(
+    filename = c("a.laz", "b.laz"), dataset = c("A", "B"), provider = c("usgs3dep", "usgs3dep"),
+    url = c("https://example.org/a.laz", "https://example.org/b.laz"),
+    acquired_start = c("2018-01-01", "2020-01-01"), acquired_end = c("2018-01-02", "2020-01-02"),
+    size_bytes = c(1e8, NA), license_url = c("https://example.org/licence", "https://example.org/licence"),
+    citation = c("Example provider", "Example provider"), stringsAsFactors = FALSE,
+    geometry = c(square(0, 0, 1), square(0.5, 0.5, 1))
+  )
+}
+
+aoi_report_fixture <- function() sf::st_sf(geometry = sf::st_sfc(sf::st_polygon(list(matrix(
+  c(0.2, 0.2, 0.8, 0.2, 0.8, 0.8, 0.2, 0.8, 0.2, 0.2), ncol = 2, byrow = TRUE))), crs = 4326))
+
+test_that("als_report draws a map figure when tiles and aoi both carry geometry", {
+  testthat::skip_if_not_installed("rmarkdown")
+  testthat::skip_if_not(rmarkdown::pandoc_available())
+  tiles <- sf_report_fixture(); aoi <- aoi_report_fixture()
+  dir <- tempfile(); on.exit(unlink(dir, recursive = TRUE))
+  path <- als_report(tiles, dir, aoi_area_km2 = 0.36, aoi = aoi)
+  html <- paste(readLines(path, warn = FALSE), collapse = "\n")
+  expect_match(html, "a.laz", fixed = TRUE)
+  expect_match(html, "data:image/png;base64,", fixed = TRUE)
+  expect_match(html, "95.37", fixed = TRUE)
+  expect_equal(tiles, sf_report_fixture())
+})
+
+test_that("als_report skips the map figure gracefully without aoi geometry", {
+  testthat::skip_if_not_installed("rmarkdown")
+  testthat::skip_if_not(rmarkdown::pandoc_available())
+  dir <- tempfile(); on.exit(unlink(dir, recursive = TRUE))
+  path <- als_report(sf_report_fixture(), dir)
+  html <- paste(readLines(path, warn = FALSE), collapse = "\n")
+  expect_match(html, "geometry was not supplied", fixed = TRUE)
+})
+
+test_that("als_report validates the aoi argument", {
+  expect_error(als_report(report_fixture(), tempfile(), aoi = data.frame(x = 1)), "sf polygon")
+})
+
 test_that("als_report falls back to HTML when PDF isn't renderable", {
   testthat::skip_if_not_installed("rmarkdown")
   testthat::skip_if_not(rmarkdown::pandoc_available())
