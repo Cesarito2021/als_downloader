@@ -147,6 +147,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
                   shiny::tags$img(src = "als-assets/cesar.jpg", alt = "Cesar Alvites", loading = "lazy", width = "72", height = "72"),
                   shiny::div(shiny::tags$a(href = "https://cesarito2021.github.io/", target = "_blank", rel = "noopener noreferrer", "Cesar Alvites"),
                     shiny::p("School of Forest, Fisheries, and Geomatics Sciences", shiny::tags$br(), "University of Florida"))))),
+            shiny::uiOutput("welcome_information"),
             shiny::conditionalPanel("input.enter_map > 0", leaflet::leafletOutput("map", height = "60vh"),
             figure_button("export_map_png", "Download map (PNG)"),
             shiny::tags$div(style="display:none", shiny::textOutput("map_source_credits")),
@@ -194,24 +195,36 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_attribution = NULL, preview_path = NULL, preview_locked = FALSE,
       tile_groups = character(0), zip_members = character(), zip_url = NULL)
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
-    shiny::observeEvent(input$welcome_about, {
-      shiny::showModal(shiny::modalDialog(title = "About the project", easyClose = TRUE,
-        shiny::p("ALS Downloader connects existing airborne LiDAR catalogues: define an AOI, find surveys, view point clouds and download original files from their providers."),
+    welcome_information <- shiny::reactiveVal(NULL)
+    shiny::observeEvent(input$welcome_about, { welcome_information("about") })
+    shiny::observeEvent(c(input$welcome_catalogue, input$open_catalogue), ignoreInit = TRUE, {
+      shiny::updateTabsetPanel(session, "view", selected = "Explore")
+      welcome_information("catalogue")
+    })
+    shiny::observeEvent(input$close_information, { welcome_information(NULL) })
+    shiny::observeEvent(input$enter_map, { welcome_information(NULL) })
+    output$welcome_information <- shiny::renderUI({
+      section <- welcome_information()
+      if (is.null(section)) return(NULL)
+      shiny::tags$section(class = "als-inline-information", `aria-labelledby` = "welcome_information_title",
+        shiny::div(class = "als-information-heading",
+          shiny::h2(id = "welcome_information_title", tabindex = "-1", if(section == "about") "About the project" else "Source catalogue"),
+          shiny::actionButton("close_information", "Close")),
+        if(section == "about") shiny::tagList(
+          shiny::p("ALS Downloader connects existing airborne LiDAR catalogues: define an AOI, find surveys, view point clouds and download original files from their providers."),
         shiny::p("Coverage, acquisition dates and classifications depend on source metadata. Visual comparisons support inspection; they do not measure change."),
         shiny::p("Developed by Cesar Alvites. Software: GPL-3. Data and basemaps retain their own licences and credits."),
         shiny::p("OpenForest4D is funded by NSF awards 2409885, 2409886 & 2409887."),
-        shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader#readme", target = "_blank", rel = "noopener noreferrer", "Read the project guide"),
-        footer = shiny::modalButton("Close")))
-    })
-    shiny::observeEvent(c(input$welcome_catalogue, input$open_catalogue), ignoreInit = TRUE, {
-      shiny::showModal(shiny::modalDialog(title = "Source catalogue", size = "l", easyClose = TRUE,
-        shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Research deposits require reviewed coverage information; author-declared approximate extents are labelled and may include areas without points. Official national portals also provide external access; find a country in the table below for its official source link. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have an in-app search adapter. Verify dataset terms and citations before downloading."),
+        shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader#readme", target = "_blank", rel = "noopener noreferrer", "Read the project guide")
+        ) else shiny::tagList(
+          shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Research deposits require reviewed coverage information; author-declared approximate extents are labelled and may include areas without points. Official national portals also provide external access; find a country in the table below for its official source link. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have an in-app search adapter. Verify dataset terms and citations before downloading."),
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
             shiny::p("Software: GPL-3. The screenshot library html2canvas is MIT-licensed; its notice is included. Dataset and basemap licences remain separate. Keep source credits and licence links with figures and downloads; scientific use does not waive provider terms. Local-file and uploaded boundary rights must be checked with their source."),
             shiny::downloadButton("licensing_notes", "Download licence guidance and software notices"),
             shiny::textInput("catalogue_search", "Find a source or country", placeholder = "e.g. France, USGS, OpenTopography"),
             shiny::uiOutput("source_cards"),
-            shiny::tags$details(class = "als-source-table", shiny::tags$summary("View detailed source table"), DT::DTOutput("sources")), footer = shiny::modalButton("Close")))
+            shiny::tags$details(class = "als-source-table", shiny::tags$summary("View detailed source table"), DT::DTOutput("sources"))
+        ))
     })
     shiny::observeEvent(input$enter_map, ignoreNULL = FALSE, {
       session$sendCustomMessage("als-toggle-class",

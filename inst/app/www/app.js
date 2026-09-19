@@ -5,6 +5,14 @@
    latter depends on browser support and exact inline-style formatting and
    was found to behave unreliably across zoom levels and window sizes. */
 document.addEventListener('DOMContentLoaded', () => {
+  const information = document.getElementById('welcome_information');
+  if (information) new MutationObserver(() => {
+    const title = information.querySelector('#welcome_information_title');
+    if (title) requestAnimationFrame(() => {
+      title.focus({preventScroll: true});
+      information.scrollIntoView({block: 'start', behavior: 'auto'});
+    });
+  }).observe(information, {childList: true});
   Shiny.addCustomMessageHandler('als-toggle-class', (msg) => {
     document.querySelectorAll(msg.selector).forEach((el) => el.classList.toggle(msg.class, !!msg.on));
   });
