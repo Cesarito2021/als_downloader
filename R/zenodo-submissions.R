@@ -93,15 +93,6 @@ zenodo_build <- function(metadata,boundary,acquired,platform,email="") {
   g$file_key <- as.character(g$file_key)
   # Keep one downloadable asset per row even if its footprint has several pieces.
   unique_keys <- unique(g$file_key)
-  approximate <- "coverage_method" %in% names(g) && any(g$coverage_method=="author_approximate_square",na.rm=TRUE)
-  if(approximate) {
-    fields<-c("extent_longitude","extent_latitude","extent_distance_m")
-    if(!all(fields %in% names(g)) || anyNA(g$coverage_method) ||
-       !all(g$coverage_method=="author_approximate_square") ||
-       any(vapply(sf::st_drop_geometry(g)[fields],function(x)length(unique(x))!=1L,logical(1))))
-      stop("An approximate proposal must describe one centre and distance for its selected files.")
-    g<-zenodo_square(g$extent_longitude[1],g$extent_latitude[1],g$extent_distance_m[1],unique_keys)
-  }
   shapes <- lapply(unique_keys,function(k)sf::st_union(sf::st_geometry(g[g$file_key==k,])))
   rows <- sf::st_sf(file_key=unique_keys,geometry=do.call(c,shapes))
   index <- report_geojson(rows)
@@ -119,16 +110,6 @@ zenodo_build <- function(metadata,boundary,acquired,platform,email="") {
       acquired_start=if(is.na(dates[1]))NULL else dates[1],acquired_end=if(is.na(dates[2]))NULL else dates[2],
       platform=platform,license_url=metadata$license_url,citation=metadata$citation,size_bytes=file$size,
       file_key=file$key,checksum=file$checksum,zenodo_doi=metadata$doi)
-    if(approximate) {
-      props<-index$features[[i]]$properties
-      props$dataset<-paste(metadata$title,"[approximate extent]")
-      props$citation<-paste(metadata$citation,"Search extent is an author-declared approximate square; LiDAR coverage within it is not verified.")
-      props$coverage_method<-"author_approximate_square"
-      props$extent_longitude<-g$extent_longitude[1]
-      props$extent_latitude<-g$extent_latitude[1]
-      props$extent_distance_m<-g$extent_distance_m[1]
-      index$features[[i]]$properties<-props
-    }
   }
   scratch <- tempfile(fileext=".geojson");on.exit(unlink(scratch))
   jsonlite::write_json(index,scratch,auto_unbox=TRUE,null="null",digits=NA)

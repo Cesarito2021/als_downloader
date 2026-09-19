@@ -8,9 +8,8 @@ been performed. These remain maintainer decisions.
 - Five-field Zenodo form, metadata import, explicit polygon/file mapping,
   deduplication and private approval queue. [Live checks](ZENODO_LIVE_CHECKS.md)
   document isolated Sabah test requests, pending coverage/file validation.
-  The form also accepts a centre and metric half-width for an author-declared
-  approximate square, with explicit file selection and persistent approximate
-  labels. This does not make the incomplete Brazil record a ready example.
+  Submission examples must have prepared coverage polygons and verified file
+  mapping; the incomplete Brazil record is excluded from examples.
 - **Compare campaigns → Source campaign + my LAS/LAZ** works with one available
   source campaign. A real USGS download and local upload completed through the
   background worker. The local QA cloud had a deliberately added 2 m offset;

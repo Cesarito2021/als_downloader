@@ -15,7 +15,6 @@ zenodo_mail_message <- function(p, config) {
     paste("Contact:",if(nzchar(p$contact_email))clean(p$contact_email) else "Not provided"),
     paste("Acquisition:",if(nzchar(p$acquired))clean(p$acquired) else "Unknown"),
     paste("Platform:",clean(p$platform)), paste("Mapped assets:",length(p$index$features)),
-    paste("Coverage:",zenodo_coverage_label(p)),
     paste("Review:",paste0(base,"?zenodo_review=",p$id)),
     "Open ALS Downloader on your PC, review the proposal, then choose Approve and add to catalogue.",
     "Opening this link does not approve or download anything.",sep="\r\n")

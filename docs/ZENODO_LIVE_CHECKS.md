@@ -3,9 +3,8 @@
 No deposit was created and no dataset was approved into the production catalogue.
 Test proposals are stored only in a separate local review queue.
 
-Submission policy: coverage polygons or an explicitly author-declared approximate
-square must be linked to files and reviewed. Approximate squares are never
-presented as verified footprints. These are engineering checks, not a list
+Submission policy: existing georeferenced coverage polygons and verified
+polygon-to-file mapping are required. These are engineering checks, not a list
 of ready-to-submit examples. Sabah remains a test fixture until its plot-to-cloud
 coverage mapping is verified; it is not yet a fully qualified submission example.
 

@@ -13,8 +13,7 @@ A LAS/LAZ extension or a `lidar` keyword alone does not establish an aerial plat
 ## Initial selection
 
 This historical discovery list is not a list of submission-ready datasets.
-Community submissions require supplied polygons or an author-declared approximate
-square linked to selected files, with its approximate status preserved.
+Community submissions require existing coverage polygons linked to the files.
 Records lacking verified coverage/file mapping, including the EBA record below,
 are excluded from submission examples and automatic catalogue integration.
 
