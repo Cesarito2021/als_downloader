@@ -109,6 +109,24 @@ further change; a passing run today does not cover commits made after it.
 
 ## Before submission
 
+### Review on 19 September 2026
+
+The reviewed Claude head `aeebd87` had failing CI. The subsequent Codex review
+fixes signed URL redaction and background package loading. A fresh local
+R 4.4.0 `R CMD check --as-cran` (including PDF manual, vignettes, report tests
+and installed-package subprocess tests) completed with zero errors and zero
+warnings. Two notes were new-submission feasibility and inability to verify
+the environment's current time. Real development-session LAZ decoding also
+passed (7,523 points, temporary file removed).
+
+R-universe was healthy but still at `3932974` when inspected; that result does
+not validate the new code. Cross-platform checks for the review are tracked
+in [PR 2](https://github.com/Cesarito2021/als_downloader/pull/2).
+The browser COPC experiment stays under `tools/`, excluded from the R package.
+There is no fixed minimum function count in the published CRAN policy;
+usefulness, documentation, portability and passing checks are the relevant
+criteria. Do not add artificial functions just to increase the count.
+
 1. Authorship confirmed by the maintainer: the project collaborators did not contribute to this application and have been removed from DESCRIPTION. Cesar Ivan Alvites Diaz is the sole package author and maintainer (`aut`/`cre`). The brief OpenForest4D project acknowledgement remains in the README. This metadata correction follows the linked release checks.
 2. Re-run the successful cross-platform matrix if package code or metadata change before submission (done for the current head as of `cd2f4d1`, above). Local R 4.4.0 checks include the full PDF manual; verify current-R and R-devel against the latest published revision.
 3. Review the linked dataset licenses and third-party notices; access checks do not grant rights. CC BY examples retain DOI credit; national products retain provider terms. The app never claims complete national coverage from country shading.
