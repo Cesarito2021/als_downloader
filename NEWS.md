@@ -1,5 +1,12 @@
 # alsdownloader 0.1.0
 
+* Compare one source campaign with a user-uploaded LAS/LAZ cloud, with shared
+  coverage, CRS and unit checks, bounded display samples and session cleanup.
+  Retain the distinct-date gate for comparisons between two source campaigns.
+* Repair degenerate vertices introduced by GeoJSON serialization of joined
+  Zenodo coverage polygons; validate the serialized index before queuing.
+* Include the original ALS Downloader banner in a compact PDF report header.
+
 * Add a five-field Zenodo contribution form, automatic metadata retrieval,
   polygon/file mapping, a private deduplicated queue and explicit maintainer
   approval. Only approved coverage enters searches; no real records are bundled.

@@ -96,6 +96,12 @@ zenodo_build <- function(metadata,boundary,acquired,platform,email="") {
   shapes <- lapply(unique_keys,function(k)sf::st_union(sf::st_geometry(g[g$file_key==k,])))
   rows <- sf::st_sf(file_key=unique_keys,geometry=do.call(c,shapes))
   index <- report_geojson(rows)
+  # Decimal serialization can collapse nearly identical vertices in unions.
+  # Repair the serialized geometry, then validate the final index below.
+  geometry_file<-tempfile(fileext=".geojson");on.exit(unlink(geometry_file),add=TRUE)
+  jsonlite::write_json(index,geometry_file,auto_unbox=TRUE,null="null",digits=NA)
+  serialized<-sf::st_read(geometry_file,quiet=TRUE)
+  if(any(!sf::st_is_valid(serialized)))index<-report_geojson(sf::st_make_valid(serialized))
   index$name <- paste0("zenodo-",metadata$id)
   for(i in seq_along(index$features)) {
     file <- files[[match(unique_keys[i],keys)]]

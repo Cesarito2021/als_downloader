@@ -178,6 +178,23 @@ figures and lengthy source credits add pages. Original LAS/LAZ files are unchang
 The app offers one report format: PDF. It requires rmarkdown, Pandoc and a
 working TinyTeX installation on the app server.
 
+### Compare a source with your own point cloud
+
+In **Compare campaigns**, choose **Source campaign + my LAS/LAZ** to compare
+one catalogue campaign with your own cloud. Upload one LAS/LAZ (up to 1 GB),
+choose campaign A, confirm compatible coordinate/elevation references and set
+the source Z units when absent from metadata. This mode works with one available
+source date; the local file's date is not inferred. Both clouds must have the
+same embedded projected CRS. The app clips a 100–1000 m viewing window to the
+AOI and shared coverage, converts known units to metres, and samples at most
+50,000 displayed points per cloud. It does not align vertical datums or compute
+change. The local header bounding box is approximate coverage. Files exceeding
+50 million source points are rejected; use an external subset first. Original
+files are unchanged, and local uploads do not enter the community catalogue.
+
+For ordinary **Two source campaigns**, the existing requirement for two known,
+non-overlapping acquisition periods still applies.
+
 ### Community Zenodo submissions
 
 **Share your dataset → Share a Zenodo dataset** asks for five items: the public

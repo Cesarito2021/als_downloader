@@ -1,5 +1,47 @@
 box_cloud <- function(x=0,y=0,width=1000,height=1000) sf::st_sf(geometry=sf::st_sfc(sf::st_polygon(list(matrix(c(x,y,x+width,y,x+width,y+height,x,y+height,x,y),ncol=2,byrow=TRUE))),crs=32631))
 
+test_that("one source campaign can be compared with a user cloud without inventing dates", {
+  a<-box_cloud();a$dataset<-"Survey";a$provider<-"contributed";a$url<-"https://example.org/a.laz"
+  a$acquired_start<-a$acquired_end<-"2020-01-01"
+  key<-names(campaign_groups(a))[1];b<-box_cloud(10)
+  expect_false(is.null(comparison_time_message(a)))
+  expect_true(local_comparison_availability(a,a,key,b,TRUE,TRUE)$ready)
+  expect_false(local_comparison_availability(a,a,key,b,TRUE,FALSE)$ready)
+  expect_false(local_comparison_availability(a,a,key,NULL,TRUE,TRUE)$ready)
+  expect_false(local_comparison_availability(a,a,key,box_cloud(5000),TRUE,TRUE)$ready)
+})
+
+test_that("local B is read without a second download and incompatible CRS is rejected", {
+  a<-box_cloud();b<-a;b$filename<-"user.laz"
+  path<-tempfile(fileext=".laz");writeBin(charToRaw("test"),path)
+  directory<-tempfile();dir.create(directory)
+  on.exit({unlink(path);unlink(directory,recursive=TRUE)})
+  downloads<-0L;local_crs<-32631
+  cloud<-function(crs)list(points=data.frame(X=1:10,Y=1:10,Z=1:10),crs=sf::st_crs(crs),units_note="Test metres")
+  local_mocked_bindings(preview_remote_tile=function(...){downloads<<-downloads+1L;cloud(32631)},
+    read_comparison_cloud=function(file,...){expect_identical(file,path);cloud(local_crs)},.package="alsdownloader")
+  result<-compare_campaigns(a,b,a,directory,"m","m",path)
+  expect_equal(downloads,1L);expect_equal(result$counts,c(10,10))
+  expect_match(result$method,"user supplied")
+  local_crs<-32632
+  expect_error(compare_campaigns(a,b,a,directory,"m","m",path),"CRS definitions differ")
+})
+
+test_that("a real local LAS header supplies an approximate footprint without changing points", {
+  skip_if_not_installed("lidR")
+  xyz<-data.frame(X=c(500000,500010,500020,500030),Y=c(5000000,5000010,5000020,5000030),Z=c(10,20,30,40))
+  las<-lidR::LAS(xyz);sf::st_crs(las)<-sf::st_crs(32631)
+  path<-tempfile(fileext=".las");on.exit(unlink(path));lidR::writeLAS(las,path)
+  before<-tools::md5sum(path)
+  tile<-local_comparison_tile(list(name="user.las",datapath=path))
+  expect_equal(sf::st_crs(tile)$epsg,4326)
+  expect_equal(tile$filename,"user.las")
+  expect_error(read_comparison_cloud(path,tile),"known horizontal and elevation units")
+  points<-read_comparison_cloud(path,tile,z_units="m")
+  expect_gt(nrow(points$points),0)
+  expect_identical(tools::md5sum(path),before)
+})
+
 test_that("comparison windows crop large AOIs to the requested side", {
   a <- box_cloud(width=3000,height=3000)
   small <- comparison_region(a,a,a,100)

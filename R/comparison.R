@@ -110,7 +110,31 @@ read_comparison_cloud <- function(path, aoi, z_units = "auto") {
   list(points = scale_display_points(points, units), crs = crs, units_note = units$note)
 }
 
-compare_campaigns <- function(a, b, aoi, directory, z_units_a = "auto", z_units_b = "auto") {
+local_comparison_tile <- function(upload) {
+  if (!requireNamespace("lidR", quietly=TRUE)) stop("Install lidR to compare a local LAS/LAZ file.")
+  if (is.null(upload) || !is.character(upload$datapath) || length(upload$datapath)!=1L ||
+      !file.exists(upload$datapath) || file.size(upload$datapath)>1024^3 ||
+      !grepl("\\.(las|laz)$",upload$name,ignore.case=TRUE)) stop("Upload one LAS/LAZ file up to 1 GB.")
+  h<-lidR::readLASheader(upload$datapath); crs<-sf::st_crs(h)
+  if(is.na(crs) || isTRUE(sf::st_is_longlat(crs))) stop("The local cloud needs an embedded projected CRS; none will be guessed.")
+  bb<-vapply(c("Min X","Min Y","Max X","Max Y"),function(k)as.numeric(h@PHB[[k]]),0)
+  if(any(!is.finite(bb)) || bb[1]>=bb[3] || bb[2]>=bb[4])stop("The local cloud has an invalid coordinate extent.")
+  g<-sf::st_as_sfc(sf::st_bbox(stats::setNames(bb,c("xmin","ymin","xmax","ymax")),crs=crs))
+  sf::st_sf(filename=basename(upload$name),geometry=sf::st_transform(g,4326))
+}
+
+local_comparison_availability <- function(tiles,aoi,a,local,opted_in=FALSE,confirmed=FALSE,side_m=100) {
+  fail<-function(message)list(ready=FALSE,message=message)
+  g<-campaign_groups(tiles)
+  if(is.null(aoi) || is.null(a) || !a %in% names(g))return(fail("Search an AOI and choose the source campaign A."))
+  if(is.null(local))return(fail("Upload your LAS/LAZ file for cloud B."))
+  if(!isTRUE(opted_in) || !isTRUE(confirmed))return(fail("Enable comparison and confirm the source coordinate and elevation references."))
+  tryCatch({comparison_region(tiles[g[[a]],],local,aoi,side_m)
+    list(ready=TRUE,message="Ready for a visual comparison with your local cloud. Dates are not inferred; this is not evidence of temporal change.")
+  },error=function(e)fail(conditionMessage(e)))
+}
+
+compare_campaigns <- function(a, b, aoi, directory, z_units_a = "auto", z_units_b = "auto", local_path_b = NULL) {
   overlap <- comparison_overlap(a, b, aoi)
   overlap_km2 <- aoi_area(overlap)
   a <- sf::st_drop_geometry(a); b <- sf::st_drop_geometry(b)
@@ -123,7 +147,10 @@ compare_campaigns <- function(a, b, aoi, directory, z_units_a = "auto", z_units_
     point_budget <- 2000000L
     clouds <- lapply(seq_len(nrow(rows)), function(i) {
       writeLines(sprintf("Campaign %s: downloading/reading tile %s of %s", toupper(prefix), i, nrow(rows)), file.path(directory, "progress.txt"))
-      cloud <- preview_remote_tile(rows[i, , drop = FALSE], max_bytes = min(300 * 1024^2, remaining),
+      cloud <- if(prefix=="b" && !is.null(local_path_b)) {
+        if(length(local_path_b)!=1L || !file.exists(local_path_b) || file.size(local_path_b)>1024^3)stop("Local comparison file is missing or exceeds 1 GB.")
+        read_comparison_cloud(local_path_b,overlap,z_units)
+      } else preview_remote_tile(rows[i, , drop = FALSE], max_bytes = min(300 * 1024^2, remaining),
         path = file.path(directory, paste0(prefix, i, ".laz")),
         reader = function(path) {
           remaining <<- remaining - file.size(path)
@@ -151,5 +178,6 @@ compare_campaigns <- function(a, b, aoi, directory, z_units_a = "auto", z_units_
   }
   list(a = sample_cloud(pa), b = sample_cloud(pb), origin = unname(origin), overlap_km2 = overlap_km2,
     counts = c(nrow(pa), nrow(pb)), crs = reference$wkt, unit_notes = unit_notes,
-    method = "Visualization only: both point clouds clipped to the intersection of provider footprints and AOI. Display sampling only; no denoising, differences, metrics or analysis exports. Footprints do not resolve within-tile data gaps.")
+    method = paste("Visualization only: both clouds clipped to their shared coverage and AOI. Display sampling only; no denoising, differences, metrics or analysis exports. Footprints do not resolve within-tile data gaps.",
+      if(!is.null(local_path_b)) "B is user supplied; its LAS header bounding box is an approximate footprint, not surveyed coverage. Dates are not inferred. Matching CRS identifiers do not guarantee matching vertical datums." else ""))
 }
