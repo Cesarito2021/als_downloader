@@ -1,5 +1,10 @@
 # alsdownloader 0.1.0
 
+* Add optional SMTP notifications for queued Zenodo proposals, private email
+  previews, delivery receipts and links to the matching local review screen.
+  Opening a link never approves a proposal; explicit maintainer review remains
+  required before catalogue import.
+
 * Show absolute source elevations in comparison distributions, consistent with
   cloud legends and profiles, and respect the visibility of each cloud.
 

@@ -146,7 +146,9 @@ zenodo_write <- function(x,path) {
 #' @param proposal Result of prepare_zenodo_submission().
 #' @param queue Administrator-controlled private queue directory.
 #' @return Proposal ID. Identical metadata/coverage proposals are deduplicated.
-#' @details Does not activate coverage, contact the maintainer or download data.
+#' @details Does not activate coverage or download data. Optional administrator
+#'   configuration in option `alsdownloader.submission_mail` enables notifications;
+#'   see the notification setup guide in the repository documentation.
 #' @export
 submit_zenodo <- function(proposal,queue) {
   if(!identical(proposal$schema,"als-zenodo-proposal-v1") || !grepl("^[a-f0-9]{64}$",proposal$id)) stop("Invalid proposal.")
@@ -157,6 +159,7 @@ submit_zenodo <- function(proposal,queue) {
   if(!dir.create(lock,showWarnings=FALSE)) stop("This request is being saved. Retry shortly.")
   on.exit(unlink(lock,recursive=TRUE),add=TRUE)
   if(!file.exists(path)) {proposal$submitted_at<-format(Sys.time(),tz="UTC",usetz=TRUE);zenodo_write(proposal,path)}
+  zenodo_notify(queue,proposal$id)
   proposal$id
 }
 

@@ -18,5 +18,7 @@ Proposal ID. Identical metadata/coverage proposals are deduplicated.
 Submit a proposal to a private local review queue
 }
 \details{
-Does not activate coverage, contact the maintainer or download data.
+Does not activate coverage or download data. Optional administrator
+configuration in option \code{alsdownloader.submission_mail} enables notifications;
+see the notification setup guide in the repository documentation.
 }

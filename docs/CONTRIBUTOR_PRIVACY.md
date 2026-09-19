@@ -13,7 +13,8 @@ that file privately.
 The private reviewer sees the proposal and may approve or reject it. Decisions
 retain reviewer identity, time and optional notes. Approved public indexes omit
 the contact email and contain dataset metadata, coverage and download links.
-No email is sent automatically. Zenodo receives metadata or explicitly requested
+If configured, an automatic notification shares the summary and optional contact
+with the maintainer through the host's email provider. Zenodo receives metadata or explicitly requested
 small coverage-file requests, not the contributor's contact email.
 
 Store the queue outside public web assets with filesystem access restricted to
@@ -42,3 +43,11 @@ An acknowledgement email may be sent manually after integration, with dataset
 name, DOI and catalogue link. Do not publish private contact details in issues.
 Historical GitHub issue statistics exclude private queue/email requests and must
 not be presented as complete contribution statistics.
+# Optional email notifications
+
+When configured by the administrator, a brief proposal summary (including the
+optional contributor contact) is sent through the configured SMTP provider to
+the maintainer. Private message previews and delivery receipts are stored under
+the queue's `notifications` directory and share its access and retention policy.
+Opening a notification link never approves a dataset. See
+[email setup](ZENODO_EMAIL_SETUP.md) for configuration and limitations.

@@ -10,6 +10,7 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::textInput("zenodo_acquired","3. Acquisition year or interval (blank if unknown)",placeholder="2018, 2016-2018, or 2018-05-01 / 2018-06-30"),
   shiny::selectInput("zenodo_platform","4. LiDAR acquisition platform",c("Choose a platform"="","Aircraft / helicopter ALS"="ALS","UAV LiDAR"="UAV-LiDAR")),
   shiny::textInput("zenodo_email","5. Contact email (optional, private)"),
+  shiny::helpText("If notifications are enabled, your proposal summary and optional contact are emailed to the maintainer through this instance's mail provider. They are not included in the public catalogue."),
   shiny::actionButton("zenodo_prepare","Check my proposal"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
   shiny::helpText("No cloud is downloaded or analysed. ZIP assets require downloading the whole archive and local extraction for 3D. Submission is not approval; the maintainer checks coverage, dates, file mapping and terms before publication."))
 
@@ -72,7 +73,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     tick(tick()+1L);rows<-zenodo_submissions(queue);rows<-rows[rows$status=="pending",,drop=FALSE]
     shiny::updateSelectInput(session,"zenodo_review_id",choices=stats::setNames(rows$id,paste(rows$title,substr(rows$id,1,8),sep=" | ")))
   }
-  shiny::observeEvent(input$zenodo_review_open,{
+  open_review<-function(selected=NULL){
     shiny::showModal(shiny::modalDialog(title="Private Zenodo review",size="l",
       shiny::p("Reviewer: ",reviewer,". Proposals remain inactive until you approve them. No point-cloud analysis is performed."),
       shiny::selectInput("zenodo_review_id","Pending proposal",choices=character()),
@@ -85,7 +86,17 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
       shiny::actionButton("zenodo_review_approve","Approve and add to catalogue"),shiny::actionButton("zenodo_review_reject","Reject")),
       shiny::textOutput("zenodo_review_status"),footer=shiny::modalButton("Close")))
     refresh()
-  })
+    if(!is.null(selected)) {
+      rows<-zenodo_submissions(queue)
+      if(selected %in% rows$id[rows$status=="pending"])
+        shiny::updateSelectInput(session,"zenodo_review_id",selected=selected)
+    }
+  }
+  shiny::observeEvent(input$zenodo_review_open,open_review())
+  shiny::observeEvent(session$clientData$url_search,{
+    selected<-shiny::parseQueryString(session$clientData$url_search)$zenodo_review
+    if(length(selected)==1L && grepl("^[a-f0-9]{64}$",selected))open_review(selected)
+  },once=TRUE)
   shiny::observeEvent(input$zenodo_review_refresh,refresh())
   output$zenodo_queue_status<-shiny::renderText({tick();rows<-zenodo_submissions(queue);n<-sum(rows$status=="pending")
     if(n==0)"No pending proposals. New submissions will appear here for your review." else paste(n,"proposal(s) awaiting your decision.")})

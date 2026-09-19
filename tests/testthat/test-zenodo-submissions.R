@@ -6,6 +6,38 @@ zenodo_fixture <- function(keys="survey.laz") {
 }
 zenodo_shape <- function() sf::st_sf(geometry=sf::st_as_sfc(sf::st_bbox(c(xmin=1,ymin=1,xmax=1.01,ymax=1.01),crs=4326)))
 
+test_that("mail preview, failure and retry preserve pending approval and deduplicate", {
+  queue<-tempfile();on.exit(unlink(queue,recursive=TRUE))
+  config<-list(from="app@example.org",to="owner@example.org",review_url="http://127.0.0.1:8792/",preview=TRUE)
+  old_options<-options(alsdownloader.submission_mail=config);on.exit(options(old_options),add=TRUE)
+  p<-zenodo_build(zenodo_fixture(),zenodo_shape(),"2018","ALS","person@example.org")
+  id<-submit_zenodo(p,queue)
+  receipt<-file.path(queue,"notifications",paste0(id,".json"))
+  expect_equal(jsonlite::fromJSON(receipt)$status,"preview")
+  eml<-paste(readLines(file.path(queue,"notifications",paste0(id,".eml"))),collapse="\n")
+  expect_match(eml,"To: owner@example.org",fixed=TRUE)
+  body<-rawToChar(jsonlite::base64_dec(strsplit(eml,"\n\n",fixed=TRUE)[[1]][2]))
+  expect_match(body,paste0("?zenodo_review=",id),fixed=TRUE)
+  expect_match(body,"person@example.org",fixed=TRUE)
+  expect_equal(zenodo_submissions(queue)$status,"pending")
+  expect_false(dir.exists(file.path(queue,"approved")))
+  config$preview<-FALSE;options(alsdownloader.submission_mail=config)
+  local_mocked_bindings(zenodo_mail_send=function(...)stop("secret diagnostic"),.package="alsdownloader")
+  expect_identical(submit_zenodo(p,queue),id)
+  expect_equal(jsonlite::fromJSON(receipt)$status,"failed")
+  expect_false(any(grepl("secret",readLines(receipt))))
+  calls<-0L
+  local_mocked_bindings(zenodo_mail_send=function(...){calls<<-calls+1L;TRUE},.package="alsdownloader")
+  submit_zenodo(p,queue);submit_zenodo(p,queue)
+  expect_equal(calls,1L)
+  expect_equal(jsonlite::fromJSON(receipt)$status,"sent")
+  expect_equal(zenodo_submissions(queue)$status,"pending")
+  config$to<-"owner@example.org\r\nBcc: another@example.org"
+  expect_error(zenodo_mail_message(p,config),"addresses")
+  config$to<-"owner@example.org";config$review_url<-"https://public.example.org/"
+  expect_error(zenodo_mail_message(p,config),"localhost")
+})
+
 test_that("Zenodo metadata and geometry create bounded explicit file mappings", {
   expect_equal(zenodo_record_id("https://zenodo.org/records/12345?preview_file=survey.laz"),"12345")
   expect_equal(zenodo_record_id("https://doi.org/10.5281/zenodo.12345"),"12345")
