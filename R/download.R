@@ -1,5 +1,10 @@
 redact_url <- function(x) sub("\\?.*$", "", x)
 
+# Strip query strings from any URL-shaped substring inside free text (e.g. an
+# error message that happened to embed a signed request URL), without
+# touching the rest of the text the way redact_url() would if applied whole.
+redact_urls_in_text <- function(x) gsub("(https?://[^\\s\"'>]+)\\?[^\\s\"'>]*", "\\1", x)
+
 require_data_terms <- function(tiles) {
   if (is.null(tiles$license_url) || is.null(tiles$citation) ||
       anyNA(tiles$license_url) || anyNA(tiles$citation) ||

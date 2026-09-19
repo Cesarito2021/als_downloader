@@ -76,6 +76,14 @@ test_that("opening the map does not error the server-driven layout-class observe
   })
 })
 
+test_that("redact_urls_in_text strips only the query string of embedded URLs, not the rest of the message", {
+  msg <- alsdownloader:::redact_urls_in_text(
+    "Client error: (403) Forbidden for url: https://example.org/tile.laz?sig=SECRET&se=2099-01-01 -- check provider access")
+  expect_match(msg, "https://example.org/tile.laz", fixed = TRUE)
+  expect_false(grepl("SECRET", msg, fixed = TRUE))
+  expect_match(msg, "check provider access", fixed = TRUE)
+})
+
 test_that("search results are grouped and legended by acquisition year, including undated tiles", {
   square <- sf::st_sfc(sf::st_polygon(list(matrix(
     c(0,0, 1,0, 1,1, 0,1, 0,0), ncol = 2, byrow = TRUE))), crs = 4326)

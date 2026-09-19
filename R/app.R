@@ -492,7 +492,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         else state$tiletext <- paste(state$preview_label, "-", caption)
         session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), origin = unname(attr(p, "origin"))))},
         error = function(e) {
-          message <- "Preview failed: check provider access, known file size (up to 1 GB), LAS/LAZ format and lidR installation."
+          message <- paste("Preview failed:", redact_urls_in_text(conditionMessage(e)))
           if (state$preview_target == "als-cloud") state$previewtext <- message else state$tiletext <- message
         })
     })
