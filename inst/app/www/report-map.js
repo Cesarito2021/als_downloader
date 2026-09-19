@@ -77,6 +77,7 @@
   }
   $(document).on('shiny:connected',()=>{
     Shiny.addCustomMessageHandler('als-report-map',capture);
+    Shiny.addCustomMessageHandler('als-open-report',payload=>setTimeout(()=>document.getElementById('download_report_pdf')?.scrollIntoView({behavior:'smooth',block:'center'}),250));
     Shiny.addCustomMessageHandler('als-report-map-error',message=>finish(message));
     Shiny.addCustomMessageHandler('als-report-map-ready',id=>{
       finish('Centred RGB map ready.');bypass=id;document.getElementById(id)?.click();

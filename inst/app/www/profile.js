@@ -17,7 +17,7 @@
     if(!panel || !canvas)return null;
     let active=false,start=null,end=null,press=null,strip=2;
     const hint=byId('profile_hint');
-    function enable(id,yes){byId(id).disabled=!yes;}
+    function enable(id,yes){if(byId(id))byId(id).disabled=!yes;}
     function setCursor(v){canvases.forEach(c=>c.style.cursor=v);}
     function reset(){active=false;start=end=press=null;panel.hidden=true;setCursor('grab');
       for(const id of ['profile_clear','export_profile','export_combined'])enable(id,false);
@@ -93,12 +93,13 @@
       const lines=['ALS Downloader | Visual overlay of sampled points; no calculated change.',
         'A: '+(s.labels[0]||'Earlier campaign')+' | '+s.palette+(s.showA?'':' (hidden)'),
         'B: '+(s.labels[1]||'Later campaign')+' | '+s.paletteB+(s.showB?'':' (hidden)'),
+        'Cloud views: '+(s.cloudMode==='shared'?s.sharedPalette+' | shared source elevation scale':'campaign colours')+'. Profile colours identify A and B.',
         'Cloud Z exaggeration: '+s.exag+'x. Profile axes show distance and elevation in metres.',
         'CRS: '+(s.crs||'See original source metadata')+'. Vertical reference is supplied by the provider; no alignment applied.',
         end?'Strip width: '+strip+' m. Start XY: '+start.map((v,i)=>(v+s.origin[i]).toFixed(2)).join(', ')+'; end XY: '+end.map((v,i)=>(v+s.origin[i]).toFixed(2)).join(', '):'No profile selected.',
         'Framing: '+(s.focusCentral?'central 98%':'all points')+'. Cite original surveys; this figure is not evidence of quantified change.',...s.attribution];
       window.ALSFigures.save(out,'als-comparison-'+kind+'.png',lines);}
-    byId('export_cloud').onclick=()=>exportFigure('cloud');byId('export_profile').onclick=()=>exportFigure('profile');byId('export_combined').onclick=()=>exportFigure('both');
+    byId('export_cloud').onclick=()=>exportFigure('cloud');byId('export_profile').onclick=()=>exportFigure('profile');if(byId('export_combined'))byId('export_combined').onclick=()=>exportFigure('both');
     return {renderOverlay,renderChart,reset,cancel,pointer,isDrawing:()=>active};
   };
 })();

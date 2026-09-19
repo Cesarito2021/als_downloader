@@ -10,12 +10,12 @@ test_that("sample access rejects private networks and URL credentials before dow
 
 test_that("connection UI separates technical completion from approval", {
   ui <- as.character(source_preflight_ui())
-  expect_match(ui,"not publication approval")
+  expect_match(ui,"not approval for publication")
   expect_false(grepl("canvas|source_url|50 MB",ui))
   expect_match(as.character(source_submission_ui()),"source_email")
   shiny::testServer(als_app(), {
     session$setInputs(source_test=1,source_url="")
-    expect_match(as.character(output$source_test_progress$html),"Complete the nine")
+    expect_match(as.character(output$source_test_progress$html),"Add a public record link")
     expect_match(as.character(output$source_submission$html),"disabled")
   })
 })
@@ -37,25 +37,19 @@ test_that("connection check only requests headers, regardless of cloud size", {
 })
 
 
-test_that("submission requires private contact, concise description and a real DOI", {
-  x <- list(source_name="Forest",source_email="contact@example.org",source_description="Aerial laser survey.",source_origin="10.5281/zenodo.3633629",source_year="2018-2020",source_platform="Aircraft / helicopter ALS",source_url="https://example.org/forest.laz",source_license_url="https://creativecommons.org/licenses/by/4.0/",source_access="public",source_notes="Sensor model",source_open_license=TRUE)
-  expect_false(source_request(x)$valid)
-  x$source_boundary <- "https://example.org/coverage.gpkg"
-  expect_true(source_request(x)$valid)
-  x$source_origin <- "3633629"
-  expect_true(source_request(x)$valid)
-  x$source_email <- "missing";expect_false(source_request(x)$valid)
-  x$source_email <- "contact@example.org";x$source_description <- paste(rep("word",51),collapse=" ");expect_false(source_request(x)$valid)
-  x$source_description <- "Short";x$source_origin <- "https://example.org";expect_false(source_request(x)$valid)
-})
 
-test_that("the optional dataset-type tag never blocks submission but is carried into the request body", {
-  x <- list(source_name="Forest",source_email="contact@example.org",source_description="Aerial laser survey.",source_origin="10.5281/zenodo.3633629",source_year="2018-2020",source_platform="Aircraft / helicopter ALS",source_url="https://example.org/forest.laz",source_license_url="https://creativecommons.org/licenses/by/4.0/",source_access="public",source_notes="Sensor model",source_open_license=TRUE,source_boundary="https://example.org/coverage.gpkg")
-  r <- source_request(x)
-  expect_true(r$valid)
-  expect_true(grepl("Dataset type (country-wide / national or regional / local): \n\nPolygon coverage",r$body,fixed=TRUE))
-  x$source_scope <- "National or regional agency"
-  r <- source_request(x)
-  expect_true(r$valid)
-  expect_true(grepl("Dataset type (country-wide / national or regional / local): National or regional agency",r$body,fixed=TRUE))
+test_that("other-source proposals use stable non-Zenodo links and optional contact", {
+  x<-list(source_origin="https://repository.example.org/record/123",source_url="https://data.example.org/cloud.laz",
+    source_license_url="https://creativecommons.org/licenses/by/4.0/",source_platform="Aircraft / helicopter ALS",
+    source_open_license=TRUE,source_repository_confirm=TRUE)
+  expect_true(source_request(x)$valid)
+  x$source_scope<-"Local survey";expect_match(source_request(x)$body,"Scope: Local survey",fixed=TRUE)
+  x$source_email<-"invalid";expect_false(source_request(x)$valid);x$source_email<-""
+  x$source_year<-"2050";expect_false(source_request(x)$valid);x$source_year<-""
+  x$source_repository_confirm<-FALSE;expect_false(source_request(x)$valid);x$source_repository_confirm<-TRUE
+  x$source_origin<-"10.5281/zenodo.12345";expect_match(source_request(x)$message,"Share Zenodo dataset")
+  x$source_origin<-"https://repository.example.org/record/123"
+  for(url in c("https://drive.google.com/file/123","https://data.example.org/a.laz?X-Amz-Signature=secret","https://user:secret@data.example.org/a.laz")) {
+    x$source_url<-url;expect_false(source_request(x)$valid)
+  }
 })

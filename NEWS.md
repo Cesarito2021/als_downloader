@@ -1,5 +1,15 @@
 # alsdownloader 0.1.0
 
+* Prevent country shading from capturing clicks while drawing an AOI. Expose
+  the PDF report and storage summary, including a report of all search results
+  when no tiles are selected.
+* Default comparison clouds to a shared Greens elevation palette while retaining
+  campaign colours for profiles and distributions. Clarify source classification
+  and vertical exaggeration, and harmonize individual PNG download controls.
+* Simplify non-Zenodo source proposals, require declared stable public hosting,
+  add private-queue status lookup by proposal reference, and use a team label in
+  the localhost-only reviewer interface.
+
 * Let Zenodo contributors select existing boundary files or declare an approximate
   square from a map centre and metric half-width. Require explicit asset selection
   and confirmation; preserve approximate labels in review, mail and catalogue.

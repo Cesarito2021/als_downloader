@@ -66,7 +66,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     shiny::div(class = "als-header", shiny::div(shiny::h1("ALS DOWNLOADER"),
       shiny::span("Discover, inspect and download airborne LiDAR")),
       shiny::div(class = "als-header-actions",
-        shiny::actionButton("suggest_source", "Share your dataset"),
+        shiny::actionButton("suggest_source", "Share ALS data"),
         if (!is.null(reviewer)) shiny::actionButton("zenodo_review_open", "Review Zenodo requests"),
         shiny::span(class = "mode-label", paste(toupper(mode), "MODE")))),
     shiny::div(class = "als-layout",
@@ -102,6 +102,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           shiny::helpText("Downloads preserve original tiles, including portions outside the AOI. 3D inspection is optional."),
           shiny::actionButton("cancel", "Cancel job"),
           shiny::textOutput("job_status"), shiny::uiOutput("bundle_control")),
+        shiny::actionButton("show_report", "Study report (PDF)", class="als-action-btn"),
         shiny::actionButton("reset_all", "Reset", class = "als-reset-btn"))),
       shiny::div(class = "als-main",
         shiny::tabsetPanel(id = "view",
@@ -126,7 +127,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
                 shiny::div(class = "als-welcome-reading",
                   shiny::tags$details(id = "welcome_about_content", class = "als-welcome-about",
                     shiny::tags$summary("About the project: mission and guide"),
-                    shiny::h3("Airborne LiDAR, easier to discover"),
+                    shiny::h3("Airborne LiDAR"),
                     shiny::p("Our mission is to make existing aerial laser-scanning data easier to find and use in research. ALS Downloader brings provider catalogues into one workflow: locate your study area, review available surveys, inspect point clouds and download original tiles."),
                     shiny::p("Explore acquisition dates and source classifications, compare sampled clouds visually, and export figures with available source credits. Coverage and dates depend on provider metadata; visual comparisons do not calculate change."),
                     shiny::p("Developed and maintained by Cesar Alvites. The software is open source (GPL-3); datasets and basemaps retain their own licences and access conditions."),
@@ -139,7 +140,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
                   shiny::tags$a(class = "als-globe-credit", href = "https://github.com/Cesarito2021/als_downloader", target = "_blank", rel = "noopener noreferrer", "GitHub"),
                   shiny::tags$a(class = "als-globe-credit", href = "https://www.naturalearthdata.com/about/terms-of-use/", "Natural Earth")))),
             shiny::conditionalPanel("input.enter_map > 0", leaflet::leafletOutput("map", height = "60vh"),
-            figure_button("export_map_png", "Save map PNG"),
+            figure_button("export_map_png", "Download map (PNG)"),
             shiny::tags$div(style="display:none", shiny::textOutput("map_source_credits")),
             shiny::checkboxInput("map_export_basemap", "Include basemap in image", TRUE),
             shiny::tags$span(id="map_export_status", role="status"),
@@ -150,15 +151,19 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::downloadButton("export_manifest", "Export all tile metadata"),
             shiny::downloadButton("export_selection", "Export selected metadata"),
             shiny::downloadButton("export_script", "Download selection as R script"),
-            shiny::tags$details(shiny::tags$summary("PDF study report"),
+            shiny::div(class="als-section",
+              shiny::h3("Study report"),
+              shiny::downloadButton("download_report_pdf", "Download report (PDF)", class="als-primary"),
+              shiny::textOutput("report_selection_summary"),
+            shiny::tags$details(shiny::tags$summary("Report options and figures"),
               shiny::helpText("A concise visual report with study-area information, figures, conclusions and credits. The RGB map is framed automatically around your study area and selected tiles. Attach exported viewer figures below if wanted."),
               shiny::checkboxInput("report_rgb", "Include centred satellite RGB map", TRUE),
-              shiny::downloadButton("download_report_map", "Save centred RGB map PNG"),
+              shiny::downloadButton("download_report_map", "Download study-area map (PNG)"),
               shiny::tags$div(id = "report_map_status", role = "status", `aria-live` = "polite"),
               shiny::checkboxInput("report_details", "Include technical appendix (file sample and download-time scenarios)", FALSE),
               shiny::fileInput("report_figures", "Optional exported PNG figures (up to 6, 10 MiB each)", multiple = TRUE, accept = ".png"),
               shiny::helpText("Attached figures may show a different selection; check their embedded labels. Extra figures add pages. PDF requires Pandoc and TinyTeX on the app server."),
-              shiny::downloadButton("download_report_pdf", "Download PDF report")),
+              shiny::helpText("The report uses selected tiles, or all search results if none are selected."))),
             shiny::div(class = "als-tile-preview",
               shiny::textOutput("tile_selection"),
               shiny::actionButton("plot_tile", "Plot selected tile in 3D", class = "als-primary"),
@@ -173,12 +178,13 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::helpText("Preview decimation does not alter your source file. Large local tiles can also be read with read_preview() in R."),
             shiny::textOutput("preview_status"),
             shiny::tags$canvas(id = "als-cloud", role = "img", tabindex = "0", `aria-label` = "Interactive point-cloud preview. Arrow keys rotate; plus and minus zoom; zero resets."),
-            figure_button("export_preview_png", "Save point-cloud PNG", TRUE),
+            figure_button("export_preview_png", "Download point cloud view (PNG)", TRUE),
             shiny::tags$span(id="preview_export_status", role="status"),
             shiny::selectInput("colour_by", "Colour by", c("Automatic"="auto", "Source classification"="classification", "Intensity"="intensity", "Elevation"="elevation"), selected="auto"),
             shiny::selectInput("palette", "Palette for intensity / elevation", preview_palettes(), selected="Greyscale"),
             shiny::helpText("Automatic uses source classes when any labelled classes are present, then non-zero intensity, then elevation. Classification has fixed categorical colours. Intensity is raw sensor return strength, not calibrated reflectance."),
             shiny::sliderInput("exaggeration", "Vertical exaggeration", min = 1, max = 12, value = 1, step = 1),
+            shiny::helpText("Vertical exaggeration changes display only: 1x is true proportions; 2x doubles vertical differences. Source elevations remain unchanged."),
             shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Classification colours use the labels supplied in the file; no automatic classification. Elevation colours show source Z, not canopy height.")),
           comparison_ui(),
           shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Research deposits require reviewed coverage information; author-declared approximate extents are labelled and may include areas without points. Official national portals also provide external access; find a country in the table below for its official source link. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have an in-app search adapter. Verify dataset terms and citations before downloading."),
@@ -218,7 +224,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           options = leaflet::tileOptions(maxZoom = 16, className = "als-relief-tiles")) |>
         leaflet::addPolygons(layerId = ~id, group = "Countries", color = "#60717c", weight = .5,
           fillColor = ~ifelse(implemented, "#dc2626", ifelse(catalog, "#eab308", "#25313c")),
-          fillOpacity = ~ifelse(catalog, .14, 0), label = ~name) |>
+          fillOpacity = ~ifelse(catalog, .14, 0), label = ~name,
+          options = leaflet::pathOptions(interactive = FALSE)) |>
         leaflet.extras::addDrawToolbar(targetGroup = "Study area", polygonOptions = leaflet.extras::drawPolygonOptions(showArea = TRUE),
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
@@ -392,7 +399,17 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       ids <- ids[ids %in% seq_len(nrow(state$tiles))]
       state$tiles[ids, , drop = FALSE]
     })
-    report_map <- report_map_server(input, output, session, shiny::reactive(state$aoi), selected_tiles)
+    report_tiles <- shiny::reactive({x<-selected_tiles();if(nrow(x))x else state$tiles})
+    output$report_selection_summary<-shiny::renderText({
+      if(is.null(state$tiles)||!nrow(state$tiles))return("Search for ALS data to prepare a report. No download is required.")
+      x<-report_tiles();known<-is.finite(x$size_bytes)
+      paste(nrow(x),if(nrow(x)==1L)"tile |" else "tiles |",round(sum(x$size_bytes[known])/1024^3,2),"GiB known |",sum(!known),"unknown file sizes. Select tiles to narrow the report.")
+    })
+    shiny::observeEvent(input$show_report, {
+      shiny::updateTabsetPanel(session,"view",selected="Explore")
+      session$sendCustomMessage("als-open-report",list())
+    })
+    report_map <- report_map_server(input, output, session, shiny::reactive(state$aoi), report_tiles)
     shiny::observeEvent(input$select_all_tiles, {shiny::req(state$tiles); DT::selectRows(DT::dataTableProxy("tiles"), seq_len(nrow(state$tiles)))})
     shiny::observeEvent(input$clear_tiles, DT::selectRows(DT::dataTableProxy("tiles"), integer()))
     output$selection_summary <- shiny::renderText({
@@ -407,7 +424,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       x <- selected_tiles(); shiny::req(nrow(x)); writeLines(selection_script(x), file, useBytes = TRUE)
     })
     write_report <- function(file, format) {
-      x <- selected_tiles(); shiny::req(nrow(x))
+      x <- report_tiles(); shiny::req(nrow(x))
       if (format == "pdf" && !(requireNamespace("tinytex", quietly = TRUE) && isTRUE(tinytex::is_tinytex()))) {
         shiny::showNotification("PDF reports require a working TinyTeX installation on the app server.", type = "error", duration = 15)
         stop("PDF reports require a working TinyTeX installation.", call. = FALSE)

@@ -1,3 +1,5 @@
+Current display defaults: both cloud panels use the same Greens source-elevation scale. Profiles and distributions retain red/blue campaign distinction. The optional campaign-colour mode is still available. Exaggeration affects display only; elevations are not normalized to terrain. Export each figure with its Download ... (PNG) button.
+
 # Visual comparison of two overlapping point clouds
 
 Comparison is **visualization only**, with a maximum overlapping area of **1 km²**.

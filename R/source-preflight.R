@@ -61,11 +61,11 @@ source_preflight <- function(url, directory, head_request = function(url, config
 }
 
 source_preflight_ui <- function() shiny::tagList(
-  shiny::helpText("We'll just peek at your link: HTTP headers only for LAS/LAZ, or up to 5 MiB of metadata for a GeoJSON tile index (footprints and file links checked). No point clouds are ever transferred."),
+  shiny::helpText("Checks public file access or a small GeoJSON index. No point clouds are downloaded."),
   shiny::actionButton("source_test", "Check compatibility"),
   shiny::actionButton("source_test_cancel", "Cancel test"),
   shiny::uiOutput("source_test_progress"),
-  shiny::helpText("Reaching 100% means the technical checks passed and your request is ready for review - not publication approval yet. No point clouds are downloaded or displayed."))
+  shiny::helpText("A successful check is not approval for publication."))
 
 source_preflight_server <- function(input, output, session, state, mode, hosted_lock) {
   check <- shiny::reactiveValues(job=NULL,directory=NULL,locked=FALSE,percent=0,message="Optional: check the source connection without downloading data.",summary="Not tested",ready=FALSE)
@@ -79,12 +79,12 @@ source_preflight_server <- function(input, output, session, state, mode, hosted_
     state$source_test_busy <- FALSE
   }
   reset <- function() {cleanup();check$ready <- FALSE;check$percent <- 0;check$summary <- "Not tested";check$message <- "Check the dataset link, or submit for manual review."}
-  shiny::observeEvent(lapply(c("source_name","source_email","source_description","source_origin","source_boundary","source_year","source_platform","source_url","source_license_url","source_access","source_notes","source_open_license"),function(id)input[[id]]), reset(),ignoreNULL=FALSE)
+  shiny::observeEvent(lapply(c("source_email","source_origin","source_boundary","source_year","source_platform","source_url","source_license_url","source_open_license","source_repository_confirm"),function(id)input[[id]]), reset(),ignoreNULL=FALSE)
   shiny::observeEvent(input$source_test_cancel,reset())
   shiny::observeEvent(input$source_test, {
     request <- source_request(input)
     if(!request$valid){check$message <- request$message;return()}
-    if(!identical(input$source_access,"public")){check$message <- "Automatic connection requires public access without registration or owner permission.";return()}
+    if(!isTRUE(input$source_repository_confirm)){check$message <- "Confirm stable public repository access.";return()}
     if (isTRUE(state$comparison_busy) || isTRUE(state$source_test_busy) || (!is.null(state$job) && state$job$is_alive()) || (!is.null(state$preview_job) && state$preview_job$is_alive())) {check$message <- "Wait for the current transfer or preview.";return()}
     reset()
     tryCatch({

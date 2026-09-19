@@ -1,6 +1,7 @@
 (function () {
   const palettes = {
     Greyscale: [[40,48,57],[245,248,250]],
+    Greens: [[247,252,245],[199,233,192],[116,196,118],[35,139,69],[0,68,27]],
     Viridis: [[68,1,84],[71,44,122],[59,82,139],[44,113,142],[33,145,140],[39,173,129],[94,201,98],[170,220,50],[253,231,37]],
     Magma: [[0,0,4],[28,16,68],[79,18,123],[129,37,129],[181,54,122],[229,80,100],[251,135,97],[254,194,135],[252,253,191]],
     Plasma: [[13,8,135],[126,3,168],[204,71,120],[248,149,64],[240,249,33]],
@@ -16,7 +17,7 @@
   });
   // LAS source codes, not inferred land cover. Other codes keep their numbers.
   const classes = {
-    0: ['Never classified', '#8895a5'], 1: ['Unclassified', '#b4bfca'],
+    0: ['Never classified', '#8895a5'], 1: ['Unclassified (land cover unknown)', '#8eb69c'],
     2: ['Ground', '#cba574'], 3: ['Low vegetation', '#c6df85'],
     4: ['Medium vegetation', '#78c679'], 5: ['High vegetation', '#28a96b'],
     6: ['Building', '#ed8b73'], 7: ['Low noise', '#cf83cf'],
@@ -149,6 +150,7 @@
   function comparisonViewer(ca, cb) {
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=1,zoom=1,drag=null;
     let groups=[],palette='Red',paletteB='Blue',showA=true,showB=true,focusCentral=true;
+    let cloudMode='shared',sharedPalette='Greens';
     let initialPitch=0,pointSize=1.8,labels=[],camera=null,crs='',attribution=[];
     let ordered=[],xmin=0,xmax=0,ymin=0,ymax=0,scale=1;
     const dc=document.getElementById('als-compare-density');
@@ -196,7 +198,7 @@
       g.fillText('B: n='+zb.length+(zb.length?', mean '+mean(zb).toFixed(2)+' m':' (hidden or none loaded)'),left+Math.min(260,pw/2+20),20);
     }
     const profile = window.ALSProfile ? window.ALSProfile([ca,cb],
-      ()=>({points,groups,origin,extent,labels,crs,attribution,palette,paletteB,showA,showB,focusCentral,palettes,camera,pitch,exag}),
+      ()=>({points,groups,origin,extent,labels,crs,attribution,palette,paletteB,cloudMode,sharedPalette,showA,showB,focusCentral,palettes,camera,pitch,exag}),
       drawBoth, ()=>{pitch=0;yaw=0;zoom=1;drawBoth();}) : null;
     function project(){
       if(!points.length){ordered=[];return;}
@@ -250,7 +252,7 @@
       const w=Math.max(ca.clientWidth||1,1),h=Math.max(ca.clientHeight||1,1);
       scale=points.length?Math.min((w-60)/Math.max(xmax-xmin,1),(h-110)/Math.max(ymax-ymin,1))*zoom:1;
       camera={scale,cx:(xmin+xmax)/2,cy:(ymin+ymax)/2,co:Math.cos(yaw),si:Math.sin(yaw)};
-      const ctxA=panel(ca,0,palette),ctxB=panel(cb,1,paletteB);
+      const ctxA=panel(ca,0,cloudMode==='shared'?sharedPalette:palette),ctxB=panel(cb,1,cloudMode==='shared'?sharedPalette:paletteB);
       if(profile){
         if(ctxA)profile.renderOverlay(ctxA,ca);
         if(ctxB)profile.renderOverlay(ctxB,cb);
@@ -288,6 +290,8 @@
       initialYaw=-.5*Math.atan2(2*(sxy-sx*sy/n),sxx-sx*sx/n-syy+sy*sy/n);
       fit();},
       update(data){if(data.focusCentral!=null)focusCentral=data.focusCentral;if(data.exaggeration!=null)exag=data.exaggeration;if(palettes[data.palette])palette=data.palette;
+        if(['shared','campaign'].includes(data.cloudMode))cloudMode=data.cloudMode;
+        if(palettes[data.sharedPalette])sharedPalette=data.sharedPalette;
         if(data.pointSize!=null)pointSize=Math.max(.7,Math.min(3,data.pointSize));
         if(data.pose){initialPitch=data.pose==='top'?0:(data.pose==='forest'?1.38:1.08);fit();}
         if(palettes[data.paletteB])paletteB=data.paletteB;if(data.showA!=null)showA=data.showA;if(data.showB!=null)showB=data.showB;

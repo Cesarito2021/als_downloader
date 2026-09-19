@@ -210,7 +210,7 @@ forest_preview_controls <- function(prefix) {
     shiny::helpText("Reader pool: at most 750,000 points; display: at most 150,000. Very large files may retain less than the requested percentage. This is not automatic forest detection."))
 }
 
-preview_palettes <- function() c("Greyscale", "Viridis", "Magma", "Plasma", "Cividis",
+preview_palettes <- function() c("Greyscale", "Greens", "Viridis", "Magma", "Plasma", "Cividis",
   "Grey", "Black", "Light purple", "Pale yellow", "Blue", "Red", "Cyan", "Orange")
 
 figure_button <- function(id, label, disabled = FALSE) {

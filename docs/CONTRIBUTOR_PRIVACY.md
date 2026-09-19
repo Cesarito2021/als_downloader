@@ -26,10 +26,16 @@ service; maintainers manage those private files directly.
 
 ## Other data sources
 
-The separate generic-source form requires a contact email to prepare a private
+The separate generic-source form accepts an optional contact email in a private
 email draft. **Send my request** opens the user's mail client; the user reviews
 and sends it. That form does not itself persist a request or send an email.
 Email handling follows the sender's and recipient's mail-service policies.
+
+Zenodo proposal tracking requires the complete proposal reference and reports
+only review status and the dataset DOI. It does not expose contributor contacts
+or private decision notes. The reference is distinct from the dataset DOI.
+The team-labelled reviewer panel remains localhost-only and requires the
+administrator's reviewer configuration; the display label does not grant access.
 
 ## Local comparison files
 

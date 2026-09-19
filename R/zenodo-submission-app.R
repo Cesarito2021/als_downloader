@@ -24,6 +24,9 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::textInput("zenodo_email","5. Contact email (optional, private)"),
   shiny::helpText("If notifications are enabled, your proposal summary and optional contact are emailed to the maintainer through this instance's mail provider. They are not included in the public catalogue."),
   shiny::actionButton("zenodo_prepare","Check my proposal"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
+  shiny::tags$details(shiny::tags$summary("Track a proposal"),
+    shiny::textInput("zenodo_tracking_id","Proposal reference",placeholder="Paste the full reference received after submission"),
+    shiny::actionButton("zenodo_track","Check status"),shiny::textOutput("zenodo_tracking_status")),
   shiny::helpText("No cloud is downloaded or analysed. ZIP assets require downloading the whole archive and local extraction for 3D. Submission is not approval; the maintainer checks coverage, dates, file mapping and terms before publication."))
 
 zenodo_boundary_download <- function(meta,key) {
@@ -108,8 +111,22 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
   shiny::observeEvent(input$zenodo_send,tryCatch({
     if(is.null(queue))stop("The review queue is not configured.")
     p<-proposal();if(is.null(p))stop("Check the proposal first.")
-    id<-submit_zenodo(p,queue);message(paste("Request saved privately. Reference:",id,"Pending your maintainer's approval; no dataset has been added."))
+    id<-submit_zenodo(p,queue);message(paste("Proposal received. Reference:",id,"| DOI:",p$metadata$doi,"| Awaiting ALS Downloader team review. No dataset has been added."))
+    shiny::updateTextInput(session,"zenodo_tracking_id",value=id)
   },error=fail))
+  tracking<-shiny::reactiveVal("")
+  shiny::observeEvent(input$zenodo_track,{
+    tracking(tryCatch({
+      if(is.null(queue))stop("Proposal tracking is not configured on this instance.")
+      id<-trimws(input$zenodo_tracking_id)
+      p<-zenodo_proposal(queue,id)
+      decision<-file.path(queue,"decisions",paste0(id,".json"))
+      status<-if(file.exists(decision))jsonlite::fromJSON(decision)$decision else "pending"
+      label<-switch(status,approve="Approved for the catalogue",reject="Not accepted",pending="Awaiting ALS Downloader team review","Status unavailable")
+      paste(label,"| DOI:",p$metadata$doi)
+    },error=function(e)if(is.null(queue))conditionMessage(e) else "Proposal not found. Check the full reference and the instance where it was submitted."))
+  })
+  output$zenodo_tracking_status<-shiny::renderText(tracking())
   if(is.null(reviewer))return(invisible(NULL))
   tick<-shiny::reactiveVal(0L)
   refresh<-function(){
@@ -118,7 +135,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
   }
   open_review<-function(selected=NULL){
     shiny::showModal(shiny::modalDialog(title="Private Zenodo review",size="l",
-      shiny::p("Reviewer: ",reviewer,". Proposals remain inactive until you approve them. No point-cloud analysis is performed."),
+      shiny::p("ALS Downloader team | Private maintainer panel. Proposals remain inactive until approved. No point-cloud analysis is performed."),
       shiny::selectInput("zenodo_review_id","Pending proposal",choices=character()),
       shiny::actionButton("zenodo_review_refresh","Refresh queue"),shiny::textOutput("zenodo_queue_status"),
       shiny::conditionalPanel("input.zenodo_review_id && input.zenodo_review_id.length > 0",

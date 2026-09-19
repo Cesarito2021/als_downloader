@@ -93,9 +93,9 @@ The OpenTopography adapter follows the tile-index selection and download workflo
 
 This figure shows all three parts of the feature together: the two rotatable 3D panels (A, B) on top, and the drawn-segment side view (the elevation profile) below, so the height difference between campaigns is visible in one figure. It uses synthetic example points (real code, generated example data, not a captured survey); the labels shown (`UT_KaneCo_2019`, `UT_StatewideSouth_1_2020`) match the real Utah campaigns used elsewhere in this README. It is shaped like a stand-in for a real pre/post-storm pair near northwest Apalachicola, FL - campaign B is thinned and shortened in one half to illustrate the kind of canopy-loss contrast this feature is for, until a real verified pair from that area is available. The profile below uses a 5 m strip width for a denser illustrative figure; the app's own default is 2 m.
 
-Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km, shown as **two side-by-side panels** (A left, B right) sharing one camera: rotate or zoom either panel and both move together. The default colours are red (A) and blue (B) on black, chosen for a clearer contrast between the two clouds; light purple, pale yellow and other palettes are also available.
+Choose two campaigns covering the same AOI and opt into **Compare campaigns**. View a shared window with a side of 100 m to 1 km, shown as **two side-by-side panels** (A left, B right) sharing one camera: rotate or zoom either panel and both move together. Cloud views default to the same Greens palette and source-elevation range in both panels. Profiles and distributions distinguish A and B in red and blue by default. Campaign-colour cloud views and other shared palettes remain available; the older screenshot above shows campaign-colour mode.
 
-Click **Draw profile line** to switch both panels to a top-down view together, then click two endpoints (in either panel) or drag a segment in any direction; the same line appears in both automatically. A single profile of both sampled clouds appears below, using their colours and original elevations. Adjust the strip width, show/hide either campaign, return to 3D, or download the cloud, profile or both as PNG.
+Click **Draw profile line** to switch both panels to a top-down view together, then click two endpoints (in either panel) or drag a segment in any direction; the same line appears in both automatically. A single profile of both sampled clouds appears below, using their colours and original elevations. Adjust the strip width, show/hide either campaign, return to 3D, or download cloud views, the profile or the elevation distribution individually as PNG.
 
 The profile does not require height normalization. Both clouds must have compatible coordinate references; the app does not align them, fit curves or calculate changes. [Visual comparison guide](docs/TEMPORAL_COMPARISON.md).
 
@@ -103,17 +103,17 @@ The profile does not require height normalization. Both clouds must have compati
 
 ![Share your dataset form with fields, compatibility check and the progress alligator](docs/images/interface-submit-source.png)
 
-Have aerial LiDAR data other researchers could use? Click **Share your dataset** and tell us a bit about it - it only takes a few minutes, and your point clouds never leave your own repository. This screenshot predates the friendlier wording and the new optional "what kind of dataset is this" tag (country-wide, national/regional agency, or local/campus survey); the nine required fields below are unchanged.
+Use **Share ALS data** to choose **Share Zenodo dataset** or **Other data source**. The screenshot above is historical.
 
-Nine required fields: dataset name, **contact email**, description (up to **50 words**), dataset DOI or Zenodo record ID, collection year(s), aerial platform, LAS/LAZ or index link, license link and access requirements. Two more are optional: sensor/location notes, and the dataset-type tag mentioned above. Zenodo submissions additionally require a polygon boundary link, unless the data link already supplies the GeoJSON tile index.
+The Zenodo form reads repository metadata, accepts supplied polygons or a labelled approximate extent, and queues proposals for team review. Track status using the complete proposal reference; the DOI identifies the dataset, not the submission. Only status and DOI are returned.
 
-Keep the point clouds in their original repository. For **discover → inspect → download**, submit a small GeoJSON index with one footprint and direct LAS/LAZ link per tile. Approved indexes support AOI search without a new provider-specific connector. [Template, required fields and large-file guidance](docs/CONTRIBUTING_DATA.md).
+Other sources require four fields: a public record link or DOI, a direct data/index link, acquisition platform and licence link. Acquisition dates, contact email, scope and a separate coverage link are optional. Confirm stable public institutional/scientific hosting and data reuse rights. Personal-drive, notebook and expiring download links are rejected; hosting suitability still needs manual review. Use Zenodo's dedicated tab for Zenodo links.
 
-Complete the form, click **Check compatibility**, then **Send my request** when the vector alligator reaches 100%. The check reads LAS/LAZ headers or up to 5 MiB of GeoJSON metadata; no point cloud is downloaded or plotted. Completion means technical checks passed, not publication approval. A successful check opens a private email draft for you to review and send yourself. Editing the request resets compatibility. Portals and authentication-based access need manual discussion.
+**Check compatibility** checks anonymous file access or a small GeoJSON index. **Send my request** opens a private email draft for the contributor to review and send. No point clouds are downloaded and no source is automatically approved. An index links coverage polygons to original files; see [the data contribution guide](docs/CONTRIBUTING_DATA.md).
 
 After an AOI search, select tiles to see their known total size, export selected metadata or download an R script for local transfer. Downloads preserve complete original tiles; they do not clip files to the AOI. A metadata index does not make a large point-cloud file smaller, and 3D inspection remains optional.
 
-Your contact email is for review and acceptance replies and is not included in public GitHub issues. Inclusion requires maintainer approval. No automatic email delivery service is configured. [Contact handling and acceptance reply](docs/CONTRIBUTOR_PRIVACY.md). [Observed approval times](docs/APPROVAL_TIMES.md) count only public metadata-only GitHub requests marked `source-approved`; private email requests are excluded.
+Your optional contact email is for review and acceptance replies and is not included in public GitHub issues. Inclusion requires maintainer approval. Automatic Zenodo notifications require separate administrator SMTP configuration. [Contact handling and acceptance reply](docs/CONTRIBUTOR_PRIVACY.md). [Observed approval times](docs/APPROVAL_TIMES.md) count only public metadata-only GitHub requests marked `source-approved`; private email requests are excluded.
 
 ## Source examples
 
@@ -250,3 +250,7 @@ The R equivalents are `inspect_zenodo()`, `prepare_zenodo_submission()`,
 `submit_zenodo()`, `zenodo_submissions()` and `review_zenodo_submission()`.
 No community records ship pre-approved. Tests use fictitious local metadata and
 polygons; live-record acceptance and public-service load testing remain separate.
+
+### Reports before downloading
+
+After a search, choose **Study report (PDF)** in the sidebar, then **Download report (PDF)**. The report shows selected tiles, or all results if nothing is selected, with known storage and unknown file sizes. Expand **Report options and figures** for the RGB map, optional PNG attachments and transfer-time scenarios. The PDF does not require downloading point clouds.

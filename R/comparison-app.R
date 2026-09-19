@@ -34,23 +34,25 @@ comparison_ui <- function() {
       shiny::tags$button(id="profile_clear",type="button",class="btn btn-default",disabled=TRUE,"Clear profile"),
       shiny::tags$label(`for`="profile_width","Profile strip width (m)"),
       shiny::tags$input(id="profile_width",type="number",min=0.2,max=100,step=0.2,value=2),
-      figure_button("export_cloud", "Download cloud figure", TRUE)),
+      figure_button("export_cloud", "Download cloud views (PNG)", TRUE)),
     shiny::tags$p(id="profile_hint",role="status",`aria-live`="polite","Load two clouds to draw a profile. Drawing switches both panels to a plan view: click the start and end in either one, or drag a line in any direction; the same segment appears in both. Escape cancels drawing."),
     shiny::tags$div(id="profile_panel",hidden=NA,
       shiny::h4("Profile along the selected line (both campaigns)"),
       shiny::tags$canvas(id="als-compare-profile",class="als-profile-canvas",role="img",`aria-label`="Distance and elevation profile of sampled points from both campaigns"),
       shiny::tags$div(class="als-profile-tools",
-        figure_button("export_profile", "Download profile figure", TRUE),
-        figure_button("export_combined", "Download both figures", TRUE))),
+        figure_button("export_profile", "Download profile (PNG)", TRUE))),
     shiny::tags$div(class="als-density-panel",
       shiny::h4("Elevation distribution (both campaigns)"),
       shiny::tags$canvas(id="als-compare-density", class="als-density-canvas", role="img",
         `aria-label`="Elevation density histograms for campaigns A and B, with each campaign's sample count and mean elevation."),
-      figure_button("export_density_png", "Save distribution PNG", TRUE),
-      shiny::helpText("Density of all currently loaded points by elevation, not a modeled distribution or a calculated difference between campaigns.")),
-    shiny::helpText("A is red and B is blue on black. Colours identify the chosen clouds, not measured change or chronology. Profiles show sampled points within the chosen strip, without fitted curves or calculated differences."),
-    shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A color / palette", preview_palettes(), selected = "Red")),
-      shiny::column(4, shiny::selectInput("compare_palette_b", "B color / palette", preview_palettes(), selected = "Blue")),
+      figure_button("export_density_png", "Download distribution (PNG)", TRUE),
+      shiny::helpText("Sampled point counts by elevation. This is not a probability density or a calculated difference between campaigns.")),
+    shiny::helpText("Cloud views use one shared elevation scale. Profiles and distributions distinguish A and B in red and blue by default. Similar appearances do not establish that the surveys are identical."),
+    shiny::fluidRow(shiny::column(6,shiny::selectInput("compare_cloud_mode","Cloud view colours",c("Shared elevation scale"="shared","Campaign colours"="campaign"))),
+      shiny::column(6,shiny::selectInput("compare_shared_palette","Shared elevation palette",c("Greens","Viridis","Magma","Plasma","Cividis","Greyscale"),selected="Greens"))),
+    shiny::helpText("Both clouds share the same minimum and maximum source elevation in metres. This is not height above ground. Vertical exaggeration affects display only: 1x is true proportions, 2x doubles vertical differences."),
+    shiny::fluidRow(shiny::column(4, shiny::selectInput("compare_palette_a", "A profile / campaign colour", preview_palettes(), selected = "Red")),
+      shiny::column(4, shiny::selectInput("compare_palette_b", "B profile / campaign colour", preview_palettes(), selected = "Blue")),
       shiny::column(4, shiny::sliderInput("compare_exaggeration", "Vertical exaggeration", 1, 12, 1, step = 1))),
     shiny::checkboxInput("compare_focus", "Focus camera on central 98% (display only; turn off to fit all points)", TRUE),
     shiny::checkboxInput("compare_show_a", "Show A", TRUE), shiny::checkboxInput("compare_show_b", "Show B", TRUE),
@@ -182,9 +184,9 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   shiny::observeEvent(input$compare_cancel, {stop_job(); cmp$status <- "Comparison cancelled."})
   output$compare_status <- shiny::renderText(cmp$status)
   output$compare_metadata <- shiny::renderText({shiny::req(cmp$result); paste(paste(c("A", "B"), cmp$labels, collapse = "\n"), paste(cmp$result$unit_notes, collapse = "\n"), cmp$result$method, cmp$result$crs, sep = "\n\n")})
-  shiny::observeEvent(list(input$compare_palette_a, input$compare_palette_b, input$compare_exaggeration, input$compare_show_a, input$compare_show_b, input$compare_focus),
+  shiny::observeEvent(list(input$compare_palette_a, input$compare_palette_b, input$compare_exaggeration, input$compare_show_a, input$compare_show_b, input$compare_focus,input$compare_cloud_mode,input$compare_shared_palette),
     session$sendCustomMessage("als-view", list(target = "als-compare-cloud", palette = input$compare_palette_a,
-      paletteB = input$compare_palette_b, exaggeration = input$compare_exaggeration, showA = input$compare_show_a, showB = input$compare_show_b, focusCentral = input$compare_focus)))
+      paletteB = input$compare_palette_b, cloudMode=input$compare_cloud_mode,sharedPalette=input$compare_shared_palette,exaggeration = input$compare_exaggeration, showA = input$compare_show_a, showB = input$compare_show_b, focusCentral = input$compare_focus)))
   session$onSessionEnded(function() shiny::isolate(stop_job()))
   invisible(cmp)
 }
