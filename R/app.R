@@ -45,6 +45,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
   ui <- shiny::fluidPage(
     shiny::tags$head(shiny::tags$meta(name = "viewport", content = "width=device-width, initial-scale=1"),
       shiny::tags$link(rel = "stylesheet", href = "als-assets/explorer.css"),
+      shiny::tags$script(src = "als-assets/app.js"),
       shiny::tags$script(src = "als-assets/profile.js"),
       shiny::tags$script(src = "als-assets/preview.js"),
       shiny::tags$script(src = "als-assets/globe.js")),
@@ -56,31 +57,37 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
     shiny::div(class = "als-layout",
       shiny::conditionalPanel("input.enter_map > 0", class = "als-sidebar-toggle",
         shiny::tags$details(class = "als-sidebar", open = "open",
-        shiny::tags$summary("Study area and downloads"),
-          shiny::actionButton("reset_explorer", "Reset explorer", class = "als-reset-btn"),
-          shiny::radioButtons("aoi_method", "Study area", c("Draw on the map" = "draw", "Upload a file" = "upload"), selected = "draw", inline = TRUE),
+        shiny::tags$summary("Area of interest and downloads"),
+        shiny::div(class = "als-section",
+          shiny::radioButtons("aoi_method", "Area of interest", c("Draw on the map" = "draw", "Upload a file" = "upload"), selected = "draw", inline = TRUE),
           shiny::conditionalPanel("input.aoi_method == 'upload'",
             shiny::fileInput("aoi_file", "Upload study area", accept = c(".zip", ".gpkg", ".geojson", ".json", ".fgb")),
             shiny::uiOutput("layer_control"),
             shiny::helpText("ZIP uploads must include Shapefile companion files.")),
           shiny::conditionalPanel("input.aoi_method == 'draw'",
-            shiny::helpText("Use the polygon or rectangle tool on the map to draw your study area.")),
-        shiny::textOutput("aoi_status"),
-        if (mode == "local") shiny::textInput("indexes", "Approved tile-index directory", value = if (is.null(tile_index_dir)) "" else tile_index_dir),
-        shiny::dateRangeInput("dates", "Acquisition interval", start = "2000-01-01", end = Sys.Date()),
-        shiny::actionButton("search", "Find intersecting tiles", class = "als-primary"),
-        shiny::helpText("Searches every source configured for this deployment; no source needs to be picked by hand."),
-        shiny::tags$hr(),
-        if (mode == "local") shiny::tagList(
-          shiny::textInput("destination", "Local output directory", value = tempdir()),
-          shiny::numericInput("workers", "Download workers", min(4L, policy$maximum), min = 1, max = policy$maximum),
-          shiny::helpText(paste("Recommended:", policy$recommended, "| maximum:", policy$maximum, "| provider ceiling:", provider_limit)))
-        else shiny::helpText("Hosted downloads use one worker. Select up to 10 tiles per batch. Files are delivered through your browser."),
-        shiny::actionButton("download", "Download selected tiles", class = "als-primary"),
-        shiny::textOutput("selection_summary"),
-        shiny::helpText("Downloads preserve original tiles, including portions outside the AOI. 3D inspection is optional."),
-        shiny::actionButton("cancel", "Cancel job"),
-        shiny::textOutput("job_status"), shiny::uiOutput("bundle_control"))),
+            shiny::helpText("Use the polygon or rectangle tool on the map to draw your area of interest.")),
+          shiny::textOutput("aoi_status"),
+          shiny::actionButton("reset_aoi", "Reset area of interest", class = "als-reset-btn")),
+        shiny::div(class = "als-section",
+          if (mode == "local") shiny::tags$details(
+            shiny::tags$summary("Advanced: local tile-index directory"),
+            shiny::helpText("Only needed for OpenTopography, contributed or CanElevation indexes you already have on disk. Most sources need no setup here."),
+            shiny::textInput("indexes", "Tile-index directory", value = if (is.null(tile_index_dir)) "" else tile_index_dir)),
+          shiny::dateRangeInput("dates", "Acquisition interval", start = "2000-01-01", end = Sys.Date()),
+          shiny::actionButton("search", "Find ALS data", class = "als-action-btn"),
+          shiny::helpText("Searches every source configured for this deployment; no source needs to be picked by hand.")),
+        shiny::div(class = "als-section",
+          if (mode == "local") shiny::tagList(
+            shiny::textInput("destination", "Local output directory", value = tempdir()),
+            shiny::numericInput("workers", "Download workers", min(4L, policy$maximum), min = 1, max = policy$maximum),
+            shiny::helpText(paste("Recommended:", policy$recommended, "| maximum:", policy$maximum, "| provider ceiling:", provider_limit)))
+          else shiny::helpText("Hosted downloads use one worker. Select up to 10 tiles per batch. Files are delivered through your browser."),
+          shiny::actionButton("download", "Download selected tiles", class = "als-action-btn"),
+          shiny::textOutput("selection_summary"),
+          shiny::helpText("Downloads preserve original tiles, including portions outside the AOI. 3D inspection is optional."),
+          shiny::actionButton("cancel", "Cancel job"),
+          shiny::textOutput("job_status"), shiny::uiOutput("bundle_control")),
+        shiny::actionButton("reset_all", "Reset", class = "als-reset-btn"))),
       shiny::div(class = "als-main",
         shiny::tabsetPanel(id = "view",
           shiny::tabPanel("Explore",
@@ -138,6 +145,10 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
       preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE)
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
+    shiny::observeEvent(input$enter_map, ignoreNULL = FALSE, {
+      session$sendCustomMessage("als-toggle-class",
+        list(selector = ".als-layout", class = "als-map-open", on = isTRUE(input$enter_map > 0)))
+    })
     source_check_summary <- source_preflight_server(input, output, session, state, mode, hosted_lock)
     source_submission_server(input, output, session, source_check_summary)
     comparison_server(input, output, session, state, mode, hosted_lock)
@@ -167,6 +178,13 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::clearGroup("Study area") |>
         leaflet::addPolygons(data = state$aoi, group = "Study area", color = "#f1cb82", fillOpacity = .1) |>
         leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])
+    }
+    clear_aoi <- function() {
+      state$aoi <- NULL; state$tiles <- NULL
+      state$search <- "Draw or upload a study area to begin."
+      shiny::updateRadioButtons(session, "aoi_method", selected = "draw")
+      leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::clearGroup("Study area") |>
+        leaflet::removeControl("tile_year_legend") |> leaflet::setView(0, 20, 2)
     }
     output$layer_control <- shiny::renderUI({
       shiny::req(input$aoi_file)
@@ -300,21 +318,19 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       if (file.exists(owner) && identical(readLines(owner, warn = FALSE), as.character(state$job$get_pid())))
         unlink(lock, recursive = TRUE)
     }
-    shiny::observeEvent(input$reset_explorer, {
+    shiny::observeEvent(input$reset_aoi, clear_aoi())
+    shiny::observeEvent(input$reset_all, {
       if (!is.null(state$job) && state$job$is_alive()) state$job$kill_tree()
       release_lock(); release_output_lock()
       if (!is.null(state$jobdir)) unlink(state$jobdir, recursive = TRUE)
-      state$aoi <- NULL; state$tiles <- NULL; state$job <- NULL; state$jobdir <- NULL
+      state$job <- NULL; state$jobdir <- NULL
       state$destination <- NULL; state$finished <- FALSE
-      state$search <- "Draw or upload a study area to begin."
       state$jobtext <- "No active download."
-      shiny::updateRadioButtons(session, "aoi_method", selected = "draw")
       if (mode == "local") {
         shiny::updateTextInput(session, "destination", value = tempdir())
         shiny::updateNumericInput(session, "workers", value = min(4L, policy$maximum))
       }
-      leaflet::leafletProxy("map") |> leaflet::clearGroup("Tiles") |> leaflet::clearGroup("Study area") |>
-        leaflet::removeControl("tile_year_legend") |> leaflet::setView(0, 20, 2)
+      clear_aoi()
     })
     shiny::observeEvent(input$download, {
       if ((isTRUE(state$comparison_busy) || isTRUE(state$source_test_busy))) {shiny::showNotification("Wait for the campaign comparison or cancel it first."); return()}

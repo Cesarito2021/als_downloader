@@ -29,7 +29,7 @@ test_that("non-polygon draw shapes are rejected with a clear message", {
     "polygon or rectangle")
 })
 
-test_that("resetting the explorer clears the study area, results and job text", {
+test_that("reset area of interest clears only the study area and results, not job/download settings", {
   app <- als_app()
   shiny::testServer(app, {
     session$flushReact()
@@ -39,11 +39,39 @@ test_that("resetting the explorer clears the study area, results and job text", 
     state$search <- "Searching all configured sources..."
     state$jobtext <- "Complete: 1 successful, 0 failed. See manifest.csv."
     session$flushReact()
-    session$setInputs(reset_explorer = 1)
+    session$setInputs(reset_aoi = 1)
+    session$flushReact()
+    expect_null(state$aoi)
+    expect_null(state$tiles)
+    expect_match(state$search, "Draw or upload a study area")
+    expect_match(state$jobtext, "Complete: 1 successful")
+  })
+})
+
+test_that("reset (general) clears the study area, results and job text", {
+  app <- als_app()
+  shiny::testServer(app, {
+    session$flushReact()
+    state$aoi <- sf::st_sf(geometry = sf::st_sfc(sf::st_polygon(list(matrix(
+      c(0,0, 1,0, 1,1, 0,1, 0,0), ncol = 2, byrow = TRUE))), crs = 4326))
+    state$tiles <- alsdownloader:::empty_tiles()
+    state$search <- "Searching all configured sources..."
+    state$jobtext <- "Complete: 1 successful, 0 failed. See manifest.csv."
+    session$flushReact()
+    session$setInputs(reset_all = 1)
     session$flushReact()
     expect_null(state$aoi)
     expect_null(state$tiles)
     expect_match(state$search, "Draw or upload a study area")
     expect_match(state$jobtext, "No active download")
+  })
+})
+
+test_that("opening the map does not error the server-driven layout-class observer", {
+  app <- als_app()
+  shiny::testServer(app, {
+    session$flushReact()
+    expect_no_error(session$setInputs(enter_map = 1))
+    session$flushReact()
   })
 })

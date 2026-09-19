@@ -51,7 +51,7 @@ The [complete source table](inst/sources/SOURCES.md) records the current catalog
 | Control | Purpose |
 |---|---|
 | A - Header | Application and local/hosted mode. |
-| B - Study area | Draw a polygon/rectangle or upload GeoJSON, GeoPackage or a zipped Shapefile. |
+| B - Area of interest | Draw a polygon/rectangle or upload GeoJSON, GeoPackage or a zipped Shapefile. |
 | C - Search | Set an acquisition interval; find intersecting tiles across every source usable in this deployment. |
 | D - Download | Select files and download originals to your chosen folder. |
 | E - Map | Inspect the study area and returned tile footprints, coloured by acquisition year with an automatic legend (grey where the provider reports no date). |
