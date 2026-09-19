@@ -1,0 +1,36 @@
+## Technical appendix
+
+### Download planning
+
+Storage covers original compressed source tiles, including points outside the study area. Allow additional space for temporary downloads, extraction, decompressed LAS and derived products; their sizes are not estimated here. 1 GiB = 1,024 MiB.
+
+```{r, eval=params$details}
+if (has_tiles && any(known)) {
+  speed <- c(5, 20, 50)
+  minutes <- sum(bytes[known]) / 1024^2 / speed / 60
+  scenario <- data.frame(`Aggregate transfer (MiB/s)` = speed,
+    `Time for known bytes (minutes)` = ifelse(minutes < 0.1, "<0.1", sprintf("%.1f", minutes)), check.names = FALSE)
+  print(knitr::kable(scenario, row.names = FALSE))
+} else cat("No usable file sizes: storage and transfer time cannot be estimated.\n\n")
+```
+
+Illustrative ideal transfer times, **not measured speeds or completion promises**. Unknown sizes, retries, throttling, disk writes and processing are excluded. Four workers share the connection and provider limits; four CPU cores do not imply four times the download speed.
+
+### Selection sample (first 5 files)
+
+```{r, eval=params$details}
+if (has_tiles) {
+  cols <- intersect(c("filename", "dataset", "provider", "acquired_start", "acquired_end", "size_bytes"), names(tiles_df))
+  show <- utils::head(tiles_df[, cols, drop = FALSE], 5L)
+  # Keep long filenames out of the compact printed table.
+  cols <- intersect(c("filename", "acquired_start", "acquired_end", "size_bytes"), names(show))
+  show <- show[, cols, drop = FALSE]
+  show$filename <- ifelse(nchar(show$filename) > 28, paste0(substr(show$filename, 1, 25), "..."), show$filename)
+  if ("size_bytes" %in% names(show)) show$size_bytes <- round(show$size_bytes / 1024^2, 2)
+  names(show) <- c(filename="File", acquired_start="Start", acquired_end="End", size_bytes="MiB")[cols]
+  print(knitr::kable(show, row.names = FALSE))
+}
+```
+
+Export selected metadata in the app for full filenames and the complete selection. Dates are provider-reported; publication dates are never substituted.
+

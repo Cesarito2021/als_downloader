@@ -13,7 +13,7 @@ test_that("als_report renders a self-contained HTML summary without touching ori
   testthat::skip_if_not(rmarkdown::pandoc_available())
   tiles <- report_fixture()
   dir <- tempfile(); on.exit(unlink(dir, recursive = TRUE))
-  path <- als_report(tiles, dir, aoi_area_km2 = 1.5)
+  path <- als_report(tiles, dir, aoi_area_km2 = 1.5, details = TRUE)
   expect_true(file.exists(path))
   expect_match(path, "\\.html$")
   html <- paste(readLines(path, warn = FALSE), collapse = "\n")
@@ -47,7 +47,13 @@ test_that("unknown sizes do not produce a zero-duration promise and figures embe
   html <- paste(readLines(path, warn = FALSE), collapse = "\n")
   expect_true(grepl("cannot[[:space:]]+be[[:space:]]+estimated", html))
   expect_true(grepl("data:image/png;base64,", html, fixed = TRUE))
-  expect_true(grepl("Attached figure 1", html, fixed = TRUE))
+  expect_true(grepl("Figure 1 | Exported view", html, fixed = TRUE))
+  expect_true(grepl("Conclusions and next steps", html, fixed = TRUE))
+  expect_true(grepl("Software citation", html, fixed = TRUE))
+  expect_true(grepl("2409885", html, fixed = TRUE))
+  expect_true(grepl("2409886", html, fixed = TRUE))
+  expect_true(grepl("2409887", html, fixed = TRUE))
+  expect_false(grepl("Technical appendix", html, fixed = TRUE))
 })
 
 test_that("als_report handles an empty selection without erroring", {
@@ -62,6 +68,7 @@ test_that("als_report handles an empty selection without erroring", {
 test_that("als_report validates its inputs before touching rmarkdown", {
   expect_error(als_report(list(a = 1), tempfile()), "data frame")
   expect_error(als_report(report_fixture(), character(0)), "output directory")
+  expect_error(als_report(report_fixture(), tempfile(), details = NA), "TRUE or FALSE")
 })
 
 sf_report_fixture <- function() {
@@ -85,7 +92,7 @@ test_that("als_report draws a map figure when tiles and aoi both carry geometry"
   testthat::skip_if_not(rmarkdown::pandoc_available())
   tiles <- sf_report_fixture(); aoi <- aoi_report_fixture()
   dir <- tempfile(); on.exit(unlink(dir, recursive = TRUE))
-  path <- als_report(tiles, dir, aoi_area_km2 = 0.36, aoi = aoi)
+  path <- als_report(tiles, dir, aoi_area_km2 = 0.36, aoi = aoi, details = TRUE)
   html <- paste(readLines(path, warn = FALSE), collapse = "\n")
   expect_match(html, "a.laz", fixed = TRUE)
   expect_match(html, "data:image/png;base64,", fixed = TRUE)

@@ -156,7 +156,10 @@ Software: **GPL-3**, without warranty. Source availability, spatial coverage and
 
 In Explore, open **Session report: PDF or HTML** after selecting tiles. The
 report includes the study-area footprint map, provider-reported dates, tile
-counts, known storage in GiB, illustrative transfer-time scenarios and credits.
+counts, known storage in GiB, concise conclusions, software citation and credits.
+The closing acknowledgement recognises OpenForest4D and NSF awards 2409885,
+2409886 and 2409887. Enable **Include technical appendix** for the file sample
+and illustrative transfer-time scenarios.
 Unknown sizes are excluded explicitly. Parallel workers do not determine network
 speed; scenarios are not download completion promises.
 

@@ -16,6 +16,8 @@
 #'   is fetched to draw it.
 #' @param figures Optional paths to up to six exported PNG figures, included
 #'   unchanged with their embedded legends and credits. Maximum 10 MiB each.
+#' @param details Include a technical appendix with transfer-time scenarios
+#'   and a sample file table. Defaults to `FALSE` for a concise visual report.
 #' @return Invisibly, the path to the rendered report file.
 #' @details Content is limited to data already carried by `tiles`: filename,
 #'   dataset, provider, provider-reported acquisition dates, known size and
@@ -30,8 +32,10 @@
 #'   # als_report(tiles, "session-report-out")
 #' }
 als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km2 = NA_real_, aoi = NULL,
-                       figures = character()) {
+                       figures = character(), details = FALSE) {
   format <- match.arg(format)
+  if (!is.logical(details) || length(details) != 1L || is.na(details))
+    stop("details must be TRUE or FALSE.", call. = FALSE)
   if (!requireNamespace("rmarkdown", quietly = TRUE))
     stop("Install rmarkdown to generate a session report.", call. = FALSE)
   if (!is.data.frame(tiles)) stop("tiles must be a data frame returned by find_tiles().", call. = FALSE)
@@ -65,7 +69,8 @@ als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km
   rmarkdown::render(rmd, output_format = output_format, output_file = output_file,
     output_dir = output_dir, intermediates_dir = tempdir(),
     params = list(tiles = tiles, aoi_area_km2 = aoi_area_km2, aoi = aoi,
-      figures = normalizePath(figures, winslash = "/", mustWork = TRUE)),
+      figures = normalizePath(figures, winslash = "/", mustWork = TRUE), details = details,
+      software_citation = paste(format(utils::readCitationFile(system.file("CITATION", package = "alsdownloader")), style = "text"), collapse = " ")),
     envir = new.env(parent = globalenv()), quiet = TRUE)
   invisible(file.path(output_dir, output_file))
 }

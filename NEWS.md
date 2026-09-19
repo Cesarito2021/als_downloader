@@ -1,5 +1,9 @@
 # alsdownloader 0.1.0
 
+* Redesign session reports around key information, large figures and concise
+  metadata-based conclusions. Include the package citation and OpenForest4D NSF
+  acknowledgement; make technical download details an optional appendix.
+
 * Offer PDF and HTML session reports with study-area footprints, reported dates,
   known storage in GiB, clearly labelled transfer-speed scenarios and source
   credits. Attach exported PNG views with their legends and attribution.

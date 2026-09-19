@@ -1,5 +1,5 @@
 ---
-title: "ALS Downloader session report"
+title: "ALS Downloader | Study report"
 output:
   html_document:
     self_contained: true
@@ -8,17 +8,30 @@ params:
   aoi_area_km2: NA
   aoi: NULL
   figures: NULL
-geometry: margin=0.7in
+  details: false
+  software_citation: ""
+geometry: margin=0.65in
 fontsize: 10pt
+header-includes:
+  - \usepackage{helvet}
+  - \renewcommand{\familydefault}{\sfdefault}
+  - \usepackage{xcolor}
+  - \definecolor{alsaccent}{HTML}{176B68}
+  - \makeatletter
+  - \renewcommand\section{\@startsection{section}{1}{\z@}{-2ex plus -1ex minus -.2ex}{1ex plus .2ex}{\normalfont\large\bfseries\color{alsaccent}}}
+  - \def\@maketitle{\noindent{\color{alsaccent}\Huge\bfseries\@title\par}\vspace{0.7em}}
+  - \renewcommand\subsection[1]{\par\vspace{1.4em}{\large\bfseries\color{alsaccent}#1\par}\vspace{.3em}{\color{alsaccent}\hrule}\vspace{.7em}}
+  - \makeatother
 ---
 
 <style>
-body{max-width:900px;margin:0 auto;padding:0 24px 70px;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:#222}
-h1.title{color:#1c4a5e}
-h2{border-bottom:1px solid #e2e2e2;padding-bottom:4px;margin-top:34px}
-blockquote{color:#555;font-size:15px;font-style:italic;border-left:3px solid #8fb4c9;padding-left:12px;margin:10px 0 22px}
-.als-footer-badge{position:fixed;right:18px;bottom:14px;background:#152936;color:#dbe7ee;font-size:11.5px;padding:5px 12px;border-radius:14px;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-table{font-size:13.5px}
+body{max-width:900px;margin:auto;padding:32px 32px 60px;font-family:Arial,Helvetica,sans-serif;color:#263a40;line-height:1.5}
+h1.title{color:#176b68;font-size:32px;font-weight:700}
+h2{color:#176b68;border-bottom:2px solid #176b68;padding-bottom:6px;margin-top:26px;font-size:21px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0 18px;background:#f2f5f5}
+td,th{padding:9px 12px;border-bottom:3px solid white;text-align:left}
+img{max-width:100%} .report-note{background:#f2f5f5;padding:16px}
+@media print{h2{break-after:avoid}img,table{break-inside:avoid}}
 </style>
 
 ```{r setup, include=FALSE}
@@ -29,26 +42,41 @@ aoi <- params$aoi
 has_tiles <- !is.null(tiles) && is.data.frame(tiles) && nrow(tiles) > 0
 has_aoi <- inherits(aoi, "sf") && nrow(aoi) > 0
 has_map <- has_tiles && has_aoi && inherits(tiles, "sf")
-# The map figure needs geometry; every table below only ever needs the
-# plain attribute columns, so it uses this geometry-free copy instead.
 tiles_df <- if (has_tiles && inherits(tiles, "sf")) sf::st_drop_geometry(tiles) else tiles
+bytes <- if (has_tiles) suppressWarnings(as.numeric(tiles_df$size_bytes)) else numeric()
+known <- is.finite(bytes) & bytes > 0
+total_gb <- sum(bytes[known]) / 1024^3
+providers <- if (has_tiles) sort(unique(tiles_df$provider)) else character()
+dates <- if (has_tiles) sort(unique(na.omit(c(as.character(tiles_df$acquired_start), as.character(tiles_df$acquired_end))))) else character()
+dates <- dates[nzchar(dates)]
+area_label <- if (length(aoi_area_km2) == 1 && is.finite(aoi_area_km2)) sprintf("%.4f km2", aoi_area_km2) else "Not recorded"
+date_label <- if (length(dates)) paste(min(dates), "to", max(dates)) else "Not reported"
 ```
 
-Discover, inspect and download airborne LiDAR.
+Discover, inspect and download airborne LiDAR. A visual summary of your selected data, with source information to support the next step in your study.
 
-Generated `r format(Sys.time(), "%Y-%m-%d %H:%M")` by [ALS Downloader](https://github.com/Cesarito2021/als_downloader). Selected source metadata; not a completed-download certificate.
-
-## Study area
+## Key information
 
 ```{r}
-if (length(aoi_area_km2) == 1 && is.finite(aoi_area_km2)) {
-  cat(sprintf("Approximately **%.4f km2**.\n\n", aoi_area_km2))
-} else {
-  cat("Not recorded.\n\n")
-}
+key <- data.frame(
+  Information = c("Report date", "Study area", "Selected data", "Acquisition interval", "Known storage"),
+  Value = c(format(Sys.time(), "%Y-%m-%d %H:%M"), area_label,
+    sprintf("Tiles: %d | Providers: %d", if (has_tiles) nrow(tiles) else 0, length(providers)),
+    date_label, sprintf("%.3f GiB | Files with unknown size: %d", total_gb, sum(!known))))
+if (knitr::is_latex_output()) {
+  cat("```{=latex}\n\\colorbox{black!4}{\\parbox{\\dimexpr\\linewidth-2\\fboxsep}{\n")
+  panel <- knitr::kable(key, format = "latex", row.names = FALSE, col.names = NULL, vline = "")
+  cat("\\renewcommand{\\arraystretch}{1.5}\n")
+  cat(gsub("\\hline", "", panel, fixed = TRUE))
+  cat("}}\n```\n\n")
+} else print(knitr::kable(key, row.names = FALSE, col.names = c("", "")))
+if (length(providers)) cat("\nProviders:", paste(providers, collapse = ", "), "\n\n")
+if (!has_tiles) cat("No tiles in this selection.\n\n")
 ```
 
-```{r fig.width=7.2, fig.height=3.4, fig.align="center"}
+## Study area and selected coverage
+
+```{r fig.width=7.2, fig.height=4.1, fig.align="center"}
 if (has_map) {
   aoi_geo <- sf::st_transform(aoi, 4326)
   tiles_geo <- sf::st_transform(tiles, 4326)
@@ -61,36 +89,32 @@ if (has_map) {
   fill[is.na(fill)] <- "#8a97a1"
   combined <- c(sf::st_geometry(aoi_geo), sf::st_geometry(tiles_geo))
   bb <- sf::st_bbox(combined)
+  graphics::par(mar = c(3.5, 5.5, 1, 1), family = "sans")
   plot(sf::st_geometry(tiles_geo), col = fill, border = "#1c2b35",
-    xlim = bb[c("xmin", "xmax")], ylim = bb[c("ymin", "ymax")], main = "")
+    xlim = bb[c("xmin", "xmax")], ylim = bb[c("ymin", "ymax")], main = "", axes = FALSE)
+  graphics::axis(1, cex.axis = .8)
+  graphics::axis(2, las = 1, cex.axis = .8)
+  graphics::mtext("Longitude (WGS84)", side = 1, line = 2.2, cex = .8)
+  graphics::mtext("Latitude (WGS84)", side = 2, line = 4.2, cex = .8)
+  graphics::box()
   plot(sf::st_geometry(aoi_geo), add = TRUE, border = "#dc2626", lwd = 2, col = NA)
   if (n_year > 0) legend("topright", legend = c(as.character(years), "Unknown"),
     fill = c(cols[seq_len(n_year)], "#8a97a1"), bty = "n", cex = .8, title = "Acquisition year")
   cat("\n\n*Tile footprints (fill = acquisition year) and the study area outline (red). Geometry only, not a basemap image.*\n\n")
 } else if (has_tiles) {
-  cat("Study area geometry was not supplied to this report; only the tile footprints below are known.\n\n")
+  cat("Study area geometry was not supplied to this report; the map is omitted.\n\n")
 }
 ```
 
-## Summary
-
-```{r}
-if (!has_tiles) {
-  cat("No tiles in this selection.\n")
-} else {
-  bytes <- suppressWarnings(as.numeric(tiles_df$size_bytes))
-  known <- is.finite(bytes) & bytes > 0
-  total_gb <- sum(bytes[known]) / 1024^3
-  providers <- sort(unique(tiles_df$provider))
-  cat(sprintf("- **%d** selected tile(s), **%d** provider(s)\n", nrow(tiles_df), length(providers)))
-  cat(sprintf("- Providers: %s\n", paste(providers, collapse = ", ")))
-  cat(sprintf("- **%.3f GiB** known source-file storage; **%d** file(s) have unknown size\n", total_gb, sum(!known)))
-  if (any(!known)) cat("- Storage is incomplete: unknown files are excluded, not treated as empty.\n")
-  dates <- sort(unique(na.omit(c(as.character(tiles_df$acquired_start), as.character(tiles_df$acquired_end)))))
-  dates <- dates[nzchar(dates)]
-  if (length(dates)) cat(sprintf("- Reported acquisition dates: **%s to %s** (interval endpoints, not continuous coverage)\n", min(dates), max(dates)))
-  else cat("- Acquisition dates: not reported\n")
-
+```{r attached-figures, out.width="100%", out.height="7in", fig.align="center"}
+if (length(params$figures)) {
+  for (i in seq_along(params$figures)) {
+    if (knitr::is_latex_output()) cat("\\newpage\n")
+    cat(sprintf("\n\n## Figure %d | Exported view\n\n", i))
+    cat("User-selected exported view; its embedded labels, sampling notes and credits apply. It may differ from the current tile selection. Visual comparisons do not measure change.\n\n")
+    if (knitr::is_latex_output()) cat(sprintf("\\includegraphics[width=\\linewidth,height=0.72\\textheight,keepaspectratio]{%s}\n", params$figures[i]))
+    else cat(sprintf("![](%s)\n\n", params$figures[i]))
+  }
 }
 ```
 
@@ -98,39 +122,31 @@ if (!has_tiles) {
 if (knitr::is_latex_output()) cat("\\newpage\n")
 ```
 
-## Download planning
-
-Storage covers original compressed source tiles, including points outside the study area. Allow additional space for temporary downloads, extraction, decompressed LAS and derived products; their sizes are not estimated here. 1 GiB = 1,024 MiB.
-
-```{r}
-if (has_tiles && any(known)) {
-  speed <- c(5, 20, 50)
-  minutes <- sum(bytes[known]) / 1024^2 / speed / 60
-  scenario <- data.frame(`Aggregate transfer (MiB/s)` = speed,
-    `Time for known bytes (minutes)` = ifelse(minutes < 0.1, "<0.1", sprintf("%.1f", minutes)), check.names = FALSE)
-  print(knitr::kable(scenario, row.names = FALSE))
-} else cat("No usable file sizes: storage and transfer time cannot be estimated.\n\n")
-```
-
-Illustrative ideal transfer times, **not measured speeds or completion promises**. Unknown sizes, retries, throttling, disk writes and processing are excluded. Four workers share the connection and provider limits; four CPU cores do not imply four times the download speed.
-
-## Selection sample (first 5 files)
+## Conclusions and next steps
 
 ```{r}
 if (has_tiles) {
-  cols <- intersect(c("filename", "dataset", "provider", "acquired_start", "acquired_end", "size_bytes"), names(tiles_df))
-  show <- utils::head(tiles_df[, cols, drop = FALSE], 5L)
-  # Keep long filenames out of the compact printed table.
-  cols <- intersect(c("filename", "acquired_start", "acquired_end", "size_bytes"), names(show))
-  show <- show[, cols, drop = FALSE]
-  show$filename <- ifelse(nchar(show$filename) > 28, paste0(substr(show$filename, 1, 25), "..."), show$filename)
-  if ("size_bytes" %in% names(show)) show$size_bytes <- round(show$size_bytes / 1024^2, 2)
-  names(show) <- c(filename="File", acquired_start="Start", acquired_end="End", size_bytes="MiB")[cols]
-  print(knitr::kable(show, row.names = FALSE))
-}
+  cat(sprintf("- Selected tiles: **%d**. Data providers: **%d**. ", nrow(tiles), length(providers)))
+  cat(if (length(dates)) paste0("Reported acquisition dates span **", date_label, "**; this is not a continuous coverage record.\n") else "Acquisition dates are not reported.\n")
+  if (any(known)) cat(sprintf("- Plan for **%.3f GiB** of known source files%s. Allow additional space for temporary files and derived products.\n", total_gb,
+    if (any(!known)) sprintf(" plus files with unknown sizes (%d)", sum(!known)) else ""))
+  else cat("- No usable file sizes: storage and transfer time cannot be estimated.\n")
+} else cat("No data conclusions can be drawn from an empty selection.\n")
 ```
 
-Export selected metadata in the app for full filenames and the complete selection. Dates are provider-reported; publication dates are never substituted.
+Figures support visual inspection. They do not establish measured change, point-cloud alignment or data quality. Confirm acquisition dates, coordinate references and elevation units before quantitative analysis. Downloads preserve complete source tiles, including points outside the study area.
+
+## Software citation
+
+```{r}
+cat(params$software_citation, "\n\n")
+```
+
+## Acknowledgements
+
+ALS Downloader was developed within [OpenForest4D](https://openforest4d.org). OpenForest4D is funded by NSF awards **2409885, 2409886 & 2409887**.
+
+We acknowledge the data producers and repositories listed below. Cite their datasets separately when using downloaded data or figures.
 
 ## Citations and licences
 
@@ -149,16 +165,12 @@ if (has_tiles) {
 }
 ```
 
-Source datasets retain their own terms. This report does not certify data quality, complete coverage or licence clearance. Reports are generated by the app server; local mode keeps them on this computer.
 
-```{r attached-figures, out.width="100%", out.height="7in", fig.align="center"}
-if (length(params$figures)) {
-  for (i in seq_along(params$figures)) {
-    if (knitr::is_latex_output()) cat("\\newpage\n")
-    cat(sprintf("\n\n## Attached figure %d\n\n", i))
-    cat("User-selected exported view; its embedded labels, sampling notes and credits apply. It may differ from the current tile selection. Visual comparisons do not measure change.\n\n")
-    if (knitr::is_latex_output()) cat(sprintf("\\includegraphics[width=\\linewidth,height=0.75\\textheight,keepaspectratio]{%s}\n", params$figures[i]))
-    else cat(sprintf("![](%s)\n\n", params$figures[i]))
-  }
+Source datasets retain their own licences and access conditions. This report describes the current selection, not a completed download or a certification of coverage. Reports are generated by the app server; local mode keeps them on this computer.
+
+```{r}
+if (isTRUE(params$details)) {
+  if (knitr::is_latex_output()) cat("\\newpage\n")
+  cat(knitr::knit_child(system.file("report", "technical-appendix.Rmd", package = "alsdownloader"), quiet = TRUE), sep = "\n")
 }
 ```

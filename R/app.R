@@ -138,7 +138,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
             shiny::downloadButton("export_selection", "Export selected metadata"),
             shiny::downloadButton("export_script", "Download selection as R script"),
             shiny::tags$details(shiny::tags$summary("Session report: PDF or HTML"),
-              shiny::helpText("Includes selected tile footprints, dates, storage, transfer-time scenarios and credits. Save PNG figures from the map or viewers, then attach them here to include those exact views and legends."),
+              shiny::helpText("A concise visual report with study-area information, figures, conclusions and credits. Save PNG figures from the map or viewers, then attach them here to include those exact views and legends."),
+              shiny::checkboxInput("report_details", "Include technical appendix (file sample and download-time scenarios)", FALSE),
               shiny::fileInput("report_figures", "Optional exported PNG figures (up to 6, 10 MiB each)", multiple = TRUE, accept = ".png"),
               shiny::helpText("Attached figures may show a different selection; check their embedded labels. Extra figures add pages. PDF requires Pandoc and TinyTeX on the app server."),
               shiny::downloadButton("download_report", "Download HTML report"),
@@ -393,7 +394,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       dir <- tempfile("als-report-"); dir.create(dir)
       on.exit(unlink(dir, recursive = TRUE), add = TRUE)
       figures <- if (is.null(input$report_figures)) character() else input$report_figures$datapath
-      path <- tryCatch(als_report(x, dir, format = format, aoi_area_km2 = area, aoi = state$aoi, figures = figures),
+      path <- tryCatch(als_report(x, dir, format = format, aoi_area_km2 = area, aoi = state$aoi, figures = figures,
+        details = isTRUE(input$report_details)),
         error = function(e) {shiny::showNotification(conditionMessage(e), type = "error", duration = 15); stop(e)})
       file.copy(path, file, overwrite = TRUE)
     }

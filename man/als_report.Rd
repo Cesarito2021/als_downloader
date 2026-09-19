@@ -10,7 +10,8 @@ als_report(
   format = c("html", "pdf"),
   aoi_area_km2 = NA_real_,
   aoi = NULL,
-  figures = character()
+  figures = character(),
+  details = FALSE
 )
 }
 \arguments{
@@ -36,6 +37,9 @@ is fetched to draw it.}
 
 \item{figures}{Optional paths to up to six exported PNG figures, included
 unchanged with their embedded legends and credits. Maximum 10 MiB each.}
+
+\item{details}{Include a technical appendix with transfer-time scenarios
+and a sample file table. Defaults to `FALSE` for a concise visual report.}
 }
 \value{
 Invisibly, the path to the rendered report file.
