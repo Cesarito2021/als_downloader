@@ -1,9 +1,6 @@
-# CanElevation has no confirmed live spatial API (unlike the STAC-based European
-# adapters); NRCan publishes project/tile GeoPackage or Shapefile indexes for
-# download. This follows the OpenTopography local-index pattern: the user
-# supplies the official index locally, and downloads use the confirmed public
-# S3 bucket. See docs/SOURCE_AUDIT.md and docs/file-access-checks.csv for the
-# live evidence this is built from (17 September 2026).
+# This adapter consumes configured NRCan regional indexes. The official ArcGIS
+# tile query was verified on 2026-09-19; the adapter does not fetch it automatically.
+# See docs/REGIONAL_VERIFICATION.md for scope, access checks and sample decoding.
 search_canelevation <- function(aoi, folder, max_items) {
   if (is.null(folder) || !dir.exists(folder)) stop("Configure a local CanElevation tile-index directory.", call. = FALSE)
   files <- list.files(folder, "\\.(gpkg|shp)$", full.names = TRUE, ignore.case = TRUE)
@@ -16,6 +13,11 @@ search_canelevation <- function(aoi, folder, max_items) {
     names(obj) <- tolower(names(obj))
     if (!"url" %in% names(obj)) stop("Tile index lacks a URL field.", call. = FALSE)
     obj <- sf::st_transform(sf::st_make_valid(sf::st_zm(obj, drop = TRUE, what = "ZM")), 4326)
+    # Some official tile rings retain crossings after spherical repair. Repair
+    # those rings in Canada's Lambert projection before the geographic query.
+    invalid <- which(!sf::st_is_valid(obj))
+    if(length(invalid)) sf::st_geometry(obj)[invalid] <- sf::st_geometry(
+      sf::st_make_valid(sf::st_transform(sf::st_make_valid(sf::st_transform(obj[invalid,],3347)),4326)))
     obj <- obj[lengths(sf::st_intersects(obj, aoi)) > 0, , drop = FALSE]
     if (!nrow(obj)) next
     href <- as.character(obj$url)

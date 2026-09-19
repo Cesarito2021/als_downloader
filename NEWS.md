@@ -1,5 +1,10 @@
 # alsdownloader 0.1.0
 
+* Replace country-wide availability shading with configured regional index
+  outlines; keep search footprints separate. Soften report and transfer colours.
+* Verify small-area source samples and repair crossing rings in CanElevation
+  indexes. Enable only local adapters whose index files are configured.
+
 * Place the PDF download and its options in a results-dependent sidebar section;
   show transfer status and cancellation only when relevant. Simplify Explorer
   actions and use consistent 3D view, comparison and contribution terminology.

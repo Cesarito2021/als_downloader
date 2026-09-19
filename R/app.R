@@ -46,6 +46,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
   shiny::addResourcePath("als-assets", assets)
   shiny::addResourcePath("als-data", system.file("extdata", package = "alsdownloader"))
   catalog <- provider_catalog()
+  overview <- coverage_overview(tile_index_dir,
+    if (is.null(submission_dir)) NULL else file.path(submission_dir, "approved"))
+  overview_json <- if(nrow(overview)) as.character(jsonlite::toJSON(report_geojson(overview),auto_unbox=TRUE,digits=NA)) else '{"type":"FeatureCollection","features":[]}'
   cores <- as.numeric(parallelly::availableCores())
   policy <- download_worker_policy(mode, cores)
   world <- sf::st_read(system.file("extdata", "world-countries.geojson", package = "alsdownloader"), quiet = TRUE)
@@ -84,7 +87,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           shiny::conditionalPanel("input.aoi_method == 'draw'",
             shiny::helpText("Geometry: polygon or rectangle.")),
           shiny::textOutput("aoi_status"),
-          shiny::actionButton("reset_aoi", "Reset area of interest", class = "als-reset-btn")),
+          shiny::actionButton("reset_aoi", "Clear study area", class = "als-reset-btn")),
         shiny::div(class = "als-section",
           shiny::dateRangeInput("dates", "Acquisition period", start = "2000-01-01", end = Sys.Date()),
           shiny::actionButton("search", "Find ALS data", class = "als-action-btn")),
@@ -114,20 +117,18 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           shiny::textOutput("job_status"),
           shiny::conditionalPanel("output.download_running === 'yes'", shiny::actionButton("cancel", "Cancel download")),
           shiny::uiOutput("bundle_control")),
-        shiny::actionButton("reset_all", "Reset", class = "als-reset-btn"))),
+        shiny::actionButton("reset_all", "Reset workspace", class = "als-reset-btn"))),
       shiny::div(class = "als-main",
         shiny::tabsetPanel(id = "view",
           shiny::tabPanel("Explore",
             shiny::conditionalPanel("input.enter_map == 0",
               shiny::div(class = "als-globe-intro",
                 shiny::div(class = "als-globe-wrap",
-                  shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Rotatable world globe. Drag or use arrow keys to rotate. Red countries have an in-app download adapter; yellow countries link to an official source you must visit directly.",
-                    `data-countries` = paste(unique(catalog$country_code), collapse = ","),
-                    `data-implemented` = paste(unique(catalog$country_code[catalog$implemented]), collapse = ",")),
+                  shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Rotatable world globe. Drag or use arrow keys to rotate. Green polygons show configured regional indexes, not national coverage.",
+                    `data-coverage` = overview_json),
                   shiny::tags$div(class = "als-globe-legend", `aria-hidden` = "true",
-                    shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-red"), "In-app download"),
-                    shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-yellow"), "Portal link only"))),
-                shiny::p(id = "globe_status", class = "als-globe-caption", "Drag to rotate. Neither colour reflects measured survey coverage."),
+                    shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-coverage"), "Indexed survey areas"))),
+                shiny::p(id = "globe_status", class = "als-globe-caption", "Regional indexes shown where configured. Search an area for additional coverage."),
                 shiny::p(class = "als-globe-mission",
                   "Discover, inspect and download airborne LiDAR. Open-source software connecting researchers to aerial laser-scanning point clouds from multiple providers. Draw or upload a study area, inspect acquisition dates and tiles, and download original files without writing code."),
                 shiny::p(class = "als-globe-author", "by Cesar Alvites"),
@@ -214,25 +215,27 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     zenodo_submission_server(input, output, session, submission_dir, reviewer)
     comparison_server(input, output, session, state, mode, hosted_lock)
     output$map <- leaflet::renderLeaflet({
-      world$catalog <- world$code %in% catalog$country_code
-      world$implemented <- world$code %in% catalog$country_code[catalog$implemented]
-      leaflet::leaflet(world) |>
+      map <- leaflet::leaflet(world) |>
         leaflet::addMapPane("aoi-outline", zIndex = 450) |>
         leaflet::addProviderTiles("Esri.WorldImagery", group = "Satellite RGB") |>
         leaflet::addTiles("https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
           group = "Terrain relief", attribution = "Terrain: Esri, Airbus DS, USGS, NGA, NASA, CGIAR, NLS, OS, NMA, Geodatastyrelsen, GSA, GSI and GIS User Community",
           options = leaflet::tileOptions(maxZoom = 16, className = "als-relief-tiles")) |>
         leaflet::addPolygons(layerId = ~id, group = "Countries", color = "#60717c", weight = .5,
-          fillColor = ~ifelse(implemented, "#dc2626", ifelse(catalog, "#eab308", "#25313c")),
-          fillOpacity = ~ifelse(catalog, .14, 0), label = ~name,
+          fill = FALSE, label = ~name,
           options = leaflet::pathOptions(interactive = FALSE)) |>
         leaflet.extras::addDrawToolbar(targetGroup = "Study area", polygonOptions = leaflet.extras::drawPolygonOptions(showArea = TRUE),
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
           editOptions = leaflet.extras::editToolbarOptions()) |>
-        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = c("Countries", "Study area")) |>
+        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = c("Countries", "Indexed survey areas", "Study area")) |>
         leaflet::hideGroup("Terrain relief") |>
         leaflet::setView(0, 20, 2)
+      if(nrow(overview)) map <- leaflet::addPolygons(map, data=overview,
+        group="Indexed survey areas", color="#65b99c", weight=1,
+        fillColor="#65b99c", fillOpacity=.12, label=~dataset,
+        options=leaflet::pathOptions(interactive=FALSE))
+      map
     })
     # Tiles are split into one Leaflet group per acquisition year (see the
     # search handler) so the existing layers control can toggle a single
@@ -243,7 +246,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       for (g in state$tile_groups) p <- p |> leaflet::clearGroup(g)
       p |> leaflet::removeControl("tile_year_legend") |>
         leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
-          overlayGroups = c("Countries", "Study area"))
+          overlayGroups = c("Countries", "Indexed survey areas", "Study area"))
       state$tile_groups <- character(0)
     }
     set_aoi <- function(x) {
@@ -320,7 +323,12 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       local_index_dir <- tile_index_dir
       has_local_index <- !is.null(local_index_dir) && nzchar(trimws(local_index_dir))
       providers <- c("usgs3dep", "ahn6", "swisstopo", "ignfr")
-      if (has_local_index) providers <- c(providers, "opentopography", "contributed", "canelevation")
+      if (has_local_index) {
+        files <- list.files(local_index_dir, ignore.case=TRUE)
+        if(any(grepl("_TileIndex\\.zip$",files,ignore.case=TRUE))) providers <- c(providers,"opentopography")
+        if(any(grepl("\\.tiles\\.geojson$",files,ignore.case=TRUE))) providers <- c(providers,"contributed")
+        if(any(grepl("\\.(gpkg|shp)$",files,ignore.case=TRUE))) providers <- c(providers,"canelevation")
+      }
       approved_dir <- if (is.null(submission_dir)) NULL else file.path(submission_dir, "approved")
       if (!is.null(approved_dir) && length(list.files(approved_dir, "\\.tiles\\.geojson$")))
         providers <- c(providers, "zenodo-approved")
@@ -373,7 +381,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             leaflet::addLegend("bottomright", layerId = "tile_year_legend",
               pal = pal, values = levels_all, title = "Acquisition year") |>
             leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
-              overlayGroups = c("Countries", "Study area", groups))
+              overlayGroups = c("Countries", "Indexed survey areas", "Study area", groups))
         }
       }, error = function(e) {state$search <- conditionMessage(e); notify(e)})
     })

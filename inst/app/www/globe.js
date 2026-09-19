@@ -9,8 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   t.strokeStyle='rgba(184,223,238,0.15)';t.lineWidth=1;t.beginPath();
   for(let x=0;x<W;x+=W/12){t.moveTo(x,0);t.lineTo(x,H);}
   for(let y=H/6;y<H;y+=H/6){t.moveTo(0,y);t.lineTo(W,y);}t.stroke();
-  const countries=new Set(canvas.dataset.countries.split(',').map(Number));
-  const implemented=new Set((canvas.dataset.implemented||'').split(',').filter(Boolean).map(Number));
+  const coverage=JSON.parse(canvas.dataset.coverage||'{"features":[]}');
   let pixels,lon=-65,lat=18,drag=null,pending=false,autorotate=true;
   function ring(coords,shift){
     let prev=coords[0][0];const points=coords.map(([raw,y])=>{let x=raw;while(x-prev>180)x-=360;while(x-prev< -180)x+=360;prev=x;return [x,y];});
@@ -24,9 +23,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     for(const f of world.features){
       const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
       for(const poly of polys)for(const shift of [-360,0,360]){t.beginPath();poly.forEach(coords=>ring(coords,shift));t.fillStyle='#c4d5b7';t.fill('evenodd');
-        if(implemented.has(Number(f.id))){t.fillStyle='rgba(220,38,38,0.55)';t.fill('evenodd');}
-        else if(countries.has(Number(f.id))){t.fillStyle='rgba(234,179,8,0.55)';t.fill('evenodd');}
         t.strokeStyle='#6c958b';t.lineWidth=.65;t.stroke();}
+    }
+    for(const f of coverage.features){
+      const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
+      for(const poly of polys)for(const shift of [-360,0,360]){
+        t.beginPath();poly.forEach(coords=>ring(coords,shift));
+        t.fillStyle='rgba(45,156,112,0.65)';t.fill('evenodd');
+        t.strokeStyle='#2e8060';t.lineWidth=.7;t.stroke();
+      }
     }
     pixels=t.getImageData(0,0,W,H).data;canvas.dataset.ready='true';draw();
     requestAnimationFrame(spin);
@@ -40,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const w=Math.min(1100,Math.round(canvas.clientWidth)),h=canvas.clientHeight;
     canvas.width=w;canvas.height=h;ctx.fillStyle='#050b12';ctx.fillRect(0,0,w,h);
     // Two faint, fixed nebula glows behind the starfield for a bit of depth;
-    // subtle enough to never compete with the globe's red/yellow coverage colours.
+    // subtle enough to never compete with the regional coverage outlines.
     const neb1=ctx.createRadialGradient(w*.14,h*.1,0,w*.14,h*.1,w*.4);
     neb1.addColorStop(0,'#3a2f5e3d');neb1.addColorStop(1,'#3a2f5e00');
     ctx.fillStyle=neb1;ctx.fillRect(0,0,w,h);

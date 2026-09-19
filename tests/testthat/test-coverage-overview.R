@@ -1,0 +1,12 @@
+test_that("overview retains separate indexed regions instead of a bounding rectangle", {
+  folder<-tempfile();dir.create(folder);on.exit(unlink(folder,recursive=TRUE))
+  box<-function(x)sf::st_as_sfc(sf::st_bbox(c(xmin=x,ymin=0,xmax=x+.01,ymax=.01),crs=4326))
+  g<-c(box(0),box(.03))
+  sf::st_write(sf::st_sf(geometry=g),file.path(folder,"regions.gpkg"),quiet=TRUE)
+  x<-coverage_overview(folder)
+  expect_equal(nrow(x),1L)
+  gap<-sf::st_sfc(sf::st_point(c(.02,.005)),crs=4326)
+  expect_length(sf::st_intersects(gap,x)[[1]],0L)
+  expect_length(sf::st_intersects(sf::st_sfc(sf::st_point(c(.005,.005)),crs=4326),x)[[1]],1L)
+  expect_equal(nrow(coverage_overview()),0L)
+})

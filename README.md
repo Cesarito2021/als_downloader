@@ -32,7 +32,9 @@ Requires R >= 4.1. Install `lidR` for optional point-cloud previews. USGS, AHN6,
 
 ## 1. Explore sources
 
-![Welcome globe rotating, showing catalog presence by country](docs/images/globe-rotate.gif)
+The globe and map use neutral country outlines. Green regional polygons show
+configured index extents, not national coverage. Live source coverage is retrieved
+when an area is searched. See [regional verification](docs/REGIONAL_VERIFICATION.md).
 
 The [complete source table](inst/sources/SOURCES.md) records the current catalogue.
 The welcome page also includes an expandable **About the project** introduction
@@ -125,8 +127,8 @@ The eight most representative entries are shown below, one or two per continent 
 | OpenTopography index service | [OpenTopography](https://opentopography.org/node/3598) | Local TileIndex files; dataset-specific access and terms. |
 | BR17_SaoPaulo, Brazil | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
 | Auckland_2013, New Zealand | [OpenTopography catalog](https://portal.opentopography.org/datasets) | Index adapter; representative LAS/LAZ access checked. |
-| CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | AOI search via a locally supplied NRCan project/tile index (.gpkg/.shp; no live spatial API confirmed), original COPC LAZ download from the public S3 bucket; adapter added 18 September 2026, pending a fresh live/CI validation. |
-| IGN LiDAR HD, France | [Official record](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | AOI search via a public STAC catalogue (UMR TETIS / INRAE, not IGN's own WFS), original COPC LAZ download; adapter added 18 September 2026, pending a fresh live/CI validation. |
+| CanElevation, Canada | [Government of Canada](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947) | Configured regional NRCan index; Athabasca search and original COPC decoding verified. The official ArcGIS service can supply index polygons; this adapter reads local GPKG/SHP files. |
+| IGN LiDAR HD, France | [Official record](https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD) | UMR TETIS / INRAE STAC search; Paris sample search and original COPC decoding verified. |
 | AHN6, Netherlands | [AHN](https://www.ahn.nl/dataroom) | Native footprint search and original LAZ download; AHN6 only. |
 | swissSURFACE3D, Switzerland | [swisstopo](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | Native AOI search and original LAS ZIP downloads; extract locally for preview. |
 

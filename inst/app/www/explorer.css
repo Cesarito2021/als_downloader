@@ -24,9 +24,10 @@
 .als-header{box-shadow:0 1px 0 rgba(0,0,0,.35)}
 .als-header h1{font-weight:600}
 .als-sidebar{box-shadow:2px 0 14px rgba(0,0,0,.22)}
-.btn.als-report-btn{display:block;width:100%;padding:12px 14px;margin:0 0 8px;background:#7051a8;color:#fff;border:0;border-radius:8px;font-weight:600;white-space:normal}
-.btn.als-report-btn:hover,.btn.als-report-btn:focus{background:#8463bf;color:#fff}
-.als-report-section,.als-transfer-section{border-color:#594573;background:rgba(112,81,168,.10)}
+.btn.als-report-btn{display:block;width:100%;padding:12px 14px;margin:0 0 8px;background:rgba(137,105,188,.18);color:#e5d9f7;border:1px solid rgba(167,139,207,.45);border-radius:8px;font-weight:600;white-space:normal}
+.btn.als-report-btn:hover,.btn.als-report-btn:focus{background:rgba(137,105,188,.30);color:#fff}
+.als-report-section,.als-transfer-section{border-color:rgba(151,118,194,.32);background:rgba(112,81,168,.05)}
+.als-globe-swatch-coverage{background:#65b99c}
 .als-transfer-section h4{font-size:15px;margin-top:0;color:#d5bdf6}
 .als-result-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .als-sidebar-heading{font-size:13px;font-weight:600;letter-spacing:.04em;color:#a6b8c4;margin:18px 0 10px}
