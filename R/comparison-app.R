@@ -1,16 +1,16 @@
 comparison_ui <- function() {
   shiny::tabPanel("3D comparison",
     shiny::h3("Two point clouds, overlapping area only"),
-    shiny::radioButtons("compare_source", "Comparison sources", c("Two source point clouds"="remote", "Source point cloud + my LAS/LAZ"="local"),inline=TRUE),
+    shiny::radioButtons("compare_source", "Comparison sources", c("Two source point clouds"="remote", "Source point cloud + local LAS/LAZ"="local"),inline=TRUE),
     shiny::conditionalPanel("input.compare_source === 'local'",
-      shiny::fileInput("compare_local_file","B | Upload your point cloud (LAS/LAZ, up to 1 GB)",accept=c(".las",".laz")),
+      shiny::fileInput("compare_local_file","B | Local point cloud (LAS/LAZ, up to 1 GB)",accept=c(".las",".laz")),
       shiny::textOutput("compare_local_status"),
-      shiny::checkboxInput("compare_local_refs","I checked that both clouds use compatible horizontal and vertical references. Matching EPSG alone may not establish the elevation datum.",FALSE),
-      shiny::helpText("Your file stays in this app session and is not submitted to a provider or catalogue. On a hosted app it is uploaded to that server. Dates are not inferred; this mode is for visual inspection, including same-date surveys.")),
+      shiny::checkboxInput("compare_local_refs","Confirm compatible horizontal and vertical references. Matching EPSG alone may not establish the elevation datum.",FALSE),
+      shiny::helpText("The uploaded file stays in this app session and is not submitted to a provider or catalogue. On a hosted app it is uploaded to that server. Dates are not inferred; this mode is for visual inspection, including same-date surveys.")),
     shiny::textOutput("compare_time_message"),
     shiny::conditionalPanel("output.compare_temporal_ready === 'yes'",
-    shiny::checkboxInput("compare_opt_in", "I want to compare two point clouds in this study area", FALSE),
-    shiny::p("Search an AOI in Explore, then choose source point cloud A and either another source point cloud or your local cloud B. Source-to-source comparison requires separate acquisition periods. Local-cloud dates are unverified. This is visualization only; downloads remain separate."),
+    shiny::checkboxInput("compare_opt_in", "Enable point-cloud comparison", FALSE),
+    shiny::p("Search an AOI in Explore, then choose source point cloud A and either another source point cloud or local point cloud B. Source-to-source comparison requires separate acquisition periods. Local-cloud dates are unverified. This is visualization only; downloads remain separate."),
     shiny::fluidRow(shiny::column(6, shiny::selectInput("epoch_a", "A | first / earlier cloud", choices = character()),
       shiny::actionButton("download_epoch_a", "Select A tiles for download")),
       shiny::column(6, shiny::conditionalPanel("input.compare_source !== 'local'",shiny::selectInput("epoch_b", "B | latest cloud", choices = character()),
@@ -20,7 +20,7 @@ comparison_ui <- function() {
       shiny::helpText("Display axes use metres. Horizontal units come from the CRS; elevation units are checked separately. If Z units are absent, confirm them from provider documentation before loading. Unit conversion does not align vertical datums."),
       shiny::selectInput("compare_z_units_a", "A: source elevation units", source_unit_choices()),
       shiny::selectInput("compare_z_units_b", "B: source elevation units", source_unit_choices())),
-    shiny::helpText("A small window is placed in the largest shared footprint and clipped to your AOI. Draw a smaller AOI in Explore to choose its location. The automatic location is not guaranteed to represent the forest."),
+    shiny::helpText("A small window is placed in the largest shared footprint and clipped to the AOI. Draw a smaller AOI in Explore to choose its location. The automatic location is not guaranteed to represent the forest."),
     shiny::helpText("Visualization only: square side 100 m to 1 km. Remote limits: four tiles and 600 MB per source, 300 MB per tile. One local file up to 1 GB is supported. Both clouds require the same embedded projected CRS and known coordinate units; feet are scaled to metres for display. No vertical-datum transformation is performed."),
     shiny::textOutput("compare_availability"), shiny::uiOutput("compare_load_control"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
@@ -82,7 +82,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
   output$compare_temporal_ready <- shiny::renderText(if (is_local() || is.null(comparison_time_message(state$tiles))) "yes" else "no")
   shiny::outputOptions(output, "compare_temporal_ready", suspendWhenHidden = FALSE)
   output$compare_time_message <- shiny::renderText({
-    if(is_local())return("Compare one available source point cloud with your own cloud. Two dated source point clouds are not required in this mode.")
+    if(is_local())return("Compare one available source point cloud with a local point cloud. Two dated source point clouds are not required in this mode.")
     message <- comparison_time_message(state$tiles)
     if (is.null(message)) "Two acquisition periods are available. Select a pair to check shared coverage. Two separate flights in the same year can qualify." else message
   })

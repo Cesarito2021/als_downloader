@@ -4,14 +4,14 @@ submission_tracking_ui <- function() shiny::tagList(
   shiny::helpText("Use the reference issued by this app. Email-only requests are followed up by email."))
 
 zenodo_submission_ui <- function() shiny::tagList(
-  shiny::p("Share your LiDAR with the community through Zenodo. Provide coverage polygons or declare an approximate extent for review. Your files stay on Zenodo. Only approved entries and download links enter ALS Downloader."),
+  shiny::p("Contribute a Zenodo dataset to the community catalogue. Coverage polygons or a declared approximate extent are required for review. Source files remain on Zenodo. Only approved entries and download links enter ALS Downloader."),
   shiny::textInput("zenodo_link","1. Zenodo DOI or product link",placeholder="https://zenodo.org/records/... or 10.5281/zenodo...."),
   shiny::actionButton("zenodo_inspect","Read Zenodo metadata"),shiny::textOutput("zenodo_metadata_status"),
   shiny::tags$details(shiny::tags$summary("Retrieved description, citation and licence"),shiny::verbatimTextOutput("zenodo_metadata_details")),
   shiny::radioButtons("zenodo_has_boundary","2. Do you have boundary polygons for these point clouds?",
     choices=c("Yes - read a polygon file"="yes","No - declare an approximate square"="no"),selected="yes"),
   shiny::conditionalPanel("input.zenodo_has_boundary == 'yes'",
-  shiny::selectInput("zenodo_boundary_source","Coverage polygons",c("Upload your polygons"="upload")),
+  shiny::selectInput("zenodo_boundary_source","Coverage polygons",c("Upload coverage polygons"="upload")),
   shiny::conditionalPanel("input.zenodo_boundary_source == 'upload'",
     shiny::fileInput("zenodo_boundary","GeoJSON, GeoPackage or zipped Shapefile (5 MiB maximum)",accept=c(".geojson",".gpkg",".zip"))),
   shiny::helpText("Choose a polygon file detected in the Zenodo record or upload one. Supported: GeoJSON, GeoPackage, or a ZIP containing SHP, SHX, DBF and PRJ. JPG images and KML are not supported here. With several cloud files, include a file_key column matching each Zenodo filename. Use a single-layer GeoPackage.")),
@@ -27,9 +27,9 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::textInput("zenodo_acquired","3. Acquisition year or interval (blank if unknown)",placeholder="2018, 2016-2018, or 2018-05-01 / 2018-06-30"),
   shiny::selectInput("zenodo_platform","4. LiDAR acquisition platform",c("Choose a platform"="","Aircraft / helicopter ALS"="ALS","UAV LiDAR"="UAV-LiDAR")),
   shiny::textInput("zenodo_email","5. Contact email (optional, private)"),
-  shiny::helpText("If notifications are enabled, your proposal summary and optional contact are emailed to the maintainer through this instance's mail provider. They are not included in the public catalogue."),
-  shiny::actionButton("zenodo_prepare","Check my proposal"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
-  shiny::tags$details(shiny::tags$summary("Track your submission"),
+  shiny::helpText("If notifications are enabled, the submission summary and optional contact are emailed to the maintainer through this instance's mail provider. They are not included in the public catalogue."),
+  shiny::actionButton("zenodo_prepare","Validate submission"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
+  shiny::tags$details(shiny::tags$summary("Submission status"),
     submission_tracking_ui()),
   shiny::helpText("No cloud is downloaded or analysed. ZIP assets require downloading the whole archive and local extraction for 3D. Submission is not approval; the maintainer checks coverage, dates, file mapping and terms before publication."))
 
@@ -42,17 +42,17 @@ zenodo_boundary_download <- function(meta,key) {
   ok<-FALSE;on.exit(if(!ok)unlink(path))
   url<-paste0("https://zenodo.org/api/records/",meta$id,"/files/",utils::URLencode(key,reserved=TRUE),"/content")
   response<-httr::GET(url,httr::timeout(30),httr::config(followlocation=FALSE,maxfilesize_large=5*1024^2),httr::write_disk(path))
-  if(httr::status_code(response)!=200 || file.size(path)>5*1024^2)stop("The small coverage file could not be read. Download it yourself and use Upload a coverage file.")
+  if(httr::status_code(response)!=200 || file.size(path)>5*1024^2)stop("The small coverage file could not be read. Download the file from the source and use Upload a coverage file.")
   ok<-TRUE;path
 }
 
 zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NULL) {
   shiny::observeEvent(input$track_submission, {
-    shiny::showModal(shiny::modalDialog(title="Track your submission",
+    shiny::showModal(shiny::modalDialog(title="Submission status",
       submission_tracking_ui(), footer=shiny::modalButton("Close"), easyClose=TRUE))
   })
   meta<-shiny::reactiveVal(NULL); proposal<-shiny::reactiveVal(NULL)
-  message<-shiny::reactiveVal("Paste your Zenodo link to begin. Nothing is published automatically.")
+  message<-shiny::reactiveVal("A Zenodo DOI or record URL is required. Publication requires approval.")
   fail<-function(e)message(conditionMessage(e))
   shiny::observeEvent(input$zenodo_link,{meta(NULL);proposal(NULL)},priority=100)
   shiny::observeEvent(list(input$zenodo_boundary,input$zenodo_boundary_source,input$zenodo_acquired,input$zenodo_platform,input$zenodo_email,
@@ -87,10 +87,10 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     m<-shiny::withProgress(message="Reading Zenodo metadata",value=.3,inspect_zenodo(input$zenodo_link));meta(m)
     keys<-vapply(m$files,`[[`,"","key");sizes<-vapply(m$files,`[[`,0,"size")
     small<-keys[grepl("\\.(geojson|gpkg|zip)$",keys,ignore.case=TRUE)&sizes<=5*1024^2]
-    shiny::updateSelectInput(session,"zenodo_boundary_source",choices=c("Upload your polygons"="upload",stats::setNames(small,small)),selected="upload")
+    shiny::updateSelectInput(session,"zenodo_boundary_source",choices=c("Upload coverage polygons"="upload",stats::setNames(small,small)),selected="upload")
     assets<-keys[grepl("\\.(las|laz|zip)$",keys,ignore.case=TRUE)]
     shiny::updateSelectInput(session,"zenodo_extent_files",choices=assets,selected=character())
-    message("Metadata ready. Confirm coverage, acquisition dates and platform; then check your proposal.")
+    message("Metadata ready. Confirm coverage, acquisition dates and platform; then validate the submission.")
   },error=fail))
   output$zenodo_metadata_status<-shiny::renderText({m<-meta();if(is.null(m))return("No record loaded.");paste(m$title,"|",m$doi,"|",length(m$files),"files | Licence:",m$license)})
   output$zenodo_metadata_details<-shiny::renderText({m<-meta();shiny::req(m);paste(m$citation,m$license_url,gsub("<[^>]*>"," ",m$description),m$acknowledgement,
@@ -149,7 +149,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
       shiny::conditionalPanel("input.zenodo_review_id && input.zenodo_review_id.length > 0",
       shiny::verbatimTextOutput("zenodo_review_details"),
       leaflet::leafletOutput("zenodo_review_map",height=280),
-      shiny::checkboxInput("zenodo_review_confirm","I checked the aerial LiDAR content, coverage method and file correspondence, acquisition dates and licence/attribution requirements. Any approximate extent must retain its label.",FALSE),
+      shiny::checkboxInput("zenodo_review_confirm","Confirm verification of aerial LiDAR content, coverage method, file correspondence, acquisition dates and licence/attribution requirements. Any approximate extent must retain its label.",FALSE),
       shiny::textAreaInput("zenodo_review_reason","Private decision note (optional)",rows=2),
       shiny::actionButton("zenodo_review_approve","Approve and add to catalogue"),shiny::actionButton("zenodo_review_reject","Reject")),
       shiny::textOutput("zenodo_review_status"),footer=shiny::modalButton("Close")))
@@ -167,7 +167,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
   },once=TRUE)
   shiny::observeEvent(input$zenodo_review_refresh,refresh())
   output$zenodo_queue_status<-shiny::renderText({tick();rows<-zenodo_submissions(queue);n<-sum(rows$status=="pending")
-    if(n==0)"No pending proposals. New submissions will appear here for your review." else paste(n,"proposal(s) awaiting your decision.")})
+    if(n==0)"No pending proposals. New submissions will appear here for review." else paste(n,"proposal(s) awaiting review.")})
   chosen<-shiny::reactive({tick();shiny::req(input$zenodo_review_id);zenodo_proposal(queue,input$zenodo_review_id)})
   shiny::observeEvent(input$zenodo_review_id,{shiny::updateCheckboxInput(session,"zenodo_review_confirm",value=FALSE);shiny::updateTextAreaInput(session,"zenodo_review_reason",value="")})
   output$zenodo_review_details<-shiny::renderText({p<-chosen();m<-p$metadata;paste(m$title,m$doi,m$citation,

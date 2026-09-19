@@ -62,9 +62,9 @@ source_submission_server <- function(input,output,session,check) {
     r$body <- paste(r$body,check()$summary,"Awaiting ALS Downloader team review. No dataset has been added.",sep="\n\n");r
   })
   output$source_submission <- shiny::renderUI({
-    if(!request()$valid || !isTRUE(check()$ready))return(shiny::actionButton("source_submit_disabled","Send my request",disabled=TRUE))
+    if(!request()$valid || !isTRUE(check()$ready))return(shiny::actionButton("source_submit_disabled","Submit request",disabled=TRUE))
     r <- proposal();encode <- function(x)utils::URLencode(enc2utf8(x),reserved=TRUE)
-    shiny::tagList(shiny::tags$a(id="source_submit",class="btn als-primary",href=paste0("mailto:calvites1990@gmail.com?subject=",encode(r$title),"&body=",encode(r$body)),"Send my request"),
+    shiny::tagList(shiny::tags$a(id="source_submit",class="btn als-primary",href=paste0("mailto:calvites1990@gmail.com?subject=",encode(r$title),"&body=",encode(r$body)),"Submit request"),
       shiny::downloadButton("source_proposal_file","Save request (.txt)"))
   })
   output$source_proposal_file <- shiny::downloadHandler(filename="als-source-request.txt",content=function(file){r<-proposal();writeLines(enc2utf8(c(r$title,"",r$body)),file,useBytes=TRUE)})

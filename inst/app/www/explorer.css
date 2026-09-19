@@ -29,6 +29,8 @@
 .als-report-section,.als-transfer-section{border-color:#594573;background:rgba(112,81,168,.10)}
 .als-transfer-section h4{font-size:15px;margin-top:0;color:#d5bdf6}
 .als-result-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.als-sidebar-heading{font-size:13px;font-weight:600;letter-spacing:.04em;color:#a6b8c4;margin:18px 0 10px}
+.als-options-heading{font-size:15px;font-weight:600;margin:0 0 14px}
 .btn.als-report-btn:focus-visible{outline:3px solid #a0e7ee;outline-offset:3px}
 .btn.als-report-btn .fa{margin-right:6px}
 .nav-tabs>li>a{transition:color .15s ease,box-shadow .15s ease;border-radius:var(--als-radius) var(--als-radius) 0 0}
