@@ -1,5 +1,8 @@
 # alsdownloader 0.1.0
 
+* Clarify software versus dataset licences and include available source citations
+  and licence links in map, point-cloud, comparison and profile PNG exports.
+
 * Preserve source intensity and offer automatic classification/intensity/elevation selection, with all 13 existing and greyscale palette choices.
 * Add camera-icon PNG exports for the AOI/tile map, single point cloud and elevation distribution; retain comparison/profile exports. Include legends and attribution, with an optional basemap-free map export.
 

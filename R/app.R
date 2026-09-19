@@ -113,6 +113,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
                   shiny::tags$a(class = "als-globe-credit", href = "https://www.naturalearthdata.com/about/terms-of-use/", "Natural Earth")))),
             shiny::conditionalPanel("input.enter_map > 0", leaflet::leafletOutput("map", height = "60vh"),
             figure_button("export_map_png", "Save map PNG"),
+            shiny::tags$div(style="display:none", shiny::textOutput("map_source_credits")),
             shiny::checkboxInput("map_export_basemap", "Include basemap in image", TRUE),
             shiny::tags$span(id="map_export_status", role="status"),
             shiny::div(class = "map-caption", "Before you draw: red marks a country with an in-app search adapter, yellow a country with only a linked official portal. This is country-level source availability, not confirmed survey coverage at your site -- draw or upload your study area and search to see actual tile footprints."),
@@ -146,13 +147,15 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
           comparison_ui(),
           shiny::tabPanel("Sources and access", shiny::p("Discovery covers aircraft, helicopter and UAV laser scanning. Research deposits require verified polygon coverage or a tile index. Official national portals also provide external access; find a country in the table below for its official source link. Terrestrial, spaceborne and photogrammetric acquisitions are outside the curated selection. Only providers marked Implemented have an in-app search adapter. Verify dataset terms and citations before downloading."),
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
+            shiny::p("Software: GPL-3. The screenshot library html2canvas is MIT-licensed; its notice is included. Dataset and basemap licences remain separate. Keep source credits and licence links with figures and downloads; scientific use does not waive provider terms. Local-file and uploaded boundary rights must be checked with their source."),
+            shiny::downloadButton("licensing_notes", "Download licence guidance and software notices"),
             DT::DTOutput("sources")))))
   )
   server <- function(input, output, session) {
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "Draw or upload a study area to begin.",
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
       preview_job = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
-      preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_path = NULL, preview_locked = FALSE,
+      preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_attribution = NULL, preview_path = NULL, preview_locked = FALSE,
       tile_groups = character(0))
     notify <- function(e) shiny::showNotification(conditionMessage(e), type = "error", duration = 12)
     shiny::observeEvent(input$enter_map, ignoreNULL = FALSE, {
@@ -348,6 +351,14 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         "Select exactly one result for the 3D preview."
       else paste("Selected:", state$tiles$filename[selected])
     })
+    output$map_source_credits <- shiny::renderText(paste(figure_attribution(state$tiles), collapse = "\n"))
+    shiny::outputOptions(output, "map_source_credits", suspendWhenHidden = FALSE)
+    output$licensing_notes <- shiny::downloadHandler(filename = "ALS-Downloader-licensing.txt", content = function(file) {
+      paths <- c(system.file("sources", "LICENSING.md", package = "alsdownloader"),
+        system.file("NOTICE", package = "alsdownloader"),
+        system.file("app", "www", "html2canvas-LICENSE.txt", package = "alsdownloader"))
+      writeLines(unlist(lapply(paths, readLines, warn = FALSE)), file, useBytes = TRUE)
+    })
     output$export_manifest <- shiny::downloadHandler(filename = "tile-metadata.csv", content = function(file) {
       shiny::req(state$tiles)
       df <- sf::st_drop_geometry(state$tiles); df$url <- redact_url(df$url)
@@ -446,6 +457,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       if (!is.null(state$preview_job) && state$preview_job$is_alive()) return()
       state$preview_target <- "als-cloud"
       state$preview_label <- input$point_file$name
+      state$preview_attribution <- figure_attribution()
       state$previewtext <- "Reading a bounded point sample..."
       preview_path <- tempfile(fileext = paste0(".", tools::file_ext(input$point_file$name)))
       state$preview_path <- preview_path
@@ -481,6 +493,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
       state$preview_target <- "als-cloud"
       shiny::updateTabsetPanel(session, "view", selected = "3D preview")
       state$preview_label <- tile$filename[[1]]
+      state$preview_attribution <- figure_attribution(tile)
       state$previewtext <- paste("Downloading and sampling:", state$preview_label)
       session$sendCustomMessage("als-points", list(target = "als-cloud", points = list(), origin = c(0, 0, 0)))
       state$preview_path <- tempfile(fileext = ".laz")
@@ -503,7 +516,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L) 
         if (!is.null(attr(p, "display_note"))) caption <- paste(caption, attr(p, "display_note"))
         if (state$preview_target == "als-cloud") state$previewtext <- paste(state$preview_label, "-", caption)
         else state$tiletext <- paste(state$preview_label, "-", caption)
-        session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), classification = unname(attr(p, "classification")), intensity = unname(attr(p, "intensity")), label = state$preview_label, origin = unname(attr(p, "origin"))))},
+        session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), classification = unname(attr(p, "classification")), intensity = unname(attr(p, "intensity")), label = state$preview_label, attribution = as.list(state$preview_attribution), origin = unname(attr(p, "origin"))))},
         error = function(e) {
           message <- paste("Preview failed:", redact_urls_in_text(conditionMessage(e)))
           if (state$preview_target == "als-cloud") state$previewtext <- message else state$tiletext <- message

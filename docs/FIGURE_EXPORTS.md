@@ -30,6 +30,14 @@ Images contain displayed samples, not new analytical products. They are
 created in the browser; no screenshot-upload service is used. Cite original
 surveys when using a figure. Map imagery retains its provider attribution.
 
+Exports carry available source citations and licence links in a wrapping
+footer. Map credits cover the current search result set, including hidden
+layers; cloud credits belong to the loaded sample. Local uploads are explicitly
+marked when source credit and licence are unknown. Keep the downloaded tile
+metadata with the figure and verify any additional required acknowledgements.
+The Sources and access tab offers downloadable licence guidance and software
+notices. See [licensing guidance](../inst/sources/LICENSING.md).
+
 Map capture uses bundled html2canvas 1.4.1 (MIT); see `inst/NOTICE` and the
 bundled licence. The unminified JavaScript is included in the R package,
 with no CDN fetch at app runtime.

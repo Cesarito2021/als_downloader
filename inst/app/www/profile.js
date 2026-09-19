@@ -86,7 +86,7 @@
     function exportFigure(kind){const s=state();if(!s.points.length||(kind!=='cloud'&&!end))return;
       const sources=kind==='both'?[canvases[0],canvases[1],canvas]:kind==='profile'?[canvas]:canvases;
       const width=1600,scaled=sources.map(c=>({c,h:Math.round(c.height/c.width*width)}));
-      const out=document.createElement('canvas');out.width=width;out.height=scaled.reduce((v,x)=>v+x.h,0)+220;
+      const out=document.createElement('canvas');out.width=width;out.height=scaled.reduce((v,x)=>v+x.h,0);
       const g=out.getContext('2d');g.fillStyle='#05080c';g.fillRect(0,0,out.width,out.height);let y=0;
       for(const item of scaled){g.drawImage(item.c,0,y,width,item.h);y+=item.h;}
       g.fillStyle='#e0eaf0';g.font='18px sans-serif';
@@ -96,9 +96,8 @@
         'Cloud Z exaggeration: '+s.exag+'x. Profile axes show distance and elevation in metres.',
         'CRS: '+(s.crs||'See original source metadata')+'. Vertical reference is supplied by the provider; no alignment applied.',
         end?'Strip width: '+strip+' m. Start XY: '+start.map((v,i)=>(v+s.origin[i]).toFixed(2)).join(', ')+'; end XY: '+end.map((v,i)=>(v+s.origin[i]).toFixed(2)).join(', '):'No profile selected.',
-        'Framing: '+(s.focusCentral?'central 98%':'all points')+'. Cite original surveys; this figure is not evidence of quantified change.'];
-      lines.forEach((text,i)=>g.fillText(text,24,y+28+i*28,width-48));
-      out.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='als-comparison-'+kind+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);},'image/png');}
+        'Framing: '+(s.focusCentral?'central 98%':'all points')+'. Cite original surveys; this figure is not evidence of quantified change.',...s.attribution];
+      window.ALSFigures.save(out,'als-comparison-'+kind+'.png',lines);}
     byId('export_cloud').onclick=()=>exportFigure('cloud');byId('export_profile').onclick=()=>exportFigure('profile');byId('export_combined').onclick=()=>exportFigure('both');
     return {renderOverlay,renderChart,reset,cancel,pointer,isDrawing:()=>active};
   };

@@ -48,7 +48,7 @@ comparison_ui <- function() {
 
 comparison_server <- function(input, output, session, state, mode, hosted_lock) {
   cmp <- shiny::reactiveValues(job = NULL, directory = NULL, locked = FALSE, result = NULL,
-    status = "Search an AOI to discover campaigns.", labels = NULL, dates = NULL, files = NULL)
+    status = "Search an AOI to discover campaigns.", labels = NULL, attribution = NULL, dates = NULL, files = NULL)
   state$comparison_busy <- FALSE
   cleanup <- function() {
     if (isTRUE(cmp$locked)) {unlink(hosted_lock, recursive = TRUE); cmp$locked <- FALSE}
@@ -112,6 +112,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
       cmp$directory <- tempfile("als-comparison-"); dir.create(cmp$directory)
       a <- region$a; b <- region$b
       cmp$labels <- c(input$epoch_a, input$epoch_b)
+      cmp$attribution <- figure_attribution(rbind(a, b))
       cmp$dates <- NULL
       cmp$files <- NULL
       state$comparison_busy <- TRUE; cmp$status <- "Loading both clouds inside the overlapping area..."
@@ -139,7 +140,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
       cmp$status <- sprintf("A: %s overlap points | B: %s overlap points | %.4f km2. Overlay ready for visualization only.", r$counts[1], r$counts[2], r$overlap_km2)
       session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = rbind(r$a, r$b),
         groups = c(rep(0L, nrow(r$a)), rep(1L, nrow(r$b))), origin = r$origin, labels = cmp$labels,
-        crs = crs_label))
+        crs = crs_label, attribution = as.list(cmp$attribution)))
     }, error = function(e) {cmp$status <- paste("Comparison could not be completed:", conditionMessage(e))})
     cleanup()
   })

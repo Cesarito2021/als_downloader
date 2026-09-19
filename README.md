@@ -132,6 +132,6 @@ Developed within [OpenForest4D](https://openforest4d.org), funded by NSF awards 
 
 ALS Downloader connects users to existing airborne LiDAR data held by external providers. Dataset rights remain with their respective rights holders. Users must follow each dataset's licence, attribution requirements and access conditions for their intended use, including commercial use and redistribution. Inclusion does not imply provider endorsement or grant additional permissions. See [source policies](inst/sources/POLICIES.md).
 
-Software: **GPL-3**, without warranty. Source availability, spatial coverage and suitability are not guaranteed. Natural Earth supplies public-domain globe outlines; basemap credits remain visible. [Third-party notices](inst/NOTICE).
+Software: **GPL-3**, without warranty. Source availability, spatial coverage and suitability are not guaranteed. Natural Earth supplies public-domain globe outlines; basemap credits remain visible. [Third-party notices](inst/NOTICE). The MIT licence belongs to the bundled html2canvas screenshot library, not the entire package or provider data. See [software, data and figure licensing](inst/sources/LICENSING.md).
 
 [Release checks and outstanding CRAN considerations](docs/CRAN_READINESS.md).

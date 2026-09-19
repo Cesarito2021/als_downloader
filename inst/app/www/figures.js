@@ -80,7 +80,9 @@
           'ALS Downloader | Area of interest and visible tile footprints',
           document.getElementById('search_status')?.textContent||'',
           include?credit:'Basemap omitted. '+credit,
-          'Dashed gold outline: area of interest. Tile colours: reported acquisition years. Country shading: catalogue availability, not survey coverage.'
+          'Dashed gold outline: area of interest. Tile colours: reported acquisition years. Country shading: catalogue availability, not survey coverage.',
+          ...(document.getElementById('map_source_credits')?.textContent||'Source credit and licence not supplied.').split('\n'),
+          'Source and basemap terms apply. Check uploaded boundary rights. Footprints rendered from source metadata.'
         ],status);
       }catch(e){status.textContent=e.message;}
       finally{button.disabled=false;}

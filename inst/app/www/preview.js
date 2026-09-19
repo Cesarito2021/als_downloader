@@ -27,7 +27,7 @@
     (classes[code] || ['Class '+code, '#a8a4cf']);
   function viewer(c) {
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Greyscale',colourBy='auto',activeMode='elevation';
-    let initialPitch=0,pointSize=1.8,classification=[],classColors=[],intensity=[],intensityRange=[0,0],sourceLabel="Point-cloud preview";
+    let initialPitch=0,pointSize=1.8,classification=[],classColors=[],intensity=[],intensityRange=[0,0],sourceLabel="Point-cloud preview",attribution=[];
     const classLegend=document.createElement('div');
     classLegend.className='als-classification-legend';
     classLegend.setAttribute('aria-label','Source classification legend');
@@ -113,7 +113,7 @@
         'ALS Downloader | '+sourceLabel,
         'Colour: '+activeMode+(colourBy==='auto'?' (automatic)':'')+(activeMode==='classification'?' | Source class colours':' | '+palette)+' | Z exaggeration '+exag+'x',
         activeMode==='classification'?'Source classification keys shown above.':classLegend.textContent,
-        points.length.toLocaleString()+' sampled points. Source labels and raw values; no new classification or height normalization.'
+        points.length.toLocaleString()+' sampled points. Source labels and raw values; no new classification or height normalization.',...attribution
       ],document.getElementById('preview_export_status'),activeMode==='classification'?[...classLegend.children].map(el=>({label:el.textContent,color:el.firstChild.style.backgroundColor})):[]);
     };
     const observer=new ResizeObserver(draw);observer.observe(c);draw();
@@ -129,7 +129,7 @@
       });
       const validIntensity=intensity.filter(v=>v!==null);
       intensityRange=validIntensity.length?validIntensity.reduce((r,v)=>[Math.min(r[0],v),Math.max(r[1],v)],[Infinity,-Infinity]):[0,0];
-      sourceLabel=data.label||'Point-cloud preview';
+      sourceLabel=data.label||'Point-cloud preview';attribution=Array.isArray(data.attribution)?data.attribution:['Source credit and licence not supplied. Check original source before publication.'];
       classColors=classification.map(code=>classInfo(code)[1]);
       if(saveButton)saveButton.disabled=!points.length;
       resolveMode();
@@ -149,14 +149,14 @@
   function comparisonViewer(ca, cb) {
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=1,zoom=1,drag=null;
     let groups=[],palette='Red',paletteB='Blue',showA=true,showB=true,focusCentral=true;
-    let initialPitch=0,pointSize=1.8,labels=[],camera=null,crs='';
+    let initialPitch=0,pointSize=1.8,labels=[],camera=null,crs='',attribution=[];
     let ordered=[],xmin=0,xmax=0,ymin=0,ymax=0,scale=1;
     const dc=document.getElementById('als-compare-density');
     // A simple binned count of loaded Z values per campaign: how much of each
     // cloud sits at each elevation, not a fitted or modeled distribution.
     function renderDensity(){
       const densityButton=document.getElementById('export_density_png');
-      if(densityButton){densityButton.disabled=!points.length;densityButton.onclick=()=>window.ALSFigures.save(dc,'als-elevation-distribution.png',['ALS Downloader | Elevation distribution',...labels,'Sampled source elevations; not a calculated difference.']);}
+      if(densityButton){densityButton.disabled=!points.length;densityButton.onclick=()=>window.ALSFigures.save(dc,'als-elevation-distribution.png',['ALS Downloader | Elevation distribution',...labels,'Sampled source elevations; not a calculated difference.',...attribution]);}
       if(!dc||!dc.clientWidth)return;
       const w=dc.clientWidth,h=220,dpr=Math.min(devicePixelRatio||1,2);
       dc.width=w*dpr;dc.height=h*dpr;const g=dc.getContext('2d');g.scale(dpr,dpr);
@@ -192,7 +192,7 @@
       g.fillText('B: n='+zb.length+(zb.length?', mean '+mean(zb).toFixed(2)+' m':' (hidden or none loaded)'),left+Math.min(260,pw/2+20),20);
     }
     const profile = window.ALSProfile ? window.ALSProfile([ca,cb],
-      ()=>({points,groups,origin,extent,labels,crs,palette,paletteB,showA,showB,focusCentral,palettes,camera,pitch,exag}),
+      ()=>({points,groups,origin,extent,labels,crs,attribution,palette,paletteB,showA,showB,focusCentral,palettes,camera,pitch,exag}),
       drawBoth, ()=>{pitch=0;yaw=0;zoom=1;drawBoth();}) : null;
     function project(){
       if(!points.length){ordered=[];return;}
@@ -277,7 +277,7 @@
     const obsA=attach(ca),obsB=attach(cb);
     drawBoth();
     return {dispose(){obsA.disconnect();obsB.disconnect();},load(data){
-      points=data.points;origin=data.origin;groups=data.groups||[];labels=data.labels||[];crs=data.crs||'';extent=[0,0,0];profile?.reset();
+      points=data.points;origin=data.origin;groups=data.groups||[];labels=data.labels||[];crs=data.crs||'';attribution=Array.isArray(data.attribution)?data.attribution:['Source credit and licence not supplied. Check original source before publication.'];extent=[0,0,0];profile?.reset();
       let sx=0,sy=0,sxx=0,syy=0,sxy=0;
       for(const p of points){for(let j=0;j<3;j++)extent[j]=Math.max(extent[j],p[j]);sx+=p[0];sy+=p[1];sxx+=p[0]*p[0];syy+=p[1]*p[1];sxy+=p[0]*p[1];}
       const n=points.length||1;
