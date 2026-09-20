@@ -149,7 +149,7 @@ Additional catalogue entries link to providers' own portals. OpenTopography expl
 
 **Submit ALS data - Zenodo** accepts published Zenodo records. Supply the record link, coverage and acquisition information; Zenodo metadata provide authors, DOI, licence and available files. Polygons should link to the corresponding point-cloud assets. Declared approximate coverage remains labelled approximate.
 
-Submissions require maintainer approval before appearing in searches. Review normally takes 7–15 days; silence never implies approval. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
+The ALS Downloader team reviews submissions before publication. Inclusion requires explicit approval. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
 
 The maintainer reviews through a private email invitation, without an app password.
 Contributors need no account; their contact email is optional. Email delivery requires host configuration. [Private reviewer setup](docs/REVIEWER_ACCESS.md).

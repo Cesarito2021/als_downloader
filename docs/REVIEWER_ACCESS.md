@@ -1,8 +1,8 @@
 # Private review from an email invitation
 
 Contributors use **Submit ALS data - Zenodo**, without signing in or opening a
-mail client. Their contact email is optional. Proposals normally receive review
-within 7–15 days; publication always requires an explicit decision.
+mail client. Their contact email is optional. The ALS Downloader team reviews
+submissions; publication always requires an explicit decision. No review deadline is promised.
 
 The configured maintainer receives a summary and a private link. On the PC running
 the reviewer app, open that link and click **Open private review**, inspect the

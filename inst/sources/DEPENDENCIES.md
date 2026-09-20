@@ -31,7 +31,6 @@ Dependencies retain their own licences; ALS Downloader does not claim authorship
 | [rmarkdown](https://CRAN.R-project.org/package=rmarkdown) | Optional / development | Not specified |
 | [tinytex](https://CRAN.R-project.org/package=tinytex) | Optional / development | Not specified |
 | [pkgload](https://CRAN.R-project.org/package=pkgload) | Optional / development | Not specified |
-
 | [openssl](https://CRAN.R-project.org/package=openssl) | Optional cryptographic reviewer invitation generation | MIT |
 
 Browser libraries delivered through Shiny, Leaflet and DT remain subject to

@@ -26,7 +26,7 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::textInput("zenodo_email","5. Contact email (optional, private)"),
   shiny::helpText("If notifications are enabled, the submission summary and optional contact are emailed to the maintainer through this instance's mail provider. They are not included in the public catalogue."),
   shiny::actionButton("zenodo_prepare","Validate submission"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
-  shiny::helpText("Proposals are normally reviewed within 7-15 days. Publication requires explicit approval; no response does not mean acceptance."),
+  shiny::helpText("The ALS Downloader team will review your submission. Publication requires approval."),
   shiny::helpText("No cloud is downloaded or analysed. ZIP assets are downloaded in full and extracted temporarily for 3D view, within size limits. Submission is not approval; the maintainer checks coverage, dates, file mapping and terms before publication."))
 
 zenodo_boundary_download <- function(meta,key) {

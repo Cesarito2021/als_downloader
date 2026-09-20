@@ -2,7 +2,8 @@
 
 * Increase interface typography and regenerate high-resolution welcome images.
 * Limit contribution UI to Zenodo; remove public tracking and generic-source forms.
-  Contact remains optional; the 7–15-day review target never implies approval.
+  Contact remains optional; publication requires explicit approval, without a
+  promised review deadline.
 * Replace administrator passwords with single-use emailed review invitations,
   scoped to one proposal. Explicit decisions, expiry and server-side guards remain.
 

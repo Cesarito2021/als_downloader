@@ -39,8 +39,8 @@ review figures; publication remains subject to the imagery conditions below.
 
 ## Interface gallery
 
-The gallery covers Explore, 3D view, 3D comparison, About, the source catalogue,
-contribution and public submission-status screens. The comparison capture shows
+The gallery covers Explore, 3D view, 3D comparison, About, the source catalogue
+and the Zenodo contribution form. The comparison capture shows
 the unavailable state for a single dated source; it does not demonstrate measured
 change or a real two-source comparison. No private review queue or contact
 submission is displayed. The example output path is illustrative.
