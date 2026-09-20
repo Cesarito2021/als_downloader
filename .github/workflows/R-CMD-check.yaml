@@ -44,6 +44,7 @@ jobs:
             ${{ runner.os == 'macOS' && 'lidR=?source' || '' }}
             ${{ runner.os == 'macOS' && 'sf=?source' || '' }}
             ${{ runner.os == 'macOS' && 'terra=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'RcppArmadillo=?source' || '' }}
           needs: check
       - uses: r-lib/actions/check-r-package@v2
         with:
