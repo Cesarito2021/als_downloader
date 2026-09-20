@@ -16,8 +16,9 @@ zenodo_mail_message <- function(p, config) {
     paste("Acquisition:",if(nzchar(p$acquired))clean(p$acquired) else "Unknown"),
     paste("Platform:",clean(p$platform)), paste("Mapped assets:",length(p$index$features)),
     paste("Coverage:",zenodo_coverage_label(p)),
-    paste("Review:",paste0(base,"?zenodo_review=",p$id)),
-    "Open ALS Downloader on your PC, review the proposal, then choose Approve and add to catalogue.",
+    paste("Review:",paste0(base,"?zenodo_review=",p$id,if(!is.null(config$review_secret))paste0("#review_key=",config$review_secret) else "")),
+    "Open ALS Downloader on your PC, follow this private link, then choose Open private review. The link expires in 30 days and can be used once.",
+    "Review the proposal and choose Approve and add to catalogue, or Reject. Do not forward this private link.",
     "Opening this link does not approve or download anything.",sep="\r\n")
   paste0("From: ",config$from,"\r\nTo: ",config$to,
     "\r\nSubject: ALS Downloader - new source ",substr(p$id,1,8),
@@ -48,10 +49,11 @@ zenodo_notify <- function(queue,id) {
   if(file.exists(file.path(queue,"decisions",paste0(id,".json")))) return(invisible("reviewed"))
   p <- zenodo_proposal(queue,id)
   status <- tryCatch({
+    if(!isTRUE(config$preview)) config$review_secret <- reviewer_invitation(queue,id,config$to)
     message <- zenodo_mail_message(p,config)
     eml <- file.path(queue,"notifications",paste0(id,".eml"))
     dir.create(dirname(eml),recursive=TRUE,showWarnings=FALSE)
-    writeBin(charToRaw(message),eml)
+    if(isTRUE(config$preview)) writeBin(charToRaw(message),eml) # Never persist a live bearer link.
     if(isTRUE(config$preview)) "preview" else {zenodo_mail_send(message,config);"sent"}
   },error=function(e) "failed")
   # Do not store SMTP diagnostics: they can contain credentials or server details.

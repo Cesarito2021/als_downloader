@@ -2,27 +2,27 @@
 % Please edit documentation in R/reviewer-auth.R
 \name{configure_reviewer_access}
 \alias{configure_reviewer_access}
-\title{Configure password-protected local proposal review}
+\title{Configure email-link access to local proposal review}
 \usage{
 configure_reviewer_access(path, emails)
 }
 \arguments{
-\item{path}{Private credential-file path outside public assets and Git.}
+\item{path}{Private allowlist-file path outside public assets and Git.}
 
-\item{emails}{Administrator email identifiers allowed to use this password.}
+\item{emails}{Administrator mailboxes allowed to receive review invitations.}
 }
 \value{
-Invisibly, the credential-file path. Stores a salted password hash,
-  never the plaintext password. Set option `alsdownloader.reviewer_credentials`
-  or environment variable `ALS_REVIEWER_CREDENTIALS` to this path at launch.
+Invisibly, the allowlist-file path. No password is requested or stored.
+  Set option `alsdownloader.reviewer_credentials` or environment variable
+  `ALS_REVIEWER_CREDENTIALS` to this path at launch.
 }
 \description{
-Configure password-protected local proposal review
+Configure email-link access to local proposal review
 }
 \details{
-Prompts twice using askpass. These are local login identifiers, not
-  verification of mailbox ownership or a connection to Gmail/Outlook. No email
-  is sent. Reconfiguration revokes existing reviewer sessions. Keep the file
-  in an owner-restricted directory (Windows requires appropriate directory ACLs).
-  The reviewer app remains localhost-only; this is not remote hosting setup.
+Access requires a single-use private review link delivered to an allowed mailbox by
+  the administrator-configured mail service. Preview mail cannot authenticate.
+  Reconfiguration revokes sessions and outstanding invitations. Restrict the file's
+  parent directory to the host owner (use Windows ACLs where applicable).
+  The reviewer remains localhost-only; remote HTTPS hosting is separate.
 }

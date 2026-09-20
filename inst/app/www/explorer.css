@@ -130,3 +130,21 @@ a{transition:color .12s ease}a:hover{color:#c3dbe6}
 .als-globe-intro .btn:not(.btn-file):not(.dropdown-toggle){font-size:17px;line-height:22px;width:240px;height:56px;min-height:56px}
 #welcome_information{font-size:17px;line-height:1.65}
 @media(max-width:560px){.als-header h1{font-size:20px}.als-globe-intro .als-globe-legend{font-size:18px}.als-globe-intro .als-globe-mission{font-size:18px}.als-globe-intro .als-author-profile{font-size:15px;gap:12px}}
+
+/* Readable at 100% desktop zoom, including credits and contribution controls. */
+body{font-size:16px;line-height:1.55}
+.als-header{flex-wrap:wrap}.als-header h1{font-size:25px}
+.als-header span,.als-header .mode-label{font-size:16px}
+.btn:not(.btn-file):not(.dropdown-toggle),.als-welcome-buttons .als-welcome-button,.btn.als-report-btn{font-size:16px;line-height:21px;min-height:54px;height:auto}
+.form-control,.selectize-input,.selectize-dropdown,.control-label,.nav-tabs>li>a{font-size:16px}
+.form-control{min-height:38px}
+.help-block,.modal-body .help-block,.map-caption{font-size:15px;line-height:1.5}
+.als-globe-mission{font-size:20px;max-width:840px}
+.als-globe-intro .als-globe-author{font-size:20px;color:#b3c6d3}
+.als-globe-intro .als-author-profile,.als-globe-intro .als-author-profile p{font-size:18px}
+.als-globe-caption,.als-globe-credit,.als-author-profile,.als-author-profile p{font-size:17px}
+.als-globe-legend{font-size:18px;line-height:1.65}
+.als-globe-legend small{font-size:16px}.als-globe-swatch{width:15px;height:15px}
+.als-welcome-reading p,.als-source-card details,.als-source-card>a{font-size:16px}
+.als-source-status,.als-source-country{font-size:15px}
+@media(max-width:600px){.als-header h1{font-size:22px}.als-globe-mission{font-size:18px}.als-globe-legend{font-size:16px}}

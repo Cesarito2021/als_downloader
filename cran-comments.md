@@ -11,7 +11,7 @@ Full `R CMD check --as-cran`, including PDF/HTML manuals and incoming feasibilit
 - New submission.
 - Unable to verify current time.
 
-All 508 test expectations passed; none were skipped. The test runner reports one
+All 523 test expectations passed; none were skipped. The test runner reports one
 test-runner warning (not a package-check warning). Pandoc also emits a
 highlight-style deprecation message. Vignette/report builds complete successfully.
 Private GitHub URLs were removed from DESCRIPTION and CITATION to avoid public
@@ -26,6 +26,8 @@ boundary checksums were verified; isolated approval, spatial search and browser
 coverage refresh passed. Production inclusion remains pending maintainer approval.
 No downloaded clouds, private proposals or credentials are included in the package.
 JavaScript tests cover profiles and shared absolute-elevation colour scales.
+Browser verification also covers readable typography, Zenodo-only submission,
+private invitation exchange, explicit rejection and replay denial using synthetic data.
 
 GitHub Actions checks Windows, macOS, Ubuntu release and Ubuntu devel with
 warnings treated as failures. The final pushed commit's matrix must pass before

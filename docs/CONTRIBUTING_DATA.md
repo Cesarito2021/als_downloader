@@ -28,22 +28,12 @@ requires explicit file selection and maintainer review.
 
 **Validate submission** checks structure and mapping. **Submit for maintainer
 review** stores a pending proposal on configured instances; otherwise save the
-proposal JSON and share it privately. **Submission status** uses the reference
-issued by the app, not the DOI. Submission is not approval.
+proposal JSON and share it privately. Review normally takes 7–15 days. Silence never implies approval.
 
 Approved coverage appears automatically in Explorer and its files become available
 through AOI search. Notifications require administrator SMTP configuration.
 See [the real ALS/Shapefile test](ZENODO_LIVE_CHECKS.md) and
 [contact-data handling](CONTRIBUTOR_PRIVACY.md).
-
-## Other data source
-
-Use **Other data source** outside Zenodo. Supply the dataset record, direct
-cloud/index link, separate coverage link if needed, platform and licence.
-Acquisition interval, scope and contact are optional. The form checks access and
-opens an email draft for the contributor to send. It does not publish a source
-or issue a Zenodo tracking reference. Personal-drive, notebook and expiring links
-are not accepted.
 
 ## Index for multiple files
 

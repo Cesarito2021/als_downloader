@@ -10,7 +10,7 @@
 #' @param submission_dir Optional private directory for Zenodo proposals and
 #'   approved indexes. No directory is created until a proposal is submitted.
 #' @param reviewer Optional trusted maintainer name; enables private review UI
-#'   only in local mode with password authentication configured by
+#'   only in local mode with email-link authentication configured by
 #'   [configure_reviewer_access()]. Never expose the reviewer app publicly.
 #' @return Invisibly, the return value of [shiny::runApp()]. Runs until stopped.
 #' @details Launch is explicit: loading the package does not start a browser,
@@ -47,7 +47,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
   shiny::addResourcePath("als-assets", assets)
   shiny::addResourcePath("als-data", system.file("extdata", package = "alsdownloader"))
   catalog <- provider_catalog()
-  review_access <- reviewer_access_controller()
+  review_access <- reviewer_access_controller(submission_dir)
   overview <- discovery_coverage(tile_index_dir,
     if (is.null(submission_dir)) NULL else file.path(submission_dir, "approved"))
   cores <- as.numeric(parallelly::availableCores())
@@ -59,6 +59,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
   hosted_lock <- Sys.getenv("ALS_HOST_LOCK_DIR", file.path(tempdir(), "als-host-transfer-lock"))
   ui <- shiny::fluidPage(
     shiny::tags$head(shiny::tags$meta(name = "viewport", content = "width=device-width, initial-scale=1"),
+      shiny::tags$meta(name="referrer",content="no-referrer"),
       shiny::tags$link(rel = "stylesheet", href = "als-assets/explorer.css"),
       shiny::tags$script(src = "als-assets/html2canvas.js"),
       shiny::tags$script(src = "als-assets/figures.js"),
@@ -70,9 +71,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     shiny::div(class = "als-header", shiny::div(shiny::h1("ALS DOWNLOADER"),
       shiny::span("Discover, inspect and download airborne LiDAR")),
       shiny::div(class = "als-header-actions",
-        shiny::actionButton("suggest_source", "Contribute ALS data"),
-        if (!is.null(submission_dir)) shiny::actionButton("track_submission", "Submission status"),
-        if (!is.null(reviewer)) shiny::actionButton("zenodo_review_open", "Review submissions"),
+        shiny::actionButton("suggest_source", "Submit ALS data - Zenodo"),
         shiny::conditionalPanel("input.enter_map > 0", shiny::actionLink("open_catalogue", "Source catalogue")),
         shiny::span(class = "mode-label", paste(toupper(mode), "MODE")))),
     shiny::div(class = "als-layout",

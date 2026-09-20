@@ -19,11 +19,9 @@ software deposit has been made. The GitHub repository remains private.
 - Zenodo's form now supports selecting the matching archive for an ordinary
   study-area Shapefile; contributors need not edit an attribute for this case.
   Distinct per-file footprints still require explicit mapping.
-- Administrator review now requires a configured local password and permitted
-  email identifier. Private reads and decisions are checked server-side; sessions
-  expire and failed login attempts are limited. Contributors do not sign in.
-  [Setup and deployment limits](REVIEWER_ACCESS.md). The maintainer must choose
-  the password privately; no default password is supplied.
+- Private review uses a proposal-scoped email invitation and explicit approval,
+  without an app password. Real delivery still requires host mail configuration.
+  [Setup and deployment limits](REVIEWER_ACCESS.md).
 
 ## Release evidence
 
@@ -35,7 +33,7 @@ without including downloaded examples, private queues or SMTP credentials.
 
 The full local Windows/R 4.4.0 check completed with 0 errors, 0 warnings and
 2 notes (new submission; current time could not be verified). It includes the
-PDF/HTML manuals, vignette and 508 passing test expectations, with none skipped.
+PDF/HTML manuals, vignette and 523 passing test expectations, with none skipped.
 The test runner additionally recorded one warning; see the local test log.
 
 Private GitHub URLs were removed from DESCRIPTION and the software citation to

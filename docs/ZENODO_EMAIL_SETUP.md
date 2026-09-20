@@ -44,5 +44,9 @@ The review link currently works on the maintainer's PC while its reviewer app is
 running. The submission service and reviewer must use the same private queue.
 Do not expose the local review panel publicly. Reviewing from a phone or another
 computer needs a separately deployed, authenticated reviewer service; this
-implementation does not provide approval inside a mail client or public approval
-tokens.
+implementation opens a private local review page from email. It does not process
+email replies or provide a public HTTPS review service.
+
+Configure the recipient allowlist as described in [reviewer access](REVIEWER_ACCESS.md).
+Live invitations contain a one-use private link and are not saved as EML files.
+Preview messages contain no access secret and cannot unlock the reviewer.

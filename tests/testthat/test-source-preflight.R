@@ -12,11 +12,11 @@ test_that("connection UI separates technical completion from approval", {
   ui <- as.character(source_preflight_ui())
   expect_match(ui,"not approval for publication")
   expect_false(grepl("canvas|source_url|50 MB",ui))
-  expect_match(as.character(source_submission_ui()),"source_email")
+  expect_match(as.character(source_submission_ui()),"zenodo_email")
+  expect_false(grepl("Other data source|Submission status",as.character(source_submission_ui())))
   shiny::testServer(als_app(), {
     session$setInputs(source_test=1,source_url="")
     expect_match(as.character(output$source_test_progress$html),"Add a public record link")
-    expect_match(as.character(output$source_submission$html),"disabled")
   })
 })
 

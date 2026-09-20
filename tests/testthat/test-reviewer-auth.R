@@ -1,74 +1,56 @@
-test_that("reviewer credentials store hashes and reject unauthorized identifiers", {
-  skip_if_not_installed("sodium")
-  path <- tempfile(); on.exit(unlink(path))
-  password <- "Test-only administrator phrase 123"
-  reviewer_store_credentials(path,c("FIRST@example.org","second@example.org"),password)
-  cfg <- reviewer_credentials(path)
-  expect_false(any(grepl(password,unlist(cfg),fixed=TRUE)))
-  clock <- 1000
-  access <- reviewer_access_controller(function()reviewer_credentials(path),function()clock)
-  expect_null(access$login("outsider@example.org",password))
-  expect_null(access$login("first@example.org","incorrect"))
-  for(email in c("first@example.org","SECOND@example.org")) {
-    token <- access$login(email,password)
-    expect_true(access$valid(token))
-  }
-  clock <- 2800
-  expect_false(access$valid(token))
-  clock <- 1001
-  reviewer_store_credentials(path,c("first@example.org","second@example.org"),"A different test-only phrase 456")
-  expect_false(access$valid(token))
-  unlink(path)
-  expect_null(access$login("first@example.org",password))
-  expect_false(access$valid(token))
+test_that("private invitations require delivery, expire, and cannot be replayed", {
+  skip_if_not_installed("openssl")
+  path<-tempfile(); queue<-tempfile(); on.exit(unlink(c(path,queue),recursive=TRUE))
+  configure_reviewer_access(path,"owner@example.org")
+  old_opts<-options(alsdownloader.reviewer_credentials=path,alsdownloader.submission_mail=NULL);on.exit(options(old_opts),add=TRUE)
+  p<-zenodo_build(zenodo_fixture(),zenodo_shape(),"2018","ALS")
+  id<-submit_zenodo(p,queue); clock<-1000
+  key<-reviewer_invitation(queue,id,"owner@example.org",clock)
+  access<-reviewer_access_controller(queue,now=function()clock)
+  expect_null(access$login(id,key))
+  zenodo_write(list(status="sent"),file.path(queue,"notifications",paste0(id,".json")))
+  expect_null(access$login(id,paste(rep("0",64),collapse="")))
+  expect_null(access$login("../escape",key))
+  token<-access$login(id,key)
+  expect_true(access$valid(token)); expect_null(access$login(id,key))
+  clock<-2801; expect_false(access$valid(token))
+  key<-reviewer_invitation(queue,id,"owner@example.org",clock)
+  clock<-clock+30*86400; expect_null(access$login(id,key))
+  key<-reviewer_invitation(queue,id,"owner@example.org",clock)
+  configure_reviewer_access(path,"owner@example.org")
+  expect_null(access$login(id,key))
+  expect_error(reviewer_invitation(queue,id,"outsider@example.org"),"recipient")
 })
 
-test_that("rate limits span sessions sharing the application controller", {
-  skip_if_not_installed("sodium")
-  path <- tempfile(); on.exit(unlink(path))
-  password <- "Test-only administrator phrase 123"
-  reviewer_store_credentials(path,"owner@example.org",password)
-  clock <- 1000
-  access <- reviewer_access_controller(function()reviewer_credentials(path),function()clock)
-  for(i in 1:5) expect_null(access$login("owner@example.org","wrong"))
-  expect_null(access$login("owner@example.org",password))
-  clock <- 1061
-  expect_true(access$valid(access$login("owner@example.org",password)))
-})
-
-test_that("forged review inputs cannot disclose or decide pending requests", {
-  skip_if_not_installed("sodium")
-  path <- tempfile(); queue <- tempfile()
-  on.exit(unlink(c(path,queue),recursive=TRUE))
-  password <- "Test-only administrator phrase 123"
-  reviewer_store_credentials(path,c("first@example.org","second@example.org"),password)
-  clock <- new.env(); clock$value <- 1000
-  access <- reviewer_access_controller(function()reviewer_credentials(path),function()clock$value)
-  p <- zenodo_build(zenodo_fixture(),zenodo_shape(),"2018","ALS","private@example.org")
-  id <- submit_zenodo(p,queue)
+test_that("forged inputs and a different proposal cannot use an emailed invitation", {
+  skip_if_not_installed("openssl")
+  path<-tempfile(); queue<-tempfile(); on.exit(unlink(c(path,queue),recursive=TRUE))
+  configure_reviewer_access(path,"owner@example.org")
+  old_opts<-options(alsdownloader.reviewer_credentials=path,alsdownloader.submission_mail=NULL);on.exit(options(old_opts),add=TRUE)
+  p<-zenodo_build(zenodo_fixture(),zenodo_shape(),"2018","ALS","private@example.org")
+  id<-submit_zenodo(p,queue)
+  other<-submit_zenodo(zenodo_build(zenodo_fixture(),zenodo_shape(),"2019","ALS"),queue)
+  key<-reviewer_invitation(queue,id,"owner@example.org")
+  zenodo_write(list(status="sent"),file.path(queue,"notifications",paste0(id,".json")))
+  access<-reviewer_access_controller(queue)
   local_mocked_bindings(inspect_zenodo=function(...)zenodo_fixture(),.package="alsdownloader")
-  shiny::testServer(function(input,output,session)zenodo_submission_server(input,output,session,queue,"Maintainer",access),{
+  shiny::testServer(function(input,output,session){reviewer<-"Maintainer";eval(body(zenodo_submission_server),envir=environment())},{
     session$setInputs(zenodo_review_id=id,zenodo_review_confirm=TRUE,zenodo_review_approve=1)
-    expect_identical(zenodo_submissions(queue)$status,"pending")
+    expect_true(all(zenodo_submissions(queue)$status=="pending"))
     expect_error(output$zenodo_review_details,class="shiny.silent.error")
-    session$setInputs(review_login_email="outsider@example.org",review_login_password=password,review_login=1)
-    session$setInputs(zenodo_review_reject=1)
-    expect_identical(zenodo_submissions(queue)$status,"pending")
-    session$setInputs(review_login_email="second@example.org",review_login_password=password,review_login=2)
-    session$setInputs(zenodo_review_id=id)
+    # Test the same exchange used by the explicit Open private review action.
+    requested(id); invitation(key)
+    session$setInputs(review_login=1,zenodo_review_id=id)
     expect_match(output$zenodo_review_details,"private@example.org",fixed=TRUE)
-    clock$value <- 2801
-    session$setInputs(zenodo_review_id=paste(rep("0",64),collapse=""))
+    session$setInputs(zenodo_review_id=other,zenodo_review_confirm=TRUE,zenodo_review_approve=2)
+    expect_true(all(zenodo_submissions(queue)$status=="pending"))
     expect_error(output$zenodo_review_details,class="shiny.silent.error")
     session$setInputs(zenodo_review_id=id)
-    session$setInputs(zenodo_review_approve=2,zenodo_review_confirm=TRUE)
-    expect_identical(zenodo_submissions(queue)$status,"pending")
-    session$setInputs(review_login_password=password,review_login=3)
-    session$setInputs(zenodo_review_id=id,zenodo_review_confirm=TRUE,zenodo_review_approve=3)
-    expect_identical(zenodo_submissions(queue)$status,"approve")
-    decision <- jsonlite::fromJSON(file.path(queue,"decisions",paste0(id,".json")))
-    expect_match(decision$reviewer,"second@example.org",fixed=TRUE)
-    session$setInputs(review_logout=1)
+    session$setInputs(zenodo_review_confirm=TRUE,zenodo_review_approve=3)
+    rows<-zenodo_submissions(queue)
+    expect_identical(rows$status[rows$id==id],"approve")
+    expect_identical(rows$status[rows$id==other],"pending")
+    expect_match(jsonlite::fromJSON(file.path(queue,"decisions",paste0(id,".json")))$reviewer,"owner@example.org",fixed=TRUE)
     expect_error(output$zenodo_review_details,class="shiny.silent.error")
   })
 })

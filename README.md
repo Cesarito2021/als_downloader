@@ -32,6 +32,15 @@ The welcome globe illustrates access by country. [Coverage sources and limits](i
 
 ![Welcome page](docs/images/current/welcome.png)
 
+The screenshots are captured at double resolution. Click any image to read it at full size.
+
+<details>
+<summary>Interface text at a closer scale</summary>
+
+![Application title and Zenodo submission control](docs/images/current/header-detail.png)
+
+</details>
+
 | View | Purpose |
 |---|---|
 | **Explore** | Draw or upload an AOI, filter acquisition dates, inspect footprints and select tiles. |
@@ -61,14 +70,8 @@ Downloads preserve original tiles. The viewer uses sampled points and may downlo
 **Source catalogue**
 ![Catalogue](docs/images/current/catalogue.png)
 
-**Contribute ALS data**
+**Submit ALS data - Zenodo**
 ![Contribution form](docs/images/current/contribute.png)
-
-**Other data sources**
-![Other source contribution](docs/images/current/other-source.png)
-
-**Submission status**
-![Submission tracking](docs/images/current/status.png)
 
 </details>
 
@@ -144,12 +147,12 @@ Additional catalogue entries link to providers' own portals. OpenTopography expl
 
 ## Contribute ALS data
 
-**Contribute ALS data** accepts Zenodo records and other stable public scientific sources. Supply the record link, coverage and acquisition information; Zenodo metadata provide authors, DOI, licence and available files. Polygons should link to the corresponding point-cloud assets. Declared approximate coverage remains labelled approximate.
+**Submit ALS data - Zenodo** accepts published Zenodo records. Supply the record link, coverage and acquisition information; Zenodo metadata provide authors, DOI, licence and available files. Polygons should link to the corresponding point-cloud assets. Declared approximate coverage remains labelled approximate.
 
-Submissions require maintainer approval before appearing in searches. **Submission status** tracks a proposal using its reference. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
+Submissions require maintainer approval before appearing in searches. Review normally takes 7–15 days; silence never implies approval. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
 
-Local review requires a configured administrator login. Contributors do not need
-an account. [Private reviewer setup](docs/REVIEWER_ACCESS.md).
+The maintainer reviews through a private email invitation, without an app password.
+Contributors need no account; their contact email is optional. Email delivery requires host configuration. [Private reviewer setup](docs/REVIEWER_ACCESS.md).
 
 For Zenodo, select a supplied boundary and its matching cloud file, or upload
 coverage polygons. Approved coverage updates in Explorer automatically.

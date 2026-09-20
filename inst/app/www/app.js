@@ -36,3 +36,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll(msg.selector).forEach((el) => el.classList.toggle(msg.class, !!msg.on));
   });
 });
+
+$(document).on("shiny:connected",function(){Shiny.addCustomMessageHandler("als-clear-review-link",function(message){history.replaceState(null,"",location.pathname);});});

@@ -11,9 +11,8 @@ are deduplicated. A saved proposal JSON also contains the optional email; share
 that file privately.
 
 The private reviewer sees the proposal and may approve or reject it. Decisions
-require a configured administrator email identifier and app password; see
-[reviewer access](REVIEWER_ACCESS.md). Email identifiers are not mailbox
-verification. The local credential file contains a salted hash, not a password.
+require a private invitation delivered to the configured maintainer mailbox; see
+[reviewer access](REVIEWER_ACCESS.md). No app password is collected.
 Decisions retain reviewer identity, time and optional notes. Approved public indexes omit
 the contact email and contain dataset metadata, coverage and download links.
 If configured, an automatic notification shares the summary and optional contact
@@ -26,19 +25,6 @@ omit the reviewer option on the public app; use a separate trusted local review
 session. Establish retention and deletion handling with contributors before
 opening a public service. The current app has no automated retention/deletion
 service; maintainers manage those private files directly.
-
-## Other data sources
-
-The separate generic-source form accepts an optional contact email in a private
-email draft. **Send my request** opens the user's mail client; the user reviews
-and sends it. That form does not itself persist a request or send an email.
-Email handling follows the sender's and recipient's mail-service policies.
-
-Zenodo proposal tracking requires the complete proposal reference and reports
-only review status and the dataset DOI. It does not expose contributor contacts
-or private decision notes. The reference is distinct from the dataset DOI.
-The team-labelled reviewer panel remains localhost-only and requires the
-administrator's reviewer configuration; the display label does not grant access.
 
 ## Local comparison files
 
@@ -56,7 +42,7 @@ not be presented as complete contribution statistics.
 
 When configured by the administrator, a brief proposal summary (including the
 optional contributor contact) is sent through the configured SMTP provider to
-the maintainer. Private message previews and delivery receipts are stored under
+the maintainer. Preview messages (without an access secret) and delivery receipts are stored under
 the queue's `notifications` directory and share its access and retention policy.
 Opening a notification link never approves a dataset. See
 [email setup](ZENODO_EMAIL_SETUP.md) for configuration and limitations.

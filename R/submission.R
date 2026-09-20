@@ -29,43 +29,9 @@ source_request <- function(input) {
 }
 
 source_submission_ui <- function() shiny::modalDialog(
-  title="Contribute ALS data",size="l",easyClose=FALSE,
-  shiny::tabsetPanel(shiny::tabPanel("Zenodo dataset",zenodo_submission_ui()),
-    shiny::tabPanel("Other data source",
-      shiny::p("Share a stable, public institutional or scientific repository. The ALS Downloader team reviews access, coverage and licensing before integration."),
-      shiny::textInput("source_origin","1. Dataset record link or DOI *"),
-      shiny::textInput("source_url","2. Direct LAS/LAZ or tile-index link *",placeholder="Public HTTPS; no login or expiring links"),
-      shiny::textInput("source_boundary","Coverage polygons / index link (if separate)",placeholder="GeoJSON, GeoPackage or zipped Shapefile; polygons linked to files"),
-      shiny::textInput("source_year","3. Acquisition year or interval (optional)",placeholder="2019 or 2018-2020; leave blank if unknown"),
-      shiny::selectInput("source_platform","4. Acquisition platform *",c("Choose a platform"="","Aircraft / helicopter ALS","UAV LiDAR","Mixed aerial laser platforms")),
-      shiny::textInput("source_license_url","5. Data licence link *"),
-      shiny::textInput("source_email","6. Contact email (optional, private)"),
-      shiny::radioButtons("source_scope","Coverage scope (optional)",c("Country-wide","National or regional agency","Local survey"),selected=character(0),inline=TRUE),
-      shiny::checkboxInput("source_repository_confirm","Stable public repository: no login, personal-drive links or temporary notebooks.",FALSE),
-      shiny::checkboxInput("source_open_license","The data licence explicitly permits reuse.",FALSE),
-      shiny::tags$details(shiny::tags$summary("Polygon-to-file mapping"),
-        shiny::p("An index connects each coverage polygon to its original file URL. Replace all example values before submitting."),
-        shiny::downloadButton("source_index_template","Download index example (GeoJSON)")),
-      source_preflight_ui(),shiny::textOutput("source_form_status"),shiny::uiOutput("source_submission"),
-      shiny::helpText("Send request opens an email draft for you to review and send. No dataset is published automatically."))),
-  footer=shiny::modalButton("Close"))
+  title="Submit ALS data - Zenodo",size="l",easyClose=FALSE,
+  zenodo_submission_ui(),footer=shiny::modalButton("Close"))
 
 source_submission_server <- function(input,output,session,check) {
-  output$source_index_template <- shiny::downloadHandler(filename = "my-campaign.tiles.geojson", content = function(file) {
-    file.copy(system.file("extdata", "contribution-template.geojson", package = "alsdownloader"), file, overwrite = TRUE)
-  })
   shiny::observeEvent(input$suggest_source,shiny::showModal(source_submission_ui()))
-  request <- shiny::reactive(source_request(input))
-  output$source_form_status <- shiny::renderText(request()$message)
-  proposal <- shiny::reactive({
-    r <- request();shiny::req(r$valid,check()$ready)
-    r$body <- paste(r$body,check()$summary,"Awaiting ALS Downloader team review. No dataset has been added.",sep="\n\n");r
-  })
-  output$source_submission <- shiny::renderUI({
-    if(!request()$valid || !isTRUE(check()$ready))return(shiny::actionButton("source_submit_disabled","Submit request",disabled=TRUE))
-    r <- proposal();encode <- function(x)utils::URLencode(enc2utf8(x),reserved=TRUE)
-    shiny::tagList(shiny::tags$a(id="source_submit",class="btn als-primary",href=paste0("mailto:calvites1990@gmail.com?subject=",encode(r$title),"&body=",encode(r$body)),"Submit request"),
-      shiny::downloadButton("source_proposal_file","Save request (.txt)"))
-  })
-  output$source_proposal_file <- shiny::downloadHandler(filename="als-source-request.txt",content=function(file){r<-proposal();writeLines(enc2utf8(c(r$title,"",r$body)),file,useBytes=TRUE)})
 }
