@@ -56,20 +56,7 @@ Requires R ≥ 4.1. `lidR` enables point-cloud reading. PDF reports also require
 
 The R package is named **`alsdownloader`**. The repository remains `als_downloader` to preserve existing links.
 
-## ALS data sources
-
-Connect to **USGS 3DEP, OpenTopography, CanElevation, AHN6, swissSURFACE3D and IGN LiDAR HD**. The verified OpenTopography catalogue provides access to over **1.05 million files (42.6 TB)** hosted by the original providers.
-
-| OpenTopography snapshot · 20 September 2026 | Verified count |
-|---|---:|
-| Integrated airborne-LiDAR collections / survey footprints | 428 |
-| Tile-footprint records in their indexes | 1,056,156 |
-| Unique file objects, after removing shared-file duplicates | 1,056,011 |
-| Original-file storage, from public object sizes | 42.598 TB (38.743 TiB) |
-
-Counts cover the audited OpenTopography collections, excluding federated 3DEP and external-only entries. [Inventory and methods](docs/COVERAGE_STATISTICS.md).
-
-## ALS catalogue
+## ALS Data Catalog
 
 | Integrated source | Access |
 |---|---|
@@ -82,6 +69,19 @@ Counts cover the audited OpenTopography collections, excluding federated 3DEP an
 | **Approved community sources** | Reviewed boundaries linked to provider-hosted files |
 
 Other countries link to their official download portals. [Full source catalogue](inst/sources/SOURCES.md).
+
+## ALS Downloader Stats
+
+The audited OpenTopography portion of ALS Downloader connects users to over **1.05 million files (42.6 TB)** hosted by the original providers.
+
+| OpenTopography snapshot · 20 September 2026 | Verified count |
+|---|---:|
+| Integrated airborne-LiDAR collections / survey footprints | 428 |
+| Tile-footprint records in their indexes | 1,056,156 |
+| Unique file objects, after removing shared-file duplicates | 1,056,011 |
+| Original-file storage, from public object sizes | 42.598 TB (38.743 TiB) |
+
+Counts cover the audited OpenTopography collections, excluding federated 3DEP and external-only entries. [Inventory and methods](docs/COVERAGE_STATISTICS.md).
 
 ## Input data
 

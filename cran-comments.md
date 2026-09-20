@@ -1,6 +1,6 @@
 ## Submission status
 
-Version 0.1.2, prepared for maintainer review; not submitted to CRAN.
+Version 0.1.3, prepared for maintainer review; not submitted to CRAN.
 Public GitHub and R-universe distribution is authorized.
 
 ## Local check
@@ -12,7 +12,7 @@ Full R CMD check --as-cran, including rebuilt vignettes and PDF/HTML manuals:
 - Incoming feasibility: new submission.
 - Unable to verify current time.
 
-Installed package size passes. All 637 test expectations passed, none skipped.
+Installed package size passes. All 684 test expectations passed, none skipped.
 The test runner separately reports one dependency warning (Shiny was built under
 R 4.4.3); this is not an R CMD check warning. Pandoc reports a deprecated
 highlight-style option; vignette and manual builds succeed.
@@ -42,3 +42,4 @@ and alongside bundled browser libraries. Optional dependencies are checked on us
 Optional hosted contribution intake still requires private persistent storage and
 mail/transport configuration; it is not advertised as a completed hosted service.
 CRAN submission follows the maintainer's final local app review.
+
