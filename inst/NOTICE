@@ -59,3 +59,7 @@ Data licence: CC BY 4.0, https://creativecommons.org/licenses/by/4.0/.
 Its editable SVG and figure provenance are retained in the repository under
 docs/images/banner.svg and docs/README_FIGURES.md. The R symbol identifies the
 R language; it is not the application logo or an endorsement by the R project.
+R logo: Copyright 2016 The R Foundation, https://www.r-project.org/logo/.
+Used under CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/.
+The logo is scaled and placed in the banner; its colours and geometry are
+unchanged. Its official editable source is included as report/Rlogo.svg.
