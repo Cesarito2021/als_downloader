@@ -23,7 +23,7 @@ generalization are documented in [DISCOVERY_COVERAGE.md](../inst/sources/DISCOVE
 
 The paired cloud figures use R point plots of the application reader's display
 samples, on a square 900-pixel canvas. The view is straight down onto the source
-XY plane, with source elevation colours (Greens) and no vertical exaggeration. No forest classification, height normalization or change detection is
+XY plane, with source elevation Z colours (Viridis) and no vertical exaggeration. No forest classification, height normalization or change detection is
 performed. For contrast, each colour scale spans the 2nd to 98th percentiles
 of the displayed source elevations; points outside that range use the endpoint
 colours. Legend limits are marked <= and >=. Original elevations are unchanged.

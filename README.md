@@ -76,7 +76,7 @@ Downloads preserve original tiles. The viewer uses sampled points and may downlo
 ## Four source examples
 
 Four verified sites, with the **same tile** shown on an RGB basemap and as a
-**top-down point cloud**. Point colours represent source elevation, not canopy
+**top-down point cloud**. Point colours use **Viridis by source elevation (Z)**, not canopy
 height or change. Click an image for the full-size view.
 [Source credits and figure details](docs/README_FIGURES.md).
 
