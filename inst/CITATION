@@ -3,4 +3,4 @@ bibentry(bibtype = "Manual",
   author = person("Cesar Ivan", "Alvites Diaz"),
   year = "2026",
   url = "https://cesarito2021.r-universe.dev/alsdownloader",
-  note = "R package version 0.1.1. Cite source datasets separately.")
+  note = "R package version 0.1.2. Cite source datasets separately.")

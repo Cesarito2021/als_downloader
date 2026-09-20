@@ -1,3 +1,9 @@
+# alsdownloader 0.1.2
+
+* Improve the welcome-page portrait size and author text readability.
+* Add annotated interface workflow figures, concise authorship and acknowledgement
+  logos to README; simplify navigation and provider links.
+
 # alsdownloader 0.1.1
 
 * Publish the public GitHub source and recommended R-universe installation route.

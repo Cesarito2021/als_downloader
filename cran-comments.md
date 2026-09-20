@@ -1,6 +1,6 @@
 ## Submission status
 
-Version 0.1.1, prepared for maintainer review; not submitted to CRAN.
+Version 0.1.2, prepared for maintainer review; not submitted to CRAN.
 Public GitHub and R-universe distribution is authorized.
 
 ## Local check
@@ -9,7 +9,7 @@ Windows 11, R 4.4.0 (x86_64-w64-mingw32), 20 September 2026.
 Full R CMD check --as-cran, including rebuilt vignettes and PDF/HTML manuals:
 0 errors, 0 warnings, 2 notes.
 
-- Incoming feasibility: new submission; the GNU GPL URL timed out during this run.
+- Incoming feasibility: new submission.
 - Unable to verify current time.
 
 Installed package size passes. All 637 test expectations passed, none skipped.

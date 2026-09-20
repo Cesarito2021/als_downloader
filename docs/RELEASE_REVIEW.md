@@ -1,9 +1,15 @@
-# ALS Downloader 0.1.1 — release review
+# ALS Downloader 0.1.2 — release review
 
 Prepared for maintainer review on 20 September 2026. No CRAN submission or Zenodo
 software deposit has been made. The maintainer has authorized public GitHub and R-universe publication.
 
 ## Verified scope
+
+- README now uses an annotated interface guide, concise authorship and the
+  maintainer-supplied OpenForest4D, NSF and University of Florida logos.
+- Welcome portrait is 104 px on desktop (88 px on narrow screens), with larger
+  author and affiliation text. The README banner no longer carries an author byline.
+- The green terrain-line banner remains a separate local proposal for user review.
 
 - README contains four top-down cloud examples: USA, Brazil, Canada
   and the Netherlands. Point colours use Viridis by source Z. Image provenance,
@@ -31,12 +37,12 @@ Windows, macOS, Linux release and R-devel matrix. An older green commit does not
 validate a newer candidate. The source tarball and check logs are prepared locally,
 without including downloaded examples, private queues or SMTP credentials.
 
-The final 0.1.1 local Windows/R 4.4.0 check completed with 0 errors, 0 warnings and
-2 notes (new submission with a GNU licence URL timeout; current time could not be verified). It includes the
+The final 0.1.2 local Windows/R 4.4.0 check completed with 0 errors, 0 warnings and
+2 notes (new submission; current time could not be verified). It includes the
 PDF/HTML manuals, vignette and 637 passing test expectations, with none skipped.
 The test runner additionally recorded one warning; see the local test log.
 
-The 0.1.1 metadata includes the public R-universe package page and GitHub source
+The 0.1.2 metadata includes the public R-universe package page and GitHub source
 and issue URLs. Current release validation is recorded in cran-comments.md.
 
 ## Conditions still requiring attention

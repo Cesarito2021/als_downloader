@@ -142,6 +142,11 @@ body{font-size:16px;line-height:1.55}
 .als-globe-mission{font-size:20px;max-width:840px}
 .als-globe-intro .als-globe-author{font-size:20px;color:#b3c6d3}
 .als-globe-intro .als-author-profile,.als-globe-intro .als-author-profile p{font-size:18px}
+.als-globe-intro .als-author-profile{gap:22px;margin-top:32px;max-width:820px}
+.als-globe-intro .als-author-profile img{width:104px;height:104px;flex:0 0 104px}
+.als-globe-intro .als-author-profile a{font-size:24px;font-weight:600;color:#d9e7f0}
+.als-globe-intro .als-author-profile p{font-size:20px;line-height:1.55;color:#bccdd9}
+@media(max-width:560px){.als-globe-intro .als-author-profile{gap:16px}.als-globe-intro .als-author-profile img{width:88px;height:88px;flex-basis:88px}.als-globe-intro .als-author-profile a{font-size:22px}.als-globe-intro .als-author-profile p{font-size:18px}}
 .als-globe-caption,.als-globe-credit,.als-author-profile,.als-author-profile p{font-size:17px}
 .als-globe-legend{font-size:18px;line-height:1.65}
 .als-globe-legend small{font-size:16px}.als-globe-swatch{width:15px;height:15px}

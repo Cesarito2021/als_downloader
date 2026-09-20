@@ -1,21 +1,33 @@
-# ALS Downloader
-
 ![ALS Downloader — airborne LiDAR discovery and visualization](docs/images/banner.png)
 
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](NEWS.md)
+[![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](NEWS.md)
 [![Install in R](https://img.shields.io/badge/R-install-276DC3?logo=r&logoColor=white)](#get-started)
 [![R-universe version](https://cesarito2021.r-universe.dev/alsdownloader/badges/version)](https://cesarito2021.r-universe.dev/alsdownloader)
+[![GitHub release downloads](https://img.shields.io/github/downloads/Cesarito2021/als_downloader/total?label=release%20downloads)](https://github.com/Cesarito2021/als_downloader/releases)
 [![GitHub source ZIP](https://img.shields.io/badge/GitHub-source_ZIP-181717?logo=github&logoColor=white)](https://github.com/Cesarito2021/als_downloader/archive/refs/heads/main.zip)
 
-**Discover, visualize and download airborne laser scanning data from an international catalogue.**
-ALS Downloader combines R functions with a map-based Shiny application: define an **area of interest (AOI)**, find available tiles, inspect point clouds and download original files from their providers. Coverage depends on the source and configured indexes; the catalogue does not imply complete global or national coverage.
+# ALS Downloader: an R package and Shiny app for airborne LiDAR discovery, download and visualization
 
-[Get started](#get-started) · [Application](#application) · [Outputs](#outputs) · [Examples](#four-source-examples) · [Catalogue](#als-catalogue) · [Contribute](#contribute-als-data)
+**Developed by César Alvite**  
+School of Forest, Fisheries, and Geomatics Sciences · University of Florida
+
+ALS Downloader connects an area of interest to available airborne LiDAR surveys:
+find and select tiles, download original files in parallel, inspect point clouds
+and compare overlapping acquisitions. Data remain hosted by their providers.
+The catalogue combines direct access with links to national portals; coverage
+varies by source.
+
+## User interface
+
+Start with the globe, then open **Explore** to find tiles. **3D view** inspects a
+selected tile or local file; **3D comparison** brings overlapping clouds together.
+
+![ALS Downloader: globe, access routes and entry points](docs/images/workflow/01-globe.png)
 
 ## Get started
 
-Install the latest published version from **[R-universe](https://cesarito2021.r-universe.dev/alsdownloader)** (recommended). Version **0.1.1** is prepared for final user review; the package has **not yet been submitted to CRAN**.
+Install the latest published version from **[R-universe](https://cesarito2021.r-universe.dev/alsdownloader)** (recommended). Version **0.1.2** is prepared for final user review; the package has **not yet been submitted to CRAN**.
 
 ```r
 install.packages("alsdownloader", repos = c(
@@ -65,52 +77,28 @@ CPU cores, selected jobs and provider limits (two simultaneous transfers by
 default; hosted mode uses one). Downloaded LAS/LAZ files can then be processed
 with tools such as `lidR`; the app provides sampled visualization and comparison.
 
-## Application
-
-Explorer opens with two access masks: **red survey footprints** for in-app
-discovery and **yellow country outlines** linking to external providers.
-The welcome globe illustrates access by country. [Coverage sources and limits](inst/sources/DISCOVERY_COVERAGE.md).
-
-![Welcome page](docs/images/current/welcome.png)
-
-The screenshots are captured at double resolution. Click any image to read it at full size.
+## Explore, inspect and compare
 
 <details>
-<summary>Interface text at a closer scale</summary>
+<summary><strong>Open the annotated interface guide</strong></summary>
 
-![Application title and Zenodo submission control](docs/images/current/header-detail.png)
+### Explorer → 3D view
 
-</details>
+Define an AOI, search acquisitions, select a year or campaign and download the
+original files. **View selected tile in 3D** connects results directly to the
+viewer. You can also open a local LAS/LAZ file.
 
-| View | Purpose |
-|---|---|
-| **Explore** | Draw or upload an AOI, filter acquisition dates, inspect footprints and select tiles. |
-| **3D view** | Inspect a source tile or local LAS/LAZ, using source classification, intensity or elevation colours. |
-| **3D comparison** | Visually compare compatible sources or a source with a local cloud in a shared window. |
+![Explorer: area, acquisitions, tile selection and download outputs](docs/images/workflow/02-explorer.png)
 
-Downloads preserve original tiles. The viewer uses sampled points and may download files temporarily. Comparison is a visual aid, not an automated change estimate; compatible coordinate and elevation references are required. [Comparison guide](docs/TEMPORAL_COMPARISON.md).
+![3D view: selected tile or local cloud, display controls and PNG export](docs/images/workflow/03-point-cloud.png)
 
-<details>
-<summary>View the application screens</summary>
+### 3D comparison
 
-**Coverage overview** — survey footprints and external access links.
-![Coverage masks](docs/images/current/coverage.png)
+Compare compatible source surveys, or a source with a local cloud, within their
+overlap. Views use sampled points; comparison is visual and does not calculate
+canopy-height change. Coordinate and elevation references must be compatible.
 
-
-**Point-cloud visualization**
-![3D view](docs/images/current/3d-view.png)
-
-**Comparison controls** — no comparison result is claimed in this capture.
-![3D comparison](docs/images/current/comparison.png)
-
-**About the project**
-![About](docs/images/current/about.png)
-
-**Source catalogue**
-![Catalogue](docs/images/current/catalogue.png)
-
-**Submit ALS data - Zenodo**
-![Contribution form](docs/images/current/contribute.png)
+![3D comparison: source selection, overlap and visual outputs](docs/images/workflow/04-comparison.png)
 
 </details>
 
@@ -160,13 +148,6 @@ no height normalization or change analysis is applied.
 
 ## ALS catalogue
 
-[![USGS 3DEP data source](https://img.shields.io/badge/Data_source-USGS_3DEP-006747)](https://www.usgs.gov/3d-elevation-program)
-[![OpenTopography data source](https://img.shields.io/badge/Data_source-OpenTopography-9B5526)](https://opentopography.org)
-
-<a href="https://opentopography.org"><img src="docs/images/providers/opentopography.png" alt="OpenTopography — data and resources" width="180"></a>
-
-Provider badges link to the official data sources. The OpenTopography logo acknowledges its data and resources, under its [media kit guidelines](https://opentopography.org/media); it does not imply endorsement. USGS 3DEP is identified with a text badge because the [official USGS logo has restricted use](https://www.usgs.gov/media/images/usgs-visual-identity-usgs-logo-black-tm).
-
 | Integrated source | Access |
 |---|---|
 | **USGS 3DEP**, USA | Planetary Computer spatial catalogue and COPC files |
@@ -208,13 +189,9 @@ what was verified and the limits of automatic metadata extraction.
 
 ## Author and citation
 
-Developed and maintained by **Cesar Ivan Alvites Diaz (Cesar Alvites)**, [University of Florida](https://cesarito2021.github.io/). [Contact](mailto:calvites1990@gmail.com).
+[Contact Cesar Alvites](mailto:calvites1990@gmail.com).
 
 Use `citation("alsdownloader")` to cite the software. Cite each dataset's producer and DOI separately; exported metadata and reports preserve available source credits.
-
-## Acknowledgement
-
-Developed within [OpenForest4D](https://openforest4d.org), funded by NSF awards **2409885, 2409886 and 2409887**.
 
 ## Licences and credits
 
@@ -222,4 +199,17 @@ Software: **GPL-3**. Dataset rights remain with their respective rights holders.
 
 Leaflet and its R interface retain their software licences; Natural Earth supplies public-domain globe outlines. Explorer uses OpenStreetMap cartography with visible attribution. Exported maps retain the copyright URL. Browser caching and the [tile service policy](https://operations.osmfoundation.org/policies/tiles/) apply; no offline basemap downloads are provided.
 
-[Third-party notices](inst/NOTICE) · [Data and figure licensing](inst/sources/LICENSING.md) · [Access and intellectual-property review](inst/sources/USE_REVIEW.md) · [CRAN readiness](docs/CRAN_READINESS.md)
+[Third-party software notices](inst/NOTICE).
+
+## Acknowledgements
+
+Developed at the **University of Florida** within [OpenForest4D](https://openforest4d.org),
+funded by the **U.S. National Science Foundation** (awards **2409885, 2409886 and 2409887**).
+
+<table>
+<tr>
+<td align="center" width="25%"><img src="docs/images/acknowledgements/openforest4d.png" alt="OpenForest4D" width="115"></td>
+<td align="center" width="25%"><img src="docs/images/acknowledgements/nsf.jpg" alt="U.S. National Science Foundation" width="150"></td>
+<td align="center" width="50%"><img src="docs/images/acknowledgements/university-of-florida.jpg" alt="University of Florida" width="320"></td>
+</tr>
+</table>
