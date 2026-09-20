@@ -37,8 +37,6 @@
       {label:'Z',color:'#8fcaff',x:0,y:-sp,depth:cp}
     ].sort((a,b)=>a.depth-b.depth);
     ctx.save();
-    ctx.fillStyle='rgba(12,22,32,.92)';ctx.strokeStyle='#415363';ctx.lineWidth=1;
-    ctx.beginPath();ctx.roundRect(left,top,size,size,16);ctx.fill();ctx.stroke();
     ctx.lineCap='round';ctx.lineWidth=3;
     for(const axis of axes){
       axis.px=cx+length*axis.x;axis.py=cy+length*axis.y;
@@ -64,7 +62,7 @@
     ctx.restore();
   }
   function viewer(c) {
-    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Greyscale',colourBy='auto',activeMode='elevation';
+    let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Greyscale',colourBy='intensity',activeMode='elevation';
     let initialPitch=0,pointSize=1.8,classification=[],classColors=[],intensity=[],intensityRange=[0,0],sourceLabel="Point-cloud preview",attribution=[],unitLabel="source units (unverified)",unitNote="";
     const classLegend=document.createElement('div');
     classLegend.className='als-classification-legend';

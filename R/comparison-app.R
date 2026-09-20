@@ -1,7 +1,7 @@
 comparison_ui <- function() {
   shiny::tabPanel("3D comparison",
-    shiny::h3("Two point clouds, overlapping area only"),
-    shiny::radioButtons("compare_source", "Comparison sources", c("Two source point clouds"="remote", "Source point cloud + local LAS/LAZ"="local"),inline=TRUE),
+    shiny::h3("Compare two 3D point clouds"),
+    shiny::radioButtons("compare_source", "Comparison mode", c("Two source point clouds"="remote", "Source point cloud + local LAS/LAZ"="local"),inline=TRUE),
     shiny::conditionalPanel("input.compare_source === 'local'",
       shiny::fileInput("compare_local_file","B | Local point cloud (LAS/LAZ, up to 1 GB)",accept=c(".las",".laz")),
       shiny::textOutput("compare_local_status"),
@@ -10,18 +10,18 @@ comparison_ui <- function() {
     shiny::textOutput("compare_time_message"),
     shiny::conditionalPanel("output.compare_temporal_ready === 'yes'",
     shiny::checkboxInput("compare_opt_in", "Enable point-cloud comparison", FALSE),
-    shiny::p("Search an AOI in Explore, then choose source point cloud A and either another source point cloud or local point cloud B. Source-to-source comparison requires separate acquisition periods. Local-cloud dates are unverified. This is visualization only; downloads remain separate."),
-    shiny::fluidRow(shiny::column(6, shiny::selectInput("epoch_a", "A | first / earlier cloud", choices = character()),
+    shiny::p("Choose the first point cloud (A), then an overlapping second point cloud (B)."),
+    shiny::fluidRow(shiny::column(6, shiny::selectInput("epoch_a", "A | First 3D point cloud", choices = character()),
       shiny::actionButton("download_epoch_a", "Select A tiles for download")),
-      shiny::column(6, shiny::conditionalPanel("input.compare_source !== 'local'",shiny::selectInput("epoch_b", "B | latest cloud", choices = character()),
+      shiny::column(6, shiny::conditionalPanel("input.compare_source !== 'local'",shiny::selectInput("epoch_b", "B | Second 3D point cloud", choices = character()),
       shiny::actionButton("download_epoch_b", "Select B tiles for download")))),
     shiny::selectInput("compare_side_m", "Preview square side", choices = c("100 m (default)" = 100, "250 m" = 250, "500 m" = 500, "1 km" = 1000), selected = 100),
-    shiny::tags$details(shiny::tags$summary("Source elevation units"),
-      shiny::helpText("Display axes use metres. Horizontal units come from the CRS; elevation units are checked separately. If Z units are absent, confirm them from provider documentation before loading. Unit conversion does not align vertical datums."),
+    shiny::tags$details(shiny::tags$summary("Advanced coordinate settings"),
+      shiny::helpText("Choose units only if the source header does not specify them."),
       shiny::selectInput("compare_z_units_a", "A: source elevation units", source_unit_choices()),
       shiny::selectInput("compare_z_units_b", "B: source elevation units", source_unit_choices())),
-    shiny::helpText("A small window is placed in the largest shared footprint and clipped to the AOI. Draw a smaller AOI in Explore to choose its location. The automatic location is not guaranteed to represent the forest."),
-    shiny::helpText("Visualization only: square side 100 m to 1 km. Remote limits: four tiles and 600 MB per source, 300 MB per tile. One local file up to 1 GB is supported. Both clouds require the same embedded projected CRS and known coordinate units; feet are scaled to metres for display. No vertical-datum transformation is performed."),
+    shiny::helpText("Choose a preview size; the app places it within the shared area."),
+    shiny::helpText("Local files: up to 1 GB. Remote preview: up to 300 MB per tile."),
     shiny::textOutput("compare_availability"), shiny::uiOutput("compare_load_control"),
     shiny::actionButton("compare_cancel", "Cancel comparison"), shiny::textOutput("compare_status"),
     shiny::tags$div(class = "als-compare-split",
@@ -74,34 +74,54 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
     state$comparison_busy <- FALSE
   }
   stop_job <- function() {if (!is.null(cmp$job) && cmp$job$is_alive()) cmp$job$kill_tree(); cmp$job <- NULL; cleanup()}
-  groups <- shiny::reactive(campaign_groups(state$tiles))
+  groups <- shiny::reactive({if(is.null(state$tiles))return(list()); stats::setNames(as.list(seq_len(nrow(state$tiles))),as.character(seq_len(nrow(state$tiles))))})
+  pairs <- shiny::reactive(comparison_tile_pairs(state$tiles,state$aoi))
   is_local <- shiny::reactive(identical(input$compare_source,"local"))
   local_tile <- shiny::reactive({if(!is_local() || is.null(input$compare_local_file))return(NULL)
     tryCatch(local_comparison_tile(input$compare_local_file),error=function(e)e)})
   output$compare_local_status <- shiny::renderText({x<-local_tile();if(inherits(x,"error"))conditionMessage(x) else if(is.null(x))"Upload a local cloud to begin." else "Header and projected CRS read. Actual point overlap and matching CRS will be checked when loading."})
-  output$compare_temporal_ready <- shiny::renderText(if (is_local() || is.null(comparison_time_message(state$tiles))) "yes" else "no")
+  output$compare_temporal_ready <- shiny::renderText(if (is_local() || nrow(pairs()) > 0L) "yes" else "no")
   shiny::outputOptions(output, "compare_temporal_ready", suspendWhenHidden = FALSE)
   output$compare_time_message <- shiny::renderText({
     if(is_local())return("Compare one available source point cloud with a local point cloud. Two dated source point clouds are not required in this mode.")
-    message <- comparison_time_message(state$tiles)
-    if (is.null(message)) "Two acquisition periods are available. Select a pair to check shared coverage. Two separate flights in the same year can qualify." else message
+    if(nrow(pairs())) "Overlapping tiles from separate acquisition periods are available." else "No matching overlapping tiles from separate acquisition periods in this area."
   })
   availability <- shiny::reactive({side<-if(is.null(input$compare_side_m))100 else input$compare_side_m
     if(is_local()) {x<-local_tile();if(inherits(x,"error"))return(list(ready=FALSE,message=conditionMessage(x)))
-      local_comparison_availability(state$tiles,state$aoi,input$epoch_a,x,input$compare_opt_in,input$compare_local_refs,side)
-    } else comparison_availability(state$tiles,state$aoi,input$epoch_a,input$epoch_b,input$compare_opt_in,side)})
+      {
+        ia<-suppressWarnings(as.integer(input$epoch_a))
+        if(length(ia)!=1L || is.na(ia) || !ia %in% seq_len(nrow(state$tiles)) || is.null(x))return(list(ready=FALSE,message="Choose the first cloud and upload the second."))
+        if(!isTRUE(input$compare_opt_in) || !isTRUE(input$compare_local_refs))return(list(ready=FALSE,message="Enable comparison and confirm coordinate references."))
+        tryCatch({comparison_region(state$tiles[ia,],x,state$aoi,side);list(ready=TRUE,message="Ready to compare.")},error=function(e)list(ready=FALSE,message=conditionMessage(e)))
+      }
+    } else {
+      p<-pairs(); a<-suppressWarnings(as.integer(input$epoch_a)); b<-suppressWarnings(as.integer(input$epoch_b))
+      if(!isTRUE(input$compare_opt_in))return(list(ready=FALSE,message="Enable comparison to choose a pair."))
+      if(length(a)!=1L || length(b)!=1L || is.na(a) || is.na(b) || !any(p$a==a & p$b==b))
+        return(list(ready=FALSE,message="Choose a matching pair of overlapping tiles."))
+      tryCatch({comparison_region(state$tiles[a,],state$tiles[b,],state$aoi,side)
+        list(ready=TRUE,message="Ready to view the overlapping point clouds.")
+      },error=function(e)list(ready=FALSE,message=conditionMessage(e)))
+    }})
   output$compare_availability <- shiny::renderText(availability()$message)
   output$compare_load_control <- shiny::renderUI({
     available <- availability()
     if (isTRUE(available$ready)) shiny::actionButton("compare_load", "View overlapping clouds", class = "als-primary")
     else shiny::actionButton("compare_load", "View overlapping clouds", class = "als-primary", disabled = TRUE)
   })
-  shiny::observeEvent(state$tiles, {
-    g <- groups(); choices <- if (length(g)) stats::setNames(names(g), paste0(names(g), " [", lengths(g), " tiles]")) else character()
-    choices <- c("Choose a point-cloud source" = "", choices)
-    shiny::updateSelectInput(session, "epoch_a", choices = choices, selected = "")
-    shiny::updateSelectInput(session, "epoch_b", choices = choices, selected = "")
-  }, ignoreNULL = FALSE)
+  shiny::observeEvent(list(state$tiles, state$aoi, is_local()), {
+    rows<-if(is_local()) {if(is.null(state$tiles))integer() else seq_len(nrow(state$tiles))} else unique(pairs()$a)
+    choices<-c("Choose a point cloud"="",comparison_tile_choices(state$tiles,rows))
+    shiny::updateSelectInput(session,"epoch_a",choices=choices,selected="")
+    shiny::updateSelectInput(session,"epoch_b",choices=c("Choose the first point cloud"=""),selected="")
+  },ignoreNULL=FALSE)
+  shiny::observeEvent(list(input$epoch_a,pairs(),is_local()), {
+    if(is_local())return()
+    p<-pairs();rows<-unique(p$b[p$a %in% suppressWarnings(as.integer(input$epoch_a))])
+    choices<-comparison_tile_choices(state$tiles,rows)
+    shiny::updateSelectInput(session,"epoch_b",choices=c("Choose an overlapping point cloud"="",choices),
+      selected=if(length(rows)==1L)as.character(rows) else "")
+  },ignoreNULL=FALSE)
   shiny::observeEvent(list(state$aoi, state$tiles, input$epoch_a, input$epoch_b, input$compare_opt_in, input$compare_side_m, input$compare_z_units_a, input$compare_z_units_b,input$compare_source,input$compare_local_file,input$compare_local_refs), {
     stop_job(); cmp$result <- NULL; cmp$status <- "Choose two point-cloud sources, then load the AOI comparison."
     session$sendCustomMessage("als-points", list(target = "als-compare-cloud", points = list(), origin = c(0, 0, 0)))
@@ -147,7 +167,7 @@ comparison_server <- function(input, output, session, state, mode, hosted_lock) 
         local_path<-file.path(cmp$directory,"user-cloud.laz")
         if(!file.copy(input$compare_local_file$datapath,local_path))stop("Could not stage the local cloud.")
       }
-      cmp$labels <- c(input$epoch_a, if(is_local())paste("User cloud:",b$filename[1],"| date unverified") else input$epoch_b)
+      cmp$labels <- c(state$tiles$filename[ia], if(is_local())paste("User cloud:",b$filename[1]) else state$tiles$filename[g[[input$epoch_b]]])
       cmp$attribution <- if(is_local())c(figure_attribution(a),paste("B: user-uploaded",b$filename[1],"- source credits and rights must be supplied by the user; date unverified.")) else figure_attribution(rbind(a, b))
       cmp$dates <- NULL
       cmp$files <- NULL

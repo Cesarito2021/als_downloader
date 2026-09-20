@@ -36,6 +36,10 @@ zenodo_formspree_fields <- function(p, source, config) {
     if (!source$key %in% vapply(p$metadata$files, `[[`, "", "key"))
       stop("Coverage must refer to a file in this Zenodo record.")
     fields$boundary <- paste0(fields$record, "/files/", utils::URLencode(source$key, reserved = TRUE))
+    if(!is.null(source$id_column)) {
+      fields$id_column<-source$id_column
+      fields$id_mapping<-as.character(jsonlite::toJSON(as.list(source$id_mapping),auto_unbox=TRUE))
+    }
     fields$file_mapping <- if (is.null(source$mapping) || !nzchar(source$mapping))
       "Use the boundary file_key column." else source$mapping
   } else if (!isTRUE(config$attachments)) {
@@ -51,7 +55,7 @@ zenodo_formspree_ui <- function(p, source, config) {
   if (!is.null(attachment) && nchar(attachment, type = "bytes") > 8*1024^2)
     stop("The proposal attachment exceeds 8 MiB. Simplify the coverage polygons.")
   shiny::tagList(
-    shiny::helpText("Submit sends the listed record, coverage information and optional contact to Formspree for maintainer review. No sign-in is required. Publication requires approval."),
+    shiny::helpText("Submit sends your dataset information and private email to the ALS Downloader review team through Formspree."),
     shiny::tags$form(class = "als-formspree", action = config$endpoint,
       method = "POST", target = "_blank", rel = "noopener noreferrer",
       enctype = "multipart/form-data",

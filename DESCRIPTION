@@ -1,6 +1,6 @@
 Package: alsdownloader
 Title: Discover, Inspect and Download Airborne Laser Scanning Data
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: person("Cesar Ivan", "Alvites Diaz", role = c("aut", "cre"),
     email = "calvites1990@gmail.com")
 Description: Discover, visualize and download airborne laser scanning data

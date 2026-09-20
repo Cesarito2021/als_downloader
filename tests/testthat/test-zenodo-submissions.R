@@ -95,21 +95,21 @@ test_that("changed metadata, tampering and rejection cannot activate a proposal"
 test_that("the public form can queue a proposal but cannot invoke reviewer actions", {
   queue<-tempfile();on.exit(unlink(queue,recursive=TRUE))
   coverage<-tempfile(fileext=".geojson");on.exit(unlink(coverage),add=TRUE)
-  sf::st_write(zenodo_shape(),coverage,quiet=TRUE)
+  g<-zenodo_shape();g$tile_id<-"survey";sf::st_write(g,coverage,quiet=TRUE)
   local_mocked_bindings(inspect_zenodo=function(...)zenodo_fixture(),.package="alsdownloader")
   shiny::testServer(function(input,output,session)zenodo_submission_server(input,output,session,queue),{
-    session$setInputs(zenodo_link="12345",zenodo_boundary_source="upload",zenodo_acquired="2018",
-      zenodo_platform="ALS",zenodo_email="",zenodo_boundary=list(name="coverage.geojson",datapath=coverage))
+    session$setInputs(zenodo_link="12345",zenodo_has_boundary="yes",zenodo_boundary_source="upload",zenodo_id_column="tile_id",zenodo_map_1="survey.laz",zenodo_year_mode="single",zenodo_year_1="2018",
+      zenodo_platform="ALS",zenodo_email="test@example.org",zenodo_boundary=list(name="coverage.geojson",datapath=coverage))
     session$setInputs(zenodo_inspect=1)
     expect_match(output$zenodo_metadata_status,"Fictitious aerial survey")
     session$setInputs(zenodo_prepare=1)
-    expect_match(output$zenodo_status,"Ready for maintainer review")
+    expect_match(output$zenodo_status,"Validated")
     session$setInputs(zenodo_send=1)
     expect_equal(zenodo_submissions(queue)$status,"pending")
     session$setInputs(zenodo_review_id=zenodo_submissions(queue)$id,zenodo_review_confirm=TRUE,zenodo_review_approve=1)
     expect_false(dir.exists(file.path(queue,"approved")))
-    session$setInputs(zenodo_acquired="2019")
+    session$setInputs(zenodo_year_1="2019")
     session$setInputs(zenodo_send=2)
-    expect_match(output$zenodo_status,"Check the proposal first")
+    expect_match(output$zenodo_status,"Validate the submission first")
   })
 })

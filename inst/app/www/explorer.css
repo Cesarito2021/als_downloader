@@ -169,3 +169,8 @@ body{font-size:16px;line-height:1.55}
 .als-campaign-selection h4{margin-top:0}.als-campaign-selection .form-group{display:inline-block;vertical-align:top;min-width:220px;max-width:100%;margin-right:14px}
 .als-campaign-selection #campaign_selection_summary{margin:4px 0 12px}
 @media(max-width:600px){.als-header h1{font-size:22px}.als-globe-mission{font-size:18px}.als-globe-legend{font-size:16px}}
+
+/* Status stays beside the action it describes. */
+.als-report-section{border:0;background:none;padding:0;margin:0 0 18px;}
+#report_map_status,#download_live_status{margin:8px 0;line-height:1.5;color:#d7e7ee;}
+.als-download-location code{white-space:normal;overflow-wrap:anywhere;background:none;color:#c5d9e5;}

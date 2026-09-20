@@ -8,7 +8,11 @@
     const button = event.target.closest('a');
     if (!button || !ids.includes(button.id)) return;
     if (bypass === button.id) { bypass = null; return; }
-    if (button.id !== 'download_report_map' && !document.getElementById('report_rgb')?.checked) return;
+    if (button.id === 'download_report_pdf' && !document.getElementById('report_rgb')?.checked) {
+      event.preventDefault(); event.stopImmediatePropagation();
+      if(busy)return;busy=true;status('Preparing report...');
+      Shiny.setInputValue('report_prepare',Date.now(),{priority:'event'});return;
+    }
     event.preventDefault(); event.stopImmediatePropagation();
     if (busy) return;
     busy = true; status('Preparing a centred map...');
@@ -79,9 +83,12 @@
   }
   $(document).on('shiny:connected',()=>{
     Shiny.addCustomMessageHandler('als-report-map',capture);
+    Shiny.addCustomMessageHandler('als-report-status',message=>{status(message);if(message.startsWith('Report failed:') || message.startsWith('Report ready'))busy=false;});
+    Shiny.addCustomMessageHandler('als-report-download',id=>{busy=false;bypass=id;document.getElementById(id)?.click();});
     Shiny.addCustomMessageHandler('als-report-map-error',message=>finish(message));
     Shiny.addCustomMessageHandler('als-report-map-ready',id=>{
-      finish('Centred map ready.');bypass=id;document.getElementById(id)?.click();
+      if(id==='download_report_pdf'){status('Preparing PDF...');Shiny.setInputValue('report_prepare',Date.now(),{priority:'event'});}
+      else {finish('Map ready. Download sent to your browser.');bypass=id;document.getElementById(id)?.click();}
     });
   });
   $(document).on('shiny:disconnected',()=>finish('Connection closed. Reconnect before creating a report.'));

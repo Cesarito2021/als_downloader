@@ -41,7 +41,8 @@ import_zenodo_inbox <- function(fields, queue) {
     path <- zenodo_boundary_download(meta, names[match])
     on.exit(unlink(path), add = TRUE)
     mapping <- field("file_mapping")
-    boundary <- if (!nzchar(mapping) || identical(mapping, "Use the boundary file_key column."))
+    boundary <- if (nzchar(field("id_column")))
+      zenodo_id_mapping(path,field("id_column"),vapply(meta$files,`[[`,"","key"),unlist(jsonlite::fromJSON(field("id_mapping",TRUE,500000L)))) else if (!nzchar(mapping) || identical(mapping, "Use the boundary file_key column."))
       zenodo_boundary(path) else zenodo_map_boundary(path, mapping)
   } else {
     number <- function(name) {

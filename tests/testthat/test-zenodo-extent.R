@@ -46,19 +46,19 @@ test_that("the form requires explicit square confirmation and invalidates change
   shiny::testServer(function(input,output,session)zenodo_submission_server(input,output,session,queue),{
     session$setInputs(zenodo_link="12345",zenodo_has_boundary="no",zenodo_longitude=12,
       zenodo_latitude=45,zenodo_distance=500,zenodo_extent_files="a.laz",zenodo_extent_confirm=FALSE,
-      zenodo_acquired="2018",zenodo_platform="ALS",zenodo_email="")
+      zenodo_year_mode="single",zenodo_year_1="2018",zenodo_platform="ALS",zenodo_email="test@example.org")
     session$setInputs(zenodo_inspect=1)
     session$setInputs(zenodo_prepare=1)
     expect_match(output$zenodo_status,"Confirm")
     session$setInputs(zenodo_extent_confirm=TRUE)
     session$setInputs(zenodo_prepare=2)
-    expect_match(output$zenodo_status,"AUTHOR-DECLARED APPROXIMATE")
+    expect_match(output$zenodo_status,"Validated")
     session$setInputs(zenodo_send=1)
     expect_equal(nrow(zenodo_submissions(queue)),1L)
     expect_equal(zenodo_submissions(queue)$status,"pending")
     session$setInputs(zenodo_distance=1000)
     session$setInputs(zenodo_send=2)
-    expect_match(output$zenodo_status,"Check the proposal first")
+    expect_match(output$zenodo_status,"Validate the submission first")
     expect_equal(nrow(zenodo_submissions(queue)),1L)
   })
 })

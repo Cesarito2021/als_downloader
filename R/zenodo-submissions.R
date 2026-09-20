@@ -54,6 +54,11 @@ inspect_zenodo <- function(link) zenodo_metadata(zenodo_get(zenodo_record_id(lin
 zenodo_dates <- function(value) {
   if (is.null(value) || !nzchar(trimws(value))) return(c(NA_character_,NA_character_))
   value <- trimws(value)
+  if(grepl("^[0-9]{4}(, *[0-9]{4})+$",value)) {
+    years<-as.integer(trimws(strsplit(value,",",fixed=TRUE)[[1]]))
+    if(anyDuplicated(years) || any(years<1900 | years>as.integer(format(Sys.Date(),"%Y"))))stop("Check the acquisition years.")
+    value<-paste(range(years),collapse="-")
+  }
   if(grepl("^[0-9]{4}(-[0-9]{4})?$",value)) {
     years <- strsplit(value,"-",fixed=TRUE)[[1]]
     dates <- c(paste0(years[1],"-01-01"),paste0(utils::tail(years,1),"-12-31"))
@@ -126,6 +131,7 @@ zenodo_build <- function(metadata,boundary,acquired,platform,email="") {
     index$features[[i]]$properties <- list(tile_id=paste0(metadata$id,"-",i),dataset=metadata$title,
       url=paste0("https://zenodo.org/records/",metadata$id,"/files/",utils::URLencode(file$key,reserved=TRUE)),
       acquired_start=if(is.na(dates[1]))NULL else dates[1],acquired_end=if(is.na(dates[2]))NULL else dates[2],
+      acquisition_years=if(grepl("^[0-9]{4}(, *[0-9]{4})*$",acquired))as.integer(trimws(strsplit(acquired,",",fixed=TRUE)[[1]])) else NULL,
       platform=platform,license_url=metadata$license_url,citation=metadata$citation,size_bytes=file$size,
       file_key=file$key,checksum=file$checksum,zenodo_doi=metadata$doi)
     if(approximate) {

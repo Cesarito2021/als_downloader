@@ -1,22 +1,18 @@
 ![ALS Downloader — airborne LiDAR discovery and visualization](docs/images/banner.png)
 
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](NEWS.md)
+[![Version](https://img.shields.io/badge/version-0.1.3-blue.svg)](NEWS.md)
 [![Install in R](https://img.shields.io/badge/R-install-276DC3?logo=r&logoColor=white)](#get-started)
 [![R-universe version](https://cesarito2021.r-universe.dev/alsdownloader/badges/version)](https://cesarito2021.r-universe.dev/alsdownloader)
 [![GitHub release downloads](https://img.shields.io/github/downloads/Cesarito2021/als_downloader/total?label=release%20downloads)](https://github.com/Cesarito2021/als_downloader/releases)
 [![GitHub source ZIP](https://img.shields.io/badge/GitHub-source_ZIP-181717?logo=github&logoColor=white)](https://github.com/Cesarito2021/als_downloader/archive/refs/heads/main.zip)
 
-# ALS Downloader: an R package and Shiny app for airborne LiDAR discovery, download and visualization
+# ALS Downloader: a web-based Shiny application for the discovery, management, visualization, and download of airborne laser scanning (ALS) datasets worldwide
 
-**Developed by César Alvite**  
-School of Forest, Fisheries, and Geomatics Sciences · University of Florida
+**Developed by Cesar Alvites**<br>
+School of Forest, Fisheries, and Geomatics Sciences, University of Florida
 
-ALS Downloader connects an area of interest to available airborne LiDAR surveys:
-find and select tiles, download original files in parallel, inspect point clouds
-and compare overlapping acquisitions. Data remain hosted by their providers.
-The catalogue combines direct access with links to national portals; coverage
-varies by source.
+ALS Downloader links a user-defined area of interest (AOI) to available airborne LiDAR surveys. Users can identify and select tiles, download the original point cloud files in parallel, inspect point clouds interactively, and compare overlapping acquisitions. All data remain hosted by the originating providers. The catalogue combines direct data access with links to national portals, and spatial coverage varies by source.
 
 ## User interface
 
@@ -25,9 +21,11 @@ selected tile or local file; **3D comparison** brings overlapping clouds togethe
 
 ![ALS Downloader: globe, access routes and entry points](docs/images/workflow/01-globe.png)
 
+**A.** The globe shows worldwide access routes and opens the dataset explorer.
+
 ## Get started
 
-Install the latest published version from **[R-universe](https://cesarito2021.r-universe.dev/alsdownloader)** (recommended). Version **0.1.2** is prepared for final user review; the package has **not yet been submitted to CRAN**.
+Install the latest published version from **[R-universe](https://cesarito2021.r-universe.dev/alsdownloader)** (recommended). Version **0.1.3** is prepared for final user review; the package has **not yet been submitted to CRAN**.
 
 ```r
 install.packages("alsdownloader", repos = c(
@@ -80,7 +78,7 @@ with tools such as `lidR`; the app provides sampled visualization and comparison
 ## Explore, inspect and compare
 
 <details>
-<summary><strong>Open the annotated interface guide</strong></summary>
+<summary><strong>View the other interface panels (B–D)</strong></summary>
 
 ### Explorer → 3D view
 
@@ -90,7 +88,11 @@ viewer. You can also open a local LAS/LAZ file.
 
 ![Explorer: area, acquisitions, tile selection and download outputs](docs/images/workflow/02-explorer.png)
 
+**B.** Explorer displays tiles within the AOI, with acquisition filters, file selection and download tools.
+
 ![3D view: selected tile or local cloud, display controls and PNG export](docs/images/workflow/03-point-cloud.png)
+
+**C.** The 3D viewer displays a selected tile or local point cloud, with orientation axes and colour controls.
 
 ### 3D comparison
 
@@ -99,6 +101,8 @@ overlap. Views use sampled points; comparison is visual and does not calculate
 canopy-height change. Coordinate and elevation references must be compatible.
 
 ![3D comparison: source selection, overlap and visual outputs](docs/images/workflow/04-comparison.png)
+
+**D.** The comparison panel selects overlapping point clouds for synchronized views. This screenshot shows the setup controls.
 
 </details>
 

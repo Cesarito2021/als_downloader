@@ -1,3 +1,20 @@
+report_pandoc <- function() {
+  if(rmarkdown::pandoc_available())return(invisible(TRUE))
+  # RStudio bundles Pandoc, but an app launched outside RStudio may not inherit
+  # RSTUDIO_PANDOC. Discover that existing installation without downloading one.
+  candidates<-c(Sys.getenv("RSTUDIO_PANDOC"),
+    file.path(Sys.getenv("ProgramFiles"),"RStudio/resources/app/bin/quarto/bin/tools"),
+    file.path(Sys.getenv("ProgramFiles"),"RStudio/bin/pandoc"))
+  for(path in candidates[nzchar(candidates)]) {
+    executable<-file.path(path,if(.Platform$OS.type=="windows")"pandoc.exe" else "pandoc")
+    if(file.exists(executable)) {
+      rmarkdown::find_pandoc(cache=FALSE,dir=path)
+      if(rmarkdown::pandoc_available())return(invisible(TRUE))
+    }
+  }
+  stop("Reports require Pandoc. Launch the app from RStudio or install Pandoc.",call.=FALSE)
+}
+
 #' Generate an HTML or PDF summary of a search/download selection
 #' @param tiles An `sf` or data frame as returned by [find_tiles()] or
 #'   [download_tiles()]. Only used to summarise the selection; no network
@@ -41,6 +58,7 @@ als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km
     stop("details must be TRUE or FALSE.", call. = FALSE)
   if (!requireNamespace("rmarkdown", quietly = TRUE))
     stop("Install rmarkdown to generate a session report.", call. = FALSE)
+  report_pandoc()
   if (!is.data.frame(tiles)) stop("tiles must be a data frame returned by find_tiles().", call. = FALSE)
   if (!is.null(aoi) && !inherits(aoi, "sf")) stop("aoi must be an sf polygon, as passed to find_tiles().", call. = FALSE)
   if (length(output_dir) != 1L || !is.character(output_dir) || !nzchar(output_dir))

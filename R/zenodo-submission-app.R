@@ -1,5 +1,5 @@
 zenodo_submission_ui <- function() shiny::tagList(
-  shiny::p("Contribute a Zenodo dataset to the community catalogue. Coverage polygons or a declared approximate extent are required for review. Source files remain on Zenodo. Only approved entries and download links enter ALS Downloader."),
+  shiny::p("Contribute airborne LiDAR hosted on Zenodo. Add the DOI, identify the point-cloud files and provide their coverage."),
   shiny::textInput("zenodo_link","1. Zenodo DOI or product link",placeholder="https://zenodo.org/records/... or 10.5281/zenodo...."),
   shiny::actionButton("zenodo_inspect","Read Zenodo metadata"),shiny::textOutput("zenodo_metadata_status"),
   shiny::tags$details(shiny::tags$summary("Retrieved description, citation and licence"),shiny::verbatimTextOutput("zenodo_metadata_details")),
@@ -10,8 +10,9 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::conditionalPanel("input.zenodo_boundary_source == 'upload'",
     shiny::fileInput("zenodo_boundary","GeoJSON, GeoPackage or zipped Shapefile (5 MiB maximum)",accept=c(".geojson",".gpkg",".zip"))),
   shiny::helpText("Choose a polygon file from Zenodo or upload one. Use a single-layer GeoPackage or a ZIP containing SHP, SHX, DBF and PRJ."),
-  shiny::selectInput("zenodo_polygon_file", "Point-cloud file or archive covered by these polygons", choices=c("Use file_key mapping in the polygon file"="")),
-  shiny::helpText("Choose one file for the whole study area. For different files with different footprints, include their exact names in a file_key column in the polygon file.")),
+  shiny::selectInput("zenodo_id_column", "Column containing the point-cloud tile ID", choices=character()),
+  shiny::helpText("Each polygon must have a tile ID. Match each ID to its LAS/LAZ file or ZIP archive on Zenodo."),
+  shiny::uiOutput("zenodo_file_mapping")),
   shiny::conditionalPanel("input.zenodo_has_boundary == 'no'",
     shiny::helpText("Click the map to set the centre, or enter WGS84 decimal coordinates. The orange square is a declared search extent, not verified LiDAR coverage."),
     shiny::fluidRow(shiny::column(6,shiny::numericInput("zenodo_longitude","Centre longitude",value=NA,min=-180,max=180)),
@@ -21,13 +22,14 @@ zenodo_submission_ui <- function() shiny::tagList(
     leaflet::leafletOutput("zenodo_extent_map",height=260),shiny::textOutput("zenodo_extent_status"),
     shiny::selectInput("zenodo_extent_files","Files or archives within this declared extent",choices=character(),multiple=TRUE),
     shiny::checkboxInput("zenodo_extent_confirm","I declare that this square encloses the selected point clouds. I understand that it will be labelled approximate.",FALSE)),
-  shiny::textInput("zenodo_acquired","3. Acquisition year or interval (blank if unknown)",placeholder="2018, 2016-2018, or 2018-05-01 / 2018-06-30"),
-  shiny::selectInput("zenodo_platform","4. LiDAR acquisition platform",c("Choose a platform"="","Aircraft / helicopter ALS"="ALS","UAV LiDAR"="UAV-LiDAR")),
-  shiny::textInput("zenodo_email","5. Contact email (optional, private)"),
-  shiny::helpText("Submitting shares the proposal and optional contact with the configured review service and maintainer. Contact details are not included in the public catalogue."),
+  shiny::radioButtons("zenodo_year_mode","3. Acquisition years",c("Single year"="single","Multiple years"="multiple"),inline=TRUE),
+  shiny::conditionalPanel("input.zenodo_year_mode === 'multiple'",shiny::numericInput("zenodo_year_count","Number of years",2,min=2,max=30,step=1)),
+  shiny::uiOutput("zenodo_year_fields"),
+  shiny::textInput("zenodo_email","4. Contact email (required, private)"),
+  shiny::helpText("Your email is shared with the review service and maintainer; it stays out of the public catalogue."),
   shiny::actionButton("zenodo_prepare","Validate submission"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
-  shiny::helpText("The ALS Downloader team will review your submission. Publication requires approval."),
-  shiny::helpText("No cloud is downloaded or analysed. ZIP assets are downloaded in full and extracted temporarily for 3D view, within size limits. Submission is not approval; the maintainer checks coverage, dates, file mapping and terms before publication."))
+  shiny::helpText("Validate the completed form to enable Submit. The ALS Downloader team will review your submission."),
+  shiny::tags$a(href="https://github.com/Cesarito2021/als_downloader",target="_blank",rel="noopener noreferrer","See details on GitHub"))
 
 zenodo_boundary_download <- function(meta,key) {
   keys<-vapply(meta$files,`[[`,"","key")
@@ -48,13 +50,52 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
   message<-shiny::reactiveVal("A Zenodo DOI or record URL is required. Publication requires approval.")
   fail<-function(e)message(conditionMessage(e))
   shiny::observeEvent(input$zenodo_link,{meta(NULL);proposal(NULL)},priority=100)
-  shiny::observeEvent(list(input$zenodo_boundary,input$zenodo_boundary_source,input$zenodo_polygon_file,input$zenodo_acquired,input$zenodo_platform,input$zenodo_email,
+  shiny::observeEvent(list(input$zenodo_boundary,input$zenodo_boundary_source,input$zenodo_id_column, selected_years(), mapping_values(),input$zenodo_email,
     input$zenodo_has_boundary,input$zenodo_longitude,input$zenodo_latitude,input$zenodo_distance,input$zenodo_extent_files,input$zenodo_extent_confirm),{
-    proposal(NULL);message("Check the proposal after completing or changing the fields.")
+    proposal(NULL);message("Validate the completed form to enable Submit.")
   },ignoreInit=TRUE)
   shiny::observeEvent(list(input$zenodo_has_boundary,input$zenodo_longitude,input$zenodo_latitude,input$zenodo_distance,input$zenodo_extent_files,input$zenodo_link),{
     shiny::updateCheckboxInput(session,"zenodo_extent_confirm",value=FALSE)
   },ignoreInit=TRUE)
+  output$zenodo_year_fields<-shiny::renderUI({
+    n<-if(identical(input$zenodo_year_mode,"multiple"))input$zenodo_year_count else 1L
+    if(is.null(n) || !is.finite(n) || n<1 || n>30)return(NULL)
+    shiny::div(style="display:flex;gap:12px;flex-wrap:wrap;",lapply(seq_len(as.integer(n)),function(i)
+      shiny::div(style="width:140px",shiny::selectInput(paste0("zenodo_year_",i),paste("Year",i),c("Choose year"="",rev(seq.int(1900L,as.integer(format(Sys.Date(),"%Y"))))),selected=""))))
+  })
+  selected_years<-shiny::reactive({
+    n<-if(identical(input$zenodo_year_mode,"multiple"))input$zenodo_year_count else 1L
+    if(is.null(n) || !is.finite(n) || n<1 || n>30)return(character())
+    vapply(seq_len(as.integer(n)),function(i){v<-input[[paste0("zenodo_year_",i)]];if(is.null(v))"" else v},"")
+  })
+  boundary_data<-shiny::reactive({
+    if(!identical(input$zenodo_has_boundary,"yes"))return(NULL)
+    tryCatch({
+      if(identical(input$zenodo_boundary_source,"upload")) {
+        if(is.null(input$zenodo_boundary))return(NULL)
+        zenodo_boundary(input$zenodo_boundary)
+      } else {
+        shiny::req(meta(),input$zenodo_boundary_source)
+        path<-zenodo_boundary_download(meta(),input$zenodo_boundary_source)
+        on.exit(unlink(path));zenodo_boundary(path)
+      }
+    },error=function(e){message(conditionMessage(e));NULL})
+  })
+  shiny::observeEvent(boundary_data(),{
+    g<-boundary_data();cols<-if(is.null(g))character() else names(sf::st_drop_geometry(g))
+    preferred<-intersect(c("file_key","tile_id","id","name"),cols)
+    shiny::updateSelectInput(session,"zenodo_id_column",choices=c("Choose ID column"="",stats::setNames(cols,cols)),selected=if(length(preferred))preferred[1] else "")
+  },ignoreNULL=FALSE)
+  polygon_ids<-shiny::reactive({g<-boundary_data();if(is.null(g) || is.null(input$zenodo_id_column) || !input$zenodo_id_column %in% names(g))return(character());unique(as.character(g[[input$zenodo_id_column]]))})
+  output$zenodo_file_mapping<-shiny::renderUI({
+    m<-meta();shiny::req(m);ids<-polygon_ids();keys<-vapply(m$files,`[[`,"","key");keys<-keys[grepl("\\.(las|laz|zip)$",keys,ignore.case=TRUE)]
+    lapply(seq_along(ids),function(i){
+      candidate<-keys[keys==ids[i] | tools::file_path_sans_ext(basename(keys))==ids[i]]
+      if(length(keys)==1L)candidate<-keys
+      shiny::selectInput(paste0("zenodo_map_",i),paste("Zenodo file for tile ID",ids[i]),c("Choose file"="",stats::setNames(keys,keys)),selected=if(length(candidate)==1L)candidate else "")
+    })
+  })
+  mapping_values<-shiny::reactive({ids<-polygon_ids();stats::setNames(vapply(seq_along(ids),function(i){v<-input[[paste0("zenodo_map_",i)]];if(is.null(v))"" else v},""),ids)})
   output$zenodo_extent_map<-leaflet::renderLeaflet(leaflet::leaflet()|>leaflet::addTiles()|>leaflet::setView(lng=0,lat=15,zoom=2))
   shiny::observeEvent(input$zenodo_extent_map_click,{
     click<-input$zenodo_extent_map_click
@@ -82,9 +123,8 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     small<-keys[grepl("\\.(geojson|gpkg|zip)$",keys,ignore.case=TRUE)&sizes<=5*1024^2]
     shiny::updateSelectInput(session,"zenodo_boundary_source",choices=c("Upload coverage polygons"="upload",stats::setNames(small,small)),selected="upload")
     assets<-keys[grepl("\\.(las|laz|zip)$",keys,ignore.case=TRUE)]
-    shiny::updateSelectInput(session,"zenodo_polygon_file",choices=c("Use file_key mapping in the polygon file"="",stats::setNames(assets,assets)),selected="")
     shiny::updateSelectInput(session,"zenodo_extent_files",choices=assets,selected=character())
-    message("Metadata ready. Confirm coverage, acquisition dates and platform; then validate the submission.")
+    message("Metadata ready. Choose coverage, tile IDs and acquisition years; then validate.")
   },error=fail))
   output$zenodo_metadata_status<-shiny::renderText({m<-meta();if(is.null(m))return("No record loaded.");paste(m$title,"|",m$doi,"|",length(m$files),"files | Licence:",m$license)})
   output$zenodo_metadata_details<-shiny::renderText({m<-meta();shiny::req(m);paste(m$citation,m$license_url,gsub("<[^>]*>"," ",m$description),m$acknowledgement,
@@ -95,22 +135,17 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     if(identical(input$zenodo_has_boundary,"no")) {
       if(!isTRUE(input$zenodo_extent_confirm))stop("Confirm that the approximate square encloses the selected files.")
       boundary<-zenodo_square(input$zenodo_longitude,input$zenodo_latitude,input$zenodo_distance,input$zenodo_extent_files)
-    } else if(identical(input$zenodo_boundary_source,"upload")) {
-      if(is.null(input$zenodo_boundary))stop("Upload the coverage polygon file.")
-      boundary<-input$zenodo_boundary
     } else {
-      boundary<-zenodo_boundary_download(m,input$zenodo_boundary_source)
-      boundary_path <- boundary
-      on.exit(unlink(boundary_path),add=TRUE)
+      boundary<-boundary_data();if(is.null(boundary))stop("Read a coverage polygon file first.")
+      boundary<-zenodo_id_mapping(boundary,input$zenodo_id_column,vapply(m$files,`[[`,"","key"),mapping_values())
     }
-    if (identical(input$zenodo_has_boundary,"yes") && !is.null(input$zenodo_polygon_file) && nzchar(input$zenodo_polygon_file)) {
-      boundary <- zenodo_map_boundary(boundary, input$zenodo_polygon_file)
-    }
-    p<-zenodo_build(m,boundary,input$zenodo_acquired,input$zenodo_platform,input$zenodo_email)
+    if(is.null(input$zenodo_email) || !grepl("^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$",input$zenodo_email))stop("Enter a valid private contact email.")
+    years<-zenodo_selected_years(input$zenodo_year_mode,input$zenodo_year_count,selected_years())
+    p<-zenodo_build(m,boundary,years,"ALS",input$zenodo_email)
     proposal_source(if(identical(input$zenodo_has_boundary,"no")) list(kind="approximate") else
       if(identical(input$zenodo_boundary_source,"upload")) list(kind="upload") else
-        list(kind="zenodo",key=input$zenodo_boundary_source,mapping=input$zenodo_polygon_file))
-    proposal(p);message(paste("Ready for maintainer review:",length(p$index$features),"mapped download assets.",zenodo_coverage_label(p),"This does not verify point-cloud contents or grant approval."))
+        list(kind="zenodo",key=input$zenodo_boundary_source,mapping="",id_column=input$zenodo_id_column,id_mapping=mapping_values()))
+    proposal(p);message("Validated. You can now submit for ALS Downloader team review.")
   },error=fail))
   output$zenodo_status<-shiny::renderText(message())
   output$zenodo_actions<-shiny::renderUI({shiny::req(proposal());
@@ -124,8 +159,8 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
   shiny::observeEvent(input$zenodo_send,tryCatch({
     if(!is.null(zenodo_formspree_config(default=is.null(queue))))stop("Use the Formspree submission button.")
     if(is.null(queue))stop("The review queue is not configured.")
-    p<-proposal();if(is.null(p))stop("Check the proposal first.")
-    id<-submit_zenodo(p,queue);message(paste("Proposal received. Reference:",id,"| DOI:",p$metadata$doi,"| Awaiting ALS Downloader team review. No dataset has been added."))
+    p<-proposal();if(is.null(p))stop("Validate the submission first.")
+    id<-submit_zenodo(p,queue);message(paste("Proposal received. Reference:",id,"| DOI:",p$metadata$doi,"| The ALS Downloader team will review your submission."))
 
   },error=fail))
   if(is.null(reviewer))return(invisible(NULL))

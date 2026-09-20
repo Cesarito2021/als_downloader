@@ -102,29 +102,26 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           shiny::dateRangeInput("dates", "Acquisition period", start = "2000-01-01", end = Sys.Date()),
           shiny::actionButton("search", "Find ALS data", class = "als-action-btn")),
         shiny::h3(class = "als-sidebar-heading", "Outputs"),
-            shiny::conditionalPanel("output.report_ready === 'yes'", class="als-section als-report-section",
+            shiny::conditionalPanel("output.report_ready === 'yes'", class="als-report-section",
               shiny::downloadButton("download_report_pdf", "Download report (PDF)", class="als-report-btn"),
-              shiny::textOutput("report_selection_summary"),
+              shiny::tags$div(id = "report_map_status", role = "status", `aria-live` = "polite"),
             shiny::tags$details(shiny::tags$summary("Report options"),
               shiny::checkboxInput("report_rgb", "OpenStreetMap basemap", TRUE),
               shiny::downloadButton("download_report_map", "Download aoi map (PNG)"),
-              shiny::tags$div(id = "report_map_status", role = "status", `aria-live` = "polite"),
               shiny::checkboxInput("report_details", "Include technical appendix (file sample and download-time scenarios)", FALSE),
               shiny::fileInput("report_figures", "Optional exported PNG figures (up to 6, 10 MiB each)", multiple = TRUE, accept = ".png"),
               shiny::helpText("The report uses selected tiles, or all search results if none are selected."))),
         shiny::div(class = "als-section",
           shiny::h4(class = "als-options-heading", "Download options"),
           if (mode == "local") shiny::tagList(
-            shiny::textInput("destination", "Output folder", value = tempdir()),
+            shiny::textInput("destination", "Output folder", value = file.path(path.expand("~"), "ALS-Downloads")),
             shiny::numericInput("workers", "Download workers", min(4L, policy$maximum), min = 1, max = policy$maximum),
-            shiny::helpText(paste("Recommended:", policy$recommended, "| maximum:", policy$maximum, "| provider ceiling:", provider_limit)))
+            shiny::helpText(paste("Recommended workers:", policy$recommended)))
           else shiny::helpText("Hosted downloads use one worker. Select up to 10 tiles per batch. Files are delivered through the browser."),
           shiny::actionButton("download", "Download selected tiles", class = "als-action-btn"),
-          shiny::textOutput("selection_summary"),
-          shiny::helpText("Downloads preserve complete original tiles.")),
+          shiny::textOutput("selection_summary"), shiny::textOutput("download_live_status"),
+          shiny::uiOutput("download_destination")),
         shiny::conditionalPanel("output.download_visible === 'yes'", class = "als-section als-transfer-section",
-          shiny::h4("Download status"),
-          shiny::textOutput("job_status"),
           shiny::conditionalPanel("output.download_running === 'yes'", shiny::actionButton("cancel", "Cancel download")),
           shiny::uiOutput("bundle_control")),
         shiny::actionButton("reset_all", "Reset workspace", class = "als-reset-btn"))),
@@ -141,7 +138,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
                     shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-yellow"), "External Access"))),
                 shiny::p(id = "globe_status", class = "als-globe-caption", "Country colours represent access routes. Open Explorer to see survey coverage."),
                 shiny::p(class = "als-globe-mission",
-                  "Find airborne LiDAR by area, view point clouds and download original files from their providers."),
+                  "Find airborne LiDAR (Light Detection and Ranging) by area of interest, view point clouds and download original LAS/LAZ files from their providers."),
                 shiny::p(class = "als-globe-author", "Developed by Cesar Alvites"),
                 shiny::div(class = "als-welcome-buttons", role = "group", `aria-label` = "Explore ALS Downloader",
                   shiny::actionButton("enter_map", "Open map", icon = shiny::icon("map"), class = "als-welcome-button als-welcome-map"),
@@ -182,7 +179,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::div(class = "als-result-actions",
               shiny::downloadButton("export_manifest", "Export all tile metadata"),
               shiny::downloadButton("export_selection", "Export selected tile metadata"),
-              shiny::downloadButton("export_script", "Export download R script")),
+              shiny::downloadButton("export_script", "Export download tiles (R script)")),
             shiny::div(class = "als-tile-preview",
               shiny::actionButton("plot_tile", "View selected tile in 3D", class = "als-primary"),
               shiny::textOutput("tile_selection"),
@@ -197,15 +194,16 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::actionButton("cancel_preview", "Cancel loading"),
             shiny::helpText("Display sampling preserves the source file. Large local tiles can also be read with read_preview() in R."),
             shiny::textOutput("preview_status"),
+            shiny::tags$details(shiny::tags$summary("Source and display details"), shiny::textOutput("preview_details")),
             shiny::tags$canvas(id = "als-cloud", role = "img", tabindex = "0", `aria-label` = "Interactive point-cloud preview. Arrow keys rotate; plus and minus zoom; zero resets."),
             figure_button("export_preview_png", "Download point cloud view (PNG)", TRUE),
             shiny::tags$span(id="preview_export_status", role="status"),
-            shiny::selectInput("colour_by", "Colour by", c("Automatic"="auto", "Source classification"="classification", "Intensity"="intensity", "Elevation"="elevation"), selected="auto"),
+            shiny::selectInput("colour_by", "Colour by", c("Automatic"="auto", "Source classification"="classification", "Intensity"="intensity", "Elevation"="elevation"), selected="intensity"),
             shiny::selectInput("palette", "Palette for intensity / elevation", preview_palettes(), selected="Greyscale"),
-            shiny::helpText("Automatic uses source classes when any labelled classes are present, then non-zero intensity, then elevation. Classification has fixed categorical colours. Intensity is raw sensor return strength, not calibrated reflectance."),
+            shiny::helpText("Point clouds use intensity in greyscale by default. Choose another point attribute or palette to change the colours."),
             shiny::sliderInput("exaggeration", "Vertical scale factor", min = 1, max = 12, value = 1, step = 1),
             shiny::helpText("Vertical scale factor changes display only: 1x is true proportions; 2x doubles vertical differences. Source elevations remain unchanged."),
-            shiny::div(class = "map-caption", "Drag or arrow keys to rotate | scroll or +/- to zoom | 0 to reset. Classification colours use the labels supplied in the file; no automatic classification. Elevation colours show source Z, not canopy height.")),
+            shiny::div(class = "map-caption", "")),
           comparison_ui(),
           NULL)))
   )
@@ -217,6 +215,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       tile_index_dir, file.path(submission_dir, "approved"))
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "No search results yet.",
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
+      job_started = Sys.time(), job_bytes = NA_real_, job_paths = character(), job_total = 0L,
       preview_job = NULL, preview_started = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
       preview_target = "als-cloud", tiletext = "Select exactly one tile to preview.", preview_label = "", preview_attribution = NULL, preview_path = NULL, preview_locked = FALSE,
       tile_groups = character(0), zip_members = character(), zip_url = NULL)
@@ -485,7 +484,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       table$campaign_id <- if ("campaign_id" %in% names(table)) ifelse(is.na(table$campaign_id), "Not supplied", table$campaign_id) else rep("Not supplied", nrow(table))
       DT::datatable(table[c("filename", "campaign_id", "dataset", "provider", "acquired_end", "acquired_start", "size_bytes", "license_url", "citation")],
         colnames = c("File", "Campaign", "Dataset", "Source adapter", "Collection date (end)", "Collection start", "Size (bytes)", "License", "Producer / citation"),
-        rownames = FALSE, selection = "multiple", filter="top", class="stripe hover compact",
+        rownames = FALSE, selection = list(mode="multiple",selected=NULL), filter="top", class="stripe hover compact",
         options = list(scrollX = TRUE, pageLength = 8,
           columnDefs=list(list(targets=c(2, 3, 5, 7, 8), visible=FALSE))))
     })
@@ -525,6 +524,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       shiny::outputOptions(output, id, suspendWhenHidden = FALSE)
     report_map <- report_map_server(input, output, session, shiny::reactive(state$aoi), report_tiles)
     shiny::observeEvent(input$select_all_tiles, {shiny::req(state$tiles); DT::selectRows(DT::dataTableProxy("tiles"), input$tiles_rows_all)})
+    shiny::observeEvent(state$tiles, DT::selectRows(DT::dataTableProxy("tiles"), integer()), ignoreNULL=FALSE)
     shiny::observeEvent(input$clear_tiles, DT::selectRows(DT::dataTableProxy("tiles"), integer()))
     show_tile_details <- function(licenses=FALSE) {
       if (is.null(state$tiles) || !nrow(state$tiles)) {
@@ -550,7 +550,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     shiny::observeEvent(input$tile_information, show_tile_details(FALSE))
     output$selection_summary <- shiny::renderText({
       x <- selected_tiles(); known <- is.finite(x$size_bytes)
-      sprintf("%s tiles selected | %.1f MiB known | %s files with unknown size", nrow(x), sum(x$size_bytes[known])/1024^2, sum(!known))
+      sprintf("Selected %s of %s tiles", nrow(x), nrow(state$tiles))
     })
     output$export_selection <- shiny::downloadHandler(filename = "selected-tiles.csv", content = function(file) {
       x <- sf::st_drop_geometry(selected_tiles()); shiny::req(nrow(x)); x$url <- redact_url(x$url)
@@ -559,24 +559,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     output$export_script <- shiny::downloadHandler(filename = "download-selected-tiles.R", content = function(file) {
       x <- selected_tiles(); shiny::req(nrow(x)); writeLines(selection_script(x), file, useBytes = TRUE)
     })
-    write_report <- function(file, format) {
-      x <- report_tiles(); shiny::req(nrow(x))
-      if (format == "pdf" && !(requireNamespace("tinytex", quietly = TRUE) && isTRUE(tinytex::is_tinytex()))) {
-        shiny::showNotification("PDF reports require a working TinyTeX installation on the app server.", type = "error", duration = 15)
-        stop("PDF reports require a working TinyTeX installation.", call. = FALSE)
-      }
-      area <- if (is.null(state$aoi)) NA_real_ else aoi_area(state$aoi)
-      dir <- tempfile("als-report-"); dir.create(dir)
-      on.exit(unlink(dir, recursive = TRUE), add = TRUE)
-      figures <- if (is.null(input$report_figures)) character() else input$report_figures$datapath
-      rgb <- if (isTRUE(input$report_rgb)) report_map() else list(path = character(), credits = "")
-      path <- tryCatch(als_report(x, dir, format = format, aoi_area_km2 = area, aoi = state$aoi, figures = figures,
-        details = isTRUE(input$report_details), map_image = rgb$path, map_credits = rgb$credits),
-        error = function(e) {shiny::showNotification(conditionMessage(e), type = "error", duration = 15); stop(e)})
-      file.copy(path, file, overwrite = TRUE)
-    }
-    output$download_report_pdf <- shiny::downloadHandler(filename = "als-session-report.pdf", contentType = "application/pdf",
-      content = function(file) write_report(file, "pdf"))
+    report_download_server(input,output,session,report_tiles,shiny::reactive(state$aoi),report_map)
     output$tile_selection <- shiny::renderText({
       selected <- input$tiles_rows_selected
       if (is.null(state$tiles) || length(selected) != 1L || !selected %in% seq_len(nrow(state$tiles)))
@@ -619,7 +602,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       state$destination <- NULL; state$finished <- FALSE
       state$jobtext <- "No active download."
       if (mode == "local") {
-        shiny::updateTextInput(session, "destination", value = tempdir())
+        shiny::updateTextInput(session, "destination", value = file.path(path.expand("~"), "ALS-Downloads"))
         shiny::updateNumericInput(session, "workers", value = min(4L, policy$maximum))
       }
       clear_aoi()
@@ -630,7 +613,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         shiny::showNotification("Wait for the tile preview before starting another transfer."); return()
       }
       if (!is.null(state$job) && state$job$is_alive()) {shiny::showNotification("A download is already running."); return()}
-      shiny::req(state$tiles, input$tiles_rows_selected)
+      if (is.null(state$tiles) || !length(input$tiles_rows_selected)) {shiny::showNotification("Select at least one tile first."); return()}
       rows <- state$tiles[input$tiles_rows_selected, , drop = FALSE]
       tryCatch({
         require_data_terms(rows)
@@ -660,6 +643,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           workers = if (mode == "hosted") 1L else input$workers,
           mode = mode, provider_limit = provider_limit, progress_dir = file.path(jobdir, "progress")))
         state$job_total <- nrow(rows)
+        state$job_bytes <- if(all(is.finite(rows$size_bytes)))sum(rows$size_bytes) else NA_real_
+        state$job_started <- Sys.time()
+        state$job_paths <- vapply(seq_len(nrow(rows)), function(i) asset_path(rows[i, ], destination), "")
         state$jobtext <- paste("Starting download:", nrow(rows), "tiles.")
       }, error = function(e) {release_lock(); notify(e)})
     })
@@ -668,12 +654,16 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       job <- state$job
       if (is.null(job) || isTRUE(state$finished)) return()
       completed <- length(list.files(file.path(state$jobdir, "progress"), "\\.rds$"))
-      state$jobtext <- paste(completed, "of", state$job_total, "tiles processed.")
+      paths <- if(length(state$job_paths))c(state$job_paths, paste0(state$job_paths, ".part")) else character()
+      bytes <- sum(file.info(paths)$size, na.rm = TRUE)
+      elapsed <- as.numeric(difftime(Sys.time(), state$job_started, units = "secs"))
+      percent<-if(is.finite(state$job_bytes) && state$job_bytes>0)sprintf("%.0f%% | ",min(99,100*bytes/state$job_bytes)) else ""
+      state$jobtext <- sprintf("Downloading: %s%s/%s files processed | %.1f MB received | %.0f s", percent, completed, state$job_total, bytes/1e6, elapsed)
       if (!job$is_alive()) {
         state$finished <- TRUE; release_lock(); release_output_lock()
-        tryCatch({result <- job$get_result(); state$jobtext <- sprintf("Complete: %s successful, %s failed. See manifest.csv.",
-          sum(result$status != "failed"), sum(result$status == "failed"))},
-          error = function(e) state$jobtext <- "Download stopped. Retry the selection to resume verified files.")
+        tryCatch({result <- job$get_result(); state$jobtext <- sprintf("Finished: %s saved, %s failed | %.0f s. See manifest.csv in the output folder.",
+          sum(result$status != "failed"), sum(result$status == "failed"), elapsed)},
+          error = function(e) state$jobtext <- paste("Download stopped:",redact_urls_in_text(conditionMessage(e))))
       }
     })
     shiny::observeEvent(input$cancel, {
@@ -684,6 +674,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       state$finished <- TRUE; state$jobtext <- "Canceled. Completed local tiles can be resumed."; release_lock(); release_output_lock()
     })
     output$job_status <- shiny::renderText(state$jobtext)
+    output$download_live_status <- shiny::renderText(state$jobtext)
+    output$download_destination <- shiny::renderUI({
+      if(mode=="local")shiny::tags$p(class="als-download-location", "Files are saved in: ",shiny::tags$code(if(is.null(state$destination))input$destination else normalizePath(state$destination,winslash="/",mustWork=FALSE)))
+      else shiny::helpText("When finished, use Save hosted download ZIP.")
+    })
     output$bundle_control <- shiny::renderUI(if (mode == "hosted" && isTRUE(state$finished) && !is.null(state$destination) && file.exists(file.path(state$destination, "manifest.csv"))) shiny::downloadButton("bundle", "Save hosted download ZIP"))
     output$bundle <- shiny::downloadHandler(filename = "als-tiles.zip", content = function(file) {
       files <- list.files(state$destination, full.names = TRUE)
@@ -782,7 +777,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         if(!is.null(attr(p,"archive_member")))state$preview_label<-paste(state$preview_label,"/",attr(p,"archive_member"))
         caption <- paste(nrow(p), "preview points.", attr(p, "units_note"))
         if (!is.null(attr(p, "display_note"))) caption <- paste(caption, attr(p, "display_note"))
-        if (state$preview_target == "als-cloud") state$previewtext <- paste(state$preview_label, "-", caption)
+        state$previewdetails <- caption
+        if (state$preview_target == "als-cloud") state$previewtext <- paste(state$preview_label, "|", nrow(p), "display points")
         else state$tiletext <- paste(state$preview_label, "-", caption)
         session$sendCustomMessage("als-points", list(target = state$preview_target, points = unname(as.matrix(p)), classification = unname(attr(p, "classification")), intensity = unname(attr(p, "intensity")), units = attr(p, "units"), units_note = attr(p, "units_note"), label = state$preview_label, attribution = as.list(state$preview_attribution), origin = unname(attr(p, "origin"))))},
         error = function(e) {
@@ -791,6 +787,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         })
     })
     output$preview_status <- shiny::renderText(state$previewtext)
+    output$preview_details <- shiny::renderText(state$previewdetails)
     output$zip_member_control <- shiny::renderUI({
       if(length(state$zip_members))shiny::selectInput("zip_member","Point cloud within ZIP",
         choices=c("Select a file"="",stats::setNames(state$zip_members,state$zip_members)))

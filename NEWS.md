@@ -1,3 +1,12 @@
+# alsdownloader 0.1.3
+
+* Match comparison selectors to spatially overlapping tiles from separate acquisitions.
+* Generate PDF reports in a background job with visible status and Pandoc discovery.
+* Show download progress, elapsed time and output paths; use a persistent default folder.
+* Default point-cloud views to greyscale intensity and remove the XYZ panel background.
+* Simplify contribution forms with polygon ID mapping, year choices and private required email.
+* Refresh the README introduction and full-width lettered interface figures.
+
 # alsdownloader 0.1.2
 
 * Improve the welcome-page portrait size and author text readability.
