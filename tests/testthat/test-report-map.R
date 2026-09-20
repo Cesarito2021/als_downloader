@@ -21,14 +21,14 @@ test_that("map captures are tied to the current selection and cleaned up", {
     session$setInputs(report_map_request=list(action="download_report_pdf",nonce=1))
     token <- messages[['als-report-map']]$token
     expect_true(nzchar(token))
-    session$setInputs(report_map_result=list(token=token,png=data,credits="Esri"))
+    session$setInputs(report_map_result=list(token=token,png=data,credits="OpenStreetMap contributors"))
     path <- getmap()$path
     expect_true(file.exists(path))
     expect_identical(messages[['als-report-map-ready']],"download_report_pdf")
     changed <- tiles; changed$citation <- "Changed selection"; selection(changed); session$flushReact()
     expect_false(file.exists(path))
     expect_error(getmap(),"not ready")
-    session$setInputs(report_map_result=list(token=token,png=data,credits="Esri",nonce=2))
+    session$setInputs(report_map_result=list(token=token,png=data,credits="OpenStreetMap contributors",nonce=2))
     expect_match(messages[['als-report-map-error']],"Selection changed")
   })
 })

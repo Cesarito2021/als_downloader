@@ -55,13 +55,7 @@
         if(include){
           await Promise.all(tiles.map(async img=>{
             if(!img.complete||!img.naturalWidth)throw Error('Map tiles are still loading. Try again after the map finishes.');
-            const safe=new Image();safe.crossOrigin='anonymous';
-            await new Promise((resolve,reject)=>{
-              const timer=setTimeout(()=>reject(Error('Basemap capture timed out. Retry or uncheck Include basemap.')),15000);
-              safe.onload=()=>{clearTimeout(timer);resolve();};
-              safe.onerror=()=>{clearTimeout(timer);reject(Error('The basemap provider blocks image capture. Uncheck Include basemap to save the area and tile outlines.'));};
-              safe.src=img.src;
-            });
+            const safe=img;
             const c=document.createElement('canvas');c.width=safe.naturalWidth;c.height=safe.naturalHeight;
             c.getContext('2d').drawImage(safe,0,0);copies.set(img.src,c.toDataURL('image/png'));
           }));
@@ -79,7 +73,7 @@
         await save(canvas,'als-aoi-tiles.png',[
           'ALS Downloader | Area of interest and visible tile footprints',
           document.getElementById('search_status')?.textContent||'',
-          include?credit:'Basemap omitted. '+credit,
+          include?credit+' | https://www.openstreetmap.org/copyright':'Basemap omitted. '+credit,
           'Dashed gold outline: area of interest. Tile colours: reported acquisition years. Green outlines: configured regional indexes; no national coverage implied.',
           ...(document.getElementById('map_source_credits')?.textContent||'Source credit and licence not supplied.').split('\n'),
           'Source and basemap terms apply. Check uploaded boundary rights. Footprints rendered from source metadata.'

@@ -1,4 +1,4 @@
-/* Centred report composition: original study geometry, selected tiles and RGB. */
+/* Centred report composition: original study geometry, selected tiles and basemap. */
 (function () {
   let busy = false, bypass = null;
   const ids = ['download_report_pdf', 'download_report_map'];
@@ -11,14 +11,14 @@
     if (button.id !== 'download_report_map' && !document.getElementById('report_rgb')?.checked) return;
     event.preventDefault(); event.stopImmediatePropagation();
     if (busy) return;
-    busy = true; status('Preparing a centred RGB map...');
+    busy = true; status('Preparing a centred map...');
     Shiny.setInputValue('report_map_request', {action: button.id, nonce: Date.now()}, {priority: 'event'});
   }, true);
   async function capture(payload) {
     let map, container;
     try {
       container = document.createElement('div');
-      container.style.cssText = 'position:absolute;left:-16000px;top:0;width:1200px;height:760px;background:white;';
+      container.style.cssText = 'position:fixed;left:5vw;top:8vh;width:90vw;height:80vh;max-width:1200px;max-height:760px;background:white;z-index:10000;box-shadow:0 0 0 100vmax rgba(0,0,0,.65);';
       container.id = 'als-report-capture'; document.body.appendChild(container);
       map = L.map(container, {zoomControl:false, attributionControl:true, zoomAnimation:false, fadeAnimation:false,
         preferCanvas:true,renderer:L.canvas({padding:0})});
@@ -35,28 +35,30 @@
         el.innerHTML='<b>AOI and selected LiDAR tiles</b><br><span style="border-top:4px dashed #b58927;display:inline-block;width:30px"></span> AOI<br><span style="border-top:3px solid #18212a;display:inline-block;width:30px"></span> Selected tile footprints';
         return el;
       }; legend.addTo(map);
-      if (!L.tileLayer.provider) throw Error('RGB map provider is not available. Open Explore and retry.');
-      const imagery = L.tileLayer.provider('Esri.WorldImagery', {crossOrigin:'anonymous',maxZoom:18});
+      const imagery = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        crossOrigin:'anonymous',maxZoom:19,keepBuffer:0,
+        attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      });
       await new Promise((resolve,reject) => {
-        const timer=setTimeout(()=>reject(Error('RGB imagery timed out. Retry, or turn off the RGB map option to use the footprint map.')),25000);
+        const timer=setTimeout(()=>reject(Error('Map tiles timed out. Retry, or turn off the basemap option to use the footprint map.')),25000);
         imagery.once('load',()=>{clearTimeout(timer);resolve();});
-        imagery.once('tileerror',()=>{clearTimeout(timer);reject(Error('RGB imagery could not be loaded. Retry, or turn off the RGB map option.'));});
+        imagery.once('tileerror',()=>{clearTimeout(timer);reject(Error('Map tiles could not be loaded. Retry, or turn off the basemap option.'));});
         imagery.addTo(map);
       });
       const images=[...container.querySelectorAll('img.leaflet-tile')];
-      if (!images.length || images.some(img=>!img.complete || !img.naturalWidth)) throw Error('RGB imagery is incomplete; no report map was saved.');
+      if (!images.length || images.some(img=>!img.complete || !img.naturalWidth)) throw Error('Map tiles are incomplete; no report map was saved.');
       const copies=new Map();
       for (const img of images) {
         const tile=document.createElement('canvas');tile.width=img.naturalWidth;tile.height=img.naturalHeight;
         tile.getContext('2d').drawImage(img,0,0);copies.set(img.src,tile.toDataURL('image/png'));
       }
       const credits=(container.querySelector('.leaflet-control-attribution')?.textContent || imagery.options.attribution)
-        .replace(/\u00a9/g,'(c)').replace(/[\u2013\u2014]/g,'-');
+        .replace(/\u00a9/g,'(c)').replace(/[\u2013\u2014]/g,'-') + ' | https://www.openstreetmap.org/copyright';
       const canvas=await html2canvas(container,{scale:1.5,logging:false,useCORS:true,backgroundColor:'#ffffff',
         onclone:doc=>doc.getElementById(container.id).querySelectorAll('img.leaflet-tile').forEach(img=>{img.src=copies.get(img.src);})});
       const out=document.createElement('canvas'),ctx=out.getContext('2d');ctx.font='18px Arial';
       const lines=[];
-      for(const note of ['ALS Downloader | Satellite imagery is context, not the LiDAR acquisition date.',...(payload.sources || [])]) {
+      for(const note of ['ALS Downloader | Basemap: (c) OpenStreetMap contributors, https://www.openstreetmap.org/copyright | Cartographic context, not LiDAR acquisition conditions.',...(payload.sources || [])]) {
         let line='';
         for(const ch of String(note)) {
           if(ctx.measureText(line+ch).width>canvas.width-40){lines.push(line);line='';}
@@ -69,7 +71,7 @@
       ctx.fillStyle='#fff';ctx.fillRect(0,0,out.width,out.height);ctx.drawImage(canvas,0,0);
       ctx.font='18px Arial';ctx.fillStyle='#18212a';lines.forEach((line,i)=>ctx.fillText(line,20,canvas.height+24+i*24));
       Shiny.setInputValue('report_map_result',{token:payload.token,png:out.toDataURL('image/png'),credits},{priority:'event'});
-      status('RGB map ready. Preparing your download...');
+      status('basemap map ready. Preparing your download...');
     } catch(e) {
       Shiny.setInputValue('report_map_result',{token:payload.token,error:e.message},{priority:'event'});
       finish(e.message);
@@ -79,7 +81,7 @@
     Shiny.addCustomMessageHandler('als-report-map',capture);
     Shiny.addCustomMessageHandler('als-report-map-error',message=>finish(message));
     Shiny.addCustomMessageHandler('als-report-map-ready',id=>{
-      finish('Centred RGB map ready.');bypass=id;document.getElementById(id)?.click();
+      finish('Centred map ready.');bypass=id;document.getElementById(id)?.click();
     });
   });
   $(document).on('shiny:disconnected',()=>finish('Connection closed. Reconnect before creating a report.'));

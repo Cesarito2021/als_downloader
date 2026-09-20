@@ -17,15 +17,16 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
 ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
 SOFTWARE.
 
-Basemap tiles are requested only by the launched application. Leaflet displays
-provider attribution. Esri terrain tiles retain their provider terms. The bundled country outlines
-remain usable when the remote terrain service is unavailable.
-
-The optional RGB basemap uses Esri World Imagery via Leaflet's provider tiles.
-Imagery credits include Esri and the imagery contributors displayed on the map.
-Attribution must remain visible in map captures; imagery retains its source terms.
-https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040
-Imagery dates are independent of LiDAR acquisition dates.
+The interactive basemap uses OpenStreetMap Standard tiles:
+https://tile.openstreetmap.org/{z}/{x}/{y}.png
+Map data: (c) OpenStreetMap contributors, Open Database License (ODbL).
+https://www.openstreetmap.org/copyright
+Visible credit is retained on maps, PNGs and PDF map figures. Tiles are loaded
+by the browser for the user's current view; its HTTP cache is respected.
+No bulk tile download, offline map archive or server tile proxy is provided.
+https://operations.osmfoundation.org/policies/tiles/
+The service is best-effort, with no availability guarantee. The bundled country
+outlines remain usable without remote tiles. No Esri basemap service is used.
 
 The welcome globe is an original canvas rendering of the bundled Natural Earth /
 World Atlas country outlines. It uses no Apple imagery or proprietary globe tiles.

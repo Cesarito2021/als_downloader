@@ -1,4 +1,4 @@
-# Report map preparation is explicit: only the browser retrieves RGB imagery.
+# Report map preparation is explicit: only the browser retrieves basemap tiles.
 report_geojson <- function(x) {
   path <- tempfile(fileext = ".geojson")
   on.exit(unlink(path), add = TRUE)
@@ -47,17 +47,17 @@ report_map_server <- function(input, output, session, aoi, tiles) {
       raw <- jsonlite::base64_dec(sub("^data:image/png;base64,", "", reply$png))
       if (length(raw) < 24 || !identical(raw[1:8], as.raw(c(137,80,78,71,13,10,26,10)))) stop("Invalid map PNG.")
       map$path <- tempfile(fileext = ".png"); writeBin(raw, map$path)
-      credit <- if (is.null(reply$credits)) "Imagery attribution is embedded in the map." else as.character(reply$credits)[1]
+      credit <- if (is.null(reply$credits)) "Basemap attribution is embedded in the map." else as.character(reply$credits)[1]
       map$credits <- chartr("\\`<>[]{}$", "         ", gsub("[\r\n]", " ", substr(credit, 1, 4000)))
       session$sendCustomMessage("als-report-map-ready", map$action)
     }, error = function(e) {clear(); session$sendCustomMessage("als-report-map-error", conditionMessage(e))})
   })
   get <- function() {
     if (is.null(map$path) || !identical(map$key, current()) || !file.exists(map$path))
-      stop("The RGB map is not ready. Please create the report again.", call. = FALSE)
+      stop("The basemap is not ready. Please create the report again.", call. = FALSE)
     list(path = map$path, credits = map$credits)
   }
-  output$download_report_map <- shiny::downloadHandler(filename = "als-aoi-rgb.png",
+  output$download_report_map <- shiny::downloadHandler(filename = "als-aoi-map.png",
     contentType = "image/png", content = function(file) file.copy(get()$path, file))
   get
 }

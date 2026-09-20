@@ -15,18 +15,21 @@ External catalogue links are references, not approved in-app download routes.
 * **Natural Earth / World Atlas:** geographical data are public domain; World
   Atlas processing code has an ISC notice already retained in NOTICE. No
   institutional endorsement is implied. [Natural Earth terms](https://www.naturalearthdata.com/about/terms-of-use/).
-* **Esri World Imagery:** the [service item](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9)
-  links to the Esri Master License Agreement and an [account-dependent use summary](https://goto.arcgis.com/termsofuse/viewsummary).
-  That summary permits qualifying screenshots with attribution, subject to its
-  conditions, and requires Esri software or an ArcGIS Online subscription. It
-  prohibits systematic tile harvesting and tile redistribution. A screenshot is
-  distinct from an offline tile archive. **Pending:** confirm the maintainer's
-  institutional entitlement and whether it covers this application and published
-  screenshots. Current item credits: Esri, Vantor, Earthstar Geographics, and the
-  GIS User Community; retain applicable location-specific credits too.
-  **Terrain:** review its separate item terms before public deployment; the
-  World Imagery finding does not automatically cover another service.
-  [Basemap citation guidance](https://support.esri.com/en-us/knowledge-base/what-is-the-correct-way-to-cite-an-arcgis-online-basema-000012040).
+* **OpenStreetMap Standard (reviewed 20 September 2026):** replaces Esri imagery
+  and hillshade in Explorer and report maps. Data are ODbL; attribution and the
+  copyright URL remain visible in interactive and exported maps. See the
+  [copyright page](https://www.openstreetmap.org/copyright),
+  [attribution guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines)
+  and [tile policy](https://operations.osmfoundation.org/policies/tiles/).
+  Browser requests use the canonical HTTPS URL, default browser User-Agent,
+  origin referrer and normal HTTP caching. No proxy, cache bypass, tile archive,
+  bulk acquisition or zoom prefetch is implemented. PNG export reuses loaded
+  viewport tiles; a requested report displays a single centred map composition.
+  This is cartography, not satellite imagery. Service availability is best-effort;
+  high-volume hosting needs an appropriate alternative tile service.
+* **Historical Esri figures:** the old private review captures are no longer
+  embedded in README. They are not covered by the OpenStreetMap replacement and
+  must not be published without resolving their original imagery conditions.
 
 ## Integrated data routes
 
@@ -72,11 +75,11 @@ on behalf of the maintainer during this review.
 | Product or component | Treatment / evidence | Status |
 |---|---|---|
 | Original R and interface code | GPL-3; Cesar Ivan Alvites Diaz is the declared author and maintainer in DESCRIPTION and CITATION. No new paper coauthors are added to the software. Git author labels and paid AI assistance do not, by themselves, establish ownership of every line. Preserve genuine third-party notices and provenance. | Authorship metadata checked; no exhaustive historical code-provenance or institutional ownership determination. |
-| R dependencies and browser libraries | Their licences remain attached to their distributions; see [dependency inventory](DEPENDENCIES.md) and [NOTICE](../NOTICE). Leaflet's permission does not license Esri imagery. The bundled html2canvas distribution retains its MIT notice. | Notices inspected; verify the exact release dependency bundle during release checks. |
+| R dependencies and browser libraries | Their licences remain attached to their distributions; see [dependency inventory](DEPENDENCIES.md) and [NOTICE](../NOTICE). Leaflet's permission does not replace basemap data or service conditions. The bundled html2canvas distribution retains its MIT notice. | Notices inspected; verify the exact release dependency bundle during release checks. |
 | Icons, banner and portrait | Icons are supplied through Shiny's dependencies, not copied provider logos. The portrait was obtained from the author's own website with his authorization. Banner history (68cb457, 0a9ead9, 20ea191) records a procedurally generated illustration, not survey points or borrowed provider branding; SVG source is retained. | Repository provenance reviewed. The synthetic banner is decorative and is not represented as scientific evidence. |
 | Catalogue and provider names | Descriptive source names and official links identify access; they do not imply endorsement. A descriptive package name is not a trademark clearance. | No provider branding rights claimed. |
 | Submitted boundaries and metadata | Require contributors to have rights to share the boundaries and links. Record-specific licences apply to Zenodo and other repositories. Maintainer approval does not relicense a contribution. | Verify each accepted proposal; do not infer rights from public access alone. |
-| Exported figures, tables and PDFs | Preserve producer credits, licence links and display-transformation notes. Imagery and LiDAR may have different rights and dates. An export does not automatically inherit the software's GPL-3 licence. | Esri entitlement and IGN update-date attribution remain pending as above. |
+| Exported figures, tables and PDFs | Preserve producer credits, licence links and display-transformation notes. Imagery and LiDAR may have different rights and dates. An export does not automatically inherit the software's GPL-3 licence. | Historical Esri captures are excluded from README; IGN update-date attribution remains pending as above. |
 | Temporary cloud copies / hosted downloads | The viewer may download files temporarily; hosted transfers can relay files. This is more than linking to a portal. Apply the source licence and service conditions to this actual behaviour. | No claim that the application never stores data or that all publicly reachable data are freely redistributable. |
 
 Dataset rights remain with their respective rights holders, which may be an

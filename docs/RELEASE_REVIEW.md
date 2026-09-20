@@ -5,7 +5,7 @@ software deposit has been made. The GitHub repository remains private.
 
 ## Verified scope
 
-- README contains four paired RGB/top-down cloud examples: USA, Brazil, Canada
+- README contains four top-down cloud examples: USA, Brazil, Canada
   and the Netherlands. Point colours use Viridis by source Z. Image provenance,
   display sampling and limitations are documented; these examples do not certify
   every tile in a country.
@@ -42,10 +42,9 @@ This does not require making the development repository public.
 
 ## Conditions still requiring attention
 
-- **Cartography and source conditions:** the documented Esri entitlement/public
-  hosting question and IGN information-update attribution remain unresolved in
-  [the use review](../inst/sources/USE_REVIEW.md). Gallery RGB figures remain
-  private review material until their publication conditions are settled.
+- **Cartography and source conditions:** Esri has been replaced by attributed OpenStreetMap cartography.
+  IGN information-update attribution remains unresolved in
+  [the use review](../inst/sources/USE_REVIEW.md). Historical Esri figures remain private review material and are no longer embedded in README.
   Software tests and source citations do not constitute blanket legal clearance.
 - **Email:** optional Formspree transport is implemented with quota/error feedback.
   Its free plan is intended for Zenodo links; local polygon attachments require

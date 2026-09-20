@@ -1,5 +1,7 @@
 # alsdownloader 0.1.0
 
+- Replace Esri basemaps with attributed OpenStreetMap cartography. Map exports reuse loaded browser tiles; report maps show a single requested composition. Preserve copyright URLs in PNG/PDF output.
+
 * Add optional Formspree submissions from local and hosted browsers, without
   contributor authentication. Preserve Zenodo coverage links and file mapping;
   require attachment support for local polygons. Distinguish monthly quota,

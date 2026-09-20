@@ -1,3 +1,7 @@
+> 20 September 2026: historical Esri RGB panels and the old Explorer screenshot
+> are retained only as private review evidence and are no longer embedded in README.
+> The application now uses OpenStreetMap; the cloud figures remain unchanged.
+
 # README figure provenance
 
 Prepared 19 September 2026 from the current interface and recorded regional

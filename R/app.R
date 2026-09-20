@@ -68,7 +68,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
   hosted_lock <- Sys.getenv("ALS_HOST_LOCK_DIR", file.path(tempdir(), "als-host-transfer-lock"))
   ui <- shiny::fluidPage(
     shiny::tags$head(shiny::tags$meta(name = "viewport", content = "width=device-width, initial-scale=1"),
-      shiny::tags$meta(name="referrer",content="no-referrer"),
+      shiny::tags$meta(name="referrer",content="strict-origin-when-cross-origin"),
       shiny::tags$link(rel = "stylesheet", href = "als-assets/explorer.css"),
       shiny::tags$script(src = "als-assets/html2canvas.js"),
       shiny::tags$script(src = "als-assets/figures.js"),
@@ -106,7 +106,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
               shiny::downloadButton("download_report_pdf", "Download report (PDF)", class="als-report-btn"),
               shiny::textOutput("report_selection_summary"),
             shiny::tags$details(shiny::tags$summary("Report options"),
-              shiny::checkboxInput("report_rgb", "Satellite RGB basemap (Esri World Imagery)", TRUE),
+              shiny::checkboxInput("report_rgb", "OpenStreetMap basemap", TRUE),
               shiny::downloadButton("download_report_map", "Download aoi map (PNG)"),
               shiny::tags$div(id = "report_map_status", role = "status", `aria-live` = "polite"),
               shiny::checkboxInput("report_details", "Include technical appendix (file sample and download-time scenarios)", FALSE),
@@ -160,7 +160,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::conditionalPanel("input.enter_map > 0", leaflet::leafletOutput("map", height = "60vh"),
             figure_button("export_map_png", "Download map (PNG)"),
             shiny::tags$div(style="display:none", shiny::textOutput("map_source_credits")),
-            shiny::checkboxInput("map_export_basemap", "Basemap in image (Esri World Imagery RGB)", TRUE),
+            shiny::checkboxInput("map_export_basemap", "OpenStreetMap basemap in image", TRUE),
             shiny::tags$span(id="map_export_status", role="status"),
             shiny::h3("Search results"),
             shiny::textOutput("search_status"), DT::DTOutput("tiles"),
@@ -263,10 +263,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     output$map <- leaflet::renderLeaflet({
       map <- leaflet::leaflet(world, options=leaflet::leafletOptions(preferCanvas=TRUE)) |>
         leaflet::addMapPane("aoi-outline", zIndex = 450) |>
-        leaflet::addProviderTiles("Esri.WorldImagery", group = "Satellite RGB") |>
-        leaflet::addTiles("https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
-          group = "Terrain relief", attribution = "Terrain: Esri, Airbus DS, USGS, NGA, NASA, CGIAR, NLS, OS, NMA, Geodatastyrelsen, GSA, GSI and GIS User Community",
-          options = leaflet::tileOptions(maxZoom = 16, className = "als-relief-tiles")) |>
+        leaflet::addTiles("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+          group = "OpenStreetMap", attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          options = leaflet::tileOptions(maxZoom = 19, crossOrigin = "anonymous", keepBuffer = 0)) |>
         leaflet::addPolygons(layerId = ~id, group = "Countries", color = "#60717c", weight = .5,
           fill = FALSE, label = ~name,
           options = leaflet::pathOptions(interactive = FALSE)) |>
@@ -274,8 +273,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
           editOptions = leaflet.extras::editToolbarOptions()) |>
-        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"), overlayGroups = discovery_groups()) |>
-        leaflet::hideGroup("Terrain relief") |>
+        leaflet::addLayersControl(baseGroups = "OpenStreetMap", overlayGroups = discovery_groups()) |>
         leaflet::setView(0, 20, 2, options = list(animate = FALSE))
       add_discovery_layers(map, world, catalog, overview)
     })
@@ -287,7 +285,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       p <- leaflet::leafletProxy("map")
       for (g in state$tile_groups) p <- p |> leaflet::clearGroup(g)
       p |> leaflet::removeControl("tile_year_legend") |>
-        leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
+        leaflet::addLayersControl(baseGroups = "OpenStreetMap",
           overlayGroups = discovery_groups())
       state$tile_groups <- character(0)
     }
@@ -421,7 +419,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           proxy |>
             leaflet::addLegend("bottomright", layerId = "tile_year_legend",
               pal = pal, values = levels_all, title = "Acquisition year") |>
-            leaflet::addLayersControl(baseGroups = c("Satellite RGB", "Terrain relief"),
+            leaflet::addLayersControl(baseGroups = "OpenStreetMap",
               overlayGroups = c(discovery_groups(), groups))
         }
       }, error = function(e) {state$search <- conditionMessage(e); notify(e)})
