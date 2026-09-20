@@ -9,7 +9,7 @@ verification results. An isolated documentation instance replayed previously
 retrieved tile metadata. The paired gallery resampled the same verified original
 files with a 250,000-point limit; a more complete Utah tile from the same search replaces the narrow fragment. These are real source samples,
 not newly executed provider searches or a fresh cross-country validation run.
-No synthetic points are used in the four examples. The header banner uses a cropped Groningen AHN6 point-cloud view with a grey overlay for title legibility. Source: AHN, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The full example and elevation legend remain in the gallery.
+No synthetic points are used in the four examples. The header banner uses a cropped Groningen AHN6 point-cloud view with a dark overlay for title legibility. Source: AHN, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The full example and elevation legend remain in the gallery.
 
 The coverage overview image uses the bundled public survey masks and configured
 regional indexes, with no RGB basemap. Geometry provenance and display
