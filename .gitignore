@@ -6,3 +6,5 @@
 # Shiny / local data
 data/
 rsconnect/
+__pycache__/
+snapshots/

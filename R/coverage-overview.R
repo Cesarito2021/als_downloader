@@ -8,9 +8,10 @@ approved_coverage_signature <- function(folder) {
   paste(paths, info$size, as.numeric(info$mtime))
 }
 
-coverage_overview <- function(folder = NULL, approved_dir = NULL) {
+coverage_overview <- function(folder = NULL, approved_dir = NULL, include_ot = TRUE) {
   paths <- unlist(lapply(Filter(function(x) !is.null(x) && dir.exists(x), list(folder, approved_dir)),
     function(x) list.files(x, "(_TileIndex\\.zip$|\\.tiles\\.geojson$|\\.gpkg$|\\.shp$)", full.names=TRUE, ignore.case=TRUE)))
+  if (!include_ot) paths <- paths[!grepl("_TileIndex[.]zip$", paths, ignore.case=TRUE)]
   items <- lapply(paths, function(path) tryCatch({
     source <- path; tmp <- NULL
     if (grepl("\\.zip$", path, ignore.case=TRUE)) {
@@ -49,9 +50,12 @@ coverage_overview <- function(folder = NULL, approved_dir = NULL) {
 # catalogue query on every launch. Local/approved indexes add deployment coverage.
 discovery_coverage <- function(folder=NULL, approved_dir=NULL) {
   path <- system.file("extdata","discovery-coverage.rds",package="alsdownloader")
-  local <- coverage_overview(folder,approved_dir)
+  # OpenTopography red coverage comes exclusively from the audited registry.
+  # A configured archive alone is not proof of accessible files or data terms.
+  local <- coverage_overview(folder,approved_dir,include_ot=FALSE)
   if(!nzchar(path)) return(local)
   source <- readRDS(path)
+  # OpenTopography's large exact unions are drawn by the viewport-aware layer.
   if(nrow(local)) {
     source <- rbind(source,local[,names(source),drop=FALSE])
   }

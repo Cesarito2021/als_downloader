@@ -31,7 +31,7 @@ request_json <- function(url, body = NULL, query = NULL) {
 #' Find point-cloud tiles intersecting an AOI
 #' @param aoi Polygon input accepted by [read_aoi()].
 #' @param provider Either `"usgs3dep"` (Planetary Computer) or
-#'   `"opentopography"` (local TileIndex archives), or `"contributed"`
+#'   `"opentopography"` (verified hosted TileIndex catalogue), or `"contributed"`
 #'   (maintainer-approved local `*.tiles.geojson` indexes), `"ahn6"`
 #'   (native AHN6 index), `"swisstopo"` (swissSURFACE3D STAC), `"ignfr"`
 #'   (IGN LiDAR HD, indexed through a public STAC catalogue maintained by
@@ -42,16 +42,19 @@ request_json <- function(url, body = NULL, query = NULL) {
 #'   Unknown acquisition dates remain in the results.
 #' @param tile_index_dir Directory of OpenTopography `*_TileIndex.zip` files,
 #'   approved contributed `*.tiles.geojson` files, or CanElevation `.gpkg`/
-#'   `.shp` indexes. Required for OpenTopography and contributed sources; optional for Canada. Indexes require an embedded
+#'   `.shp` indexes. Required for contributed sources; optional for OpenTopography and Canada. Indexes require an embedded
 #'   CRS and a `url` field pointing to the original file.
 #' @param max_items Maximum number of tiles to return. An incomplete result
 #'   raises an error instead of silently reporting partial coverage.
 #' @return An `sf` table of assets with stable identifiers, canonical URLs,
 #'   acquisition dates, citation information and tile geometry in EPSG:4326.
+#'   `campaign_id` contains the official 3DEP project identifier when supplied;
+#'   otherwise it is missing. It is separate from the STAC collection name.
 #' @details Network access occurs only when this function is explicitly called
-#'   for USGS 3DEP, AHN6, swisstopo, ignfr or Canada without a local index. OpenTopography uses supplied local indexes and their embedded
-#'   download links; it does not assume a universal area limit or require a key
-#'   for already-public tile URLs. Asset licenses must be checked per dataset.
+#'   for a remote source. OpenTopography searches the packaged, audited airborne-LiDAR
+#'   registry by default and fetches matching provider indexes with SHA-256 verification.
+#'   An explicit local index directory overrides that route in the R API.
+#'   Public tile downloads do not require an API key. Asset licenses vary per dataset.
 #' @export
 #' @examples
 #' if (interactive()) {
@@ -76,6 +79,7 @@ find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography", "contribu
     swisstopo = search_europe(aoi,"swisstopo",max_items),
     ignfr = search_europe(aoi,"ignfr",max_items),
     canelevation = search_canelevation(aoi, tile_index_dir, max_items))
+  if (!"campaign_id" %in% names(tiles)) tiles$campaign_id <- rep(NA_character_, nrow(tiles))
   if (nrow(tiles)) {
     # Search without a date filter so undated surveys are not silently lost.
     keep <- rep(TRUE, nrow(tiles))
@@ -88,8 +92,18 @@ find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography", "contribu
 
 # Keep the provider's acquisition interval; generic catalog timestamps may be nominal.
 stac_acquisition_period <- function(properties) {
-  date <- function(x) if (is.null(x) || !length(x) || is.na(x[1]) || !nzchar(x[1])) NA_character_ else substr(x[1], 1, 10)
-  c(start = date(properties$start_datetime), end = date(properties$end_datetime))
+  date <- function(x) {
+    if (!is.character(x) || length(x) != 1L || is.na(x)) return(NA_character_)
+    value <- substr(x, 1, 10)
+    if (!grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", value)) return(NA_character_)
+    parsed <- suppressWarnings(as.Date(value, format = "%Y-%m-%d"))
+    if (is.na(parsed) || format(parsed, "%Y-%m-%d") != value) NA_character_ else value
+  }
+  period <- c(start = date(properties$start_datetime), end = date(properties$end_datetime))
+  # Some provider records have inverted intervals. Do not invent a correction
+  # or use these intervals to exclude a potentially relevant survey.
+  if (!anyNA(period) && period['start'] > period['end']) period[] <- NA_character_
+  period
 }
 
 country_source_links <- function(catalog, country_code) {
@@ -132,6 +146,8 @@ search_3dep <- function(aoi, max_items) {
     period <- stac_acquisition_period(p)
     g <- sf::st_read(jsonlite::toJSON(list(type = "Feature", properties = list(), geometry = f$geometry), auto_unbox = TRUE), quiet = TRUE)
     sf::st_sf(tile_id = f$id, provider = "usgs3dep", dataset = f$collection,
+      campaign_id = if (is.character(p[["3dep:usgs_id"]]) && length(p[["3dep:usgs_id"]]) == 1L &&
+        !is.na(p[["3dep:usgs_id"]]) && nzchar(trimws(p[["3dep:usgs_id"]]))) p[["3dep:usgs_id"]] else NA_character_,
       filename = basename(sub("\\?.*$", "", asset$href)), url = sub("\\?.*$", "", asset$href),
       acquired_start = unname(period['start']), acquired_end = unname(period['end']),
       size_bytes = if (is.null(asset[["file:size"]])) NA_real_ else as.numeric(asset[["file:size"]]),
@@ -146,6 +162,7 @@ search_3dep <- function(aoi, max_items) {
 }
 
 search_ot <- function(aoi, folder, max_items) {
+  if (is.null(folder)) return(search_ot_catalog(aoi, max_items))
   if (is.null(folder) || !dir.exists(folder)) stop("Configure a local OpenTopography TileIndex directory.", call. = FALSE)
   files <- list.files(folder, "_TileIndex\\.zip$", full.names = TRUE, ignore.case = TRUE)
   if (!length(files)) stop("No OpenTopography TileIndex archives found.", call. = FALSE)

@@ -26,8 +26,8 @@ test_that("France LiDAR HD adapter selects COPC assets, host and reported dates"
   aoi <- sf::st_as_sfc(sf::st_bbox(c(xmin=5.7,ymin=45.1,xmax=5.73,ymax=45.12),crs=4326))
   geometry <- list(type="Polygon",coordinates=list(list(c(5.7,45.1),c(5.73,45.1),c(5.73,45.12),c(5.7,45.12),c(5.7,45.1))))
   f <- list(id="LHD_FXX_0913_6450_PTS_LAMB93_IGN69_PM",geometry=geometry,
-    properties=list(start_datetime="2021-08-06T00:00:00Z",end_datetime="2021-08-06T23:59:59Z"),
-    assets=list(data=list(href="https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/x/LHD_FXX_0913_6450_PTS_LAMB93_IGN69.copc.laz")))
+    properties=list(start_datetime="2021-08-06T00:00:00Z",end_datetime="2021-08-06T23:59:59Z",`lidarhd:date_edition`="2023-04-20"),
+    assets=list(data=list(href="https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_PM_2023-04-20/LHD_FXX_0913_6450_PTS_LAMB93_IGN69.copc.laz")))
   local_mocked_bindings(native_pages=function(...)list(f),.package="alsdownloader")
   x <- search_europe(aoi,"ignfr",10)
   expect_equal(nrow(x),1L)
@@ -36,10 +36,27 @@ test_that("France LiDAR HD adapter selects COPC assets, host and reported dates"
   expect_equal(x$acquired_start,"2021-08-06");expect_equal(x$acquired_end,"2021-08-06")
   expect_match(x$license_url,"etalab-2.0",fixed=TRUE)
   expect_match(x$citation,"INRAE",fixed=TRUE)
+  expect_match(x$citation,"IGN product edition: 2023-04-20",fixed=TRUE)
+  expect_match(x$citation,x$url,fixed=TRUE)
 
   bad <- f; bad$assets$data$href <- "https://evil.example/x.copc.laz"
   local_mocked_bindings(native_pages=function(...)list(bad),.package="alsdownloader")
   expect_error(search_europe(aoi,"ignfr",10),"Unexpected France")
+})
+
+test_that("IGN edition credits do not substitute acquisition or catalogue dates", {
+  href <- "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_NE_2026-04-30/tile.copc.laz"
+  p <- list(`lidarhd:date_edition` = "2026-04-30", created = "2026-06-30T00:00:00Z",
+    start_datetime = "2025-10-18T00:00:00Z")
+  expect_match(ign_edition_credit(p, href), "2026-04-30", fixed = TRUE)
+  p[["lidarhd:date_edition"]] <- NULL
+  expect_error(ign_edition_credit(p, href), "unavailable")
+  for (bad in c("2026-02-30", "2026-4-30", "unknown")) {
+    p[["lidarhd:date_edition"]] <- bad
+    expect_error(ign_edition_credit(p, href), "invalid")
+  }
+  p[["lidarhd:date_edition"]] <- "2026-04-29"
+  expect_error(ign_edition_credit(p, href), "does not match")
 })
 
 test_that("pagination cannot silently cross hosts or exceed limits", {

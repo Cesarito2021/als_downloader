@@ -2,6 +2,7 @@
 ^\.github$
 ^\.claude$
 ^\.gitignore$
+^\.gitattributes$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^app\.R$
@@ -12,6 +13,8 @@
 ^docs$
 ^tools$
 ^cran-comments\.md$
+^inst/extdata/opentopography-access-audit\.csv$
+^inst/extdata/opentopography-update-state\.json$
 ^CITATION\.cff$
 ^CONTRIBUTING\.md$
 ^.*\.Rcheck$

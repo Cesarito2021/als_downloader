@@ -44,9 +44,9 @@ unchanged with their embedded legends and credits. Maximum 10 MiB each.}
 and a sample file table. Defaults to `FALSE` for a concise visual report.}
 
 \item{map_image}{Optional single PNG path, used instead of the geometry-only
-map. The app captures a centred satellite map with AOI and selected tiles.}
+map. The app captures a centred basemap with AOI and selected tiles.}
 
-\item{map_credits}{Imagery attribution accompanying `map_image`.}
+\item{map_credits}{Basemap attribution accompanying `map_image`.}
 }
 \value{
 Invisibly, the path to the rendered report file.

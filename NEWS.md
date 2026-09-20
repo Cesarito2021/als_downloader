@@ -1,4 +1,38 @@
-# alsdownloader 0.1.0
+# alsdownloader 0.1.1
+
+* Publish the public GitHub source and recommended R-universe installation route.
+* Add reproducible coverage and storage statistics from verified provider objects.
+* Add incremental OpenTopography catalogue updates, versioned snapshots, retained
+  exclusions, integrity checks and fallback to the last valid catalogue.
+* Keep the package small with bundled search bounds and a checksum-pinned,
+  on-demand detailed map catalogue. Exact AOI selection uses original tile indexes.
+* Add large rotating X/Y/Z orientation indicators to every point-cloud viewer
+  and its PNG exports.
+
+* Search audited hosted OpenTopography airborne-LiDAR indexes automatically,
+  without a personal index folder. Verify index hashes, retain dataset terms
+  and citations, and distinguish external-only collections in a complete
+  access audit. Render exact visible tile footprints when zoomed in; survey
+  location markers keep the global map responsive.
+
+* Select tiles by acquisition year and provider campaign, including all
+  campaigns in a year. Preserve the official 3DEP project identifier in tile
+  metadata; keep undated surveys explicit and include multi-year surveys in
+  each reported year.
+
+* Add a metric map scale and live zoom indicator. Restyle search results with
+  pale alternating rows, toggleable column filters, filtered selection and
+  selected-product information and license panels. Link Spain's external
+  catalogue entry directly to the CNIG viewer.
+
+* Preserve IGN LiDAR HD product edition dates and original asset links in
+  citations. Refuse missing, invalid or mismatched editions rather than
+  substituting catalogue or flight timestamps.
+* Add a maintainer inbox importer that reconstructs Zenodo proposals, validates
+  record links, selected files and coverage, and saves a deduplicated pending
+  request. Inbox delivery and catalogue publication remain separate operations.
+* Treat invalid or inverted STAC acquisition intervals as unknown rather than
+  displaying impossible dates or excluding surveys through date filters.
 
 - Replace Esri basemaps with attributed OpenStreetMap cartography. Map exports reuse loaded browser tiles; report maps show a single requested composition. Preserve copyright URLs in PNG/PDF output.
 

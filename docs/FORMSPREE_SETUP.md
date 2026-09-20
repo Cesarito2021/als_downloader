@@ -112,3 +112,15 @@ The received test used DOI `10.5281/zenodo.20311343`, boundary
 contact and acquisition date, and an explicit TEST ONLY status. Formspree showed
 one received submission, no spam, and the intact mapping. The maintainer confirmed
 mailbox receipt in the task. No data was approved or committed to the catalogue.
+
+## Private inbox import
+
+`import_zenodo_inbox(fields, queue)` now reconstructs received link-only fields
+using fresh Zenodo metadata and the listed coverage file. It verifies the original
+reference and file mapping, then saves a deduplicated pending proposal. Never
+pass unreviewed inbox content directly to catalogue publication.
+
+The automatic inbox-to-queue connection is not activated. Formspree's supported
+reading API requires a Professional or Business plan and a separately configured
+private API key. Browser access is not an unattended backend connection. See
+[backend readiness](BACKEND_READINESS.md) for the remaining deployment work.

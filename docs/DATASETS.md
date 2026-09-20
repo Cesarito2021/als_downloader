@@ -58,7 +58,7 @@ Generated from `inst/extdata/providers.csv` by `tools/update_source_docs.py`; se
 | Romania | [ANCPI LAKI-II](https://geoportal.ancpi.ro/portal/sharing/rest/content/items/4c820fcf2111417cb062acdcf7f6fef1/data) | 🔗 Portal only |
 | Slovakia | [GKU ALS provision (MAPKA)](https://www.gku.sk/geoportal-en/zbgis/als/provision-als-products/?forceBrowserDetector=blind) | 🔗 Portal only |
 | Slovenia | [GURS national LiDAR survey](https://www.gov.si/novice/2026-06-03-lidarski-podatki-za-celotno-slovenijo-dostopni-v-pregledovalniku-3d-podatkov/) | 🔗 Portal only |
-| Spain | [IGN PNOA LiDAR products](https://pnoa.ign.es/pnoa-lidar/productos-a-descarga) | 🔗 Portal only |
+| Spain | [IGN PNOA LiDAR](https://centrodedescargas.cnig.es/CentroDescargas/resultados-busqueda-visor) | 🔗 Portal only |
 | Sweden | [Lantmateriet laser data](https://www.lantmateriet.se/sv/geodata/vara-produkter/Produktnyheter/Geografisk-information/uppdatering-angaende-tillhandahallandet-av-laserdata-nedladdning-skog/) | 🔗 Portal only |
 | Switzerland | [swissSURFACE3D](https://www.swisstopo.admin.ch/en/height-model-swisssurface3d) | 🟢 Available in-app |
 

@@ -21,10 +21,27 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.L) L.Map.addInitHook(function () {
     if (this.getContainer().id !== 'map') return;
     const container = this.getContainer();
+    const map = this;
+    const zoomStatus = L.control({position: 'bottomright'});
+    zoomStatus.onAdd = function () {
+      const label = L.DomUtil.create('div', 'als-map-zoom');
+      label.setAttribute('aria-label', 'Current map zoom');
+      const update = () => { label.textContent = 'Zoom ' + map.getZoom(); };
+      map.on('zoomend', update);
+      map.whenReady(update);
+      return label;
+    };
+    zoomStatus.addTo(map);
     this.on('draw:drawstart draw:editstart draw:deletestart', () => container.classList.add('als-drawing'));
     this.on('draw:drawstop draw:editstop draw:deletestop', () => container.classList.remove('als-drawing'));
   });
   const information = document.getElementById('welcome_information');
+  document.getElementById('toggle_tile_filters')?.addEventListener('click', (event) => {
+    const panel = document.querySelector('.als-results-table');
+    const visible = panel.classList.toggle('als-filters-visible');
+    event.currentTarget.setAttribute('aria-expanded', String(visible));
+    if (visible) panel.querySelector('thead input')?.focus();
+  });
   if (information) new MutationObserver(() => {
     const title = information.querySelector('#welcome_information_title');
     if (title) requestAnimationFrame(() => {

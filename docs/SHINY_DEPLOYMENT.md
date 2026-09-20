@@ -39,9 +39,10 @@ Do not promise working hosted PDF reports until a real PDF download passes.
 
 ## Current external constraints
 
-R-universe synchronization on 20 September 2026 failed because the upstream
-GitHub repository is private. Keep it private unless the maintainer explicitly
-changes that decision. This is separate from GitHub's operating-system checks.
+The maintainer authorized public GitHub and R-universe publication on 20
+September 2026. The earlier private-repository synchronization failure is
+historical; verify the new published source SHA independently of GitHub's
+operating-system checks. Package publication does not deploy this hosted app.
 Historical Esri screenshots remain private evidence and are excluded from README;
 the running map now uses OpenStreetMap. Dataset-specific conditions in
 `inst/sources/USE_REVIEW.md` still apply.

@@ -1,3 +1,20 @@
+# Preserve the product edition, never a catalogue creation or acquisition date.
+ign_edition_credit <- function(properties, href) {
+  edition <- properties[["lidarhd:date_edition"]]
+  valid <- is.character(edition) && length(edition) == 1L && !is.na(edition) &&
+    grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", edition)
+  parsed <- if (valid) suppressWarnings(as.Date(edition, format = "%Y-%m-%d")) else as.Date(NA)
+  if (!valid || is.na(parsed) || format(parsed, "%Y-%m-%d") != edition)
+    stop("IGN product edition date is unavailable or invalid; consult the official LiDAR HD portal. Search incomplete.")
+  # The official download directory identifies the edition independently of
+  # the third-party catalogue. Fail explicitly if the two disagree.
+  directory <- basename(dirname(href))
+  if (!endsWith(directory, paste0("_", edition)))
+    stop("IGN product edition date does not match the official asset URL; search incomplete.")
+  paste0("IGN product edition: ", edition,
+    " (lidarhd:date_edition; not the flight date). Original information: ", href)
+}
+
 # Use native geometry and asset links; never construct a synthetic download grid.
 native_pages <- function(url, prefix, max_items) {
   features <- list(); seen <- character()
@@ -69,7 +86,9 @@ search_europe <- function(aoi, provider, max_items) {
       filename=basename(asset$href),url=asset$href,
       acquired_start=unname(acquired['start']),acquired_end=unname(acquired['end']),
       size_bytes=if(is.null(asset[["file:size"]]))NA_real_ else as.numeric(asset[["file:size"]]),
-      license_url=license,citation=citation,geometry=sf::st_geometry(g))
+      license_url=license,citation=if (provider == "ignfr")
+        paste(citation, ign_edition_credit(f$properties, asset$href)) else citation,
+      geometry=sf::st_geometry(g))
     if (length(result)>max_items) stop("Search exceeds max_items; use a smaller area.")
   }
   if (!length(result)) return(empty_tiles())

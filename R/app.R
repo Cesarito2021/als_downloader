@@ -163,10 +163,22 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::checkboxInput("map_export_basemap", "OpenStreetMap basemap in image", TRUE),
             shiny::tags$span(id="map_export_status", role="status"),
             shiny::h3("Search results"),
-            shiny::textOutput("search_status"), DT::DTOutput("tiles"),
+            shiny::textOutput("search_status"),
+            shiny::conditionalPanel("output.report_ready === 'yes'",
+              shiny::div(class="als-campaign-selection",
+                shiny::h4("Select by acquisition year and campaign"),
+                shiny::selectInput("campaign_year", "Acquisition year", choices=c("All years"="all")),
+                shiny::selectInput("campaign_projects", "Campaigns", choices=c("All campaigns"="all"), selected="all"),
+                shiny::textOutput("campaign_selection_summary"),
+                shiny::actionButton("select_campaign_tiles", "Select these tiles", icon=shiny::icon("check-double")),
+                shiny::helpText("Replaces the current selection across all result pages. Then use Download selected tiles. Multi-year surveys appear in each reported year; missing dates remain Unknown."))),
             shiny::div(class = "als-result-actions",
-              shiny::actionButton("select_all_tiles", "Select all tiles"),
-              shiny::actionButton("clear_tiles", "Clear selection")),
+              shiny::tags$button(id="toggle_tile_filters", type="button", class="btn", `aria-expanded`="false", `aria-controls`="tiles", shiny::icon("filter"), " Filter"),
+              shiny::actionButton("select_all_tiles", "Select filtered", icon=shiny::icon("check-double")),
+              shiny::actionButton("clear_tiles", "Clear selection", icon=shiny::icon("xmark")),
+              shiny::actionButton("tile_licenses", "License", icon=shiny::icon("scale-balanced")),
+              shiny::actionButton("tile_information", "Product info", icon=shiny::icon("circle-info"))),
+            shiny::div(class="als-results-table", DT::DTOutput("tiles")),
             shiny::div(class = "als-result-actions",
               shiny::downloadButton("export_manifest", "Export all tile metadata"),
               shiny::downloadButton("export_selection", "Export selected tile metadata"),
@@ -198,6 +210,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           NULL)))
   )
   server <- function(input, output, session) {
+    output$ot_access_audit <- shiny::downloadHandler(
+      filename=function()"opentopography-access-audit.csv",
+      content=function(file)ot_export_audit(file))
     if (!is.null(submission_dir)) overview <- discovery_coverage(
       tile_index_dir, file.path(submission_dir, "approved"))
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "No search results yet.",
@@ -226,6 +241,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         shiny::p("Coverage, acquisition dates and classifications depend on source metadata. Visual comparisons support inspection; they do not measure change."),
           shiny::p("Developed by Cesar Alvites. Software: GPL-3. Data and basemaps retain their own licences and credits."),
           shiny::p("Interactive maps use Leaflet and the leaflet R package. Geographic outlines: Natural Earth / World Atlas. We acknowledge the data producers and access services identified in the source catalogue and exported metadata."),
+          shiny::p("This work is based on API services provided by the OpenTopography Facility with support from the National Science Foundation under NSF Award Numbers 2410799, 2410800 & 2410801."),
         shiny::p("OpenForest4D is funded by NSF awards 2409885, 2409886 & 2409887."),
         shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader#readme", target = "_blank", rel = "noopener noreferrer", "Read the project guide")
         ) else shiny::tagList(
@@ -233,6 +249,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::tags$a(href = "https://github.com/Cesarito2021/als_downloader/issues/new?template=suggest-dataset.yml", target = "_blank", rel = "noopener noreferrer", "Open the GitHub source suggestion form"),
             shiny::p("Software: GPL-3. The screenshot library html2canvas is MIT-licensed; its notice is included. Dataset and basemap licences remain separate. Keep source credits and licence links with figures and downloads; scientific use does not waive provider terms. Local-file and uploaded boundary rights must be checked with their source."),
             shiny::downloadButton("licensing_notes", "Download licence guidance and software notices"),
+            shiny::p("OpenTopography: verified hosted airborne-LiDAR tile indexes are searched automatically. Other hosted collections and Community Dataspace records retain external source links in the access audit."),
+            shiny::downloadLink("ot_access_audit","Download OpenTopography access audit (CSV)"),
             shiny::textInput("catalogue_search", "Find a source or country", placeholder = "e.g. France, USGS, OpenTopography"),
             shiny::uiOutput("source_cards"),
             shiny::tags$details(class = "als-source-table", shiny::tags$summary("View detailed source table"), DT::DTOutput("sources"))
@@ -274,9 +292,21 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
           editOptions = leaflet.extras::editToolbarOptions()) |>
         leaflet::addLayersControl(baseGroups = "OpenStreetMap", overlayGroups = discovery_groups()) |>
+        leaflet::addScaleBar(position="bottomleft", options=leaflet::scaleBarOptions(imperial=FALSE)) |>
         leaflet::setView(0, 20, 2, options = list(animate = FALSE))
       add_discovery_layers(map, world, catalog, overview)
     })
+    ot_view <- shiny::debounce(shiny::reactive(list(bounds=input$map_bounds,zoom=input$map_zoom)),500)
+    shiny::observeEvent(ot_view(), {
+      view <- ot_view()
+      shiny::req(view$bounds,view$zoom)
+      tryCatch(add_ot_map_coverage(leaflet::leafletProxy("map",session=session),view$zoom,view$bounds),
+        error=function(e) {
+          add_ot_map_coverage(leaflet::leafletProxy("map",session=session))
+          shiny::showNotification(paste("Detailed coverage unavailable; survey locations remain visible.",conditionMessage(e)),
+            type="warning",id="ot-detail-unavailable",duration=10)
+        })
+    },ignoreInit=TRUE)
     # Tiles are split into one Leaflet group per acquisition year (see the
     # search handler) so the existing layers control can toggle a single
     # year on/off; clearing them all back to just "Countries"/"AOI"
@@ -362,10 +392,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       state$search <- "Searching all configured sources..."
       local_index_dir <- tile_index_dir
       has_local_index <- !is.null(local_index_dir) && nzchar(trimws(local_index_dir))
-      providers <- c("usgs3dep", "ahn6", "swisstopo", "ignfr", "canelevation")
+      providers <- c("usgs3dep", "ahn6", "swisstopo", "ignfr", "canelevation", "opentopography")
       if (has_local_index) {
         files <- list.files(local_index_dir, ignore.case=TRUE)
-        if(any(grepl("_TileIndex\\.zip$",files,ignore.case=TRUE))) providers <- c(providers,"opentopography")
         if(any(grepl("\\.tiles\\.geojson$",files,ignore.case=TRUE))) providers <- c(providers,"contributed")
       }
       approved_dir <- if (is.null(submission_dir)) NULL else file.path(submission_dir, "approved")
@@ -376,13 +405,14 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           out <- lapply(providers, function(p) tryCatch(
             find_tiles(state$aoi, if (p == "zenodo-approved") "contributed" else p,
               as.character(input$dates[1]), as.character(input$dates[2]),
-              if (p == "zenodo-approved") approved_dir else if(p == "canelevation") NULL else local_index_dir),
+              if (p == "zenodo-approved") approved_dir else if(p %in% c("canelevation","opentopography")) NULL else local_index_dir),
             error = function(e) e))
           names(out) <- providers
           out
         })
         ok <- vapply(outcome, inherits, logical(1), "sf")
         result <- if (any(ok)) do.call(rbind, outcome[ok]) else empty_tiles()
+        if (nrow(result)) result <- result[!duplicated(paste(result$provider,redact_url(result$url))),,drop=FALSE]
         state$tiles <- result
         state$search <- if (nrow(result))
             paste0(nrow(result), " intersecting tiles from ", length(unique(result$provider)), " source(s); ", length(providers), " sources searched. Select rows below; acquisition dates may be unknown.")
@@ -425,11 +455,39 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       }, error = function(e) {state$search <- conditionMessage(e); notify(e)})
     })
     output$search_status <- shiny::renderText(state$search)
+    shiny::observeEvent(state$tiles, {
+      years <- sort(unique(unlist(tile_year_membership(state$tiles))))
+      known <- years[years != "unknown"]
+      choices <- c("All years"="all", stats::setNames(known, known),
+        if ("unknown" %in% years) c("Unknown dates"="unknown"))
+      shiny::updateSelectInput(session, "campaign_year", choices=choices, selected="all")
+    }, ignoreNULL=FALSE)
+    shiny::observeEvent(list(state$tiles, input$campaign_year), {
+      groups <- selection_campaign_groups(state$tiles, if(is.null(input$campaign_year)) "all" else input$campaign_year)
+      choices <- c("All campaigns"="all", if(length(groups)) stats::setNames(names(groups),
+        paste0(names(groups), " | ", lengths(groups), " tiles")))
+      shiny::updateSelectInput(session, "campaign_projects", choices=choices, selected="all")
+    }, ignoreNULL=FALSE)
+    campaign_rows <- shiny::reactive({
+      campaign_tile_rows(state$tiles, if(is.null(input$campaign_year)) "all" else input$campaign_year,
+        input$campaign_projects)
+    })
+    output$campaign_selection_summary <- shiny::renderText({
+      paste(length(campaign_rows()), "tiles match this year and campaign choice.")
+    })
+    shiny::observeEvent(input$select_campaign_tiles, {
+      shiny::req(state$tiles)
+      DT::selectRows(DT::dataTableProxy("tiles"), campaign_rows())
+    })
     output$tiles <- DT::renderDT({
       if (is.null(state$tiles)) return(DT::datatable(data.frame(Status = "No search results yet."), rownames = FALSE))
-      DT::datatable(sf::st_drop_geometry(state$tiles)[c("filename", "dataset", "provider", "acquired_end", "acquired_start", "size_bytes", "license_url", "citation")],
-        colnames = c("File", "Dataset", "Source adapter", "Collection date (end)", "Collection start", "Size (bytes)", "License", "Producer / citation"),
-        rownames = FALSE, selection = "multiple", options = list(scrollX = TRUE, pageLength = 8))
+      table <- sf::st_drop_geometry(state$tiles)
+      table$campaign_id <- if ("campaign_id" %in% names(table)) ifelse(is.na(table$campaign_id), "Not supplied", table$campaign_id) else rep("Not supplied", nrow(table))
+      DT::datatable(table[c("filename", "campaign_id", "dataset", "provider", "acquired_end", "acquired_start", "size_bytes", "license_url", "citation")],
+        colnames = c("File", "Campaign", "Dataset", "Source adapter", "Collection date (end)", "Collection start", "Size (bytes)", "License", "Producer / citation"),
+        rownames = FALSE, selection = "multiple", filter="top", class="stripe hover compact",
+        options = list(scrollX = TRUE, pageLength = 8,
+          columnDefs=list(list(targets=c(2, 3, 5, 7, 8), visible=FALSE))))
     })
     output$sources <- DT::renderDT(DT::datatable(catalog, rownames = FALSE, options = list(scrollX = TRUE, pageLength = 15)))
     output$source_cards <- shiny::renderUI({
@@ -466,8 +524,30 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     for (id in c("report_ready", "download_visible", "download_running"))
       shiny::outputOptions(output, id, suspendWhenHidden = FALSE)
     report_map <- report_map_server(input, output, session, shiny::reactive(state$aoi), report_tiles)
-    shiny::observeEvent(input$select_all_tiles, {shiny::req(state$tiles); DT::selectRows(DT::dataTableProxy("tiles"), seq_len(nrow(state$tiles)))})
+    shiny::observeEvent(input$select_all_tiles, {shiny::req(state$tiles); DT::selectRows(DT::dataTableProxy("tiles"), input$tiles_rows_all)})
     shiny::observeEvent(input$clear_tiles, DT::selectRows(DT::dataTableProxy("tiles"), integer()))
+    show_tile_details <- function(licenses=FALSE) {
+      if (is.null(state$tiles) || !nrow(state$tiles)) {
+        shiny::showNotification("Find ALS data first.", type="message"); return()
+      }
+      x <- selected_tiles()
+      if (!nrow(x)) {
+        shiny::showNotification("Select one or more tiles first.", type="message"); return()
+      }
+      details <- unique(sf::st_drop_geometry(x)[c("dataset", "provider", "citation", "license_url")])
+      shiny::showModal(shiny::modalDialog(title=if(licenses) "License and attribution" else "Product information",
+        shiny::p(paste(nrow(x), "selected tiles")),
+        lapply(seq_len(nrow(details)), function(i) shiny::tags$section(
+          shiny::h4(details$dataset[i]),
+          if (!licenses) shiny::p(paste("Source:", details$provider[i])),
+          shiny::p(details$citation[i]),
+          if (!is.na(details$license_url[i]) && grepl("^https://", details$license_url[i]))
+            shiny::tags$a(href=details$license_url[i], target="_blank", rel="noopener noreferrer", "Read source license")
+          else shiny::p("License not supplied; check the source."))),
+        easyClose=TRUE, footer=shiny::modalButton("Close")))
+    }
+    shiny::observeEvent(input$tile_licenses, show_tile_details(TRUE))
+    shiny::observeEvent(input$tile_information, show_tile_details(FALSE))
     output$selection_summary <- shiny::renderText({
       x <- selected_tiles(); known <- is.finite(x$size_bytes)
       sprintf("%s tiles selected | %.1f MiB known | %s files with unknown size", nrow(x), sum(x$size_bytes[known])/1024^2, sum(!known))
@@ -505,6 +585,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     })
     output$map_source_credits <- shiny::renderText(paste(c(figure_attribution(state$tiles),
       if("citation" %in% names(overview)) unique(overview$citation),
+      unique(ot_registry()$citation),
+      paste("OpenTopography dataset terms:",paste(unique(ot_registry()$license_url),collapse="; ")),
       if("license_url" %in% names(overview)) paste("Coverage licence:",unique(overview$license_url[nzchar(overview$license_url)]))), collapse = "\n"))
     shiny::outputOptions(output, "map_source_credits", suspendWhenHidden = FALSE)
     output$licensing_notes <- shiny::downloadHandler(filename = "ALS-Downloader-licensing.txt", content = function(file) {

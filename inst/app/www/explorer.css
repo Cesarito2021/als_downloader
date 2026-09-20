@@ -147,4 +147,20 @@ body{font-size:16px;line-height:1.55}
 .als-globe-legend small{font-size:16px}.als-globe-swatch{width:15px;height:15px}
 .als-welcome-reading p,.als-source-card details,.als-source-card>a{font-size:16px}
 .als-source-status,.als-source-country{font-size:15px}
+.als-map-zoom{background:#172b3a;color:#fff;border:1px solid #d1d9df;border-radius:16px;padding:5px 12px;font-size:12px;box-shadow:0 1px 4px #0003}
+.leaflet-control-scale-line{background:#fffffff0;color:#172b3a;border-color:#172b3a}
+.als-results-table{color-scheme:light;background:#f5f6f7;color:#17232d;padding:14px;border-radius:10px;border:1px solid #cbd2d8;margin:8px 0 16px}
+.als-results-table .dataTables_wrapper,.als-results-table .dataTables_info,.als-results-table .dataTables_filter,.als-results-table .dataTables_length,.als-results-table .dataTables_paginate{color:#17232d!important}
+.als-results-table table.dataTable thead th{background:#e0e5e9;color:#15232c;border-bottom:1px solid #bbc5cc}
+.als-results-table table.dataTable tbody tr,.als-results-table table.dataTable tbody tr.even{background:#fafbfc;color:#17232d}
+.als-results-table table.dataTable tbody tr.odd{background:#eceff2;color:#17232d}
+.als-results-table table.dataTable tbody tr:hover{background:#dde6ec}
+.als-results-table table.dataTable tbody tr.selected{background:#263f52!important;color:#fff!important}
+.als-results-table input,.als-results-table select,.als-results-table .form-control{background:#fff!important;color:#17232d!important;border:1px solid #9baab5!important;border-radius:4px}
+.als-results-table .dataTables_paginate .paginate_button{color:#17232d!important}
+.als-results-table:not(.als-filters-visible) thead tr:nth-child(2){display:none}
+.als-result-actions{display:flex;flex-wrap:wrap;gap:8px}
+.als-campaign-selection{border:1px solid #415362;border-radius:10px;padding:14px 16px;margin:10px 0 16px;background:#14212b}
+.als-campaign-selection h4{margin-top:0}.als-campaign-selection .form-group{display:inline-block;vertical-align:top;min-width:220px;max-width:100%;margin-right:14px}
+.als-campaign-selection #campaign_selection_summary{margin:4px 0 12px}
 @media(max-width:600px){.als-header h1{font-size:22px}.als-globe-mission{font-size:18px}.als-globe-legend{font-size:16px}}

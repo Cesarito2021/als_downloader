@@ -40,13 +40,17 @@ aoi <- read_aoi("study-area.gpkg", layer="study")
 tiles <- find_tiles(aoi, provider="usgs3dep")
 download_tiles(tiles, output_dir="selected-tiles", workers=2)
 
-ot_tiles <- find_tiles(aoi, provider="opentopography",
-                      tile_index_dir="my-tile-indexes")
+ot_tiles <- find_tiles(aoi, provider="opentopography")
 ```
 
-OpenTopography indexes must include geometry, CRS and a URL field. Their
-acquisition dates are currently reported as unknown rather than guessed from
-filenames. Obtain the dataset DOI and exact attribution from the provider.
+OpenTopography uses the verified hosted airborne-LiDAR catalogue by default.
+Matching original tile indexes load automatically; acquisition dates, citations
+and licence links come from verified collection metadata. Missing dates remain
+unknown. An optional `tile_index_dir` supports legacy, locally supplied indexes.
+Exact overview outlines use a checksum-pinned auxiliary catalogue downloaded
+only when the interactive map needs detailed coverage; the small packaged search
+index suffices to locate candidate collections. Final AOI selection always uses
+original provider tile polygons.
 USGS 3DEP assets are signed immediately before transfer.
 
 ## Resume and validation

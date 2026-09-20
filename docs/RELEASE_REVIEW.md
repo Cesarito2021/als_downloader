@@ -1,7 +1,7 @@
-# ALS Downloader 0.1.0 — release review
+# ALS Downloader 0.1.1 — release review
 
 Prepared for maintainer review on 20 September 2026. No CRAN submission or Zenodo
-software deposit has been made. The GitHub repository remains private.
+software deposit has been made. The maintainer has authorized public GitHub and R-universe publication.
 
 ## Verified scope
 
@@ -31,19 +31,18 @@ Windows, macOS, Linux release and R-devel matrix. An older green commit does not
 validate a newer candidate. The source tarball and check logs are prepared locally,
 without including downloaded examples, private queues or SMTP credentials.
 
-The full local Windows/R 4.4.0 check completed with 0 errors, 0 warnings and
-2 notes (new submission; current time could not be verified). It includes the
-PDF/HTML manuals, vignette and 548 passing test expectations, with none skipped.
+The final 0.1.1 local Windows/R 4.4.0 check completed with 0 errors, 0 warnings and
+2 notes (new submission with a GNU licence URL timeout; current time could not be verified). It includes the
+PDF/HTML manuals, vignette and 637 passing test expectations, with none skipped.
 The test runner additionally recorded one warning; see the local test log.
 
-Private GitHub URLs were removed from DESCRIPTION and the software citation to
-avoid inaccessible links in CRAN metadata. The maintainer contact is retained.
-This does not require making the development repository public.
+The 0.1.1 metadata includes the public R-universe package page and GitHub source
+and issue URLs. Current release validation is recorded in cran-comments.md.
 
 ## Conditions still requiring attention
 
 - **Cartography and source conditions:** Esri has been replaced by attributed OpenStreetMap cartography.
-  IGN information-update attribution remains unresolved in
+  IGN product-edition dates and original asset links are now preserved, with missing/conflicting dates refused; see
   [the use review](../inst/sources/USE_REVIEW.md). Historical Esri figures remain private review material and are no longer embedded in README.
   Software tests and source citations do not constitute blanket legal clearance.
 - **Email:** optional Formspree transport is implemented with quota/error feedback.
@@ -60,6 +59,7 @@ This does not require making the development repository public.
 - **R-universe:** verify the published build SHA matches the candidate before
   announcing an update; a registry entry is not proof of a successful new build.
 
-The app is available for local review. Do not describe the candidate as fully
-cleared for public release while these items remain open. CRAN submission and
-acceptance remain separate from local and CI check results.
+The package is prepared for public distribution and local user review. Optional
+hosted contribution automation remains a separate deployment task and is not
+advertised as a completed public service. CRAN submission follows the final user
+review; acceptance remains separate from local and CI check results.

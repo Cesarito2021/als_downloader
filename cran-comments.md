@@ -1,49 +1,44 @@
 ## Submission status
 
-Draft for maintainer review; not submitted to CRAN.
+Version 0.1.1, prepared for maintainer review; not submitted to CRAN.
+Public GitHub and R-universe distribution is authorized.
 
 ## Local check
 
 Windows 11, R 4.4.0 (x86_64-w64-mingw32), 20 September 2026.
-Full `R CMD check --as-cran`, including PDF/HTML manuals and incoming feasibility:
-0 errors, 0 warnings, 2 notes:
+Full R CMD check --as-cran, including rebuilt vignettes and PDF/HTML manuals:
+0 errors, 0 warnings, 2 notes.
 
-- New submission.
+- Incoming feasibility: new submission; the GNU GPL URL timed out during this run.
 - Unable to verify current time.
 
-All 548 test expectations passed; none were skipped. The test runner reports one
-test-runner warning (not a package-check warning). Pandoc also emits a
-highlight-style deprecation message. Vignette/report builds complete successfully.
-Private GitHub URLs were removed from DESCRIPTION and CITATION to avoid public
-404 links. The designated maintainer email remains available.
+Installed package size passes. All 637 test expectations passed, none skipped.
+The test runner separately reports one dependency warning (Shiny was built under
+R 4.4.3); this is not an R CMD check warning. Pandoc reports a deprecated
+highlight-style option; vignette and manual builds succeed.
 
 ## Additional validation
 
-Offline tests and examples do not contact providers. Live development checks
-include real point-cloud examples for USA, Brazil, Canada and the Netherlands,
-and a Zenodo ALS archive with its author-provided Shapefile. Complete archive and
-boundary checksums were verified; isolated approval, spatial search and browser
-coverage refresh passed. Production inclusion remains pending maintainer approval.
-No downloaded clouds, private proposals or credentials are included in the package.
-JavaScript tests cover profiles and shared absolute-elevation colour scales.
-Browser verification also covers readable typography, Zenodo-only submission,
-private invitation exchange, explicit rejection and replay denial using synthetic data.
+Thirteen Python tests verify incremental catalogue preservation and exclusions.
+JavaScript tests cover profile geometry and point-cloud comparisons. A public
+OpenTopography metadata download passed SHA-256 and schema verification; a real
+Australian AOI returned a LAZ file containing 79,770 readable points.
+The README reports reproducible catalogue statistics, distinguishes collection
+footprints from tile records and distinct objects, and attributes provider storage.
+The optional detailed footprint resource is downloaded only when requested.
+Examples and automated tests do not contact data providers. No downloaded clouds,
+private proposals or credentials are included in the package.
 
-GitHub Actions checks Windows, macOS, Ubuntu release and Ubuntu devel with
-warnings treated as failures. The final pushed commit's matrix must pass before
-submission; earlier results are not evidence for a newer candidate.
-
-Optional Formspree submission transport was tested with 25 R expectations and
-seven intercepted browser scenarios. It does not contact the service during
-installation, loading, examples or automated tests. The maintainer verified one explicitly requested live development submission
-from localhost and confirmed mailbox receipt. No automatic publication occurred. No Formspree
-management key, Gmail credential or approval secret is distributed.
+GitHub Actions checks Windows, macOS, Ubuntu release and Ubuntu devel, treating
+warnings as failures. The pushed candidate's matrix must pass before submission;
+earlier green builds do not validate a newer candidate.
 
 ## Purpose and attribution
 
-The package provides spatial discovery, original-file downloads, bounded point
-visualization, visual comparison and PDF download-planning reports in R/Shiny.
+The package provides spatial discovery, original-file parallel downloads, bounded
+point visualization, visual comparison and PDF download-planning reports in R/Shiny.
 Dataset licences and citations remain separate. Notices are retained in inst/NOTICE
-and alongside bundled browser libraries. Optional cloud/PDF dependencies are checked
-when requested. The documented outstanding basemap/public-hosting and source-credit
-questions must be resolved before the maintainer authorizes public release.
+and alongside bundled browser libraries. Optional dependencies are checked on use.
+Optional hosted contribution intake still requires private persistent storage and
+mail/transport configuration; it is not advertised as a completed hosted service.
+CRAN submission follows the maintainer's final local app review.

@@ -19,8 +19,8 @@
 #' @param details Include a technical appendix with transfer-time scenarios
 #'   and a sample file table. Defaults to `FALSE` for a concise visual report.
 #' @param map_image Optional single PNG path, used instead of the geometry-only
-#'   map. The app captures a centred satellite map with AOI and selected tiles.
-#' @param map_credits Imagery attribution accompanying `map_image`.
+#'   map. The app captures a centred basemap with AOI and selected tiles.
+#' @param map_credits Basemap attribution accompanying `map_image`.
 #' @return Invisibly, the path to the rendered report file.
 #' @details Content is limited to data already carried by `tiles`: filename,
 #'   dataset, provider, provider-reported acquisition dates, known size and

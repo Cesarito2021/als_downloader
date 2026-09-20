@@ -1,3 +1,5 @@
+> Historical source checks. Current OpenTopography access, automatic tile indexes and verification are documented in [OPENTOPOGRAPHY_ACCESS.md](OPENTOPOGRAPHY_ACCESS.md); current adapter status is in [SOURCES.md](../inst/sources/SOURCES.md). Older local-index requirements below have been superseded.
+
 # Active source review
 
 **19 September update:** live regional searches and point-cloud samples are

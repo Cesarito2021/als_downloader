@@ -59,6 +59,12 @@ test_that("STAC receives a Geometry and pagination failures are explicit", {
   expect_error(find_tiles(square()),"pagination repeated")
 })
 
+test_that("invalid provider acquisition intervals stay unknown", {
+  expect_true(all(is.na(stac_acquisition_period(list(start_datetime="2020-01-01",end_datetime="2019-12-31")))))
+  expect_true(all(is.na(stac_acquisition_period(list(start_datetime="2020-02-30",end_datetime="unknown")))))
+  expect_equal(stac_acquisition_period(list(start_datetime="2020-02-29")),c(start="2020-02-29",end=NA_character_))
+})
+
 test_that("candidate providers are not advertised as implemented", {
   catalog <- provider_catalog()
   expect_setequal(catalog$id[catalog$implemented],c("usgs3dep","opentopography","ahn6","swisstopo","ignfr","canelevation"))

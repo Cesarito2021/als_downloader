@@ -26,6 +26,43 @@
   };
   const classInfo = code => code == null ? ['Classification unavailable', '#8895a5'] :
     (classes[code] || ['Class '+code, '#a8a4cf']);
+  // Same rotation as the cloud, in CSS pixels so labels stay readable on HiDPI
+  // screens and PNG exports. These are source-coordinate axes, not a compass.
+  function drawOrientation(ctx, w, yaw, pitch) {
+    const size=144,left=Math.max(8,w-size-12),top=12,cx=left+size/2,cy=top+size/2;
+    const co=Math.cos(yaw),si=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),length=43;
+    const axes=[
+      {label:'X',color:'#ff939b',x:co,y:si*cp,depth:si*sp},
+      {label:'Y',color:'#91dfac',x:-si,y:co*cp,depth:co*sp},
+      {label:'Z',color:'#8fcaff',x:0,y:-sp,depth:cp}
+    ].sort((a,b)=>a.depth-b.depth);
+    ctx.save();
+    ctx.fillStyle='rgba(12,22,32,.92)';ctx.strokeStyle='#415363';ctx.lineWidth=1;
+    ctx.beginPath();ctx.roundRect(left,top,size,size,16);ctx.fill();ctx.stroke();
+    ctx.lineCap='round';ctx.lineWidth=3;
+    for(const axis of axes){
+      axis.px=cx+length*axis.x;axis.py=cy+length*axis.y;
+      ctx.strokeStyle=axis.color;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(axis.px,axis.py);ctx.stroke();
+    }
+    // Separate labels when two axes project to nearly the same endpoint.
+    const placed=[];
+    for(const axis of axes){
+      let x=axis.px,y=axis.py;
+      for(const previous of placed){
+        if(Math.hypot(x-previous.x,y-previous.y)<29){
+          x=Math.min(left+size-16,Math.max(left+16,previous.x+30));
+          if(Math.hypot(x-previous.x,y-previous.y)<29)y=previous.y+30;
+        }
+      }
+      placed.push({x,y});
+      if(x!==axis.px||y!==axis.py){ctx.strokeStyle=axis.color;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(axis.px,axis.py);ctx.lineTo(x,y);ctx.stroke();}
+      ctx.beginPath();ctx.arc(x,y,15,0,Math.PI*2);ctx.fillStyle='#122230';ctx.fill();
+      ctx.strokeStyle=axis.color;ctx.lineWidth=1.5;ctx.stroke();
+      ctx.font='700 22px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle=axis.color;ctx.fillText(axis.label,x,y+1);
+    }
+    ctx.restore();
+  }
   function viewer(c) {
     let points=[],origin=[0,0,0],extent=[0,0,0],initialYaw=-.65,yaw=-.65,pitch=0,exag=2,zoom=1,drag=null,palette='Greyscale',colourBy='auto',activeMode='elevation';
     let initialPitch=0,pointSize=1.8,classification=[],classColors=[],intensity=[],intensityRange=[0,0],sourceLabel="Point-cloud preview",attribution=[],unitLabel="source units (unverified)",unitNote="";
@@ -92,6 +129,7 @@
         ctx.textAlign='right';ctx.fillText((activeMode==='intensity'?intensityRange[1]:Number(origin[2])+extent[2]).toFixed(1),x+width,h-15);
       }
       if(activeMode==='intensity'||activeMode==='elevation')legend(palette,20,180,activeMode==='intensity'?'Intensity':'Elevation');
+      drawOrientation(ctx,w,yaw,pitch);
     }
     function fit(){yaw=initialYaw;pitch=initialPitch;zoom=1;draw();}
     c.onpointerdown=e=>{drag=[e.clientX,e.clientY];c.setPointerCapture(e.pointerId);c.focus();};
@@ -258,6 +296,10 @@
         if(ctxB)profile.renderOverlay(ctxB,cb);
         profile.renderChart();
       }
+      if(points.length){
+        if(ctxA)drawOrientation(ctxA,ca.clientWidth,yaw,pitch);
+        if(ctxB)drawOrientation(ctxB,cb.clientWidth,yaw,pitch);
+      }
       renderDensity();
     }
     function fit(){yaw=initialYaw;pitch=initialPitch;zoom=1;drawBoth();}
@@ -298,6 +340,10 @@
         if(data.fit)fit();else drawBoth();}};
   }
   document.addEventListener('DOMContentLoaded',()=>{
+    for(const id of ['als-cloud','als-tile-cloud','als-compare-cloud-a','als-compare-cloud-b']){
+      const c=document.getElementById(id);
+      if(c)c.title='X / Y / Z: source-coordinate orientation. The axes rotate with the cloud.';
+    }
     const views={};for(const id of ['als-cloud','als-tile-cloud']){const c=document.getElementById(id);if(c)views[id]=viewer(c);}
     const ca=document.getElementById('als-compare-cloud-a'),cb=document.getElementById('als-compare-cloud-b');
     if(ca&&cb)views['als-compare-cloud']=comparisonViewer(ca,cb);

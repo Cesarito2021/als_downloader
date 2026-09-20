@@ -18,7 +18,7 @@ find_tiles(
 \item{aoi}{Polygon input accepted by [read_aoi()].}
 
 \item{provider}{Either `"usgs3dep"` (Planetary Computer) or
-`"opentopography"` (local TileIndex archives), or `"contributed"`
+`"opentopography"` (verified hosted TileIndex catalogue), or `"contributed"`
 (maintainer-approved local `*.tiles.geojson` indexes), `"ahn6"`
 (native AHN6 index), `"swisstopo"` (swissSURFACE3D STAC), `"ignfr"`
 (IGN LiDAR HD, indexed through a public STAC catalogue maintained by
@@ -31,7 +31,7 @@ Unknown acquisition dates remain in the results.}
 
 \item{tile_index_dir}{Directory of OpenTopography `*_TileIndex.zip` files,
 approved contributed `*.tiles.geojson` files, or CanElevation `.gpkg`/
-`.shp` indexes. Required for OpenTopography and contributed sources; optional for Canada. Indexes require an embedded
+`.shp` indexes. Required for contributed sources; optional for OpenTopography and Canada. Indexes require an embedded
 CRS and a `url` field pointing to the original file.}
 
 \item{max_items}{Maximum number of tiles to return. An incomplete result
@@ -40,15 +40,18 @@ raises an error instead of silently reporting partial coverage.}
 \value{
 An `sf` table of assets with stable identifiers, canonical URLs,
   acquisition dates, citation information and tile geometry in EPSG:4326.
+  \code{campaign_id} contains the official 3DEP project identifier when supplied;
+  otherwise it is missing. It is separate from the STAC collection name.
 }
 \description{
 Find point-cloud tiles intersecting an AOI
 }
 \details{
 Network access occurs only when this function is explicitly called
-  for USGS 3DEP, AHN6, swisstopo, ignfr or Canada without a local index. OpenTopography uses supplied local indexes and their embedded
-  download links; it does not assume a universal area limit or require a key
-  for already-public tile URLs. Asset licenses must be checked per dataset.
+  for a remote source. OpenTopography searches the packaged, audited airborne-LiDAR
+  registry by default and fetches matching provider indexes with SHA-256 verification.
+  An explicit local index directory overrides that route in the R API.
+  Public tile downloads do not require an API key. Asset licenses vary per dataset.
 }
 \examples{
 if (interactive()) {

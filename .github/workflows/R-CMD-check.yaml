@@ -19,6 +19,8 @@ jobs:
       NOT_CRAN: 'false'
     steps:
       - uses: actions/checkout@v4
+      - name: Check incremental catalogue preservation
+        run: python -m unittest discover -s tools -p test_ot_update.py
       - name: Check visual profile geometry
         run: |
           node tools/test-profile.cjs
@@ -46,6 +48,8 @@ jobs:
             ${{ runner.os == 'macOS' && 'terra=?source' || '' }}
             ${{ runner.os == 'macOS' && 'RcppArmadillo=?source' || '' }}
           needs: check
+      - name: Check incremental catalogue merge
+        run: Rscript tools/test_ot_merge.R
       - uses: r-lib/actions/check-r-package@v2
         with:
           args: 'c("--no-manual", "--as-cran")'
