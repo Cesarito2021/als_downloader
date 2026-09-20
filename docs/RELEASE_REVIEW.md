@@ -9,7 +9,7 @@ software deposit has been made. The maintainer has authorized public GitHub and 
   maintainer-supplied OpenForest4D, NSF and University of Florida logos.
 - Welcome portrait is 104 px on desktop (88 px on narrow screens), with larger
   author and affiliation text. The README banner no longer carries an author byline.
-- The green terrain-line banner remains a separate local proposal for user review.
+- The maintainer approved the green terrain-line banner for the README.
 
 - README contains four top-down cloud examples: USA, Brazil, Canada
   and the Netherlands. Point colours use Viridis by source Z. Image provenance,
