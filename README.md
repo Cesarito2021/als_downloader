@@ -19,7 +19,7 @@ ALS Downloader links a user-defined area of interest (AOI) to available airborne
 Start with the globe, then open **Explore** to find tiles. **3D view** inspects a
 selected tile or local file; **3D comparison** brings overlapping clouds together.
 
-![ALS Downloader: globe, access routes and entry points](docs/images/workflow/01-globe.png)
+![ALS Downloader: globe, access routes and entry points](docs/images/workflow/01-globe.gif)
 
 **A.** The globe shows access routes: red indicates in-app ALS data access and yellow indicates external portals; survey coverage varies within each country. **B.** Open map launches the dataset explorer. **C.** Submit ALS data opens the Zenodo contribution form. **D.** About the project presents the application and its purpose. **E.** GitHub opens the source-code repository.
 

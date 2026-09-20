@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Throttled to ~16 fps: the per-pixel software projection in draw() is too
   // costly to re-run at a full 60 fps just for a slow ambient spin.
   let lastSpin=0;
-  function spin(ts){if(ts-lastSpin>60){const elapsed=Math.min(ts-lastSpin,150);lastSpin=ts;if(autorotate&&!document.hidden&&canvas.offsetParent){lon+=elapsed*.004;draw();}}requestAnimationFrame(spin);}
+  // Five degrees per second: one gentle full turn in approximately 72 seconds.
+  function spin(ts){if(ts-lastSpin>60){const elapsed=Math.min(ts-lastSpin,150);lastSpin=ts;if(autorotate&&!document.hidden&&canvas.offsetParent){lon+=elapsed*.005;draw();}}requestAnimationFrame(spin);}
   function draw(){
     if(!pixels||!canvas.clientWidth)return;
     const w=Math.min(1100,Math.round(canvas.clientWidth)),h=canvas.clientHeight;
