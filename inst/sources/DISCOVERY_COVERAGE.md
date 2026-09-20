@@ -52,8 +52,8 @@ Residual spherical ring crossings are repaired at 0.0001-degree precision
 (up to approximately 11 m), only where needed for valid display geometry.
 
 Coverage credits and licence links are included in map-image exports. The source
-snapshot date is shown in feature popups. Basemap rights are separate and remain
-subject to the Esri review in [USE_REVIEW.md](USE_REVIEW.md).
+snapshot date is shown in feature popups. OpenStreetMap attribution and tile
+service conditions are documented in [USE_REVIEW.md](USE_REVIEW.md).
 
 The direct AHN GeoPackage host returned a certificate-expiry error during this
 review. TLS verification was not disabled: the mask uses the existing native
