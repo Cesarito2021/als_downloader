@@ -33,7 +33,17 @@ jobs:
         run: brew install gdal
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          # Some current arm64 CRAN binaries use zstd, which the dependency
+          # installer's archive detector does not yet recognize. Build these
+          # dependencies from CRAN sources; keep the package checks unchanged.
+          extra-packages: |
+            any::rcmdcheck
+            ${{ runner.os == 'macOS' && 'knitr=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'leaflet.extras=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'xfun=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'lidR=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'sf=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'terra=?source' || '' }}
           needs: check
       - uses: r-lib/actions/check-r-package@v2
         with:
