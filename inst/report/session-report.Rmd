@@ -8,6 +8,7 @@ params:
   aoi_area_km2: NA
   aoi: NULL
   figures: NULL
+  figure_captions: NULL
   map_image: NULL
   map_credits: ""
   details: false
@@ -52,7 +53,10 @@ providers <- if (has_tiles) sort(unique(tiles_df$provider)) else character()
 dates <- if (has_tiles) sort(unique(na.omit(c(as.character(tiles_df$acquired_start), as.character(tiles_df$acquired_end))))) else character()
 dates <- dates[nzchar(dates)]
 area_label <- if (length(aoi_area_km2) == 1 && is.finite(aoi_area_km2)) sprintf("%.4f km2", aoi_area_km2) else "Not recorded"
-date_label <- if (length(dates)) paste(min(dates), "to", max(dates)) else "Not reported"
+date_label <- alsdownloader:::report_date_label(tiles_df$acquired_start, tiles_df$acquired_end)
+storage_label <- alsdownloader:::report_storage_label(bytes)
+has_map_figure <- length(params$map_image) > 0 || has_map
+figure_number <- if (has_map_figure) 1L else 0L
 ```
 
 ```{r report-banner}
@@ -66,16 +70,16 @@ if (knitr::is_latex_output()) {
 }
 ```
 
-Discover, inspect and download airborne LiDAR. A visual summary of your selected data, with source information to support the next step in your study.
+Discover, inspect and download airborne LiDAR. A summary of the selected tiles, acquisition dates, storage and data sources.
 
 ## Key information
 
 ```{r}
 key <- data.frame(
-  Information = c("Report date", "Area of interest (AOI)", "Selected data", "Acquisition interval", "Known storage"),
+  Information = c("Report date", "Area of interest (AOI)", "Selected data", "Acquisition date(s)", "Storage"),
   Value = c(format(Sys.time(), "%Y-%m-%d %H:%M"), area_label,
     sprintf("Tiles: %d | Providers: %d", if (has_tiles) nrow(tiles) else 0, length(providers)),
-    date_label, sprintf("%.3f GiB | Files with unknown size: %d", total_gb, sum(!known))))
+    date_label, storage_label))
 if (knitr::is_latex_output()) {
   cat("```{=latex}\n\\colorbox{black!4}{\\parbox{\\dimexpr\\linewidth-2\\fboxsep}{\n")
   panel <- knitr::kable(key, format = "latex", row.names = FALSE, col.names = NULL, vline = "")
@@ -87,13 +91,11 @@ if (length(providers)) cat("\nProviders:", paste(providers, collapse = ", "), "\
 if (!has_tiles) cat("No tiles in this selection.\n\n")
 ```
 
-## AOI and selected coverage
-
 ```{r fig.width=7.2, fig.height=4.1, fig.align="center"}
 if (length(params$map_image)) {
   if (knitr::is_latex_output()) cat(sprintf("\\begin{center}\n\\includegraphics[width=\\linewidth,height=0.45\\textheight,keepaspectratio]{%s}\n\\end{center}\n\n", params$map_image))
   else cat(sprintf("![](%s)\n\n", params$map_image))
-  cat("*OpenStreetMap context: dashed gold marks the actual AOI; dark polygons show selected tile footprints. The basemap does not represent conditions at the LiDAR acquisition date.*\n\n")
+  cat("**Figure 1.** Study area (gold outline) and selected tile footprints.\n\n")
   cat(params$map_credits, "\n\n")
 } else if (has_map) {
   aoi_geo <- sf::st_transform(aoi, 4326)
@@ -118,9 +120,9 @@ if (length(params$map_image)) {
   plot(sf::st_geometry(aoi_geo), add = TRUE, border = "#dc2626", lwd = 2, col = NA)
   if (n_year > 0) legend("topright", legend = c(as.character(years), "Unknown"),
     fill = c(cols[seq_len(n_year)], "#8a97a1"), bty = "n", cex = .8, title = "Acquisition year")
-  cat("\n\n*Tile footprints (fill = acquisition year) and the AOI outline (red). Geometry only, not a basemap image.*\n\n")
+  cat("\n\n**Figure 1.** Study area (red outline) and selected tile footprints, coloured by acquisition year.\n\n")
 } else if (has_tiles) {
-  cat("AOI geometry was not supplied to this report; the map is omitted.\n\n")
+  # No map section when no map was generated.
 }
 ```
 
@@ -128,10 +130,10 @@ if (length(params$map_image)) {
 if (length(params$figures)) {
   for (i in seq_along(params$figures)) {
     if (knitr::is_latex_output()) cat("\\newpage\n")
-    cat(sprintf("\n\n## Figure %d | Exported view\n\n", i))
-    cat("User-selected exported view; its embedded labels, sampling notes and credits apply. It may differ from the current tile selection. Visual comparisons do not measure change.\n\n")
+    figure_number <- figure_number + 1L
     if (knitr::is_latex_output()) cat(sprintf("\\includegraphics[width=\\linewidth,height=0.72\\textheight,keepaspectratio]{%s}\n", params$figures[i]))
     else cat(sprintf("![](%s)\n\n", params$figures[i]))
+    cat(sprintf("\n\n**Figure %d.** %s\n\n", figure_number, params$figure_captions[i]))
   }
 }
 ```
@@ -140,33 +142,19 @@ if (length(params$figures)) {
 if (knitr::is_latex_output()) cat("\\newpage\n")
 ```
 
-## Conclusions and next steps
+## Summary
 
 ```{r}
 if (has_tiles) {
-  cat(sprintf("- Selected tiles: **%d**. Data providers: **%d**. ", nrow(tiles), length(providers)))
-  cat(if (length(dates)) paste0("Reported acquisition dates span **", date_label, "**; this is not a continuous coverage record.\n") else "Acquisition dates are not reported.\n")
-  if (any(known)) cat(sprintf("- Plan for **%.3f GiB** of known source files%s. Allow additional space for temporary files and derived products.\n", total_gb,
-    if (any(!known)) sprintf(" plus files with unknown sizes (%d)", sum(!known)) else ""))
-  else cat("- No usable file sizes: storage and transfer time cannot be estimated.\n")
-} else cat("No data conclusions can be drawn from an empty selection.\n")
+  cat(sprintf("Selected tiles: **%d**. Data providers: **%d**.\n\n", nrow(tiles), length(providers)))
+  cat("Acquisition date(s): **", date_label, "**.\n\n", sep="")
+  cat("Storage: **", storage_label, "**.\n\n", sep="")
+} else cat("No tiles in this selection.\n\n")
 ```
 
-Figures support visual inspection. They do not establish measured change, point-cloud alignment or data quality. Confirm acquisition dates, coordinate references and elevation units before quantitative analysis. Downloads preserve complete source tiles, including points outside the AOI.
+Downloaded point clouds are original files from their providers. ALS Downloader applies no additional pre- or post-processing to these downloads. Figures show sampled point clouds for visual inspection.
 
-## Software citation
-
-```{r}
-cat(params$software_citation, "\n\n")
-```
-
-## Acknowledgements
-
-ALS Downloader was developed within [OpenForest4D](https://openforest4d.org). OpenForest4D is funded by NSF awards **2409885, 2409886 & 2409887**.
-
-We acknowledge the data producers and repositories listed below. Cite their datasets separately when using downloaded data or figures.
-
-## Citations and licences
+## Data source licences and policies
 
 ```{r}
 if (has_tiles) {
@@ -184,7 +172,7 @@ if (has_tiles) {
 ```
 
 
-Source datasets retain their own licences and access conditions. This report describes the current selection, not a completed download or a certification of coverage. Reports are generated by the app server; local mode keeps them on this computer.
+Source datasets retain their own licences. Cite the original data producers and dataset DOIs when using these files or figures.
 
 ```{r}
 if (isTRUE(params$details)) {
@@ -192,3 +180,13 @@ if (isTRUE(params$details)) {
   cat(knitr::knit_child(system.file("report", "technical-appendix.Rmd", package = "alsdownloader"), quiet = TRUE), sep = "\n")
 }
 ```
+
+## Software citation
+
+```{r}
+cat(params$software_citation, "\n\n")
+```
+
+## Acknowledgements
+
+ALS Downloader was developed within [OpenForest4D](https://openforest4d.org), funded by NSF awards **2409885, 2409886 and 2409887**. We thank the data producers and repositories cited in this report.

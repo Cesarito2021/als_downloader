@@ -1,5 +1,8 @@
 # alsdownloader 0.1.3
 
+* Centre Explorer over the Atlantic and show a concise access legend and map scale.
+* Simplify reports with readable dates, MB/GB storage, numbered figure captions,
+  source policies and a selection summary; refresh the README and banner logo.
 * Read IGN mission codes and named acquisition dates; label fallback project,
   delivery-block and dataset groups explicitly in campaign selection.
 * Match comparison selectors to spatially overlapping tiles from separate acquisitions.

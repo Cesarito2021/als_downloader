@@ -25,9 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const zoomStatus = L.control({position: 'bottomright'});
     zoomStatus.onAdd = function () {
       const label = L.DomUtil.create('div', 'als-map-zoom');
-      label.setAttribute('aria-label', 'Current map zoom');
-      const update = () => { label.textContent = 'Zoom ' + map.getZoom(); };
-      map.on('zoomend', update);
+      label.setAttribute('aria-label', 'Approximate map scale');
+      const update = () => {
+        const size = map.getSize();
+        const y = size.y / 2;
+        const metres = map.distance(map.containerPointToLatLng([size.x / 2, y]),
+          map.containerPointToLatLng([size.x / 2 + 100, y]));
+        const scale = Math.round(metres / 100 * 96 / 0.0254);
+        label.textContent = 'Scale ≈ 1 : ' + scale.toLocaleString('en-US');
+      };
+      map.on('zoomend moveend resize', update);
       map.whenReady(update);
       return label;
     };

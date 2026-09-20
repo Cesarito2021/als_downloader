@@ -110,13 +110,15 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
               shiny::downloadButton("download_report_map", "Download aoi map (PNG)"),
               shiny::checkboxInput("report_details", "Include technical appendix (file sample and download-time scenarios)", FALSE),
               shiny::fileInput("report_figures", "Optional exported PNG figures (up to 6, 10 MiB each)", multiple = TRUE, accept = ".png"),
+              shiny::uiOutput("report_figure_captions"),
               shiny::helpText("The report uses selected tiles, or all search results if none are selected."))),
         shiny::div(class = "als-section",
           shiny::h4(class = "als-options-heading", "Download options"),
           if (mode == "local") shiny::tagList(
             shiny::textInput("destination", "Output folder", value = file.path(path.expand("~"), "ALS-Downloads")),
             shiny::numericInput("workers", "Download workers", min(4L, policy$maximum), min = 1, max = policy$maximum),
-            shiny::helpText(paste("Recommended workers:", policy$recommended)))
+            shiny::helpText(paste("Concurrent transfer limit:", provider_limit,
+              "| Available worker capacity:", policy$maximum)))
           else shiny::helpText("Hosted downloads use one worker. Select up to 10 tiles per batch. Files are delivered through the browser."),
           shiny::actionButton("download", "Download selected tiles", class = "als-action-btn"),
           shiny::textOutput("selection_summary"), shiny::textOutput("download_live_status"),
@@ -292,7 +294,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           editOptions = leaflet.extras::editToolbarOptions()) |>
         leaflet::addLayersControl(baseGroups = "OpenStreetMap", overlayGroups = discovery_groups()) |>
         leaflet::addScaleBar(position="bottomleft", options=leaflet::scaleBarOptions(imperial=FALSE)) |>
-        leaflet::setView(0, 20, 2, options = list(animate = FALSE))
+        leaflet::setView(-40, 25, 2, options = list(animate = FALSE))
       add_discovery_layers(map, world, catalog, overview)
     })
     ot_view <- shiny::debounce(shiny::reactive(list(bounds=input$map_bounds,zoom=input$map_zoom)),500)
@@ -341,7 +343,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           rectangleOptions = leaflet.extras::drawRectangleOptions(), polylineOptions = FALSE,
           markerOptions = FALSE, circleOptions = FALSE, circleMarkerOptions = FALSE,
           editOptions = leaflet.extras::editToolbarOptions()) |>
-        leaflet::setView(0, 20, 2, options = list(animate = FALSE))
+        leaflet::setView(-40, 25, 2, options = list(animate = FALSE))
     }
     output$layer_control <- shiny::renderUI({
       shiny::req(input$aoi_file)
@@ -365,7 +367,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       leaflet::leafletProxy("map") |> leaflet::clearGroup("AOI")
     })
     navigate <- function(id) {
-      if (!nzchar(id)) {leaflet::leafletProxy("map") |> leaflet::setView(0, 20, 2, options = list(animate = FALSE)); return()}
+      if (!nzchar(id)) {leaflet::leafletProxy("map") |> leaflet::setView(-40, 25, 2, options = list(animate = FALSE)); return()}
       row <- world[which(world$code == suppressWarnings(as.numeric(id))), ]
       if (nrow(row)) {bb <- sf::st_bbox(row); leaflet::leafletProxy("map") |> leaflet::fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]], options = list(animate = FALSE))}
     }
@@ -414,7 +416,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         if (nrow(result)) result <- result[!duplicated(paste(result$provider,redact_url(result$url))),,drop=FALSE]
         state$tiles <- result
         state$search <- if (nrow(result))
-            paste0(nrow(result), " intersecting tiles from ", length(unique(result$provider)), " source(s); ", length(providers), " sources searched. Select rows below; acquisition dates may be unknown.")
+            paste0(nrow(result), " intersecting tiles from ", length(unique(result$provider)), if (length(unique(result$provider)) == 1L) " source." else " sources.", " See the table for details.")
           else "No matching records in the searched sources and interval. This does not establish that no LiDAR data exist here."
         if (any(!ok)) state$search <- paste0(state$search, " Incomplete search. ", paste(vapply(which(!ok), function(i)
           paste0(names(outcome)[i], ": ", redact_urls_in_text(conditionMessage(outcome[[i]]))), character(1)), collapse = " | "))

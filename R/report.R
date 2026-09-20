@@ -38,6 +38,7 @@ report_pandoc <- function() {
 #' @param map_image Optional single PNG path, used instead of the geometry-only
 #'   map. The app captures a centred basemap with AOI and selected tiles.
 #' @param map_credits Basemap attribution accompanying `map_image`.
+#' @param figure_captions Optional short captions, one per attached figure.
 #' @return Invisibly, the path to the rendered report file.
 #' @details Content is limited to data already carried by `tiles`: filename,
 #'   dataset, provider, provider-reported acquisition dates, known size and
@@ -52,7 +53,8 @@ report_pandoc <- function() {
 #'   # als_report(tiles, "session-report-out")
 #' }
 als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km2 = NA_real_, aoi = NULL,
-                       figures = character(), details = FALSE, map_image = character(), map_credits = "") {
+                       figures = character(), details = FALSE, map_image = character(), map_credits = "",
+                       figure_captions = NULL) {
   format <- match.arg(format)
   if (!is.logical(details) || length(details) != 1L || is.na(details))
     stop("details must be TRUE or FALSE.", call. = FALSE)
@@ -65,6 +67,10 @@ als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km
     stop("Choose an output directory.", call. = FALSE)
   if (!is.character(figures) || length(figures) > 6L || anyNA(figures))
     stop("Supply up to six PNG figure paths.", call. = FALSE)
+  if (is.null(figure_captions)) figure_captions <- vapply(figures, report_figure_caption, character(1))
+  if (!is.character(figure_captions) || length(figure_captions) != length(figures) ||
+      anyNA(figure_captions) || any(!nzchar(trimws(figure_captions))))
+    stop("Supply one nonempty caption per figure.", call. = FALSE)
   if (!is.character(map_image) || length(map_image) > 1L || anyNA(map_image) ||
       !is.character(map_credits) || length(map_credits) != 1L || is.na(map_credits))
     stop("Supply one map PNG path and its attribution text.", call. = FALSE)
@@ -99,6 +105,7 @@ als_report <- function(tiles, output_dir, format = c("html", "pdf"), aoi_area_km
     output_dir = output_dir, intermediates_dir = tempdir(),
     params = list(tiles = tiles, aoi_area_km2 = aoi_area_km2, aoi = aoi,
       figures = normalizePath(figures, winslash = "/", mustWork = TRUE), details = details,
+      figure_captions = figure_captions,
       map_image = map_image, map_credits = map_credits,
       software_citation = paste(format(utils::readCitationFile(system.file("CITATION", package = "alsdownloader")), style = "text"), collapse = " ")),
     envir = new.env(parent = globalenv()), quiet = TRUE)

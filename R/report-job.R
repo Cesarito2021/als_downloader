@@ -10,6 +10,13 @@ report_render_job <- function(args) {
 report_download_server <- function(input,output,session,tiles,aoi,map) {
   state<-shiny::reactiveValues(job=NULL,directory=NULL,path=NULL,started=NULL)
   status<-function(text)session$sendCustomMessage("als-report-status",text)
+  output$report_figure_captions <- shiny::renderUI({
+    files <- input$report_figures
+    if (is.null(files)) return(NULL)
+    shiny::tagList(lapply(seq_len(nrow(files)), function(i)
+      shiny::textInput(paste0("report_caption_", i), paste("Caption:", files$name[i]),
+        value=report_figure_caption(files$name[i]))))
+  })
   cleanup<-function(){
     if(!is.null(state$job) && state$job$is_alive())state$job$kill_tree()
     state$job<-NULL
@@ -24,6 +31,10 @@ report_download_server <- function(input,output,session,tiles,aoi,map) {
       state$directory<-tempfile("als-report-");dir.create(state$directory)
       # Snapshot uploaded images and the map before launching the worker.
       pictures<-if(is.null(input$report_figures))character() else input$report_figures$datapath
+      captions <- vapply(seq_along(pictures), function(i) {
+        value <- input[[paste0("report_caption_", i)]]
+        if (is.null(value) || !nzchar(trimws(value))) report_figure_caption(input$report_figures$name[i]) else value
+      }, character(1))
       staged<-if(length(pictures))file.path(state$directory,paste0("figure-",seq_along(pictures),".png")) else character()
       if(length(pictures) && !all(file.copy(pictures,staged)))stop("Could not prepare report images.")
       rgb<-if(isTRUE(input$report_rgb))map() else list(path=character(),credits="")
@@ -35,6 +46,7 @@ report_download_server <- function(input,output,session,tiles,aoi,map) {
       region<-aoi()
       args<-list(tiles=x,output_dir=state$directory,format="pdf",aoi=region,
         aoi_area_km2=if(is.null(region))NA_real_ else aoi_area(region),figures=staged,
+        figure_captions=captions,
         details=isTRUE(input$report_details),map_image=rgb$path,map_credits=rgb$credits)
       state$started<-Sys.time();status("Preparing PDF | 0 s")
       state$job<-background_job("report_render_job",list(args))

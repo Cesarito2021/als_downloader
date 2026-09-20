@@ -16,6 +16,7 @@
 ^inst/extdata/opentopography-access-audit\.csv$
 ^inst/extdata/opentopography-update-state\.json$
 ^CITATION\.cff$
+^inst/report/banner\.svg$
 ^CONTRIBUTING\.md$
 ^.*\.Rcheck$
 ^.*\.tar\.gz$

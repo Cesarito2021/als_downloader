@@ -13,7 +13,8 @@ als_report(
   figures = character(),
   details = FALSE,
   map_image = character(),
-  map_credits = ""
+  map_credits = "",
+  figure_captions = NULL
 )
 }
 \arguments{
@@ -47,6 +48,7 @@ and a sample file table. Defaults to `FALSE` for a concise visual report.}
 map. The app captures a centred basemap with AOI and selected tiles.}
 
 \item{map_credits}{Basemap attribution accompanying `map_image`.}
+\item{figure_captions}{Optional short captions, one per attached figure.}
 }
 \value{
 Invisibly, the path to the rendered report file.

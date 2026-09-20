@@ -32,8 +32,7 @@ add_discovery_layers <- function(map, world, catalog, overview) {
   leaflet::addControl(map, html = as.character(shiny::tags$div(class = "als-discovery-legend",
     shiny::tags$strong("LiDAR access"),
     shiny::tags$div(shiny::tags$span(style = "color:#ef4444", "\u25a0"), " In-App Access"),
-    shiny::tags$div(shiny::tags$span(style = "color:#eab308", "\u25a0"), " External Access"),
-    shiny::tags$small("Red: in-app access. OpenTopography dots locate surveys; zoom in for exact footprints. Yellow: external source links. Search confirms tiles."))),
+    shiny::tags$div(shiny::tags$span(style = "color:#eab308", "\u25a0"), " External Access"))),
     position = "bottomleft", layerId = "discovery_legend")
 }
 

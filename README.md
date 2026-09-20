@@ -7,7 +7,7 @@
 [![GitHub release downloads](https://img.shields.io/github/downloads/Cesarito2021/als_downloader/total?label=release%20downloads)](https://github.com/Cesarito2021/als_downloader/releases)
 [![GitHub source ZIP](https://img.shields.io/badge/GitHub-source_ZIP-181717?logo=github&logoColor=white)](https://github.com/Cesarito2021/als_downloader/archive/refs/heads/main.zip)
 
-# ALS Downloader: a web-based Shiny application for the discovery, management, visualization, and download of airborne laser scanning (ALS) datasets worldwide
+### ALS Downloader: a web-based Shiny application for the discovery, management, visualization, and download of airborne laser scanning (ALS) datasets worldwide
 
 **Developed by Cesar Alvites**<br>
 School of Forest, Fisheries, and Geomatics Sciences, University of Florida
@@ -36,6 +36,14 @@ install.packages("lidR")
 alsdownloader::launch_app()
 ```
 
+The browser is the interface; R runs the application on your computer. To start explicitly in local mode:
+
+```r
+alsdownloader::launch_app(mode = "local")
+```
+
+Local mode saves files to your chosen folder and supports parallel transfers. The effective worker count is limited by available cores (reserving four when possible), selected tiles and the configured transfer limit (two by default). A public server running in `hosted` mode uses one worker. Where a provider permits more connections, configure the limit when launching, for example `launch_app(mode = "local", provider_limit = 4L)`.
+
 Alternatively, install the development source from GitHub:
 
 ```r
@@ -48,14 +56,9 @@ Requires R ≥ 4.1. `lidR` enables point-cloud reading. PDF reports also require
 
 The R package is named **`alsdownloader`**. The repository remains `als_downloader` to preserve existing links.
 
-## Coverage in numbers
+## ALS data sources
 
-ALS Downloader connects users to **USGS 3DEP, OpenTopography, CanElevation,
-AHN6, swissSURFACE3D and IGN LiDAR HD**, with additional national portals in its
-catalogue. **The verified OpenTopography integration alone provides access to
-428 airborne-LiDAR collections, over 1.05 million unique point-cloud files and
-42.6 TB of provider-hosted data.** The app discovers and downloads original files;
-it does not store or redistribute these point clouds.
+Connect to **USGS 3DEP, OpenTopography, CanElevation, AHN6, swissSURFACE3D and IGN LiDAR HD**. The verified OpenTopography catalogue provides access to over **1.05 million files (42.6 TB)** hosted by the original providers.
 
 | OpenTopography snapshot · 20 September 2026 | Verified count |
 |---|---:|
@@ -64,64 +67,41 @@ it does not store or redistribute these point clouds.
 | Unique file objects, after removing shared-file duplicates | 1,056,011 |
 | Original-file storage, from public object sizes | 42.598 TB (38.743 TiB) |
 
-These figures exclude external-only collections and federated 3DEP. They are
-not a combined global total or unique land area: different surveys can overlap.
-Other provider inventories remain separate to avoid double counting.
-[Methods and source inventories](docs/COVERAGE_STATISTICS.md) ·
-[Per-collection statistics (CSV)](inst/extdata/opentopography-collection-statistics.csv).
+Counts cover the audited OpenTopography collections, excluding federated 3DEP and external-only entries. [Inventory and methods](docs/COVERAGE_STATISTICS.md).
 
-**Core-aware parallel downloading** supports local workflows, bounded by available
-CPU cores, selected jobs and provider limits (two simultaneous transfers by
-default; hosted mode uses one). Downloaded LAS/LAZ files can then be processed
-with tools such as `lidR`; the app provides sampled visualization and comparison.
+## ALS catalogue
 
-## Explore, inspect and compare
+| Integrated source | Access |
+|---|---|
+| **USGS 3DEP**, USA | Planetary Computer spatial catalogue and COPC files |
+| **OpenTopography**, international | Audited hosted ALS catalogue; original tile indexes load automatically for the AOI |
+| **CanElevation**, Canada | Official spatial tile service and original point clouds |
+| **AHN6**, Netherlands | Spatial index and LAZ files |
+| **swissSURFACE3D**, Switzerland | Spatial catalogue and LAS archives |
+| **IGN LiDAR HD**, France | Spatial catalogue and COPC files |
+| **Approved community sources** | Reviewed boundaries linked to provider-hosted files |
 
-<details>
-<summary><strong>View the other interface panels (B–D)</strong></summary>
+Other countries link to their official download portals. [Full source catalogue](inst/sources/SOURCES.md).
 
-### Explorer → 3D view
+## Input data
 
-Define an AOI, search acquisitions, select a year or campaign and download the
-original files. **View selected tile in 3D** connects results directly to the
-viewer. You can also open a local LAS/LAZ file.
-
-![Explorer: area, acquisitions, tile selection and download outputs](docs/images/workflow/02-explorer.png)
-
-**B.** Explorer displays tiles within the AOI, with acquisition filters, file selection and download tools.
-
-![3D view: selected tile or local cloud, display controls and PNG export](docs/images/workflow/03-point-cloud.png)
-
-**C.** The 3D viewer displays a selected tile or local point cloud, with orientation axes and colour controls.
-
-### 3D comparison
-
-Compare compatible source surveys, or a source with a local cloud, within their
-overlap. Views use sampled points; comparison is visual and does not calculate
-canopy-height change. Coordinate and elevation references must be compatible.
-
-![3D comparison: source selection, overlap and visual outputs](docs/images/workflow/04-comparison.png)
-
-**D.** The comparison panel selects overlapping point clouds for synchronized views. This screenshot shows the setup controls.
-
-</details>
+- **Study area:** draw a polygon or rectangle, or upload an AOI file.
+- **Acquisition period:** choose dates, then select tiles by year and campaign or directly in the table.
+- **Download folder and workers:** choose where to save files and how many transfers to run in parallel.
+- **Local point cloud (optional):** open a LAS/LAZ file for 3D viewing or comparison.
 
 ## Outputs
 
 * **Point clouds:** original LAS/LAZ files or provider ZIP archives.
 * **Figures (PNG):** AOI and tile maps, point-cloud views, and available comparison profiles and distributions.
 * **Metadata and scripts:** tile metadata (CSV) and an R script to download the selected files.
-* **Download report (PDF):** a concise summary of the AOI, selected tiles, acquisition dates, known download volume (GiB), available figures and source credits.
+* **Download report (PDF):** a concise summary of the AOI, selected tiles, acquisition dates, reported download size (MB or GB), available figures and source credits.
 
-**Review the PDF before downloading** to plan storage and document the selection.
-Unknown file sizes are flagged; allow additional space for archive extraction
-and temporary visualization files.
+**Recommendation:** review the PDF before downloading to check the selected tiles and reported storage requirements. File sizes may be unavailable from some providers.
 
-## Four source examples
+## Point-cloud examples
 
-Four verified sites shown as **top-down point clouds**. Point colours use **Viridis by source elevation (Z)**, not canopy
-height or change. Click an image for the full-size view.
-[Source credits and figure details](docs/README_FIGURES.md).
+Four source datasets viewed from above and coloured by elevation. Click an image to enlarge it. [Figure credits](docs/README_FIGURES.md).
 
 ### 1. USA · Utah
 
@@ -147,63 +127,25 @@ AHN6 · [AHN](https://www.ahn.nl/dataroom), [CC BY 4.0](https://creativecommons.
 
 ![Groningen point cloud from above](docs/images/current/Netherlands-cloud.png)
 
-These are sampled visualizations of individual sites. Unknown coordinate units remain unverified;
-no height normalization or change analysis is applied.
+## Share your ALS data
 
-## ALS catalogue
+Share an ALS dataset already published on **Zenodo** through **Submit ALS data - Zenodo**:
 
-| Integrated source | Access |
-|---|---|
-| **USGS 3DEP**, USA | Planetary Computer spatial catalogue and COPC files |
-| **OpenTopography**, international | Audited hosted ALS catalogue; original tile indexes load automatically for the AOI |
-| **CanElevation**, Canada | Official spatial tile service and original point clouds |
-| **AHN6**, Netherlands | Spatial index and LAZ files |
-| **swissSURFACE3D**, Switzerland | Spatial catalogue and LAS archives |
-| **IGN LiDAR HD**, France | Spatial catalogue and COPC files |
-| **Approved community sources** | Reviewed boundaries linked to provider-hosted files |
+1. Enter the Zenodo record or DOI and supply its coverage polygons.
+2. Match the polygon IDs to the point-cloud files, choose acquisition years and provide a private contact email.
+3. Validate and submit. The team reviews the entry before it appears in the catalogue.
 
-Additional catalogue entries link to providers' own portals. OpenTopography explicitly documents the [Tile Index download workflow](https://opentopography.org/node/3598) used by this adapter. Each source retains its own access conditions.
+Data remain on Zenodo. Catalogue entries retain the dataset DOI, authors and licence so users can find and cite your work. We encourage citation of both the dataset and its associated paper; users are responsible for respecting the source licence and attribution requirements.
 
-The package includes a small search index. Exact OpenTopography overview outlines
-load on demand from a versioned, checksum-verified auxiliary catalogue (about
-39 MB), cached for the R session. Tile searches always use the provider's original
-polygons. [Incremental updates and catalogue versions](docs/OPENTOPOGRAPHY_ACCESS.md).
+## Author and contact
 
-[Full source catalogue](inst/sources/SOURCES.md) · [Regional verification](docs/REGIONAL_VERIFICATION.md)
+**César Alvites** · University of Florida · [calvites1990@gmail.com](mailto:calvites1990@gmail.com)
 
-## Contribute ALS data
+## Related publications
 
-**Submit ALS data - Zenodo** accepts published Zenodo records. Supply the record link, coverage and acquisition information; Zenodo metadata provide authors, DOI, licence and available files. Polygons should link to the corresponding point-cloud assets. Declared approximate coverage remains labelled approximate.
-
-The ALS Downloader team reviews submissions before publication. Inclusion requires explicit approval. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
-
-Contributors need no account; their contact email is optional. An optional
-[Formspree form](docs/FORMSPREE_SETUP.md) receives proposals from local or hosted
-apps and notifies the maintainer. It requires a configured endpoint and is subject
-to service quotas. Receipt is not approval or automatic catalogue publication.
-The separate local queue supports [private email review invitations](docs/REVIEWER_ACCESS.md)
-when its mail service is configured.
-
-For Zenodo, select a supplied boundary and its matching cloud file, or upload
-coverage polygons. Approved coverage updates in Explorer automatically.
-[A real ALS and Shapefile integration test](docs/ZENODO_LIVE_CHECKS.md) documents
-what was verified and the limits of automatic metadata extraction.
-
-[Contribution guide](docs/CONTRIBUTING_DATA.md) · [Contact-data handling](docs/CONTRIBUTOR_PRIVACY.md)
-
-## Author and citation
-
-[Contact Cesar Alvites](mailto:calvites1990@gmail.com).
-
-Use `citation("alsdownloader")` to cite the software. Cite each dataset's producer and DOI separately; exported metadata and reports preserve available source credits.
-
-## Licences and credits
-
-Software: **GPL-3**. Dataset rights remain with their respective rights holders. Access through this application grants no additional permission and implies no provider endorsement. Follow each dataset's licence, citation requirements and service conditions.
-
-Leaflet and its R interface retain their software licences; Natural Earth supplies public-domain globe outlines. Explorer uses OpenStreetMap cartography with visible attribution. Exported maps retain the copyright URL. Browser caching and the [tile service policy](https://operations.osmfoundation.org/policies/tiles/) apply; no offline basemap downloads are provided.
-
-[Third-party software notices](inst/NOTICE).
+- Alvites, C., Santopuoli, G., Maesano, M., Chirici, G., Moresi, F. V., Tognetti, R., Marchetti, M., & Lasserre, B. (2021). [Unsupervised algorithms to detect single trees in a mixed-species and multilayered Mediterranean forest using LiDAR data](https://flore.unifi.it/handle/2158/1259181). *Canadian Journal of Forest Research, 51*(12), 1766–1780.
+- Alvites, C., Marchetti, M., Lasserre, B., & Santopuoli, G. (2022). [LiDAR as a tool for assessing timber assortments: A systematic literature review](https://doi.org/10.3390/rs14184466). *Remote Sensing, 14*(18), 4466.
+- Alvites, C. (2026). *ALS Downloader: a web-based Shiny application for the discovery, management, visualization, and download of airborne laser scanning (ALS) datasets worldwide*. **Manuscript in preparation.**
 
 ## Acknowledgements
 
@@ -212,8 +154,13 @@ funded by the **U.S. National Science Foundation** (awards **2409885, 2409886 an
 
 <table>
 <tr>
-<td align="center" width="25%"><img src="docs/images/acknowledgements/openforest4d.png" alt="OpenForest4D" width="115"></td>
-<td align="center" width="25%"><img src="docs/images/acknowledgements/nsf.jpg" alt="U.S. National Science Foundation" width="150"></td>
-<td align="center" width="50%"><img src="docs/images/acknowledgements/university-of-florida.jpg" alt="University of Florida" width="320"></td>
+<td align="center" width="20%"><img src="docs/images/acknowledgements/openforest4d.png" alt="OpenForest4D" width="115"></td>
+<td align="center" width="20%"><img src="docs/images/acknowledgements/nsf.jpg" alt="U.S. National Science Foundation" width="130"></td>
+<td align="center" width="40%"><img src="docs/images/acknowledgements/university-of-florida.jpg" alt="University of Florida" width="280"></td>
+<td align="center" width="20%"><img src="docs/images/acknowledgements/silva-lab.png" alt="Silva Lab" width="120"></td>
 </tr>
 </table>
+
+## Licensing and credits
+
+Software: **GPL-3**. Source datasets retain their own licences and citation requirements. Maps credit OpenStreetMap and Natural Earth; acknowledgement logos belong to their respective organizations. [Third-party notices](inst/NOTICE).
