@@ -33,7 +33,8 @@ terms. Defaults to two; hosted mode always uses one.}
 approved indexes. No directory is created until a proposal is submitted.}
 
 \item{reviewer}{Optional trusted maintainer name; enables private review UI
-only in local mode. Never enable on a public deployment without authentication.}
+only in local mode with password authentication configured by
+[configure_reviewer_access()]. Never expose the reviewer app publicly.}
 }
 \value{
 Invisibly, the return value of [shiny::runApp()]. Runs until stopped.

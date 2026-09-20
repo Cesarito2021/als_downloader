@@ -23,7 +23,8 @@ find_tiles(
 (native AHN6 index), `"swisstopo"` (swissSURFACE3D STAC), `"ignfr"`
 (IGN LiDAR HD, indexed through a public STAC catalogue maintained by
 UMR TETIS / INRAE; not IGN's own WFS), or `"canelevation"` (Canada;
-official NRCan spatial tile service, or a supplied local `.gpkg`/`.shp` index).}
+official NRCan spatial tile service, or a configured local `.gpkg`/`.shp`
+index).}
 
 \item{start, end}{Optional inclusive acquisition dates in `YYYY-MM-DD` format.
 Unknown acquisition dates remain in the results.}

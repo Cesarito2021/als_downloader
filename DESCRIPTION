@@ -18,7 +18,8 @@ Encoding: UTF-8
 Depends: R (>= 4.1.0)
 Imports: sf, s2, httr, curl, jsonlite, digest, parallelly, future, future.apply,
     shiny (>= 1.8.0), leaflet, leaflet.extras, DT, callr, zip, stats, tools, utils
-Suggests: lidR, testthat (>= 3.0.0), knitr, rmarkdown, tinytex, pkgload
+Suggests: lidR, testthat (>= 3.0.0), knitr, rmarkdown, tinytex, pkgload,
+    sodium, askpass
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 RoxygenNote: 7.3.1

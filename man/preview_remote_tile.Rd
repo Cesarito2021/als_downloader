@@ -28,7 +28,10 @@ defaults to [read_preview()]. Used by [read_forest_preview()] for the
 app's forest close-up preview.}
 
 \item{progress}{Optional function receiving short preview-stage messages.}
-\item{zip_member}{Optional exact LAS/LAZ member name when a ZIP contains multiple point clouds. A single point cloud is selected automatically.}
+
+\item{zip_member}{Optional exact LAS/LAZ member name when a ZIP contains
+multiple point clouds. A single point cloud is selected automatically.}
+
 \item{max_uncompressed_bytes}{Maximum total uncompressed ZIP size, in bytes.}
 }
 \value{

@@ -1,5 +1,10 @@
 # alsdownloader 0.1.0
 
+* Require administrator authentication for local proposal review. Store salted
+  password hashes outside the package, allow configured email identifiers, check
+  authorization on private reads and decisions, expire sessions and limit login
+  attempts. Public contributions do not require a login.
+
 * Refresh approved Zenodo coverage in open Explorer sessions without resetting
   the map. Retain source titles and credits in contributed coverage popups.
   Allow a contributor to select the cloud archive corresponding to a supplied

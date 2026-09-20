@@ -31,6 +31,8 @@ Dependencies retain their own licences; ALS Downloader does not claim authorship
 | [rmarkdown](https://CRAN.R-project.org/package=rmarkdown) | Optional / development | Not specified |
 | [tinytex](https://CRAN.R-project.org/package=tinytex) | Optional / development | Not specified |
 | [pkgload](https://CRAN.R-project.org/package=pkgload) | Optional / development | Not specified |
+| [sodium](https://CRAN.R-project.org/package=sodium) | Optional administrator password hashing | Not specified |
+| [askpass](https://CRAN.R-project.org/package=askpass) | Optional private administrator password setup | Not specified |
 
 Browser libraries delivered through Shiny, Leaflet and DT remain subject to
 their upstream package notices. Bundled geography and external map services

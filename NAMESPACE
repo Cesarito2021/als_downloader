@@ -3,6 +3,7 @@
 export(als_app)
 export(als_report)
 export(aoi_area)
+export(configure_reviewer_access)
 export(download_tiles)
 export(download_worker_policy)
 export(find_tiles)

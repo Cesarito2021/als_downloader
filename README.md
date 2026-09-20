@@ -148,6 +148,9 @@ Additional catalogue entries link to providers' own portals. OpenTopography expl
 
 Submissions require maintainer approval before appearing in searches. **Submission status** tracks a proposal using its reference. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
 
+Local review requires a configured administrator login. Contributors do not need
+an account. [Private reviewer setup](docs/REVIEWER_ACCESS.md).
+
 For Zenodo, select a supplied boundary and its matching cloud file, or upload
 coverage polygons. Approved coverage updates in Explorer automatically.
 [A real ALS and Shapefile integration test](docs/ZENODO_LIVE_CHECKS.md) documents

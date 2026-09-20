@@ -11,7 +11,10 @@ are deduplicated. A saved proposal JSON also contains the optional email; share
 that file privately.
 
 The private reviewer sees the proposal and may approve or reject it. Decisions
-retain reviewer identity, time and optional notes. Approved public indexes omit
+require a configured administrator email identifier and app password; see
+[reviewer access](REVIEWER_ACCESS.md). Email identifiers are not mailbox
+verification. The local credential file contains a salted hash, not a password.
+Decisions retain reviewer identity, time and optional notes. Approved public indexes omit
 the contact email and contain dataset metadata, coverage and download links.
 If configured, an automatic notification shares the summary and optional contact
 with the maintainer through the host's email provider. Zenodo receives metadata or explicitly requested

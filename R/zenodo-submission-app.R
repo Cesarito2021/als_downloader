@@ -48,7 +48,7 @@ zenodo_boundary_download <- function(meta,key) {
   ok<-TRUE;path
 }
 
-zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NULL) {
+zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NULL,access=NULL) {
   shiny::observeEvent(input$track_submission, {
     shiny::showModal(shiny::modalDialog(title="Submission status",
       submission_tracking_ui(), footer=shiny::modalButton("Close"), easyClose=TRUE))
@@ -143,14 +143,56 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
   })
   output$zenodo_tracking_status<-shiny::renderText(tracking())
   if(is.null(reviewer))return(invisible(NULL))
+  if(is.null(access)) access <- reviewer_access_controller()
+  token <- shiny::reactiveVal(NULL)
+  requested <- shiny::reactiveVal(NULL)
+  login_message <- shiny::reactiveVal("")
+  authenticated <- shiny::reactive({
+    shiny::invalidateLater(30000,session)
+    access$valid(token())
+  })
+  require_reviewer <- function() {
+    # Always validate at the action itself, even between expiry timer ticks.
+    shiny::req(access$valid(token()))
+  }
+  show_login <- function() {
+    login_message("")
+    shiny::showModal(shiny::modalDialog(title="Administrator sign in",
+      shiny::p("Review is restricted to the administrator's configured email identifiers and ALS Downloader password. Contributors do not need to sign in."),
+      shiny::textInput("review_login_email","Administrator email"),
+      shiny::passwordInput("review_login_password","ALS Downloader password"),
+      shiny::actionButton("review_login","Sign in"),shiny::textOutput("review_login_message"),
+      footer=shiny::modalButton("Close")))
+  }
+  output$review_login_message <- shiny::renderText(login_message())
+  shiny::observeEvent(input$review_login,{
+    result <- access$login(input$review_login_email,input$review_login_password)
+    shiny::updateTextInput(session,"review_login_password",value="")
+    if(is.null(result)) {login_message("Sign-in unsuccessful. Check your credentials or retry after one minute. Administrator setup is required on this host.");return()}
+    token(result)
+    open_review(requested())
+  })
+  shiny::observeEvent(input$review_logout,{
+    token(NULL); requested(NULL); shiny::removeModal(); session$reload()
+  })
+  shiny::observeEvent(authenticated(),{
+    if(!authenticated() && !is.null(token())) {
+      token(NULL); shiny::removeModal()
+      shiny::showNotification("Administrator session expired. Sign in again to review proposals.",type="message")
+    }
+  },ignoreInit=TRUE)
   tick<-shiny::reactiveVal(0L)
   refresh<-function(){
+    require_reviewer()
     tick(tick()+1L);rows<-zenodo_submissions(queue);rows<-rows[rows$status=="pending",,drop=FALSE]
     shiny::updateSelectInput(session,"zenodo_review_id",choices=stats::setNames(rows$id,paste(rows$title,substr(rows$id,1,8),sep=" | ")))
   }
   open_review<-function(selected=NULL){
+    requested(selected)
+    if(!access$valid(token())) {show_login();return(invisible(NULL))}
     shiny::showModal(shiny::modalDialog(title="Review submissions",size="l",
       shiny::p("ALS Downloader team | Private maintainer panel. Proposals remain inactive until approved. No point-cloud analysis is performed."),
+      shiny::actionButton("review_logout","Sign out"),
       shiny::selectInput("zenodo_review_id","Pending proposal",choices=character()),
       shiny::actionButton("zenodo_review_refresh","Refresh queue"),shiny::textOutput("zenodo_queue_status"),
       shiny::conditionalPanel("input.zenodo_review_id && input.zenodo_review_id.length > 0",
@@ -173,9 +215,9 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     if(length(selected)==1L && grepl("^[a-f0-9]{64}$",selected))open_review(selected)
   },once=TRUE)
   shiny::observeEvent(input$zenodo_review_refresh,refresh())
-  output$zenodo_queue_status<-shiny::renderText({tick();rows<-zenodo_submissions(queue);n<-sum(rows$status=="pending")
+  output$zenodo_queue_status<-shiny::renderText({shiny::req(authenticated());require_reviewer();tick();rows<-zenodo_submissions(queue);n<-sum(rows$status=="pending")
     if(n==0)"No pending proposals. New submissions will appear here for review." else paste(n,"proposal(s) awaiting review.")})
-  chosen<-shiny::reactive({tick();shiny::req(input$zenodo_review_id);zenodo_proposal(queue,input$zenodo_review_id)})
+  chosen<-shiny::reactive({shiny::req(authenticated());require_reviewer();tick();shiny::req(input$zenodo_review_id);zenodo_proposal(queue,input$zenodo_review_id)})
   shiny::observeEvent(input$zenodo_review_id,{shiny::updateCheckboxInput(session,"zenodo_review_confirm",value=FALSE);shiny::updateTextAreaInput(session,"zenodo_review_reason",value="")})
   output$zenodo_review_details<-shiny::renderText({p<-chosen();m<-p$metadata;paste(m$title,m$doi,m$citation,
     zenodo_coverage_label(p),
@@ -186,11 +228,12 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     leaflet::leaflet(g)|>leaflet::addTiles()|>leaflet::addPolygons(color="#176b68",weight=2,fillOpacity=.2,label=~file_key)})
   status<-shiny::reactiveVal("")
   decide<-function(decision)tryCatch({
-    review_zenodo_submission(queue,input$zenodo_review_id,decision,reviewer,isTRUE(input$zenodo_review_confirm),input$zenodo_review_reason)
+    require_reviewer()
+    review_zenodo_submission(queue,input$zenodo_review_id,decision,paste(reviewer,token()$email),isTRUE(input$zenodo_review_confirm),input$zenodo_review_reason)
     status(if(decision=="approve")"Approved. Coverage appears in Explorer within a few seconds; use Find ALS data to retrieve its files." else "Rejected. No coverage was added.");refresh()
   },error=function(e)status(conditionMessage(e)))
   shiny::observeEvent(input$zenodo_review_approve,decide("approve"))
   shiny::observeEvent(input$zenodo_review_reject,decide("reject"))
-  output$zenodo_review_status<-shiny::renderText(status())
+  output$zenodo_review_status<-shiny::renderText({shiny::req(authenticated());status()})
   invisible(NULL)
 }

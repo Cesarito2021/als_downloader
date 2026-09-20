@@ -10,7 +10,8 @@
 #' @param submission_dir Optional private directory for Zenodo proposals and
 #'   approved indexes. No directory is created until a proposal is submitted.
 #' @param reviewer Optional trusted maintainer name; enables private review UI
-#'   only in local mode. Never enable on a public deployment without authentication.
+#'   only in local mode with password authentication configured by
+#'   [configure_reviewer_access()]. Never expose the reviewer app publicly.
 #' @return Invisibly, the return value of [shiny::runApp()]. Runs until stopped.
 #' @details Launch is explicit: loading the package does not start a browser,
 #'   contact providers, change the working directory or install packages.
@@ -46,6 +47,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
   shiny::addResourcePath("als-assets", assets)
   shiny::addResourcePath("als-data", system.file("extdata", package = "alsdownloader"))
   catalog <- provider_catalog()
+  review_access <- reviewer_access_controller()
   overview <- discovery_coverage(tile_index_dir,
     if (is.null(submission_dir)) NULL else file.path(submission_dir, "approved"))
   cores <- as.numeric(parallelly::availableCores())
@@ -234,7 +236,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     })
     source_check_summary <- source_preflight_server(input, output, session, state, mode, hosted_lock)
     source_submission_server(input, output, session, source_check_summary)
-    zenodo_submission_server(input, output, session, submission_dir, reviewer)
+    zenodo_submission_server(input, output, session, submission_dir, reviewer, review_access)
     if (!is.null(submission_dir)) {
       approved_dir <- file.path(submission_dir, "approved")
       last_coverage <- approved_coverage_signature(approved_dir)

@@ -19,6 +19,6 @@ Submit a proposal to a private local review queue
 }
 \details{
 Does not activate coverage or download data. Optional administrator
-configuration in option \code{alsdownloader.submission_mail} enables notifications;
-see the notification setup guide in the repository documentation.
+  configuration in option `alsdownloader.submission_mail` enables notifications;
+  see the notification setup guide in the repository documentation.
 }
