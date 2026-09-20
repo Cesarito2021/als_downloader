@@ -75,14 +75,46 @@ Downloads preserve original tiles. The viewer uses sampled points and may downlo
 
 ## Four source examples
 
-Real search metadata and sampled source points from regional verification, displayed in the current interface. Each cloud is viewed from above. Maps currently show geometry only; the RGB versions await confirmation of imagery publication rights. These examples demonstrate access at specific sites, not complete country coverage. [Figure provenance and source credits](docs/README_FIGURES.md).
+Four verified sites, with the **same tile** shown on an RGB basemap and as a
+**top-down point cloud**. Point colours represent source elevation, not canopy
+height or change. Click an image for the full-size view.
+[Source credits and figure details](docs/README_FIGURES.md).
 
-| Site | AOI and tile footprints | Point cloud: top-down | Tile metadata |
-|---|---|---|---|
-| **1. USA** â€” Utah, USGS 3DEP | ![USA map](docs/images/current/United_States-map.png) | ![USA cloud](docs/images/current/United_States-cloud.png) | ![USA metadata](docs/images/current/United_States-table.png) |
-| **2. Brazil** â€” SÃ£o Paulo | ![Brazil map](docs/images/current/Brazil-map.png) | ![Brazil cloud](docs/images/current/Brazil-cloud.png) | ![Brazil metadata](docs/images/current/Brazil-table.png) |
-| **3. Canada** â€” Athabasca | ![Canada map](docs/images/current/Canada-map.png) | ![Canada cloud](docs/images/current/Canada-cloud.png) | ![Canada metadata](docs/images/current/Canada-table.png) |
-| **4. Netherlands** â€” AHN6 | ![Netherlands map](docs/images/current/Netherlands-map.png) | ![Netherlands cloud](docs/images/current/Netherlands-cloud.png) | ![Netherlands metadata](docs/images/current/Netherlands-table.png) |
+### 1. USA · Utah
+
+USGS 3DEP · [Source catalogue](https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc).
+
+| RGB imagery and tile footprint | Point cloud · top-down |
+|---|---|
+| ![Utah tile over RGB imagery](docs/images/current/United_States-map.png) | ![Utah point cloud from above](docs/images/current/United_States-cloud.png) |
+
+### 2. Brazil · São Paulo
+
+Municipality of São Paulo, SMDU/M3DC · [OpenTopography dataset](https://doi.org/10.5069/G9NV9GD1).
+
+| RGB imagery and tile footprint | Point cloud · top-down |
+|---|---|
+| ![São Paulo tile over RGB imagery](docs/images/current/Brazil-map.png) | ![São Paulo point cloud from above](docs/images/current/Brazil-cloud.png) |
+
+### 3. Canada · Athabasca
+
+Natural Resources Canada · [CanElevation](https://open.canada.ca/data/en/dataset/7069387e-9986-4297-9f55-0288e9676947), Open Government Licence – Canada.
+
+| RGB imagery and tile footprint | Point cloud · top-down |
+|---|---|
+| ![Athabasca tile over RGB imagery](docs/images/current/Canada-map.png) | ![Athabasca point cloud from above](docs/images/current/Canada-cloud.png) |
+
+### 4. Netherlands · Groningen
+
+AHN6 · [AHN](https://www.ahn.nl/dataroom), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+| RGB imagery and tile footprint | Point cloud · top-down |
+|---|---|
+| ![Groningen tile over RGB imagery](docs/images/current/Netherlands-map.png) | ![Groningen point cloud from above](docs/images/current/Netherlands-cloud.png) |
+
+These are sampled visualizations of individual sites. RGB imagery and LiDAR may
+have different acquisition dates. Unknown coordinate units remain unverified;
+no height normalization or change analysis is applied.
 
 ## ALS catalogue
 
