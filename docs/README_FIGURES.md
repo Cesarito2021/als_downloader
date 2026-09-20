@@ -4,6 +4,38 @@
 
 # README figure provenance
 
+## Explorer and output figures (20 September 2026)
+
+`workflow/02-explorer-guide.png` combines consecutive viewport screenshots from
+the current local app without stretching the map. Red outlines and corner letters
+are added after capture. The Utah AOI returned seven USGS 3DEP records from the
+Planetary Computer catalogue. The overview access layers were hidden using the
+map's layer control so that returned tile footprints remain visible. OpenStreetMap
+attribution is retained. Missing acquisition dates and file sizes remain blank;
+they were not filled for illustration.
+
+`workflow/03-workflow-outputs.png` is a cropped and labelled composite of actual
+outputs, not an AI-generated illustration. Panels intentionally use different
+sites: (A) the same Utah search table; (B) the existing Groningen AHN6 elevation
+view, under CC BY 4.0; (C) recorded USGS Florida Panhandle 2018 and Hurricane
+Michael 2019-2020 acquisitions over a 100 x 100 m Apalachicola area; (D) the
+current PDF report for one IGN France tile. The report title is ALS Downloader
+Report. Its displayed missing-size message is retained.
+
+For panel C, the unmodified application comparison UI and canvas renderer were
+run in an isolated local documentation session with previously downloaded real
+points. Up to 50,000 points per acquisition were sampled at evenly spaced record
+indices. Both clouds share EPSG:6345 and NAVD88 elevations in metres. A 2 m-wide
+profile was drawn through the UI; the elevation distribution is a binned count,
+not a fitted probability density or a calculated change. No synthetic offsets,
+surface interpolation or registration were applied. Source records:
+[Florida Panhandle](https://www.fisheries.noaa.gov/inport/item/58298) and
+[Hurricane Michael](https://www.fisheries.noaa.gov/inport/item/69038).
+
+Only crops, image placement, resizing and labels were applied to these captures.
+The existing globe animation is unchanged. These documentation images are
+excluded from the CRAN source archive by the `docs` rule in `.Rbuildignore`.
+
 Prepared 19 September 2026 from the current interface and recorded regional
 verification results. An isolated documentation instance replayed previously
 retrieved tile metadata. The paired gallery resampled the same verified original

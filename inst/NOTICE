@@ -63,3 +63,13 @@ R logo: Copyright 2016 The R Foundation, https://www.r-project.org/logo/.
 Used under CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/.
 The logo is scaled and placed in the banner; its colours and geometry are
 unchanged. Its official editable source is included as report/Rlogo.svg.
+
+The README acknowledgement logos (OpenForest4D, U.S. National Science Foundation,
+University of Florida and Silva Lab) were supplied by the maintainer for credit
+and affiliation. They identify their respective organizations and are not
+relicensed under the software's GPL-3 licence. Their display does not imply
+endorsement of the software or of user-generated results. These image files
+are in docs/images/acknowledgements, outside the R source package.
+NSF support acknowledgement and brand guidance:
+https://www.nsf.gov/policies/brand
+https://www.nsf.gov/policies/pappg/24-1/ch-11-other-post-award-requirements

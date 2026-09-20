@@ -1,45 +1,35 @@
 ## Submission status
 
-Version 0.1.3, prepared for maintainer review; not submitted to CRAN.
-Public GitHub and R-universe distribution is authorized.
+Version 0.1.3 has not been submitted. The report title and funding acknowledgement were updated after the checks below; rebuild and check the new archive before submission. The previous archive has not been
+uploaded: browser permission for the upload was denied. Maintainer can submit
+this verified archive through https://cran.r-project.org/submit.html.
 
-## Local check
+## Checks
 
-Windows 11, R 4.4.0 (x86_64-w64-mingw32), 20 September 2026.
-Full R CMD check --as-cran, including rebuilt vignettes and PDF/HTML manuals:
-0 errors, 0 warnings, 2 notes.
+Windows 11, R 4.6.0, 20 September 2026:
+- Full R CMD check --as-cran: 0 errors, 0 warnings; 684 test expectations pass,
+  no failures or skips. Notes: new submission, missing Pandoc on PATH and missing
+  HTML Tidy. The test runner reports dependency/environment warnings separately.
+- Rechecked the identical archive with Pandoc and HTML Tidy on PATH, without
+  repeating tests: 0 errors, 0 warnings, 1 expected NOTE (New submission).
+  README/NEWS, rebuilt vignettes and PDF/HTML manuals pass validation.
+- GitHub Actions for source ba700a08f4ee1d0b9b7ec14c4cffd91ff4d82ef4:
+  Windows release, macOS release, Ubuntu release and Ubuntu R-devel all pass.
+  https://github.com/Cesarito2021/als_downloader/actions/runs/35542196575
 
-- Incoming feasibility: new submission.
-- Unable to verify current time.
+## Archive
 
-Installed package size passes. All 684 test expectations passed, none skipped.
-The test runner separately reports one dependency warning (Shiny was built under
-R 4.4.3); this is not an R CMD check warning. Pandoc reports a deprecated
-highlight-style option; vignette and manual builds succeed.
-
-## Additional validation
-
-Thirteen Python tests verify incremental catalogue preservation and exclusions.
-JavaScript tests cover profile geometry and point-cloud comparisons. A public
-OpenTopography metadata download passed SHA-256 and schema verification; a real
-Australian AOI returned a LAZ file containing 79,770 readable points.
-The README reports reproducible catalogue statistics, distinguishes collection
-footprints from tile records and distinct objects, and attributes provider storage.
-The optional detailed footprint resource is downloaded only when requested.
-Examples and automated tests do not contact data providers. No downloaded clouds,
-private proposals or credentials are included in the package.
-
-GitHub Actions checks Windows, macOS, Ubuntu release and Ubuntu devel, treating
-warnings as failures. The pushed candidate's matrix must pass before submission;
-earlier green builds do not validate a newer candidate.
+alsdownloader_0.1.3.tar.gz (3,494,206 bytes), built with R 4.6.0.
+SHA-256: e73aeabcc07b78f359f5704d734a6ef6ae517e59eb1032538d1a0a88f32fbe5a
+Verified source and bundled asset correspondence with the checked commit.
 
 ## Purpose and attribution
 
-The package provides spatial discovery, original-file parallel downloads, bounded
-point visualization, visual comparison and PDF download-planning reports in R/Shiny.
-Dataset licences and citations remain separate. Notices are retained in inst/NOTICE
-and alongside bundled browser libraries. Optional dependencies are checked on use.
-Optional hosted contribution intake still requires private persistent storage and
-mail/transport configuration; it is not advertised as a completed hosted service.
-CRAN submission follows the maintainer's final local app review.
+Spatial discovery, original-file parallel downloads, bounded point visualization,
+visual comparison and PDF download-planning reports through R and Shiny.
+Examples and automated tests do not require provider downloads. Data access is
+user-initiated. No downloaded point clouds, private proposals or credentials are
+bundled. Provider licences/citations and bundled asset notices are retained.
+Optional hosted contribution intake requires private storage and transport
+configuration. This package does not provide a hosted backend automatically.
 

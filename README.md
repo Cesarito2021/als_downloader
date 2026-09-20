@@ -23,6 +23,12 @@ selected tile or local file; **3D comparison** brings overlapping clouds togethe
 
 **A.** The globe shows access routes: red indicates in-app ALS data access and yellow indicates external portals; survey coverage varies within each country. **B.** Open map launches the dataset explorer. **C.** Submit ALS data opens the Zenodo contribution form. **D.** About the project presents the application and its purpose. **E.** GitHub opens the source-code repository.
 
+### Explorer
+
+![Explorer interface with annotated AOI, acquisition period, map, campaign selection, downloads and tile table](docs/images/workflow/02-explorer-guide.png)
+
+**A.** Define the AOI. **B.** Set the acquisition period and search. **C.** Inspect tile footprints on the map. **D.** Select years and campaigns. **E.** Configure downloads and export the PDF report. **F.** Inspect tiles and export metadata or an R download script.
+
 ## Get started
 
 Install the latest published version from **[R-universe](https://cesarito2021.r-universe.dev/alsdownloader)** (recommended). Version **0.1.3** is prepared for final user review; the package has **not yet been submitted to CRAN**.
@@ -99,6 +105,10 @@ Counts cover the audited OpenTopography collections, excluding federated 3DEP an
 
 **Recommendation:** review the PDF before downloading to check the selected tiles and reported storage requirements. File sizes may be unavailable from some providers.
 
+![Real application outputs: tile table, point-cloud view, red-blue comparison with profile and elevation distribution, and PDF report](docs/images/workflow/03-workflow-outputs.png)
+
+**A.** Tile table (USGS, Utah). **B.** Point-cloud view (AHN6, Groningen). **C.** Overlapping USGS acquisitions in Apalachicola, with a profile and elevation histogram. **D.** PDF report excerpt (IGN France). Panels show separate real examples. [Sources and figure preparation](docs/README_FIGURES.md).
+
 ## Point-cloud examples
 
 Four source datasets viewed from above and coloured by elevation. Click an image to enlarge it. [Figure credits](docs/README_FIGURES.md).
@@ -151,6 +161,8 @@ Data remain on Zenodo. Catalogue entries retain the dataset DOI, authors and lic
 
 Developed at the **University of Florida** within [OpenForest4D](https://openforest4d.org),
 funded by the **U.S. National Science Foundation** (awards **2409885, 2409886 and 2409887**).
+
+Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
 
 <table>
 <tr>
