@@ -1,6 +1,6 @@
 # ALS Downloader 0.1.0 — release review
 
-Prepared for maintainer review on 19 September 2026. No CRAN submission or Zenodo
+Prepared for maintainer review on 20 September 2026. No CRAN submission or Zenodo
 software deposit has been made. The GitHub repository remains private.
 
 ## Verified scope
@@ -33,7 +33,7 @@ without including downloaded examples, private queues or SMTP credentials.
 
 The full local Windows/R 4.4.0 check completed with 0 errors, 0 warnings and
 2 notes (new submission; current time could not be verified). It includes the
-PDF/HTML manuals, vignette and 523 passing test expectations, with none skipped.
+PDF/HTML manuals, vignette and 548 passing test expectations, with none skipped.
 The test runner additionally recorded one warning; see the local test log.
 
 Private GitHub URLs were removed from DESCRIPTION and the software citation to
@@ -47,8 +47,11 @@ This does not require making the development repository public.
   [the use review](../inst/sources/USE_REVIEW.md). Gallery RGB figures remain
   private review material until their publication conditions are settled.
   Software tests and source citations do not constitute blanket legal clearance.
-- **Email:** the real proposal notification is a local preview, not a sent email.
-  Configure a sender and SMTP transport before claiming automatic email delivery.
+- **Email:** optional Formspree transport is implemented with quota/error feedback.
+  Its free plan is intended for Zenodo links; local polygon attachments require
+  upload support. The free community form is active. A labelled localhost test was accepted
+  and the maintainer confirmed Gmail receipt on 20 September 2026. SMTP remains an alternative local
+  queue transport. See [Formspree setup](FORMSPREE_SETUP.md).
 - **Approval:** the maintainer must review and approve the pending proposal.
   The localhost email link must be opened on the computer running the reviewer
   app; it is not a public one-click approval endpoint.

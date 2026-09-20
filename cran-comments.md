@@ -4,14 +4,14 @@ Draft for maintainer review; not submitted to CRAN.
 
 ## Local check
 
-Windows 11, R 4.4.0 (x86_64-w64-mingw32), 19 September 2026.
+Windows 11, R 4.4.0 (x86_64-w64-mingw32), 20 September 2026.
 Full `R CMD check --as-cran`, including PDF/HTML manuals and incoming feasibility:
 0 errors, 0 warnings, 2 notes:
 
 - New submission.
 - Unable to verify current time.
 
-All 523 test expectations passed; none were skipped. The test runner reports one
+All 548 test expectations passed; none were skipped. The test runner reports one
 test-runner warning (not a package-check warning). Pandoc also emits a
 highlight-style deprecation message. Vignette/report builds complete successfully.
 Private GitHub URLs were removed from DESCRIPTION and CITATION to avoid public
@@ -32,6 +32,12 @@ private invitation exchange, explicit rejection and replay denial using syntheti
 GitHub Actions checks Windows, macOS, Ubuntu release and Ubuntu devel with
 warnings treated as failures. The final pushed commit's matrix must pass before
 submission; earlier results are not evidence for a newer candidate.
+
+Optional Formspree submission transport was tested with 25 R expectations and
+seven intercepted browser scenarios. It does not contact the service during
+installation, loading, examples or automated tests. The maintainer verified one explicitly requested live development submission
+from localhost and confirmed mailbox receipt. No automatic publication occurred. No Formspree
+management key, Gmail credential or approval secret is distributed.
 
 ## Purpose and attribution
 

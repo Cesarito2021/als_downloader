@@ -1,9 +1,13 @@
 # Public submission endpoint only: never distribute a Formspree management key.
-zenodo_formspree_config <- function() {
+zenodo_formspree_config <- function(default = TRUE) {
   config <- getOption("alsdownloader.formspree", NULL)
+  if (identical(config, FALSE)) return(NULL)
   if (is.null(config)) {
     endpoint <- Sys.getenv("ALS_FORMSPREE_ENDPOINT", "")
-    if (!nzchar(endpoint)) return(NULL)
+    if (!nzchar(endpoint)) {
+      if (!isTRUE(default)) return(NULL)
+      endpoint <- "https://formspree.io/f/xdekaglo"
+    }
     config <- list(endpoint = endpoint, attachments = FALSE)
   }
   if (!is.list(config) || !is.character(config$endpoint) ||

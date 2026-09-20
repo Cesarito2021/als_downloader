@@ -9,6 +9,19 @@ test_that("Formspree configuration accepts only public form endpoints", {
   }
 })
 
+test_that("community transport can be disabled and preserves private local queues", {
+  old <- options(alsdownloader.formspree=FALSE)
+  on.exit(options(old))
+  expect_null(zenodo_formspree_config())
+  options(alsdownloader.formspree=NULL)
+  old_env <- Sys.getenv("ALS_FORMSPREE_ENDPOINT",unset=NA_character_)
+  on.exit(if(is.na(old_env)) Sys.unsetenv("ALS_FORMSPREE_ENDPOINT") else Sys.setenv(ALS_FORMSPREE_ENDPOINT=old_env),add=TRUE)
+  Sys.unsetenv("ALS_FORMSPREE_ENDPOINT")
+  expect_identical(zenodo_formspree_config()$endpoint,"https://formspree.io/f/xdekaglo")
+  expect_false(zenodo_formspree_config()$attachments)
+  expect_null(zenodo_formspree_config(default=FALSE))
+})
+
 test_that("link submissions preserve coverage mapping without contact or geometry loss", {
   p <- zenodo_build(zenodo_fixture(c("survey.laz","coverage.geojson")),zenodo_shape(),"2020","ALS","")
   config <- list(endpoint="https://formspree.io/f/example",attachments=FALSE)

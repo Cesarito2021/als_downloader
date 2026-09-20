@@ -1,7 +1,9 @@
 # Optional Formspree submission transport
 
-Status: implemented, but no production form endpoint or live delivery has been
-verified. This is a proposal inbox, not an automatic approval service.
+Status: the free community form is configured. A single labelled test from
+localhost was accepted by Formspree on 20 September 2026; the maintainer
+confirmed receipt in Gmail. This is a proposal inbox, not an automatic approval
+service. Hosted deployment still requires its own browser test.
 
 The contributor validates a proposal in the local or hosted Shiny app, then
 submits it directly from the browser to Formspree. The app displays confirmation
@@ -11,7 +13,8 @@ Gmail OAuth and SMTP credentials are not needed for this transport.
 
 ## Configuration
 
-Set the public form endpoint before launching the app:
+The community endpoint is built in for ordinary launches without a local review
+queue. To override it, set the public form endpoint before launching the app:
 
 ```r
 options(alsdownloader.formspree = list(
@@ -21,10 +24,11 @@ options(alsdownloader.formspree = list(
 alsdownloader::launch_app()
 ```
 
-Alternatively set `ALS_FORMSPREE_ENDPOINT` (links only). No endpoint is shipped
-until the maintainer supplies and tests the real form. Once selected, the public
-endpoint can be distributed to clients; never distribute management API keys.
-Formspree takes precedence over the local queue button. An invalid configuration
+Alternatively set `ALS_FORMSPREE_ENDPOINT` (links only). Set
+`options(alsdownloader.formspree = FALSE)` to disable remote submission. A local
+`submission_dir` retains the private queue unless Formspree is explicitly
+configured. The endpoint is public; never distribute management API keys.
+An explicit Formspree configuration takes precedence over the local queue button. An invalid configuration
 shows an error rather than silently falling back to another recipient.
 
 Keep anti-spam protection enabled. A restriction to one website domain can block
@@ -69,8 +73,8 @@ only an explicit Submit click sends data. Browser code is bundled, with no CDN
 dependency or vendored Formspree SDK. No credentials are distributed. Failures
 leave the proposal available to save, and tests simulate service responses.
 This follows the [CRAN policy on unavailable Internet resources](https://cran.r-project.org/web/packages/policies.html);
-it is not a guarantee of CRAN acceptance. The hosted review service and public
-endpoint still need a real activation test before being advertised as operational.
+it is not a guarantee of CRAN acceptance. The public endpoint passed a local live test. Hosted deployment and hosted
+approval remain separate release requirements.
 
 ## Review and publication
 
@@ -100,3 +104,11 @@ by this package.
 
 Automated tests use synthetic proposals and intercepted browser POSTs. They do
 not constitute a live Formspree or email-delivery test.
+
+## Live test evidence
+
+The received test used DOI `10.5281/zenodo.20311343`, boundary
+`5_Marsh_area.zip`, mapped archive `2_Extracted_trees_shrubs_points.zip`, blank
+contact and acquisition date, and an explicit TEST ONLY status. Formspree showed
+one received submission, no spam, and the intact mapping. The maintainer confirmed
+mailbox receipt in the task. No data was approved or committed to the catalogue.

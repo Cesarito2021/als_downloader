@@ -114,7 +114,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
   },error=fail))
   output$zenodo_status<-shiny::renderText(message())
   output$zenodo_actions<-shiny::renderUI({shiny::req(proposal());
-    config<-tryCatch(zenodo_formspree_config(),error=function(e)e)
+    config<-tryCatch(zenodo_formspree_config(default=is.null(queue)),error=function(e)e)
     shiny::tagList(
     if(inherits(config,"error")) shiny::helpText(conditionMessage(config)) else
       if(!is.null(config)) tryCatch(zenodo_formspree_ui(proposal(),proposal_source(),config),error=function(e)shiny::helpText(conditionMessage(e))) else
@@ -122,7 +122,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     shiny::downloadButton("zenodo_proposal_download","Save proposal JSON"))})
   output$zenodo_proposal_download<-shiny::downloadHandler(filename="zenodo-lidar-proposal.json",content=function(file){p<-proposal();shiny::req(p);jsonlite::write_json(p,file,auto_unbox=TRUE,null="null",digits=NA,pretty=TRUE)})
   shiny::observeEvent(input$zenodo_send,tryCatch({
-    if(!is.null(zenodo_formspree_config()))stop("Use the Formspree submission button.")
+    if(!is.null(zenodo_formspree_config(default=is.null(queue))))stop("Use the Formspree submission button.")
     if(is.null(queue))stop("The review queue is not configured.")
     p<-proposal();if(is.null(p))stop("Check the proposal first.")
     id<-submit_zenodo(p,queue);message(paste("Proposal received. Reference:",id,"| DOI:",p$metadata$doi,"| Awaiting ALS Downloader team review. No dataset has been added."))

@@ -50,7 +50,9 @@ Launch is explicit: loading the package does not start a browser,
   with `endpoint` (a public https://formspree.io/f/ form URL) and `attachments`
   (FALSE by default; TRUE requires a file-upload plan). Alternatively set
   environment variable `ALS_FORMSPREE_ENDPOINT` for links-only submissions.
-  This transport takes precedence over the local queue button. It requires
+  The community form is the default when no local submission directory is set.
+  Set option `alsdownloader.formspree = FALSE` to disable remote submission.
+  An explicitly configured transport takes precedence over the local queue button. It requires
   explicit submission and Internet access, but no contributor account.
   Service quotas apply; receiving a proposal never approves its publication.
 }
