@@ -10,3 +10,18 @@ test_that("overview retains separate indexed regions instead of a bounding recta
   expect_length(sf::st_intersects(sf::st_sfc(sf::st_point(c(.005,.005)),crs=4326),x)[[1]],1L)
   expect_equal(nrow(coverage_overview()),0L)
 })
+
+test_that("bundled discovery masks retain regional geometry and provenance", {
+  x <- discovery_coverage()
+  expect_true(all(c("usgs3dep", "canelevation", "ahn6", "ignfr", "swisstopo") %in% x$provider))
+  expect_true(all(sf::st_geometry_type(x) %in% c("POLYGON", "MULTIPOLYGON")))
+  expect_false(any(sf::st_is_empty(x)))
+  expect_true(all(sf::st_is_valid(x)))
+  expect_true(all(nzchar(x$citation) & nzchar(x$info_url) & nzchar(x$license_url)))
+  ca <- x[x$provider == "canelevation", ]
+  # Northern Canada must not be painted as nationwide coverage.
+  remote <- sf::st_sfc(sf::st_point(c(-100, 80)), crs = 4326)
+  expect_length(sf::st_intersects(remote, ca)[[1]], 0L)
+  expect_gt(nrow(ca), 100L)
+  expect_equal(discovery_groups(), c("Countries", "In-App Access", "External Access", "AOI"))
+})

@@ -26,9 +26,11 @@ explicit member selection. This applies to 3D view, not remote comparison.
 
 ## Coverage shown on the map
 
-Countries are neutral reference outlines. Regional overview polygons are derived
-only from configured indexes (including approved contributions); they are dissolved
-and generalized for navigation. Search uses the original tile geometries. Empty
+Explorer now bundles public USGS, CanElevation, AHN6, IGN and swisstopo survey
+outlines and adds configured indexes (including approved contributions). Red
+polygons show regional coverage; yellow countries link to external providers.
+The globe is an illustrative country view. The overview is generalized for
+navigation; search uses the original tile geometries. Empty
 areas on the overview do not establish absence of data: live providers may have
 additional coverage revealed by a search. No national polygon substitutes for a
 regional footprint.
@@ -44,8 +46,11 @@ The [official CanElevation record](https://open.canada.ca/data/en/dataset/706938
 links the [NRCan LiDAR service](https://maps-cartes.services.geo.ca/server_serveur/rest/services/NRCan/lidar_point_cloud_canelevation_en/MapServer).
 Layer 1 provides tile polygons, project identifiers and original download URLs.
 The regional query used `project = 'Athabasca_2018'`, EPSG:4326, and returned 76
-features without a transfer-limit flag. The app still uses a configured local
-index; automatic discovery through that service is not implemented here.
+features without a transfer-limit flag. The app now queries this service directly
+by AOI. Separate live searches returned the expected original COPC tile for both
+Athabasca, Alberta, and Lake Erie, Ontario. Pagination completeness and maximum
+tile counts are tested; missing acquisition dates remain unknown. The R API also
+retains optional local indexes. See the [snapshot sources](../inst/sources/DISCOVERY_COVERAGE.md).
 
 One official polygon retained a crossing after spherical validity repair. The
 adapter now repairs remaining invalid rings in EPSG:3347 before spatial queries.

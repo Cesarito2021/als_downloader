@@ -28,3 +28,22 @@ coverage_overview <- function(folder = NULL, approved_dir = NULL) {
   if(!length(items))return(sf::st_sf(dataset=character(),geometry=sf::st_sfc(crs=4326)))
   do.call(rbind,items)
 }
+
+# Packaged source footprints keep the initial Explorer useful without a global
+# catalogue query on every launch. Local/approved indexes add deployment coverage.
+discovery_coverage <- function(folder=NULL, approved_dir=NULL) {
+  path <- system.file("extdata","discovery-coverage.rds",package="alsdownloader")
+  local <- coverage_overview(folder,approved_dir)
+  if(!nzchar(path)) return(local)
+  source <- readRDS(path)
+  if(nrow(local)) {
+    local$provider <- "configured"
+    local$info_url <- ""
+    local$citation <- "Coverage from the configured source index; consult returned tile metadata for source credits."
+    local$license_url <- ""
+    local$reviewed_on <- ""
+    local$coverage_note <- "Configured tile footprints."
+    source <- rbind(source,local[,names(source),drop=FALSE])
+  }
+  source
+}

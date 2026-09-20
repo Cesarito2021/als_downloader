@@ -30,6 +30,7 @@ Dependencies retain their own licences; ALS Downloader does not claim authorship
 | [knitr](https://CRAN.R-project.org/package=knitr) | Optional / development | Not specified |
 | [rmarkdown](https://CRAN.R-project.org/package=rmarkdown) | Optional / development | Not specified |
 | [tinytex](https://CRAN.R-project.org/package=tinytex) | Optional / development | Not specified |
+| [pkgload](https://CRAN.R-project.org/package=pkgload) | Optional / development | Not specified |
 
 Browser libraries delivered through Shiny, Leaflet and DT remain subject to
 their upstream package notices. Bundled geography and external map services

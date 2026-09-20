@@ -7,6 +7,10 @@ not newly executed provider searches or a fresh cross-country validation run.
 No synthetic points are used in the four examples. The header banner is a
 decorative, procedurally generated illustration, not a survey result.
 
+The coverage overview image uses the bundled public survey masks and configured
+regional indexes, with no RGB basemap. Geometry provenance and display
+generalization are documented in [DISCOVERY_COVERAGE.md](../inst/sources/DISCOVERY_COVERAGE.md).
+
 ## Examples
 
 | Example | Source sample | Displayed points | Credit / licence |

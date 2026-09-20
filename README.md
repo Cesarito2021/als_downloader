@@ -1,6 +1,6 @@
 # ALS Downloader
 
-![ALS Downloader — airborne LiDAR discovery and visualization](docs/images/banner.png)
+![ALS Downloader â€” airborne LiDAR discovery and visualization](docs/images/banner.png)
 
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](NEWS.md)
@@ -8,7 +8,7 @@
 **Discover, visualize and download airborne laser scanning data from an international catalogue.**
 ALS Downloader combines R functions with a map-based Shiny application: define an **area of interest (AOI)**, find available tiles, inspect point clouds and download original files from their providers. Coverage depends on the source and configured indexes; the catalogue does not imply complete global or national coverage.
 
-[Get started](#get-started) · [Application](#application) · [Examples](#four-source-examples) · [Catalogue](#als-catalogue) · [Contribute](#contribute-als-data)
+[Get started](#get-started) Â· [Application](#application) Â· [Examples](#four-source-examples) Â· [Catalogue](#als-catalogue) Â· [Contribute](#contribute-als-data)
 
 ## Get started
 
@@ -20,11 +20,15 @@ remotes::install_github("Cesarito2021/als_downloader")
 alsdownloader::launch_app()
 ```
 
-Requires R ≥ 4.1. `lidR` enables point-cloud reading. PDF reports also require `rmarkdown`, Pandoc and a LaTeX installation such as TinyTeX. Some sources require administrator-configured spatial indexes. [Installation and workflow guide](vignettes/als-workflow.Rmd).
+Requires R â‰¥ 4.1. `lidR` enables point-cloud reading. PDF reports also require `rmarkdown`, Pandoc and a LaTeX installation such as TinyTeX. Some sources require administrator-configured spatial indexes. [Installation and workflow guide](vignettes/als-workflow.Rmd).
 
 The R package is named **`alsdownloader`**. The repository remains `als_downloader` to preserve existing links.
 
 ## Application
+
+Explorer opens with two access masks: **red survey footprints** for in-app
+discovery and **yellow country outlines** linking to external providers.
+The welcome globe illustrates access by country. [Coverage sources and limits](inst/sources/DISCOVERY_COVERAGE.md).
 
 ![Welcome page](docs/images/current/welcome.png)
 
@@ -40,13 +44,16 @@ Downloads preserve original tiles. The viewer uses sampled points and may downlo
 <details>
 <summary>View the application screens</summary>
 
+**Coverage overview** — survey footprints and external access links.
+![Coverage masks](docs/images/current/coverage.png)
+
 **Explore and download planning**
 ![Explore](docs/images/current/explore.png)
 
 **Point-cloud visualization**
 ![3D view](docs/images/current/3d-view.png)
 
-**Comparison controls** — no comparison result is claimed in this capture.
+**Comparison controls** â€” no comparison result is claimed in this capture.
 ![3D comparison](docs/images/current/comparison.png)
 
 **About the project**
@@ -72,18 +79,18 @@ Real search metadata and sampled source points from regional verification, displ
 
 | Site | AOI and tile footprints | Point cloud: top-down | Tile metadata |
 |---|---|---|---|
-| **1. USA** — Utah, USGS 3DEP | ![USA map](docs/images/current/United_States-map.png) | ![USA cloud](docs/images/current/United_States-cloud.png) | ![USA metadata](docs/images/current/United_States-table.png) |
-| **2. Brazil** — São Paulo | ![Brazil map](docs/images/current/Brazil-map.png) | ![Brazil cloud](docs/images/current/Brazil-cloud.png) | ![Brazil metadata](docs/images/current/Brazil-table.png) |
-| **3. Canada** — Athabasca | ![Canada map](docs/images/current/Canada-map.png) | ![Canada cloud](docs/images/current/Canada-cloud.png) | ![Canada metadata](docs/images/current/Canada-table.png) |
-| **4. Netherlands** — AHN6 | ![Netherlands map](docs/images/current/Netherlands-map.png) | ![Netherlands cloud](docs/images/current/Netherlands-cloud.png) | ![Netherlands metadata](docs/images/current/Netherlands-table.png) |
+| **1. USA** â€” Utah, USGS 3DEP | ![USA map](docs/images/current/United_States-map.png) | ![USA cloud](docs/images/current/United_States-cloud.png) | ![USA metadata](docs/images/current/United_States-table.png) |
+| **2. Brazil** â€” SÃ£o Paulo | ![Brazil map](docs/images/current/Brazil-map.png) | ![Brazil cloud](docs/images/current/Brazil-cloud.png) | ![Brazil metadata](docs/images/current/Brazil-table.png) |
+| **3. Canada** â€” Athabasca | ![Canada map](docs/images/current/Canada-map.png) | ![Canada cloud](docs/images/current/Canada-cloud.png) | ![Canada metadata](docs/images/current/Canada-table.png) |
+| **4. Netherlands** â€” AHN6 | ![Netherlands map](docs/images/current/Netherlands-map.png) | ![Netherlands cloud](docs/images/current/Netherlands-cloud.png) | ![Netherlands metadata](docs/images/current/Netherlands-table.png) |
 
 ## ALS catalogue
 
 | Integrated source | Access |
 |---|---|
 | **USGS 3DEP**, USA | Planetary Computer spatial catalogue and COPC files |
-| **OpenTopography**, international | Configured Tile Index files; includes selected São Paulo and Auckland datasets |
-| **CanElevation**, Canada | Configured regional indexes and original point clouds |
+| **OpenTopography**, international | Configured Tile Index files; includes selected SÃ£o Paulo and Auckland datasets |
+| **CanElevation**, Canada | Official spatial tile service and original point clouds |
 | **AHN6**, Netherlands | Spatial index and LAZ files |
 | **swissSURFACE3D**, Switzerland | Spatial catalogue and LAS archives |
 | **IGN LiDAR HD**, France | Spatial catalogue and COPC files |
@@ -91,7 +98,7 @@ Real search metadata and sampled source points from regional verification, displ
 
 Additional catalogue entries link to providers' own portals. OpenTopography explicitly documents the [Tile Index download workflow](https://opentopography.org/node/3598) used by this adapter. Each source retains its own access conditions.
 
-[Full source catalogue](inst/sources/SOURCES.md) · [Regional verification](docs/REGIONAL_VERIFICATION.md)
+[Full source catalogue](inst/sources/SOURCES.md) Â· [Regional verification](docs/REGIONAL_VERIFICATION.md)
 
 ## Contribute ALS data
 
@@ -99,7 +106,7 @@ Additional catalogue entries link to providers' own portals. OpenTopography expl
 
 Submissions require maintainer approval before appearing in searches. **Submission status** tracks a proposal using its reference. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
 
-[Contribution guide](docs/CONTRIBUTING_DATA.md) · [Contact-data handling](docs/CONTRIBUTOR_PRIVACY.md)
+[Contribution guide](docs/CONTRIBUTING_DATA.md) Â· [Contact-data handling](docs/CONTRIBUTOR_PRIVACY.md)
 
 ## Author and citation
 
@@ -117,4 +124,4 @@ Software: **GPL-3**. Dataset rights remain with their respective rights holders.
 
 Leaflet and its R interface retain their software licences; Natural Earth supplies public-domain globe outlines. Esri basemaps have separate service and imagery conditions. Map credits must remain visible in exported figures.
 
-[Third-party notices](inst/NOTICE) · [Data and figure licensing](inst/sources/LICENSING.md) · [Access and intellectual-property review](inst/sources/USE_REVIEW.md) · [CRAN readiness](docs/CRAN_READINESS.md)
+[Third-party notices](inst/NOTICE) Â· [Data and figure licensing](inst/sources/LICENSING.md) Â· [Access and intellectual-property review](inst/sources/USE_REVIEW.md) Â· [CRAN readiness](docs/CRAN_READINESS.md)

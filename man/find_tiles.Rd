@@ -23,15 +23,14 @@ find_tiles(
 (native AHN6 index), `"swisstopo"` (swissSURFACE3D STAC), `"ignfr"`
 (IGN LiDAR HD, indexed through a public STAC catalogue maintained by
 UMR TETIS / INRAE; not IGN's own WFS), or `"canelevation"` (Canada;
-local NRCan project/tile `.gpkg`/`.shp` index, no live spatial API
-confirmed).}
+official NRCan spatial tile service, or a supplied local `.gpkg`/`.shp` index).}
 
 \item{start, end}{Optional inclusive acquisition dates in `YYYY-MM-DD` format.
 Unknown acquisition dates remain in the results.}
 
 \item{tile_index_dir}{Directory of OpenTopography `*_TileIndex.zip` files,
 approved contributed `*.tiles.geojson` files, or CanElevation `.gpkg`/
-`.shp` indexes. Required for these adapters. Indexes require an embedded
+`.shp` indexes. Required for OpenTopography and contributed sources; optional for Canada. Indexes require an embedded
 CRS and a `url` field pointing to the original file.}
 
 \item{max_items}{Maximum number of tiles to return. An incomplete result
@@ -46,7 +45,7 @@ Find point-cloud tiles intersecting an AOI
 }
 \details{
 Network access occurs only when this function is explicitly called
-  for USGS 3DEP, AHN6, swisstopo or ignfr. OpenTopography and canelevation use supplied local indexes and their embedded
+  for USGS 3DEP, AHN6, swisstopo, ignfr or Canada without a local index. OpenTopography uses supplied local indexes and their embedded
   download links; it does not assume a universal area limit or require a key
   for already-public tile URLs. Asset licenses must be checked per dataset.
 }

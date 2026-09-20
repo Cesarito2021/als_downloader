@@ -4,13 +4,15 @@
   downloadable licensing guidance. Complete Sao Paulo and Canada credits and
   use the Auckland derivative notice for point-cloud figures; acknowledge Leaflet.
 
-* Show indexed survey outlines and distinct in-app / external source reference
-  markers in Explorer before AOI search. Keep reference layers across input
+* Show two access masks in Explorer before AOI search: red survey footprints
+  and yellow country-level external links. Bundle public coverage indexes for
+  USGS, Canada, AHN6, IGN and swisstopo, with source credits and snapshot dates.
+  Keep reference layers across input
   methods and resets; suppress popup interaction while drawing an AOI.
 
 * Expand project information and the source catalogue below the welcome area;
-  retain catalogue access from the map header. Brighten the starfield, restore red adapter markers
-  and yellow indexed areas, and simplify rotation controls and author credits.
+  retain catalogue access from the map header. Brighten the starfield, use red
+  and yellow country masks on the illustrative globe, and enlarge its legend.
 * Limit hosted remote viewing to 250 MiB downloads and 500 MiB uncompressed ZIP
   contents; local limits remain 1 GiB and 2 GiB respectively.
 
@@ -18,10 +20,11 @@
   archives. Require explicit selection when several LAS/LAZ members are present;
   validate archive paths and sizes and clean up extracted data on cancellation.
 
-* Replace country-wide availability shading with configured regional index
-  outlines; keep search footprints separate. Soften report and transfer colours.
+* Keep Explorer survey coverage regional; retain original search footprints
+  separately. Soften report and transfer colours.
 * Verify small-area source samples and repair crossing rings in CanElevation
-  indexes. Enable only local adapters whose index files are configured.
+  indexes. Query the official CanElevation tile service directly for online
+  searches; retain configured indexes for other local adapters.
 
 * Place the PDF download and its options in a results-dependent sidebar section;
   show transfer status and cancellation only when relevant. Simplify Explorer

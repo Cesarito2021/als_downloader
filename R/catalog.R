@@ -36,20 +36,20 @@ request_json <- function(url, body = NULL, query = NULL) {
 #'   (native AHN6 index), `"swisstopo"` (swissSURFACE3D STAC), `"ignfr"`
 #'   (IGN LiDAR HD, indexed through a public STAC catalogue maintained by
 #'   UMR TETIS / INRAE; not IGN's own WFS), or `"canelevation"` (Canada;
-#'   local NRCan project/tile `.gpkg`/`.shp` index, no live spatial API
-#'   confirmed).
+#'   official NRCan spatial tile service, or a configured local `.gpkg`/`.shp`
+#'   index).
 #' @param start,end Optional inclusive acquisition dates in `YYYY-MM-DD` format.
 #'   Unknown acquisition dates remain in the results.
 #' @param tile_index_dir Directory of OpenTopography `*_TileIndex.zip` files,
 #'   approved contributed `*.tiles.geojson` files, or CanElevation `.gpkg`/
-#'   `.shp` indexes. Required for these adapters. Indexes require an embedded
+#'   `.shp` indexes. Required for OpenTopography and contributed sources; optional for Canada. Indexes require an embedded
 #'   CRS and a `url` field pointing to the original file.
 #' @param max_items Maximum number of tiles to return. An incomplete result
 #'   raises an error instead of silently reporting partial coverage.
 #' @return An `sf` table of assets with stable identifiers, canonical URLs,
 #'   acquisition dates, citation information and tile geometry in EPSG:4326.
 #' @details Network access occurs only when this function is explicitly called
-#'   for USGS 3DEP, AHN6, swisstopo or ignfr. OpenTopography and canelevation use supplied local indexes and their embedded
+#'   for USGS 3DEP, AHN6, swisstopo, ignfr or Canada without a local index. OpenTopography uses supplied local indexes and their embedded
 #'   download links; it does not assume a universal area limit or require a key
 #'   for already-public tile URLs. Asset licenses must be checked per dataset.
 #' @export

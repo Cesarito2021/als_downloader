@@ -46,9 +46,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
   shiny::addResourcePath("als-assets", assets)
   shiny::addResourcePath("als-data", system.file("extdata", package = "alsdownloader"))
   catalog <- provider_catalog()
-  overview <- coverage_overview(tile_index_dir,
+  overview <- discovery_coverage(tile_index_dir,
     if (is.null(submission_dir)) NULL else file.path(submission_dir, "approved"))
-  overview_json <- if(nrow(overview)) as.character(jsonlite::toJSON(report_geojson(overview),auto_unbox=TRUE,digits=NA)) else '{"type":"FeatureCollection","features":[]}'
   cores <- as.numeric(parallelly::availableCores())
   policy <- download_worker_policy(mode, cores)
   world <- sf::st_read(system.file("extdata", "world-countries.geojson", package = "alsdownloader"), quiet = TRUE)
@@ -125,12 +124,12 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::conditionalPanel("input.enter_map == 0",
               shiny::div(class = "als-globe-intro",
                 shiny::div(class = "als-globe-wrap",
-                  shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Rotatable world globe. Drag or use arrow keys to rotate. Red markers indicate in-app access; yellow polygons show indexed survey areas, not national coverage.",
-                    `data-coverage` = overview_json, `data-adapters` = jsonlite::toJSON(unique(catalog$country_code[catalog$implemented]), auto_unbox = FALSE)),
-                  shiny::tags$div(class = "als-globe-legend", `aria-hidden` = "true",
-                    shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-red"), "In-app access"),
-                    shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-yellow"), "Indexed survey areas"))),
-                shiny::p(id = "globe_status", class = "als-globe-caption", "Regional indexes shown where configured. Search an area for additional coverage."),
+                  shiny::tags$canvas(id = "als-globe", tabindex = "0", role = "img", `aria-label` = "Representative world globe. Red countries have in-app access; yellow countries have external access. Country colours are not survey footprints. Explorer shows actual coverage.",
+                    `data-adapters` = jsonlite::toJSON(unique(catalog$country_code[catalog$implemented]), auto_unbox = FALSE), `data-external` = jsonlite::toJSON(unique(catalog$country_code[!catalog$implemented]), auto_unbox = FALSE)),
+                  shiny::tags$div(class = "als-globe-legend",
+                    shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-red"), "In-App Access"),
+                    shiny::tags$div(class = "als-globe-legend-row", shiny::tags$span(class = "als-globe-swatch als-globe-swatch-yellow"), "External Access"))),
+                shiny::p(id = "globe_status", class = "als-globe-caption", "Country colours represent access routes. Open Explorer to see survey coverage."),
                 shiny::p(class = "als-globe-mission",
                   "Find airborne LiDAR by area, view point clouds and download original files from their providers."),
                 shiny::p(class = "als-globe-author", "Developed by Cesar Alvites"),
@@ -236,7 +235,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     zenodo_submission_server(input, output, session, submission_dir, reviewer)
     comparison_server(input, output, session, state, mode, hosted_lock)
     output$map <- leaflet::renderLeaflet({
-      map <- leaflet::leaflet(world) |>
+      map <- leaflet::leaflet(world, options=leaflet::leafletOptions(preferCanvas=TRUE)) |>
         leaflet::addMapPane("aoi-outline", zIndex = 450) |>
         leaflet::addProviderTiles("Esri.WorldImagery", group = "Satellite RGB") |>
         leaflet::addTiles("https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
@@ -339,12 +338,11 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       state$search <- "Searching all configured sources..."
       local_index_dir <- tile_index_dir
       has_local_index <- !is.null(local_index_dir) && nzchar(trimws(local_index_dir))
-      providers <- c("usgs3dep", "ahn6", "swisstopo", "ignfr")
+      providers <- c("usgs3dep", "ahn6", "swisstopo", "ignfr", "canelevation")
       if (has_local_index) {
         files <- list.files(local_index_dir, ignore.case=TRUE)
         if(any(grepl("_TileIndex\\.zip$",files,ignore.case=TRUE))) providers <- c(providers,"opentopography")
         if(any(grepl("\\.tiles\\.geojson$",files,ignore.case=TRUE))) providers <- c(providers,"contributed")
-        if(any(grepl("\\.(gpkg|shp)$",files,ignore.case=TRUE))) providers <- c(providers,"canelevation")
       }
       approved_dir <- if (is.null(submission_dir)) NULL else file.path(submission_dir, "approved")
       if (!is.null(approved_dir) && length(list.files(approved_dir, "\\.tiles\\.geojson$")))
@@ -354,7 +352,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           out <- lapply(providers, function(p) tryCatch(
             find_tiles(state$aoi, if (p == "zenodo-approved") "contributed" else p,
               as.character(input$dates[1]), as.character(input$dates[2]),
-              if (p == "zenodo-approved") approved_dir else local_index_dir),
+              if (p == "zenodo-approved") approved_dir else if(p == "canelevation") NULL else local_index_dir),
             error = function(e) e))
           names(out) <- providers
           out
@@ -481,11 +479,14 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
         "Select exactly one result for the 3D view."
       else paste("Selected:", state$tiles$filename[selected])
     })
-    output$map_source_credits <- shiny::renderText(paste(figure_attribution(state$tiles), collapse = "\n"))
+    output$map_source_credits <- shiny::renderText(paste(c(figure_attribution(state$tiles),
+      if("citation" %in% names(overview)) unique(overview$citation),
+      if("license_url" %in% names(overview)) paste("Coverage licence:",unique(overview$license_url[nzchar(overview$license_url)]))), collapse = "\n"))
     shiny::outputOptions(output, "map_source_credits", suspendWhenHidden = FALSE)
     output$licensing_notes <- shiny::downloadHandler(filename = "ALS-Downloader-licensing.txt", content = function(file) {
       paths <- c(system.file("sources", "LICENSING.md", package = "alsdownloader"),
         system.file("sources", "USE_REVIEW.md", package = "alsdownloader"),
+        system.file("sources", "DISCOVERY_COVERAGE.md", package = "alsdownloader"),
         system.file("NOTICE", package = "alsdownloader"),
         system.file("app", "www", "html2canvas-LICENSE.txt", package = "alsdownloader"))
       writeLines(unlist(lapply(paths, readLines, warn = FALSE)), file, useBytes = TRUE)

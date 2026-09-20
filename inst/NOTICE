@@ -29,7 +29,11 @@ Imagery dates are independent of LiDAR acquisition dates.
 
 The welcome globe is an original canvas rendering of the bundled Natural Earth /
 World Atlas country outlines. It uses no Apple imagery or proprietary globe tiles.
-Its reference markers indicate catalogue access; survey outlines come from configured indexes.
+The welcome globe colours countries by access route for illustration only.
+Explorer separately shows source survey footprints in red (In-App Access),
+and country-level external links in yellow (External Access). Point markers are
+not used as a substitute for survey boundaries. The footprint snapshot sources,
+licences and generalization are documented in sources/DISCOVERY_COVERAGE.md.
 Atmospheric glow, ocean highlights, decorative cloud wisps and stars are original
 procedural effects. The clouds are illustrative, not meteorological observations.
 No studio artwork, film frames or satellite cloud imagery is incorporated.

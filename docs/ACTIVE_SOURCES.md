@@ -1,5 +1,12 @@
 # Active source review
 
+**19 September update:** live regional searches and point-cloud samples are
+recorded in [REGIONAL_VERIFICATION.md](REGIONAL_VERIFICATION.md). CanElevation
+now uses the official NRCan spatial tile service; local indexes are optional
+for the R API. The earlier local-only implementation described below has been
+superseded. Explorer coverage sources are documented in
+[DISCOVERY_COVERAGE.md](../inst/sources/DISCOVERY_COVERAGE.md).
+
 Follow-up [European live checks](../inst/sources/VALIDATION.md): French spatial
 metadata and official COPC headers now pass; Spain's anonymous download-init
 returned 403, so PNOA LiDAR was removed from the active catalogue on 18

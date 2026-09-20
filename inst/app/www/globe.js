@@ -10,9 +10,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   t.strokeStyle='rgba(184,223,238,0.15)';t.lineWidth=1;t.beginPath();
   for(let x=0;x<W;x+=W/12){t.moveTo(x,0);t.lineTo(x,H);}
   for(let y=H/6;y<H;y+=H/6){t.moveTo(0,y);t.lineTo(W,y);}t.stroke();
-  const coverage=JSON.parse(canvas.dataset.coverage||'{"features":[]}');
-  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const adapters=JSON.parse(canvas.dataset.adapters||'[]');
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const external=JSON.parse(canvas.dataset.external||'[]');
   let pixels,lon=-65,lat=18,drag=null,pending=false,autorotate=!reducedMotion;
   function setRotation(on){autorotate=on;canvas.dataset.rotating=String(on);}
   setRotation(autorotate);
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const world=await response.json();
     for(const f of world.features){
       const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
-      for(const poly of polys)for(const shift of [-360,0,360]){t.beginPath();poly.forEach(coords=>ring(coords,shift));t.fillStyle='#c4d5b7';t.fill('evenodd');
+      for(const poly of polys)for(const shift of [-360,0,360]){t.beginPath();poly.forEach(coords=>ring(coords,shift));t.fillStyle=adapters.includes(Number(f.id))?'#e74848':external.includes(Number(f.id))?'#e4c54f':'#c4d5b7';t.fill('evenodd');
         t.strokeStyle='#6c958b';t.lineWidth=.65;t.stroke();}
     }
     // Decorative cloud wisps, generated once in geographic texture space.
@@ -43,24 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         cloud.addColorStop(.45,'rgba(223,242,255,.13)');cloud.addColorStop(1,'rgba(223,242,255,0)');
         t.fillStyle=cloud;t.fillRect(-1,-1,2,2);t.restore();
       }
-    }
-    // Data indicators are drawn above the decorative texture.
-    for(const f of coverage.features){
-      const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
-      for(const poly of polys)for(const shift of [-360,0,360]){
-        t.beginPath();poly.forEach(coords=>ring(coords,shift));
-        t.fillStyle='rgba(234,179,8,0.8)';t.fill('evenodd');
-        t.strokeStyle='#fde047';t.lineWidth=.7;t.stroke();
-      }
-    }
-    // Country reference markers identify adapters, never national survey coverage.
-    for(const f of world.features.filter(f=>adapters.includes(Number(f.id)))){
-      const polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
-      const ring=polys.reduce((a,b)=>a[0].length>b[0].length?a:b)[0];
-      const xs=ring.map(p=>p[0]),ys=ring.map(p=>p[1]);
-      const x=((Math.min(...xs)+Math.max(...xs))/2+180)*W/360;
-      const y=(90-(Math.min(...ys)+Math.max(...ys))/2)*H/180;
-      t.beginPath();t.arc(x,y,6,0,Math.PI*2);t.fillStyle='#f04444';t.fill();t.strokeStyle='#fff0db';t.lineWidth=1;t.stroke();
     }
     pixels=t.getImageData(0,0,W,H).data;canvas.dataset.ready='true';draw();
     requestAnimationFrame(spin);

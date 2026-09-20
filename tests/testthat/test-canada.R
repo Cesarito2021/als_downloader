@@ -43,11 +43,37 @@ test_that("CanElevation rejects assets outside the confirmed public bucket", {
   expect_error(find_tiles(aoi, "canelevation", tile_index_dir=folder), "Unexpected CanElevation")
 })
 
-test_that("CanElevation requires a configured directory and a URL field", {
-  expect_error(search_canelevation(sf::st_as_sfc(sf::st_bbox(c(xmin=0,ymin=0,xmax=1,ymax=1),crs=4326)), NULL, 10L), "Configure a local")
+test_that("CanElevation skips areas outside Canada and checks supplied index fields", {
+  expect_equal(nrow(search_canelevation(sf::st_as_sfc(sf::st_bbox(c(xmin=0,ymin=0,xmax=1,ymax=1),crs=4326)), NULL, 10L)),0L)
   folder <- tempfile(); dir.create(folder); on.exit(unlink(folder, recursive=TRUE))
   poly <- sf::st_sfc(sf::st_polygon(list(matrix(c(-113.5,54.5, -113.4,54.5, -113.4,54.6, -113.5,54.6, -113.5,54.5), ncol=2, byrow=TRUE))), crs=4326)
   sf::st_write(sf::st_sf(name="x", geometry=poly), file.path(folder, "no_url.gpkg"), quiet=TRUE)
   aoi <- sf::st_as_sfc(sf::st_bbox(c(xmin=-113.5,ymin=54.5,xmax=-113.4,ymax=54.6),crs=4326))
   expect_error(find_tiles(aoi, "canelevation", tile_index_dir=folder), "URL field")
+})
+
+test_that("Canada online search preserves provenance and refuses partial responses", {
+  aoi <- sf::st_as_sfc(sf::st_bbox(c(xmin=-113.5,ymin=54.5,xmax=-113.4,ymax=54.6),crs=4326))
+  feature <- list(type="Feature",properties=list(OBJECTID=12,project="Regional survey",provider="Survey agency",tile_name="tile",
+    url="https://canelevation-lidar-point-clouds.s3.ca-central-1.amazonaws.com/pointclouds_nuagespoints/AB/tile.copc.laz"),
+    geometry=list(type="Polygon",coordinates=list(list(c(-113.5,54.5),c(-113.4,54.5),c(-113.4,54.6),c(-113.5,54.6),c(-113.5,54.5)))))
+  page <- list(type="FeatureCollection",features=list(feature))
+  local_mocked_bindings(request_json=function(url,body=NULL,query=NULL) {
+    if(identical(query$returnIdsOnly,"true")) list(objectIdFieldName="OBJECTID",objectIds=list(12L)) else page
+  })
+  x <- search_canelevation_online(aoi,10L)
+  expect_equal(nrow(x),1L)
+  expect_match(x$citation,"Survey agency")
+  expect_true(is.na(x$acquired_start))
+  page$exceededTransferLimit <- TRUE
+  expect_error(search_canelevation_online(aoi,10L),"incomplete")
+  page$exceededTransferLimit <- FALSE
+  page$features[[1]]$properties$OBJECTID <- 99
+  expect_error(search_canelevation_online(aoi,10L),"mismatched")
+})
+
+test_that("Canada online search checks tile counts before fetching features", {
+  aoi <- sf::st_as_sfc(sf::st_bbox(c(xmin=-113.5,ymin=54.5,xmax=-113.4,ymax=54.6),crs=4326))
+  local_mocked_bindings(request_json=function(...)list(objectIdFieldName="OBJECTID",objectIds=as.list(1:3)))
+  expect_error(search_canelevation_online(aoi,2L),"max_items")
 })
