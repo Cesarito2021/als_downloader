@@ -63,16 +63,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const neb2=ctx.createRadialGradient(w*.88,h*.9,0,w*.88,h*.9,w*.45);
     neb2.addColorStop(0,'#1f4a4a3d');neb2.addColorStop(1,'#1f4a4a00');
     ctx.fillStyle=neb2;ctx.fillRect(0,0,w,h);
-    for(let i=0;i<720;i++){
+    const starCount=Math.round(900+600*Math.min(1,Math.max(0,(w-320)/780)));
+    for(let i=0;i<starCount;i++){
       const x=random(i+1)*w,y=random(i+1103)*h,tier=i%11;
-      ctx.fillStyle=tier===0?'#ffffff':tier<4?'#bacbdc':'#698399';
-      const size=tier===0?2.5:1.3;
+      ctx.fillStyle=tier===0?'#ffffff':tier<4?'#d0e1ed':'#849fb5';
+      const size=tier===0?2.8:1.3;
       ctx.fillRect(x,y,size,size);
       if(i%47===0){ctx.fillStyle='#e4f3ffb3';ctx.fillRect(x-2,y+.5,6,1);ctx.fillRect(x+.5,y-2,1,6);}
     }
     const r=Math.min(w*.43,h*.435),cx=w/2,cy=h/2,phi=lat*Math.PI/180,lambda=lon*Math.PI/180;
-    const glow=ctx.createRadialGradient(cx,cy,r*.98,cx,cy,r*1.14);
-    glow.addColorStop(0,'rgba(103,211,255,.52)');glow.addColorStop(.27,'rgba(62,166,240,.19)');
+    const glow=ctx.createRadialGradient(cx,cy,r*.975,cx,cy,r*1.23);
+    glow.addColorStop(0,'rgba(127,224,255,.85)');glow.addColorStop(.2,'rgba(76,191,255,.48)');
+    glow.addColorStop(.55,'rgba(48,144,240,.16)');
     glow.addColorStop(1,'rgba(40,121,225,0)');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
     const img=ctx.getImageData(0,0,w,h),out=img.data,sky=[106,204,255];
     for(let y=Math.max(0,Math.floor(cy-r));y<Math.min(h,cy+r);y++)for(let x=Math.max(0,Math.floor(cx-r));x<Math.min(w,cx+r);x++){
@@ -82,14 +84,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const a=(ty*W+tx)*4,b=(y*w+x)*4,light=.55+.45*Math.max(0,z*.88-nx*.3+ny*.22);
       const ocean=pixels[a+2]>pixels[a]*1.5;
       const reflection=ocean?Math.pow(Math.max(0,z*.91-nx*.3+ny*.28),24)*.22:0;
-      const atmosphere=Math.pow(1-z,3)*.38;
+      const atmosphere=Math.pow(1-z,3)*.60;
       for(let k=0;k<3;k++){
         const surface=pixels[a+k]*light;
         const reflected=surface+(240-surface)*reflection;
         out[b+k]=reflected+(sky[k]-reflected)*atmosphere;
       }out[b+3]=255;
     }
-    ctx.putImageData(img,0,0);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(147,224,255,.65)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.putImageData(img,0,0);ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.shadowColor='rgba(99,213,255,.9)';ctx.shadowBlur=r*.035;
+    ctx.strokeStyle='rgba(173,237,255,.9)';ctx.lineWidth=2.2;ctx.stroke();ctx.restore();
   }
   function redraw(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;draw();});}
   canvas.onpointerdown=e=>{setRotation(false);drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);canvas.focus();};
