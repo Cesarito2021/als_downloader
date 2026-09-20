@@ -21,7 +21,7 @@ selected tile or local file; **3D comparison** brings overlapping clouds togethe
 
 ![ALS Downloader: globe, access routes and entry points](docs/images/workflow/01-globe.png)
 
-**A.** The globe shows worldwide access routes and opens the dataset explorer.
+**A.** The globe shows access routes: red indicates in-app ALS data access and yellow indicates external portals; survey coverage varies within each country. **B.** Open map launches the dataset explorer. **C.** Submit ALS data opens the Zenodo contribution form. **D.** About the project presents the application and its purpose. **E.** GitHub opens the source-code repository.
 
 ## Get started
 

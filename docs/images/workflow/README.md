@@ -3,7 +3,9 @@
 Captured from the local ALS Downloader 0.1.3 candidate on 20 September 2026.
 SVG files are editable layouts with embedded, unaltered interface screenshots;
 PNG files are rendered copies for README. Each screenshot retains its full
-width, with a square corner label (A–D) and a short caption in the README.
+width. The complete welcome page has red outline annotations A–E identifying
+the globe, explorer entry, submission form, project information and GitHub link.
+The other panels have square corner labels and short captions in the README.
 The comparison figure shows setup only, not a comparison result.
 
 The Explorer example uses OpenTopography AUS11_Victor (Victor Harbour, 2011).
