@@ -2,6 +2,13 @@
 
 ## Zenodo proposals
 
+When Formspree is configured, the browser sends the proposal summary, source
+links and optional contact directly to Formspree instead of this local queue.
+If attachment support is enabled, it also sends the complete proposal JSON with
+coverage geometry. Formspree's retention policy and account limits apply; no
+point clouds or Gmail credentials are sent. A successful provider receipt does
+not approve or publish a dataset. See [Formspree setup](FORMSPREE_SETUP.md).
+
 The contact email is optional and private. When the administrator configures a
 submission directory, clicking **Submit for maintainer review** stores a JSON
 proposal there: metadata, coverage polygons, file mapping, acquisition interval,

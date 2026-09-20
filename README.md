@@ -151,8 +151,12 @@ Additional catalogue entries link to providers' own portals. OpenTopography expl
 
 The ALS Downloader team reviews submissions before publication. Inclusion requires explicit approval. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
 
-The maintainer reviews through a private email invitation, without an app password.
-Contributors need no account; their contact email is optional. Email delivery requires host configuration. [Private reviewer setup](docs/REVIEWER_ACCESS.md).
+Contributors need no account; their contact email is optional. An optional
+[Formspree form](docs/FORMSPREE_SETUP.md) receives proposals from local or hosted
+apps and notifies the maintainer. It requires a configured endpoint and is subject
+to service quotas. Receipt is not approval or automatic catalogue publication.
+The separate local queue supports [private email review invitations](docs/REVIEWER_ACCESS.md)
+when its mail service is configured.
 
 For Zenodo, select a supplied boundary and its matching cloud file, or upload
 coverage polygons. Approved coverage updates in Explorer automatically.

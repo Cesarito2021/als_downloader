@@ -24,7 +24,7 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::textInput("zenodo_acquired","3. Acquisition year or interval (blank if unknown)",placeholder="2018, 2016-2018, or 2018-05-01 / 2018-06-30"),
   shiny::selectInput("zenodo_platform","4. LiDAR acquisition platform",c("Choose a platform"="","Aircraft / helicopter ALS"="ALS","UAV LiDAR"="UAV-LiDAR")),
   shiny::textInput("zenodo_email","5. Contact email (optional, private)"),
-  shiny::helpText("If notifications are enabled, the submission summary and optional contact are emailed to the maintainer through this instance's mail provider. They are not included in the public catalogue."),
+  shiny::helpText("Submitting shares the proposal and optional contact with the configured review service and maintainer. Contact details are not included in the public catalogue."),
   shiny::actionButton("zenodo_prepare","Validate submission"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
   shiny::helpText("The ALS Downloader team will review your submission. Publication requires approval."),
   shiny::helpText("No cloud is downloaded or analysed. ZIP assets are downloaded in full and extracted temporarily for 3D view, within size limits. Submission is not approval; the maintainer checks coverage, dates, file mapping and terms before publication."))
@@ -44,6 +44,7 @@ zenodo_boundary_download <- function(meta,key) {
 
 zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NULL,access=NULL) {
   meta<-shiny::reactiveVal(NULL); proposal<-shiny::reactiveVal(NULL)
+  proposal_source<-shiny::reactiveVal(NULL)
   message<-shiny::reactiveVal("A Zenodo DOI or record URL is required. Publication requires approval.")
   fail<-function(e)message(conditionMessage(e))
   shiny::observeEvent(input$zenodo_link,{meta(NULL);proposal(NULL)},priority=100)
@@ -106,14 +107,22 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
       boundary <- zenodo_map_boundary(boundary, input$zenodo_polygon_file)
     }
     p<-zenodo_build(m,boundary,input$zenodo_acquired,input$zenodo_platform,input$zenodo_email)
+    proposal_source(if(identical(input$zenodo_has_boundary,"no")) list(kind="approximate") else
+      if(identical(input$zenodo_boundary_source,"upload")) list(kind="upload") else
+        list(kind="zenodo",key=input$zenodo_boundary_source,mapping=input$zenodo_polygon_file))
     proposal(p);message(paste("Ready for maintainer review:",length(p$index$features),"mapped download assets.",zenodo_coverage_label(p),"This does not verify point-cloud contents or grant approval."))
   },error=fail))
   output$zenodo_status<-shiny::renderText(message())
-  output$zenodo_actions<-shiny::renderUI({shiny::req(proposal());shiny::tagList(
-    if(!is.null(queue))shiny::actionButton("zenodo_send","Submit for maintainer review") else shiny::helpText("Online submissions are not configured on this instance. Save the proposal and share it privately with the maintainer."),
+  output$zenodo_actions<-shiny::renderUI({shiny::req(proposal());
+    config<-tryCatch(zenodo_formspree_config(),error=function(e)e)
+    shiny::tagList(
+    if(inherits(config,"error")) shiny::helpText(conditionMessage(config)) else
+      if(!is.null(config)) tryCatch(zenodo_formspree_ui(proposal(),proposal_source(),config),error=function(e)shiny::helpText(conditionMessage(e))) else
+      if(!is.null(queue))shiny::actionButton("zenodo_send","Submit for maintainer review") else shiny::helpText("Online submissions are not configured on this instance. Save the proposal and share it privately with the maintainer."),
     shiny::downloadButton("zenodo_proposal_download","Save proposal JSON"))})
   output$zenodo_proposal_download<-shiny::downloadHandler(filename="zenodo-lidar-proposal.json",content=function(file){p<-proposal();shiny::req(p);jsonlite::write_json(p,file,auto_unbox=TRUE,null="null",digits=NA,pretty=TRUE)})
   shiny::observeEvent(input$zenodo_send,tryCatch({
+    if(!is.null(zenodo_formspree_config()))stop("Use the Formspree submission button.")
     if(is.null(queue))stop("The review queue is not configured.")
     p<-proposal();if(is.null(p))stop("Check the proposal first.")
     id<-submit_zenodo(p,queue);message(paste("Proposal received. Reference:",id,"| DOI:",p$metadata$doi,"| Awaiting ALS Downloader team review. No dataset has been added."))

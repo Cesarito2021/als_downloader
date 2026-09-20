@@ -1,5 +1,10 @@
 # alsdownloader 0.1.0
 
+* Add optional Formspree submissions from local and hosted browsers, without
+  contributor authentication. Preserve Zenodo coverage links and file mapping;
+  require attachment support for local polygons. Distinguish monthly quota,
+  temporary rate limits, anti-spam verification and uncertain delivery.
+
 * Increase interface typography and regenerate high-resolution welcome images.
 * Limit contribution UI to Zenodo; remove public tracking and generic-source forms.
   Contact remains optional; publication requires explicit approval, without a

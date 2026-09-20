@@ -46,6 +46,13 @@ Launch the ALS Downloader Shiny application
 Launch is explicit: loading the package does not start a browser,
   contact providers, change the working directory or install packages.
   Background transfer processes are terminated when the owning session ends.
+  Optional browser submissions use option `alsdownloader.formspree`, a list
+  with `endpoint` (a public https://formspree.io/f/ form URL) and `attachments`
+  (FALSE by default; TRUE requires a file-upload plan). Alternatively set
+  environment variable `ALS_FORMSPREE_ENDPOINT` for links-only submissions.
+  This transport takes precedence over the local queue button. It requires
+  explicit submission and Internet access, but no contributor account.
+  Service quotas apply; receiving a proposal never approves its publication.
 }
 \examples{
 if (interactive()) launch_app()
