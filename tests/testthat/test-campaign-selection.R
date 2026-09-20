@@ -23,12 +23,35 @@ test_that("one or multiple campaigns select original rows without crossing provi
   expect_length(tile_year_membership(NULL), 0)
 })
 
-test_that("missing campaign identifiers are explicit and never parsed from filenames", {
+test_that("unrecognized filenames do not invent campaign identifiers", {
   x <- campaign_fixture()
   x$campaign_id <- NULL
   x$filename <- "GA_2019_campaign1.laz"
   expect_true(all(grepl("campaign not supplied", names(selection_campaign_groups(x)))))
   expect_equal(campaign_tile_rows(x, "unknown"), 6L)
+})
+
+test_that("recognized directories group projects and blocks without tile or edition IDs", {
+  x <- campaign_fixture()[rep(1, 5), ]
+  x$campaign_id <- NA_character_
+  x$provider <- c("ignfr", "ignfr", "usgs3dep", "usgs3dep", "opentopography")
+  x$dataset <- c(rep("collection", 4), "BR17_SaoPaulo")
+  x$url <- c(
+    "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_PM_2023-04-20/a.copc.laz",
+    "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_PM_2025-03-25/b.copc.laz",
+    "https://usgslidareuwest.blob.core.windows.net/usgs-3dep-copc/usgs-copc/FL_2019/copc/tile1.copc.laz",
+    "https://usgslidareuwest.blob.core.windows.net/usgs-3dep-copc/usgs-copc/GA_2019/copc/tile2.copc.laz",
+    "https://example.org/tile.laz")
+  z <- tile_campaign_metadata(x)
+  expect_equal(z$campaign_group, c("Block PM", "Block PM", "FL_2019", "GA_2019", "BR17_SaoPaulo"))
+  expect_true(all(is.na(z$campaign_id)))
+  expect_equal(campaign_tile_rows(z, "2019", "ignfr / Block PM (delivery block)"), 1:2)
+  expect_equal(campaign_tile_rows(z, "2019", "usgs3dep / FL_2019 (project directory)"), 3L)
+  x$campaign_id[1] <- "21LHD6PM"
+  expect_equal(tile_campaign_metadata(x)$campaign_group[1], "21LHD6PM")
+  x$url[3] <- "https://example.org/usgs-3dep-copc/usgs-copc/fake/copc/tile.laz"
+  expect_true(is.na(tile_campaign_metadata(x)$campaign_group[3]))
+  expect_equal(nrow(tile_campaign_metadata(empty_tiles())), 0L)
 })
 
 test_that("3DEP retains the official project identifier independently of collection and tile names", {

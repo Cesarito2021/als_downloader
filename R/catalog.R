@@ -48,8 +48,10 @@ request_json <- function(url, body = NULL, query = NULL) {
 #'   raises an error instead of silently reporting partial coverage.
 #' @return An `sf` table of assets with stable identifiers, canonical URLs,
 #'   acquisition dates, citation information and tile geometry in EPSG:4326.
-#'   `campaign_id` contains the official 3DEP project identifier when supplied;
-#'   otherwise it is missing. It is separate from the STAC collection name.
+#'   `campaign_id` contains the reported 3DEP project or IGN mission identifier.
+#'   `campaign_group` and `campaign_basis` also describe fallback groups from
+#'   recognized project directories, delivery blocks or datasets. Fallback
+#'   groups do not establish distinct flight dates.
 #' @details Network access occurs only when this function is explicitly called
 #'   for a remote source. OpenTopography searches the packaged, audited airborne-LiDAR
 #'   registry by default and fetches matching provider indexes with SHA-256 verification.
@@ -87,7 +89,7 @@ find_tiles <- function(aoi, provider = c("usgs3dep", "opentopography", "contribu
     if (!is.null(end)) keep <- keep & (is.na(tiles$acquired_start) | tiles$acquired_start <= end)
     tiles <- tiles[keep, , drop = FALSE]
   }
-  tiles
+  tile_campaign_metadata(tiles)
 }
 
 # Keep the provider's acquisition interval; generic catalog timestamps may be nominal.

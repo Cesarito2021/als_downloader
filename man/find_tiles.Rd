@@ -40,8 +40,10 @@ raises an error instead of silently reporting partial coverage.}
 \value{
 An `sf` table of assets with stable identifiers, canonical URLs,
   acquisition dates, citation information and tile geometry in EPSG:4326.
-  \code{campaign_id} contains the official 3DEP project identifier when supplied;
-  otherwise it is missing. It is separate from the STAC collection name.
+  \code{campaign_id} contains the reported 3DEP project or IGN mission identifier.
+  \code{campaign_group} and \code{campaign_basis} also describe fallback groups from
+  recognized project directories, delivery blocks or datasets. Fallback
+  groups do not establish distinct flight dates.
 }
 \description{
 Find point-cloud tiles intersecting an AOI

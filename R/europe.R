@@ -69,7 +69,13 @@ search_europe <- function(aoi, provider, max_items) {
       citation <- paste("Source: IGN LiDAR HD, producer Institut national de l'information geographique et forestiere (IGN).",
         "Indexed through a public STAC catalogue maintained by UMR TETIS / INRAE (api.stac.teledetection.fr),",
         "not IGN's own WFS. Licence Ouverte 2.0. https://geoservices.ign.fr/lidarhd")
-      acquired <- stac_acquisition_period(f$properties)
+      # Prefer named flight dates to point GPS-time ranges in generic STAC fields.
+      p <- f$properties
+      if (!is.null(p[["lidarhd:date_debut_acquisition"]]) || !is.null(p[["lidarhd:date_fin_acquisition"]])) {
+        acquired <- stac_acquisition_period(list(
+          start_datetime=p[["lidarhd:date_debut_acquisition"]],
+          end_datetime=p[["lidarhd:date_fin_acquisition"]]))
+      } else acquired <- stac_acquisition_period(p)
     } else {
       assets <- Filter(function(a) !is.null(a$href) && grepl("\\.(las|laz|las\\.zip)$",a$href,ignore.case=TRUE),f$assets)
       if (!length(assets)) stop("Swiss item has no supported point-cloud asset; search incomplete.")
@@ -83,6 +89,7 @@ search_europe <- function(aoi, provider, max_items) {
     dataset <- switch(provider, ahn6="AHN6", ignfr="IGN LiDAR HD", "swissSURFACE3D")
     for (asset in assets) result[[length(result)+1L]] <- sf::st_sf(
       tile_id=as.character(f$id),provider=provider,dataset=dataset,
+      campaign_id=if (provider == "ignfr") campaign_scalar(f$properties[["lidarhd:code_mission"]]) else NA_character_,
       filename=basename(asset$href),url=asset$href,
       acquired_start=unname(acquired['start']),acquired_end=unname(acquired['end']),
       size_bytes=if(is.null(asset[["file:size"]]))NA_real_ else as.numeric(asset[["file:size"]]),

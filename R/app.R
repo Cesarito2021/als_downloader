@@ -165,7 +165,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
               shiny::div(class="als-campaign-selection",
                 shiny::h4("Select by acquisition year and campaign"),
                 shiny::selectInput("campaign_year", "Acquisition year", choices=c("All years"="all")),
-                shiny::selectInput("campaign_projects", "Campaigns", choices=c("All campaigns"="all"), selected="all"),
+                shiny::selectInput("campaign_projects", "Campaign / survey group", choices=c("All campaigns"="all"), selected="all"),
                 shiny::textOutput("campaign_selection_summary"),
                 shiny::actionButton("select_campaign_tiles", "Select these tiles", icon=shiny::icon("check-double")),
                 shiny::helpText("Replaces the current selection across all result pages. Then use Download selected tiles. Multi-year surveys appear in each reported year; missing dates remain Unknown."))),
@@ -481,9 +481,9 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     output$tiles <- DT::renderDT({
       if (is.null(state$tiles)) return(DT::datatable(data.frame(Status = "No search results yet."), rownames = FALSE))
       table <- sf::st_drop_geometry(state$tiles)
-      table$campaign_id <- if ("campaign_id" %in% names(table)) ifelse(is.na(table$campaign_id), "Not supplied", table$campaign_id) else rep("Not supplied", nrow(table))
+      table$campaign_id <- campaign_display(table)
       DT::datatable(table[c("filename", "campaign_id", "dataset", "provider", "acquired_end", "acquired_start", "size_bytes", "license_url", "citation")],
-        colnames = c("File", "Campaign", "Dataset", "Source adapter", "Collection date (end)", "Collection start", "Size (bytes)", "License", "Producer / citation"),
+        colnames = c("File", "Campaign / group", "Dataset", "Source adapter", "Collection date (end)", "Collection start", "Size (bytes)", "License", "Producer / citation"),
         rownames = FALSE, selection = list(mode="multiple",selected=NULL), filter="top", class="stripe hover compact",
         options = list(scrollX = TRUE, pageLength = 8,
           columnDefs=list(list(targets=c(2, 3, 5, 7, 8), visible=FALSE))))

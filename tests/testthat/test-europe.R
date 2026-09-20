@@ -39,6 +39,16 @@ test_that("France LiDAR HD adapter selects COPC assets, host and reported dates"
   expect_match(x$citation,"IGN product edition: 2023-04-20",fixed=TRUE)
   expect_match(x$citation,x$url,fixed=TRUE)
 
+  f$properties[["lidarhd:code_mission"]] <- "21LHD6PM"
+  f$properties$start_datetime <- "2019-03-20T00:00:00Z"
+  f$properties[["lidarhd:date_debut_acquisition"]] <- "2021-08-06"
+  f$properties[["lidarhd:date_fin_acquisition"]] <- "2021-08-06"
+  mission <- search_europe(aoi,"ignfr",10)
+  expect_equal(mission$campaign_id, "21LHD6PM")
+  expect_equal(mission$acquired_start, "2021-08-06")
+  expect_equal(campaign_tile_rows(mission, "2019"), integer())
+  expect_equal(campaign_tile_rows(mission, "2021", "ignfr / 21LHD6PM"), 1L)
+
   bad <- f; bad$assets$data$href <- "https://evil.example/x.copc.laz"
   local_mocked_bindings(native_pages=function(...)list(bad),.package="alsdownloader")
   expect_error(search_europe(aoi,"ignfr",10),"Unexpected France")

@@ -1,5 +1,7 @@
 # alsdownloader 0.1.3
 
+* Read IGN mission codes and named acquisition dates; label fallback project,
+  delivery-block and dataset groups explicitly in campaign selection.
 * Match comparison selectors to spatially overlapping tiles from separate acquisitions.
 * Generate PDF reports in a background job with visible status and Pandoc discovery.
 * Show download progress, elapsed time and output paths; use a persistent default folder.
