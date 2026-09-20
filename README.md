@@ -1,6 +1,6 @@
 # ALS Downloader
 
-![ALS Downloader â€” airborne LiDAR discovery and visualization](docs/images/banner.png)
+![ALS Downloader — airborne LiDAR discovery and visualization](docs/images/banner.png)
 
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](NEWS.md)
@@ -8,7 +8,7 @@
 **Discover, visualize and download airborne laser scanning data from an international catalogue.**
 ALS Downloader combines R functions with a map-based Shiny application: define an **area of interest (AOI)**, find available tiles, inspect point clouds and download original files from their providers. Coverage depends on the source and configured indexes; the catalogue does not imply complete global or national coverage.
 
-[Get started](#get-started) Â· [Application](#application) Â· [Examples](#four-source-examples) Â· [Catalogue](#als-catalogue) Â· [Contribute](#contribute-als-data)
+[Get started](#get-started) · [Application](#application) · [Outputs](#outputs) · [Examples](#four-source-examples) · [Catalogue](#als-catalogue) · [Contribute](#contribute-als-data)
 
 ## Get started
 
@@ -20,7 +20,7 @@ remotes::install_github("Cesarito2021/als_downloader")
 alsdownloader::launch_app()
 ```
 
-Requires R â‰¥ 4.1. `lidR` enables point-cloud reading. PDF reports also require `rmarkdown`, Pandoc and a LaTeX installation such as TinyTeX. Some sources require administrator-configured spatial indexes. [Installation and workflow guide](vignettes/als-workflow.Rmd).
+Requires R ≥ 4.1. `lidR` enables point-cloud reading. PDF reports also require `rmarkdown`, Pandoc and a LaTeX installation such as TinyTeX. Some sources require administrator-configured spatial indexes. [Installation and workflow guide](vignettes/als-workflow.Rmd).
 
 The R package is named **`alsdownloader`**. The repository remains `als_downloader` to preserve existing links.
 
@@ -37,7 +37,6 @@ The welcome globe illustrates access by country. [Coverage sources and limits](i
 | **Explore** | Draw or upload an AOI, filter acquisition dates, inspect footprints and select tiles. |
 | **3D view** | Inspect a source tile or local LAS/LAZ, using source classification, intensity or elevation colours. |
 | **3D comparison** | Visually compare compatible sources or a source with a local cloud in a shared window. |
-| **Download report (PDF)** | After a successful search, review tile counts, dates, known storage requirements, figures and credits before downloading. |
 
 Downloads preserve original tiles. The viewer uses sampled points and may download files temporarily. Comparison is a visual aid, not an automated change estimate; compatible coordinate and elevation references are required. [Comparison guide](docs/TEMPORAL_COMPARISON.md).
 
@@ -53,7 +52,7 @@ Downloads preserve original tiles. The viewer uses sampled points and may downlo
 **Point-cloud visualization**
 ![3D view](docs/images/current/3d-view.png)
 
-**Comparison controls** â€” no comparison result is claimed in this capture.
+**Comparison controls** — no comparison result is claimed in this capture.
 ![3D comparison](docs/images/current/comparison.png)
 
 **About the project**
@@ -72,6 +71,17 @@ Downloads preserve original tiles. The viewer uses sampled points and may downlo
 ![Submission tracking](docs/images/current/status.png)
 
 </details>
+
+## Outputs
+
+* **Point clouds:** original LAS/LAZ files or provider ZIP archives.
+* **Figures (PNG):** AOI and tile maps, point-cloud views, and available comparison profiles and distributions.
+* **Metadata and scripts:** tile metadata (CSV) and an R script to download the selected files.
+* **Download report (PDF):** a concise summary of the AOI, selected tiles, acquisition dates, known download volume (GiB), available figures and source credits.
+
+**Review the PDF before downloading** to plan storage and document the selection.
+Unknown file sizes are flagged; allow additional space for archive extraction
+and temporary visualization files.
 
 ## Four source examples
 
@@ -121,7 +131,7 @@ no height normalization or change analysis is applied.
 | Integrated source | Access |
 |---|---|
 | **USGS 3DEP**, USA | Planetary Computer spatial catalogue and COPC files |
-| **OpenTopography**, international | Configured Tile Index files; includes selected SÃ£o Paulo and Auckland datasets |
+| **OpenTopography**, international | Configured Tile Index files; includes selected São Paulo and Auckland datasets |
 | **CanElevation**, Canada | Official spatial tile service and original point clouds |
 | **AHN6**, Netherlands | Spatial index and LAZ files |
 | **swissSURFACE3D**, Switzerland | Spatial catalogue and LAS archives |
@@ -130,7 +140,7 @@ no height normalization or change analysis is applied.
 
 Additional catalogue entries link to providers' own portals. OpenTopography explicitly documents the [Tile Index download workflow](https://opentopography.org/node/3598) used by this adapter. Each source retains its own access conditions.
 
-[Full source catalogue](inst/sources/SOURCES.md) Â· [Regional verification](docs/REGIONAL_VERIFICATION.md)
+[Full source catalogue](inst/sources/SOURCES.md) · [Regional verification](docs/REGIONAL_VERIFICATION.md)
 
 ## Contribute ALS data
 
@@ -138,7 +148,7 @@ Additional catalogue entries link to providers' own portals. OpenTopography expl
 
 Submissions require maintainer approval before appearing in searches. **Submission status** tracks a proposal using its reference. Contributing a link does not transfer ownership or upload the point clouds to ALS Downloader.
 
-[Contribution guide](docs/CONTRIBUTING_DATA.md) Â· [Contact-data handling](docs/CONTRIBUTOR_PRIVACY.md)
+[Contribution guide](docs/CONTRIBUTING_DATA.md) · [Contact-data handling](docs/CONTRIBUTOR_PRIVACY.md)
 
 ## Author and citation
 
@@ -156,4 +166,4 @@ Software: **GPL-3**. Dataset rights remain with their respective rights holders.
 
 Leaflet and its R interface retain their software licences; Natural Earth supplies public-domain globe outlines. Esri basemaps have separate service and imagery conditions. Map credits must remain visible in exported figures.
 
-[Third-party notices](inst/NOTICE) Â· [Data and figure licensing](inst/sources/LICENSING.md) Â· [Access and intellectual-property review](inst/sources/USE_REVIEW.md) Â· [CRAN readiness](docs/CRAN_READINESS.md)
+[Third-party notices](inst/NOTICE) · [Data and figure licensing](inst/sources/LICENSING.md) · [Access and intellectual-property review](inst/sources/USE_REVIEW.md) · [CRAN readiness](docs/CRAN_READINESS.md)
