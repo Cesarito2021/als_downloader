@@ -21,6 +21,4 @@ Imports: sf, s2, httr, curl, jsonlite, digest, parallelly, future, future.apply,
 Suggests: lidR, testthat (>= 3.0.0), knitr, rmarkdown, tinytex, pkgload
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-URL: https://github.com/Cesarito2021/als_downloader
-BugReports: https://github.com/Cesarito2021/als_downloader/issues
 RoxygenNote: 7.3.1

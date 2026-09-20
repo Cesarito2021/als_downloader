@@ -14,7 +14,9 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::selectInput("zenodo_boundary_source","Coverage polygons",c("Upload coverage polygons"="upload")),
   shiny::conditionalPanel("input.zenodo_boundary_source == 'upload'",
     shiny::fileInput("zenodo_boundary","GeoJSON, GeoPackage or zipped Shapefile (5 MiB maximum)",accept=c(".geojson",".gpkg",".zip"))),
-  shiny::helpText("Choose a polygon file detected in the Zenodo record or upload one. Supported: GeoJSON, GeoPackage, or a ZIP containing SHP, SHX, DBF and PRJ. JPG images and KML are not supported here. With several cloud files, include a file_key column matching each Zenodo filename. Use a single-layer GeoPackage.")),
+  shiny::helpText("Choose a polygon file from Zenodo or upload one. Use a single-layer GeoPackage or a ZIP containing SHP, SHX, DBF and PRJ."),
+  shiny::selectInput("zenodo_polygon_file", "Point-cloud file or archive covered by these polygons", choices=c("Use file_key mapping in the polygon file"="")),
+  shiny::helpText("Choose one file for the whole study area. For different files with different footprints, include their exact names in a file_key column in the polygon file.")),
   shiny::conditionalPanel("input.zenodo_has_boundary == 'no'",
     shiny::helpText("Click the map to set the centre, or enter WGS84 decimal coordinates. The orange square is a declared search extent, not verified LiDAR coverage."),
     shiny::fluidRow(shiny::column(6,shiny::numericInput("zenodo_longitude","Centre longitude",value=NA,min=-180,max=180)),
@@ -55,7 +57,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
   message<-shiny::reactiveVal("A Zenodo DOI or record URL is required. Publication requires approval.")
   fail<-function(e)message(conditionMessage(e))
   shiny::observeEvent(input$zenodo_link,{meta(NULL);proposal(NULL)},priority=100)
-  shiny::observeEvent(list(input$zenodo_boundary,input$zenodo_boundary_source,input$zenodo_acquired,input$zenodo_platform,input$zenodo_email,
+  shiny::observeEvent(list(input$zenodo_boundary,input$zenodo_boundary_source,input$zenodo_polygon_file,input$zenodo_acquired,input$zenodo_platform,input$zenodo_email,
     input$zenodo_has_boundary,input$zenodo_longitude,input$zenodo_latitude,input$zenodo_distance,input$zenodo_extent_files,input$zenodo_extent_confirm),{
     proposal(NULL);message("Check the proposal after completing or changing the fields.")
   },ignoreInit=TRUE)
@@ -89,6 +91,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     small<-keys[grepl("\\.(geojson|gpkg|zip)$",keys,ignore.case=TRUE)&sizes<=5*1024^2]
     shiny::updateSelectInput(session,"zenodo_boundary_source",choices=c("Upload coverage polygons"="upload",stats::setNames(small,small)),selected="upload")
     assets<-keys[grepl("\\.(las|laz|zip)$",keys,ignore.case=TRUE)]
+    shiny::updateSelectInput(session,"zenodo_polygon_file",choices=c("Use file_key mapping in the polygon file"="",stats::setNames(assets,assets)),selected="")
     shiny::updateSelectInput(session,"zenodo_extent_files",choices=assets,selected=character())
     message("Metadata ready. Confirm coverage, acquisition dates and platform; then validate the submission.")
   },error=fail))
@@ -106,7 +109,11 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
       boundary<-input$zenodo_boundary
     } else {
       boundary<-zenodo_boundary_download(m,input$zenodo_boundary_source)
-      on.exit(unlink(boundary),add=TRUE)
+      boundary_path <- boundary
+      on.exit(unlink(boundary_path),add=TRUE)
+    }
+    if (identical(input$zenodo_has_boundary,"yes") && !is.null(input$zenodo_polygon_file) && nzchar(input$zenodo_polygon_file)) {
+      boundary <- zenodo_map_boundary(boundary, input$zenodo_polygon_file)
     }
     p<-zenodo_build(m,boundary,input$zenodo_acquired,input$zenodo_platform,input$zenodo_email)
     proposal(p);message(paste("Ready for maintainer review:",length(p$index$features),"mapped download assets.",zenodo_coverage_label(p),"This does not verify point-cloud contents or grant approval."))
@@ -180,7 +187,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
   status<-shiny::reactiveVal("")
   decide<-function(decision)tryCatch({
     review_zenodo_submission(queue,input$zenodo_review_id,decision,reviewer,isTRUE(input$zenodo_review_confirm),input$zenodo_review_reason)
-    status(if(decision=="approve")"Approved. The dataset is available on the next AOI search." else "Rejected. No coverage was added.");refresh()
+    status(if(decision=="approve")"Approved. Coverage appears in Explorer within a few seconds; use Find ALS data to retrieve its files." else "Rejected. No coverage was added.");refresh()
   },error=function(e)status(conditionMessage(e)))
   shiny::observeEvent(input$zenodo_review_approve,decide("approve"))
   shiny::observeEvent(input$zenodo_review_reject,decide("reject"))

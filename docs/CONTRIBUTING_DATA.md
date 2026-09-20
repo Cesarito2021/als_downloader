@@ -1,84 +1,62 @@
-# Contribute a searchable aerial LiDAR source
+# Contribute ALS data
 
-Thinking of sharing your aerial LiDAR data? Great - here's what makes it
-easy to search inside the app. Keep the LAS/LAZ files in your own public
-repository; ALS Downloader stores metadata and links, not your point
-clouds. Submit a small GeoJSON tile index so a researcher can draw or
-upload an AOI, inspect intersecting tiles and download the selected
-original files. 3D inspection is optional.
+Keep clouds in a stable public scientific or institutional repository. ALS
+Downloader stores approved metadata, coverage and download links, without
+transferring ownership or rehosting the original point clouds.
 
-Active catalogue inclusion requires verified polygon coverage or a tile
-index. A direct cloud URL or GPS point locations alone are insufficient.
-Providers may also supply GeoPackage or a zipped polygon Shapefile for
-maintainer review and conversion to the common index format.
+## Zenodo dataset
 
-Download the template in **Share your dataset**, or use
-[the example GeoJSON](../inst/extdata/contribution-template.geojson).
-It contains fictional geometry and URLs: replace every example value and
-footprint before submitting. It is not an active source.
+In **Contribute ALS data → Zenodo dataset**, provide:
 
-## Index contract
+1. Published record link or Zenodo DOI; click **Read Zenodo metadata**.
+2. Coverage polygons, selected from the record or uploaded, and the matching
+   LAS/LAZ or ZIP file. Distinct footprints for different files need a `file_key`
+   column with exact Zenodo filenames.
+3. Acquisition year or interval; leave blank if unknown.
+4. Aircraft/helicopter ALS or UAV LiDAR platform.
+5. Optional private contact email.
 
-Use a GeoJSON FeatureCollection in EPSG:4326 (longitude, latitude), with one
-Polygon or MultiPolygon per tile. Each index may contain up to 10,000 tiles
-and be at most 5 MiB. Split larger indexes by campaign or region.
+Authors, title, DOI, supported licence and file sizes come from Zenodo. Publication
+is not acquisition. Coverage accepts GeoJSON, single-layer GeoPackage or a ZIP
+containing one Shapefile with SHP, SHX, DBF and PRJ; maximum 5 MiB, 10,000 polygons
+and 100,000 vertices. Use a known CRS. Study-area polygons do not prove continuous
+point coverage.
 
-| Property | Value |
-|---|---|
-| `tile_id` | Unique tile identifier within the dataset. |
-| `dataset` | Dataset or campaign name. |
-| `url` | Stable public HTTPS URL ending in `.las` or `.laz`, without credentials or temporary query tokens. |
-| `acquired_start`, `acquired_end` | Provider collection dates as `YYYY-MM-DD`, or `null` when unknown. Never substitute publication dates. |
-| `platform` | `ALS` or `UAV-LiDAR`. |
-| `license_url` | Public HTTPS link to the applicable open-data license. |
-| `citation` | Dataset attribution, including its DOI. |
-| `size_bytes` | Optional positive file size, or `null`. |
+Without polygons, contributors may declare an approximate square by centre and
+distance to each side (1–10,000 metres). It retains its approximate label and
+requires explicit file selection and maintainer review.
 
-The footprint must describe that file's coverage, not the whole country.
-Collection dates and citations may be repeated for tiles from the same
-campaign. No point-cloud upload, conversion or visualization is required
-for the compatibility check.
+**Validate submission** checks structure and mapping. **Submit for maintainer
+review** stores a pending proposal on configured instances; otherwise save the
+proposal JSON and share it privately. **Submission status** uses the reference
+issued by the app, not the DOI. Submission is not approval.
 
-## Check and approval
+Approved coverage appears automatically in Explorer and its files become available
+through AOI search. Notifications require administrator SMTP configuration.
+See [the real ALS/Shapefile test](ZENODO_LIVE_CHECKS.md) and
+[contact-data handling](CONTRIBUTOR_PRIVACY.md).
 
-Host the index at a direct public HTTPS URL ending in `.geojson`. The automatic
-check requires an HTTP 200 response and a declared size. It reads at most
-5 MiB of index metadata and validates the fields and polygons. It does not
-download the referenced LAS/LAZ files or confirm their contents, dates or
-license. A direct LAS/LAZ submission receives a header-only connection check.
-Redirecting portals and access requiring an account need manual discussion.
+## Other data source
 
-Complete the form (nine required fields, plus two optional ones - notes and
-a "what kind of dataset" tag), run **Check compatibility**, then open and
-send the email draft. Technical completion at 100% is not publication
-approval. Cesar reviews access, attribution and coverage before installing
-an index.
-The contact email stays out of the public index.
+Use **Other data source** outside Zenodo. Supply the dataset record, direct
+cloud/index link, separate coverage link if needed, platform and licence.
+Acquisition interval, scope and contact are optional. The form checks access and
+opens an email draft for the contributor to send. It does not publish a source
+or issue a Zenodo tracking reference. Personal-drive, notebook and expiring links
+are not accepted.
 
-After approval, the maintainer saves the index as `campaign.tiles.geojson`
-in the configured index directory. No provider-specific code is needed for
-sources following this contract:
+## Index for multiple files
 
-```r
-tiles <- alsdownloader::find_tiles(
-  "study-area.gpkg", provider = "contributed",
-  tile_index_dir = "approved-indexes"
-)
-alsdownloader::download_tiles(tiles, "als-data", workers = 1L)
-```
+The [GeoJSON example](../inst/extdata/contribution-template.geojson) is fictional.
+Replace its geometry and values. Each EPSG:4326 Polygon/MultiPolygon identifies
+one asset through `tile_id`, `dataset`, `url`, `platform`, `license_url`, `citation`,
+`acquired_start` and `acquired_end` (nullable). `size_bytes` is optional.
+Use stable HTTPS LAS/LAZ links; Zenodo ZIP links refer to the complete archive.
+Indexes are limited to 5 MiB and 10,000 rows.
 
-In Shiny choose **Approved contributed indexes** and configure the same
-directory when running locally; the server administrator configures hosted
-indexes. Installing an index enables AOI tile search; it does not automatically
-add a new country or source card to the global catalogue.
+An approved index can be installed as `source.tiles.geojson` in a configured
+index directory and queried with `find_tiles(..., provider="contributed")`.
 
-## Large files
-
-Downloads preserve complete original tiles, including portions outside the
-AOI. An index cannot make a multi-gigabyte file smaller. Providers should
-offer reasonably sized spatial tiles when possible; a single huge file or
-ZIP archive requires a different access arrangement. This adapter does not
-implement partial COPC/EPT reads or server-side clipping. Existing hosted
-transfer and preview limits still apply. Export the selected metadata and R
-script to download larger selections locally. Completed checksum-verified
-files can be reused on rerun; interrupted file transfers restart.
+Downloads preserve originals. Spatial search does not make large archives smaller,
+stream arbitrary ZIP members or guarantee CRS compatibility. Hosted preview limits
+still apply. Retain producer credits and licence links with downloads and figures.

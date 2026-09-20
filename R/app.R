@@ -188,6 +188,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           NULL)))
   )
   server <- function(input, output, session) {
+    if (!is.null(submission_dir)) overview <- discovery_coverage(
+      tile_index_dir, file.path(submission_dir, "approved"))
     state <- shiny::reactiveValues(aoi = NULL, tiles = NULL, search = "No search results yet.",
       job = NULL, jobdir = NULL, destination = NULL, jobtext = "No active download.", finished = FALSE,
       preview_job = NULL, preview_started = NULL, previewtext = "Upload one tile to inspect its structure.", lock_owned = FALSE,
@@ -233,6 +235,20 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
     source_check_summary <- source_preflight_server(input, output, session, state, mode, hosted_lock)
     source_submission_server(input, output, session, source_check_summary)
     zenodo_submission_server(input, output, session, submission_dir, reviewer)
+    if (!is.null(submission_dir)) {
+      approved_dir <- file.path(submission_dir, "approved")
+      last_coverage <- approved_coverage_signature(approved_dir)
+      shiny::observe({
+        shiny::invalidateLater(3000, session)
+        signature <- approved_coverage_signature(approved_dir)
+        if (identical(signature, last_coverage)) return()
+        updated <- discovery_coverage(tile_index_dir, approved_dir)
+        proxy <- leaflet::leafletProxy("map", session=session) |>
+          leaflet::clearGroup("In-App Access")
+        add_in_app_coverage(proxy, updated)
+        last_coverage <<- signature
+      })
+    }
     comparison_server(input, output, session, state, mode, hosted_lock)
     output$map <- leaflet::renderLeaflet({
       map <- leaflet::leaflet(world, options=leaflet::leafletOptions(preferCanvas=TRUE)) |>

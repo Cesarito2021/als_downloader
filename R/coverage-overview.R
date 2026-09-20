@@ -1,5 +1,13 @@
 # Overview polygons come only from configured indexes, never country boundaries.
 # Simplification is for navigation; search retains the original tile geometry.
+approved_coverage_signature <- function(folder) {
+  if (is.null(folder)) return(character())
+  paths <- sort(list.files(folder, "\\.tiles\\.geojson$", full.names=TRUE))
+  if (!length(paths)) return(character())
+  info <- file.info(paths)
+  paste(paths, info$size, as.numeric(info$mtime))
+}
+
 coverage_overview <- function(folder = NULL, approved_dir = NULL) {
   paths <- unlist(lapply(Filter(function(x) !is.null(x) && dir.exists(x), list(folder, approved_dir)),
     function(x) list.files(x, "(_TileIndex\\.zip$|\\.tiles\\.geojson$|\\.gpkg$|\\.shp$)", full.names=TRUE, ignore.case=TRUE)))
@@ -21,8 +29,16 @@ coverage_overview <- function(folder = NULL, approved_dir = NULL) {
     # Dissolve in a projected CRS without filling holes or bridging gaps.
     g <- sf::st_make_valid(sf::st_transform(g,3857))
     g <- sf::st_transform(sf::st_simplify(sf::st_union(g),dTolerance=25,preserveTopology=TRUE),4326)
-    sf::st_sf(dataset=sub("(_TileIndex\\.zip|\\.tiles\\.geojson|\\.gpkg|\\.shp)$","",basename(path),ignore.case=TRUE),
-      geometry=g)
+    field <- function(name, fallback="") {
+      value <- if(name %in% names(x)) unique(as.character(x[[name]])) else character()
+      value <- value[!is.na(value) & nzchar(value)]
+      if(length(value)) paste(value,collapse="; ") else fallback
+    }
+    sf::st_sf(dataset=field("dataset",sub("(_TileIndex\\.zip|\\.tiles\\.geojson|\\.gpkg|\\.shp)$","",basename(path),ignore.case=TRUE)),
+      provider="configured",info_url=if(nzchar(field("zenodo_doi"))) paste0("https://doi.org/",field("zenodo_doi")) else "",
+      citation=field("citation","Coverage from the configured source index; consult returned tile metadata for source credits."),
+      license_url=field("license_url"),reviewed_on="",
+      coverage_note=if("author_approximate_square" %in% field("coverage_method")) "Author-declared approximate extent; coverage inside is unverified." else "Contributor/provider polygons; consult source information for their scope.",geometry=g)
   },error=function(e)NULL))
   items <- Filter(Negate(is.null),items)
   if(!length(items))return(sf::st_sf(dataset=character(),geometry=sf::st_sfc(crs=4326)))
@@ -37,12 +53,6 @@ discovery_coverage <- function(folder=NULL, approved_dir=NULL) {
   if(!nzchar(path)) return(local)
   source <- readRDS(path)
   if(nrow(local)) {
-    local$provider <- "configured"
-    local$info_url <- ""
-    local$citation <- "Coverage from the configured source index; consult returned tile metadata for source credits."
-    local$license_url <- ""
-    local$reviewed_on <- ""
-    local$coverage_note <- "Configured tile footprints."
     source <- rbind(source,local[,names(source),drop=FALSE])
   }
   source

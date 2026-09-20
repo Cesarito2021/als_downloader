@@ -1,5 +1,12 @@
 # alsdownloader 0.1.0
 
+* Refresh approved Zenodo coverage in open Explorer sessions without resetting
+  the map. Retain source titles and credits in contributed coverage popups.
+  Allow a contributor to select the cloud archive corresponding to a supplied
+  study-area polygon without editing its attributes.
+* Remove private GitHub URLs from public package metadata and software citation;
+  retain the maintainer contact while the repository remains private.
+
 * Review source use conditions and record unresolved hosting requirements in the
   downloadable licensing guidance. Complete Sao Paulo and Canada credits and
   use the Auckland derivative notice for point-cloud figures; acknowledge Leaflet.

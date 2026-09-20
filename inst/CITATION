@@ -2,5 +2,4 @@ bibentry(bibtype = "Manual",
   title = "alsdownloader: Discover, Inspect and Download Airborne Laser Scanning Data",
   author = person("Cesar Ivan", "Alvites Diaz"),
   year = "2026",
-  note = "R package version 0.1.0. Cite source datasets separately.",
-  url = "https://github.com/Cesarito2021/als_downloader")
+  note = "R package version 0.1.0. Cite source datasets separately.")

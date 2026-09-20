@@ -74,6 +74,15 @@ zenodo_boundary <- function(boundary) {
   g
 }
 
+zenodo_map_boundary <- function(boundary, key) {
+  g <- zenodo_boundary(boundary)
+  if ("file_key" %in% names(g) && anyNA(g$file_key)) stop("The polygon file contains an incomplete file_key mapping.")
+  if ("file_key" %in% names(g) && any(g$file_key != key))
+    stop("The selected file conflicts with the polygon file_key mapping. Use its existing mapping or correct the polygon file.")
+  g$file_key <- key
+  g
+}
+
 zenodo_build <- function(metadata,boundary,acquired,platform,email="") {
   if(!platform %in% c("ALS","UAV-LiDAR")) stop("Confirm aircraft/helicopter ALS or UAV LiDAR.")
   if(length(email)!=1 || is.na(email) || nchar(email)>254 || (nzchar(email) && !grepl("^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$",email))) stop("Check the optional contact email.")

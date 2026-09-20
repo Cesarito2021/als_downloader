@@ -1,38 +1,64 @@
-# Zenodo integration: live checks, 19 September 2026
+# Zenodo integration: live validation
 
-No deposit was created and no dataset was approved into the production catalogue.
-Test proposals are stored only in a separate local review queue.
+Verified on 19 September 2026. No Zenodo deposit was created. The real maintainer
+proposal remains pending; approval was exercised only in a disposable test queue.
 
-Submission policy: coverage polygons or an explicitly author-declared approximate
-square must be linked to files and reviewed. Approximate squares are never
-presented as verified footprints. These are engineering checks, not a list
-of ready-to-submit examples. Sabah remains a test fixture until its plot-to-cloud
-coverage mapping is verified; it is not yet a fully qualified submission example.
+## Verified example
 
-| Record | Checks | Outcome |
-| --- | --- | --- |
-| [Sabah Biodiversity Experiment](https://doi.org/10.5281/zenodo.14917551) | Metadata, 14,363-byte zipped Shapefile, 124 plot polygons, explicit mapping to the 2013 and 2020 ZIPs, proposal generation, deduplication and pending-only storage | Passed after fixing nearly duplicate vertices created by polygon serialization. Two year-specific test proposals remain pending. |
+[Wang and Kissling: extracted trees and shrubs, Oostvaardersplassen, Netherlands](https://doi.org/10.5281/zenodo.20311343),
+version 6, CC BY 4.0. The dataset derives from AHN4 airborne laser scanning.
+It contains extracted woody vegetation, not a complete all-return survey.
 
-For Sabah, HTTP range requests retrieved only 128 KiB from each archive's end.
-Both returned HTTP 206 with the expected total sizes and central-directory LAZ
-entries. This verifies links and archive listings, not complete point decoding,
-checksums or within-file geographic coverage. The plot polygons are study plots,
-not the full survey extent. No claim of complete tile coverage is made.
+| Item | Validation |
+|---|---|
+| Cloud asset | `2_Extracted_trees_shrubs_points.zip`, 71,220,772 bytes; contains `Trees_shrubs_v2.las`. |
+| Author boundary | `5_Marsh_area.zip`, 29,360 bytes; polygon Shapefile of the marsh study area. |
+| Integrity | Both complete downloads match the MD5 checksums supplied by Zenodo. |
+| Spatial check | 86,093 of 86,129 regularly sampled points fall inside the marsh polygon (99.958%). The boundary represents the study area, not an exact point-level occupancy mask. |
+| CRS | The depositor's README declares EPSG:28992. The LAS header omits it. Independent spatial verification used that documented CRS; the original file was not modified. |
+| Viewer | 49,785 sampled points decoded with the app's reader. ZIP viewing requires full download and temporary extraction. |
+| Workflow | Live browser form, polygon/file selection, pending storage, isolated approval, AOI search and automatic red-mask refresh passed. Zoom was retained and a new browser session saw the approved coverage. |
 
-The original archives are approximately 4.02 and 4.05 GB; they were not downloaded
-in full. Archive delivery requires full download and local extraction before 3D
-preview. This record therefore does not demonstrate selective cloud streaming.
+The real proposal selects only the 71 MB archive, not the separate 2.31 GB
+vegetation input archive. Acquisition dates remain unknown rather than copying
+the publication date. Creator names, DOI, licence and file size are retained.
+The depositor's README refers to an older v1 cloud; the actual archive contains
+v2, which is the file tested.
 
-Source publication dates are not used as acquisition dates. Test proposals use
-2013 and 2020 as explicitly stated by the depositor. Attribution and source
-licence remain attached; a maintainer must still assess any additional source
-acknowledgements and verify the coverage/file mapping before accepting them.
+## Required information
 
-Remaining acceptance work: choose and approve a dataset after reviewing its
-actual content and terms. Public deployment also needs persistent private queue
-storage, restricted reviewer access and load/rate-limit testing. The small live
-checks do not establish capacity for 100 submissions per day.
+1. Published Zenodo record link or Zenodo DOI.
+2. Coverage polygons and matching cloud files. The form now lets a contributor
+   select one archive for a study area without editing the Shapefile. Different
+   footprints for different files require a `file_key` column with exact names.
+3. Acquisition year/interval, or unknown.
+4. ALS or UAV LiDAR platform.
+5. Optional private contact email.
 
-Historical excluded check: Brazil EBA record 7689693 was inspected for metadata
-only. It is excluded from submission examples because no ready, validated
-coverage/file mapping was available. No proposal from this record was approved.
+Zenodo supplies title, authors, DOI, licence and asset metadata. Coverage accepts
+GeoJSON, a single-layer GeoPackage or zipped Shapefile (SHP/SHX/DBF/PRJ), up to
+5 MiB. Images and the record page's Export GeoJSON link are not substitutes for
+coverage polygons. ZIP file contents and spatial correspondence need review.
+Missing cloud CRS does not prevent metadata search or original-file download,
+but limits automatic spatial comparison: the app must not guess. Contributors
+should embed their CRS and document vertical units and datum.
+
+## Approval and notifications
+
+Approval re-fetches metadata, validates the saved proposal and writes an index
+without the private contact. Open Explorer sessions refresh approved coverage
+within approximately three seconds; new searches retrieve its files.
+The reviewer link opens a proposal; opening it does not approve it.
+
+The notification was prepared but **not sent**: sender SMTP configuration is
+missing. Localhost review links work on the computer running the app. Public
+hosting needs persistent private storage, restricted reviewer access and a mail
+transport. This test does not establish capacity for 100 daily submissions or
+approval directly from a phone.
+
+## Earlier exploratory checks
+
+Sabah record 14917551 supplied 124 plot polygons and large 2013/2020 archives.
+Metadata and ZIP directory range checks passed, but full decoding and plot-to-file
+mapping were not verified. It remains an exploratory fixture. Brazil record
+7689693 was not adopted because a ready coverage/file mapping was unavailable.

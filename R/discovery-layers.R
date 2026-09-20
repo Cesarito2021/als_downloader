@@ -18,6 +18,16 @@ add_discovery_layers <- function(map, world, catalog, overview) {
       label = paste(rows$country[1], "- External Access"), popup = popup,
       options = leaflet::pathOptions(pane = "reference", bubblingMouseEvents = FALSE))
   }
+  map <- add_in_app_coverage(map, overview)
+  leaflet::addControl(map, html = as.character(shiny::tags$div(class = "als-discovery-legend",
+    shiny::tags$strong("LiDAR access"),
+    shiny::tags$div(shiny::tags$span(style = "color:#ef4444", "\u25a0"), " In-App Access"),
+    shiny::tags$div(shiny::tags$span(style = "color:#eab308", "\u25a0"), " External Access"),
+    shiny::tags$small("Red: survey footprints. Yellow: country-level access links. Search confirms available tiles."))),
+    position = "bottomleft", layerId = "discovery_legend")
+}
+
+add_in_app_coverage <- function(map, overview) {
   if (nrow(overview)) map <- leaflet::addPolygons(map, data = overview,
     group = "In-App Access", color = "#ff4b4b", weight = 2,
     fillColor = "#ef4444", fillOpacity = .4, label = ~dataset,
@@ -30,10 +40,5 @@ add_discovery_layers <- function(map, world, catalog, overview) {
       if("license_url" %in% names(overview) && nzchar(overview$license_url[i])) shiny::tags$p(shiny::tags$a(href=overview$license_url[i],target="_blank",rel="noopener noreferrer","Source terms")),
       if("reviewed_on" %in% names(overview) && nzchar(overview$reviewed_on[i])) shiny::tags$p(paste("Coverage index:",overview$reviewed_on[i]))))),
     options = leaflet::pathOptions(pane = "reference", bubblingMouseEvents = FALSE))
-  leaflet::addControl(map, html = as.character(shiny::tags$div(class = "als-discovery-legend",
-    shiny::tags$strong("LiDAR access"),
-    shiny::tags$div(shiny::tags$span(style = "color:#ef4444", "\u25a0"), " In-App Access"),
-    shiny::tags$div(shiny::tags$span(style = "color:#eab308", "\u25a0"), " External Access"),
-    shiny::tags$small("Red: survey footprints. Yellow: country-level access links. Search confirms available tiles."))),
-    position = "bottomleft", layerId = "discovery_legend")
+  map
 }

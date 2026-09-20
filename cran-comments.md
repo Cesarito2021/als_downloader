@@ -1,31 +1,41 @@
 ## Submission status
 
-Draft for maintainer review. This package has not been submitted to CRAN.
+Draft for maintainer review; not submitted to CRAN.
 
-## Local test environment and results
+## Local check
 
 Windows 11, R 4.4.0 (x86_64-w64-mingw32), 19 September 2026.
-The full `R CMD check --as-cran`, including PDF and HTML manuals, completed
-with 0 errors, 0 warnings and 1 note: unable to verify the current time.
-CRAN incoming remote checks were disabled for this local run; the new-submission
-review is still performed by CRAN. No acceptance is implied by local checks.
+Full `R CMD check --as-cran`, including PDF/HTML manuals and incoming feasibility:
+0 errors, 0 warnings, 2 notes:
+
+- New submission.
+- Unable to verify current time.
+
+All 508 test expectations passed; none were skipped. The test runner reports one
+test-runner warning (not a package-check warning). Pandoc also emits a
+highlight-style deprecation message. Vignette/report builds complete successfully.
+Private GitHub URLs were removed from DESCRIPTION and CITATION to avoid public
+404 links. The designated maintainer email remains available.
 
 ## Additional validation
 
-Offline tests and examples do not contact data providers. Network discovery,
-previews and downloads run only when explicitly invoked. Live development checks
-covered a real USGS/local LAS comparison and two Zenodo records in a separate
-review queue; no test data or private proposals are included in the package.
-JavaScript checks cover visual-profile geometry and absolute-elevation displays.
+Offline tests and examples do not contact providers. Live development checks
+include real point-cloud examples for USA, Brazil, Canada and the Netherlands,
+and a Zenodo ALS archive with its author-provided Shapefile. Complete archive and
+boundary checksums were verified; isolated approval, spatial search and browser
+coverage refresh passed. Production inclusion remains pending maintainer approval.
+No downloaded clouds, private proposals or credentials are included in the package.
+JavaScript tests cover profiles and shared absolute-elevation colour scales.
 
-The GitHub Actions workflow checks Windows, macOS, Ubuntu-release and Ubuntu-devel
-with warnings treated as failures. Verify the final commit's successful matrix
-before submitting: https://github.com/Cesarito2021/als_downloader/actions
+GitHub Actions checks Windows, macOS, Ubuntu release and Ubuntu devel with
+warnings treated as failures. The final pushed commit's matrix must pass before
+submission; earlier results are not evidence for a newer candidate.
 
 ## Purpose and attribution
 
-The package provides spatial discovery, original-file downloads, bounded visual
-previews, optional visual comparisons and PDF reports through R and Shiny.
-Provider data retain their own licences and citations. Third-party code notices
-are included under inst/NOTICE and alongside the bundled browser libraries.
-Optional lidR/PDF dependencies are checked when their features are requested.
+The package provides spatial discovery, original-file downloads, bounded point
+visualization, visual comparison and PDF download-planning reports in R/Shiny.
+Dataset licences and citations remain separate. Notices are retained in inst/NOTICE
+and alongside bundled browser libraries. Optional cloud/PDF dependencies are checked
+when requested. The documented outstanding basemap/public-hosting and source-credit
+questions must be resolved before the maintainer authorizes public release.
