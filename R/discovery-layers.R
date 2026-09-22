@@ -11,7 +11,7 @@ add_discovery_layers <- function(map, world, catalog, overview) {
       shiny::tags$strong(paste(rows$country[1], "- External Access")),
       shiny::tags$ul(lapply(seq_len(nrow(rows)), function(i) shiny::tags$li(
         shiny::tags$a(href = rows$info_url[i], target = "_blank", rel = "noopener noreferrer", rows$name[i]),
-        shiny::tags$small(paste(" — Link reviewed:", rows$reviewed_on[i]))))),
+        shiny::tags$small(paste(" - Link reviewed:", rows$reviewed_on[i]))))),
       shiny::tags$small("Country-level access link, not complete LiDAR coverage. Check the provider's coverage and conditions.")))
     map <- leaflet::addPolygons(map, data = country,
       group = "External Access", layerId = paste0("portal:", code),

@@ -35,7 +35,7 @@ Define an AOI, set the acquisition period and click Find ALS data. Select years 
 
 ## Get started
 
-The development package is now named **ALSdownloadeR**. The previous CRAN submission was cancelled; this revised version has not been submitted or published. Install a locally built source archive during review. The R-universe instructions below apply after the renamed package has been published there.
+The package is now named **ALSdownloadeR**. Version **0.2.0** is a candidate for a new CRAN submission; the previous submission was cancelled. Install the locally built source archive during review. The R-universe registry has been updated, but the installation command below requires a successful build to be available there.
 
 ```r
 install.packages("ALSdownloadeR", repos = c(
