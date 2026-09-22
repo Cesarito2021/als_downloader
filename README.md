@@ -19,11 +19,13 @@ ALS Downloader links a user-defined area of interest (AOI) to available airborne
 Start with the globe, then open **Explore** to find tiles. **3D view** inspects a
 selected tile or local file; **3D comparison** brings overlapping clouds together.
 
-![ALS Downloader: globe with red and yellow access routes](docs/images/workflow/01-globe-current.png)
+![ALS Downloader globe: A globe, C Submit ALS data, H Explore, I 3D view, J 3D comparison](docs/images/workflow/01-globe-labelled.png)
 
-The globe shows access routes: red indicates in-app ALS data access and yellow indicates external portals; survey coverage varies within each country. Open map launches the dataset explorer. Submit ALS data opens the Zenodo contribution form.
+**A. Globe:** red indicates in-app ALS data access and yellow indicates external portals; survey coverage varies within each country. **C. Submit ALS data:** opens the Zenodo contribution form. **H. Explore:** selects the discovery tab. **I. 3D view:** opens the point-cloud viewer. **J. 3D comparison:** opens the comparison of overlapping acquisitions.
 
-![Current access legend, entry controls and original author photograph](docs/images/workflow/01-globe-controls.png)
+![Globe controls: B Open map, D About the project, F Source catalogue, G Restart rotation, E GitHub, K Natural Earth](docs/images/workflow/01-globe-controls-labelled.png)
+
+**B. Open map:** opens the dataset explorer. **D. About the project:** explains the application and its purpose. **F. Source catalogue:** shows data providers and access information. **G. Restart rotation:** restarts the globe animation. **E. GitHub:** opens the source-code repository. **K. Natural Earth:** links to the source of the globe's country outlines. LOCAL MODE is a status indicator, not a button; the red/yellow legend explains access routes.
 
 ### Explorer
 

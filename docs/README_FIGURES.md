@@ -4,6 +4,17 @@
 
 # README figure provenance
 
+## Complete globe control labels (22 September 2026)
+
+The README uses `workflow/01-globe-labelled.png` and
+`workflow/01-globe-controls-labelled.png`, rendered from the accompanying SVG
+overlays on the unchanged current screenshots. Every visible button, navigation
+tab and source link has a letter and a corresponding caption: A globe, B Open
+map, C Submit ALS data, D About the project, E GitHub, F Source catalogue,
+G Restart rotation, H Explore, I 3D view, J 3D comparison, K Natural Earth.
+The mode indicator and access legend are not buttons. The two images are
+separate viewport captures, not a single continuous screenshot.
+
 ## Explorer and output figures (20 September 2026)
 
 `workflow/02-explorer-guide.png` combines consecutive viewport screenshots from
