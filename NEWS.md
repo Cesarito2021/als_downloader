@@ -2,6 +2,7 @@
 
 * Add persistent country portal links with review dates, revision history and yellow map-layer integration.
 * Handle AHN's exhausted-page pagination sentinel when it links back to the first page.
+* Read original CanElevation project acquisition intervals from NRCan metadata, matched by province and project; retain project scope and exclude processing dates.
 
 * Add a brief, suppressible package greeting and a commented local-download script.
 * Keep Download ALS data as the main action; offer Download R script as an optional alternative.

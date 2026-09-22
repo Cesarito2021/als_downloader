@@ -1,7 +1,7 @@
 ![ALS Downloader — airborne LiDAR discovery and visualization](docs/images/banner.png)
 
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-0.1.3-blue.svg)](NEWS.md)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](NEWS.md)
 [![Install in R](https://img.shields.io/badge/R-install-276DC3?logo=r&logoColor=white)](#get-started)
 [![R-universe version](https://cesarito2021.r-universe.dev/ALSdownloadeR/badges/version)](https://cesarito2021.r-universe.dev/ALSdownloadeR)
 [![GitHub release downloads](https://img.shields.io/github/downloads/Cesarito2021/als_downloader/total?label=release%20downloads)](https://github.com/Cesarito2021/als_downloader/releases)

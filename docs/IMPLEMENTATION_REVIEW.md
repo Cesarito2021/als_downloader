@@ -1,6 +1,14 @@
 # ALSdownloadeR implementation review — 22 September 2026
 
-The maintainer authorized implementation after CRAN cancelled the previous submission, then explicitly approved the local package name ALSdownloadeR. Work is on `codex/provider-metadata-review`. The previously submitted archive is preserved. No publication or new submission has been made.
+The maintainer authorized implementation after CRAN cancelled the previous submission, then explicitly approved the package name ALSdownloadeR. The revised source is published in the existing GitHub repository. The previously submitted archive is preserved; the new CRAN submission has not been sent.
+
+## Version 0.2.0 update
+
+This update supersedes the earlier pending items below. Two samples each from AHN6, IGN France, swisstopo and CanElevation have now been reviewed; see [sample evidence and limits](COUNTRY_DATE_SAMPLES_020.md). Canada now uses the original NRCan project metadata geodatabase, matched by province and project. AHN's exhausted-page link back to the first page is handled explicitly. These eight samples are not a nationwide completeness certification.
+
+`country_links()` and `update_country_link()` now maintain persistent external portal records, review dates and revision history. The yellow External Access layer and source catalogue read that registry after an app restart; an Italy map-layer smoke check confirmed the updated URL and date. Updating a link does not create a provider adapter or imply national coverage. USGS remains the primary US source, with Planetary excluded from automatic app searches.
+
+The publication candidate is 0.2.0. Current platform-check results are recorded in `cran-comments.md`; older counts below describe earlier checkpoints.
 
 ## Implemented
 
@@ -23,11 +31,11 @@ The maintainer authorized implementation after CRAN cancelled the previous submi
 * Live USGS test: SoCal original `USGS_LPC_CA_SoCAL_Wildfires_2018_D18_w2080n1482.laz`, documented final year 2018, 39,685,660 bytes. Multiple project metadata records agree on the year but not the exact period; the output therefore keeps only year precision.
 * Live app search over the public SoCal test area returned USGS 2018 and an independent OpenTopography 2009 survey. AHN's empty `next=self` sentinel was identified and handled specifically, without weakening generic pagination checks.
 * Swiss original ZIP size was obtained from HTTP headers (11,225 bytes). Automated tests cover year/version matching, AHN flight-strip extraction, XML date validation, identity/deduplication and partial size replies.
-* No universal promise that every country publishes acquisition dates or HTTP file lengths. Canada and other missing metadata remain explicitly unavailable/unverified until an authoritative provider-specific record is found. The app does not reinterpret LAS header creation dates or product edition dates as acquisition dates.
+* No universal promise that every country publishes acquisition dates or HTTP file lengths. Unmatched or missing metadata remain explicitly unavailable/unverified; Canada now has the original project metadata reader described above. The app does not reinterpret LAS header creation dates or product edition dates as acquisition dates.
 * The optional Planetary catalogue is retained but not automatically queried to fill original-USGS date gaps: matching a converted asset to its original survey needs evidence. Filename fallback never becomes verified acquisition evidence merely because it contains a year.
 * Temporal comparison still requires known, non-overlapping acquisition intervals. A final-year-only value is useful for discovery but does not establish a complete acquisition interval; the app does not invent dates to enable comparison.
 * Metadata and size lookups have bounded request budgets. NA can mean not checked within that budget, not provided or lookup failed; the status distinguishes these cases. Search latency is network/provider dependent, not guaranteed to finish within two minutes.
-* Updating source links from a user table remains a future manual workflow, as requested. It will not generate a new country's adapter automatically.
+* Persistent manual country-link updates are now implemented through the functions described above. They do not generate a new country's adapter automatically.
 * Publication, actual R-universe deployment, hosted app deployment, fresh national-scale completeness audits and a new CRAN submission remain separate release steps. Personal download workers and their installed old namespace have not been migrated or restarted by this implementation.
 
 ## Scientific timing
