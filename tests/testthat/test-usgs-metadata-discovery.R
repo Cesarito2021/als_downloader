@@ -53,3 +53,11 @@ test_that("an exhausted lookup budget is not reported as absent metadata", {
   x<-usgs_asset_period("https://example.org/t.laz",NA_character_,new.env(parent=emptyenv()),Sys.time()-1)
   expect_s3_class(x,"metadata_budget")
 })
+test_that("valid matching XML remains usable when an alternative is malformed", {
+  local_mocked_bindings(usgs_project_xml=function(...) c("https://example.org/broken.xml","https://example.org/valid.xml"),
+    als_metadata_text=function(url) if(grepl("broken",url)) "<metadata><broken&>" else usgs_test_xml("Classified Point Cloud",2019L),
+    .package="ALSdownloadeR")
+  x<-usgs_asset_period("https://example.org/t.laz",NA_character_,new.env(parent=emptyenv()),Sys.time()+10)
+  expect_equal(x$year,2019L)
+  expect_equal(x$source,"https://example.org/valid.xml")
+})

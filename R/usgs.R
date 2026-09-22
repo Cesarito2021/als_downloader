@@ -133,15 +133,18 @@ usgs_asset_period <- function(asset, metadata, cache, deadline) {
     }
     raw <- get(raw_key, cache, inherits = FALSE)
     if (inherits(raw, "metadata_failure")) return(raw)
-    value <- usgs_document_period(raw, asset)
+    value <- tryCatch(usgs_document_period(raw, asset), error = function(e) failure())
+    if (inherits(value, "metadata_failure")) return(value)
     if (!is.null(value)) value$source <- link
     value
   })
-  if (any(vapply(periods, inherits, logical(1), "metadata_failure"))) return(failure())
+  failed <- vapply(periods, inherits, logical(1), "metadata_failure")
+  had_failure <- any(failed)
+  periods <- periods[!failed]
   if (any(vapply(periods, inherits, logical(1), "metadata_budget"))) return(structure(list(), class = "metadata_budget"))
   # Different tile-specific records may coexist in a legacy project folder.
   periods <- Filter(Negate(is.null), periods)
-  if (!length(periods)) return(NULL)
+  if (!length(periods)) return(if (had_failure) failure() else NULL)
   if (any(vapply(periods, function(x) isTRUE(x$conflict), logical(1)))) return(list(conflict = TRUE))
   signatures <- vapply(periods, function(x) paste(x$start, x$end, x$year), character(1))
   if (length(unique(signatures)) == 1L) return(periods[[1]])
