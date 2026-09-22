@@ -127,7 +127,7 @@ extract_als_dates <- function(tiles, lookup=TRUE, lookup_budget=60) {
       } else if(length(years)>1L) tiles$date_status[i]<-"ambiguous"
     }
   }
-  if(lookup) {tiles<-extract_als_dates_ahn(tiles);tiles<-extract_als_dates_swisstopo(tiles)}
+  if(lookup) {tiles<-extract_als_dates_ahn(tiles);tiles<-extract_als_dates_swisstopo(tiles);tiles<-extract_als_dates_canelevation(tiles)}
   tiles
 }
 

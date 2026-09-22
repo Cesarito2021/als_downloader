@@ -27,14 +27,14 @@ native_pages <- function(url, prefix, max_items) {
     if (length(features)>max_items) stop("Search exceeds max_items; use a smaller area.")
     next_link <- Filter(function(x) identical(x$rel,"next"),page$links)
     if (!length(next_link)) break
-    # Ellipsis uses this sentinel and a next=self link even for an exhausted
-    # empty page (observed on its AHN service). Do not generalize to STAC.
+    # Ellipsis uses this sentinel on exhausted empty pages, with a next link
+    # pointing either to self or back to the first page. Do not apply to STAC.
     self_link <- Filter(function(x) identical(x$rel,"self"),page$links)
     if (startsWith(prefix,"https://api.ellipsis-drive.com/") &&
         !length(page$features) && identical(as.numeric(page$numberReturned),0) &&
         identical(as.numeric(page$numberMatched),999999999) &&
         length(next_link)==1L && length(self_link)==1L &&
-        identical(next_link[[1]]$href,self_link[[1]]$href)) break
+        startsWith(next_link[[1]]$href,prefix)) break
     if (length(next_link)!=1L || !length(page$features)) stop("Invalid index pagination; search incomplete.")
     url <- next_link[[1]]$href
   }

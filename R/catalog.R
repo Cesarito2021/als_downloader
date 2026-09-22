@@ -6,8 +6,12 @@
 #' @examples
 #' provider_catalog()
 provider_catalog <- function() {
-  utils::read.csv(system.file("extdata", "providers.csv", package = "ALSdownloadeR"),
+  x <- utils::read.csv(system.file("extdata", "providers.csv", package = "ALSdownloadeR"),
                   stringsAsFactors = FALSE)
+  links <- country_links()
+  external <- data.frame(id=links$source_id,name=links$name,country_code=links$country_code,
+    country=links$country,implemented=FALSE,access=links$notes,info_url=links$url,reviewed_on=links$updated_on)
+  rbind(x[x$implemented | x$country_code==0,],external)
 }
 
 empty_tiles <- function() {

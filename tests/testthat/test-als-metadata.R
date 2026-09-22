@@ -81,11 +81,13 @@ test_that("Swiss metadata must match the tile version", {
   expect_equal(y$acquisition_year,2015L);expect_equal(y$date_precision,"year")
 })
 
-test_that("only the observed AHN sentinel allows empty next=self pages", {
+test_that("only the observed AHN sentinel allows exhausted pages with next links", {
   prefix<-"https://api.ellipsis-drive.com/test/"
   page<-list(type="FeatureCollection",features=list(),numberReturned=0,numberMatched=999999999,
     links=list(list(rel="self",href=paste0(prefix,"items")),list(rel="next",href=paste0(prefix,"items"))))
   local_mocked_bindings(request_json=function(...)page,.package="ALSdownloadeR")
   expect_length(native_pages(paste0(prefix,"items"),prefix,10),0)
+  page$links[[2]]$href <- paste0(prefix,"items?limit=100")
+  expect_length(native_pages(paste0(prefix,"items?offset=last"),prefix,10),0)
   expect_error(native_pages("https://example.org/items","https://example.org/",10),"Invalid index pagination")
 })

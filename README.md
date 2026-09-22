@@ -100,6 +100,27 @@ Counts cover the audited OpenTopography collections, excluding federated 3DEP an
 - **Download folder and workers:** choose where to save files and how many transfers to run in parallel.
 - **Local point cloud (optional):** open a LAS/LAZ file for 3D viewing or comparison.
 
+## Country source links
+
+Use `country_links()` to inspect the external portals. Update an existing row by
+passing its `country` and `source_id` to `update_country_link()`, together with the
+new HTTPS `url` and `updated_on = "YYYY-MM-DD"`. The date records when the link
+was reviewed; it is not an acquisition date. A new `source_id` adds another source
+without removing the country's existing sources. Previous revisions remain
+available through `country_links(history = TRUE)`.
+
+The registry is stored outside the installed package, in its user configuration
+directory. Set `options(ALSdownloadeR.country_links = "/your/path/country-links.rds")`
+to use a chosen registry file. Restart the app to display updates in the yellow
+**External Access** layer and the source catalogue. A hosted app must use that
+same registry file on its server. Country portals do not imply nationwide LiDAR
+coverage or create an automatic download adapter. Red survey footprints can
+coexist with yellow portal links, for example for Brazil.
+
+USGS is the default US source. Planetary Computer is **off in the app's automatic
+search** and is available only through an explicit R request with
+`provider = "planetary"`; it is not used automatically to fill USGS date gaps.
+
 ## Outputs
 
 **Download ALS data** downloads the selected files directly from the app; no R script is required. In local mode, files go to your chosen folder. In hosted mode, the download is delivered through the browser.

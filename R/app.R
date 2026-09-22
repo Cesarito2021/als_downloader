@@ -502,7 +502,8 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
             shiny::div(class = "als-source-card-top", shiny::span(class = "als-source-icon", `aria-hidden` = "true", shiny::icon("plane")),
               shiny::span(class = if (source$implemented) "als-source-status available" else "als-source-status", if (source$implemented) "In-app adapter" else "External portal")),
             shiny::h3(source$name), shiny::p(class = "als-source-country", source$country),
-            shiny::tags$details(shiny::tags$summary("Access and availability"), shiny::p(source$access)),
+            shiny::tags$details(shiny::tags$summary("Access and availability"), shiny::p(source$access),
+              shiny::p(paste("Link reviewed:",source$reviewed_on))),
             shiny::tags$a(href = source$info_url, target = "_blank", rel = "noopener noreferrer", paste("View source:", source$name)))
         })))
     })

@@ -1,4 +1,7 @@
-# ALSdownloadeR 0.1.3.9000 (development)
+# ALSdownloadeR 0.2.0
+
+* Add persistent country portal links with review dates, revision history and yellow map-layer integration.
+* Handle AHN's exhausted-page pagination sentinel when it links back to the first page.
 
 * Add a brief, suppressible package greeting and a commented local-download script.
 * Keep Download ALS data as the main action; offer Download R script as an optional alternative.
