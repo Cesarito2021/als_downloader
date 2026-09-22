@@ -83,7 +83,9 @@ usgs_project_xml <- function(url) {
     visited <- c(visited, folder)
     listing <- usgs_metadata_listing(folder)
     keys <- c(keys, listing$keys)
-    queue <- c(queue, listing$folders)
+    # Ancillary report trees can contain thousands of non-metadata files.
+    metadata_folders <- listing$folders[grepl("xml|metadata", substring(listing$folders, nchar(prefix) + 1L), ignore.case = TRUE)]
+    queue <- c(queue, metadata_folders)
   }
   candidates <- unique(keys[grepl("[.]xml$", keys, ignore.case = TRUE) &
     !grepl("[.]shp[.]xml$|breakline|intensity|(^|[/_])dem([/_.]|$)", keys, ignore.case = TRUE)])

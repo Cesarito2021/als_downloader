@@ -4,13 +4,13 @@ test_that("USGS metadata discovery avoids large spatial inventories", {
   local_mocked_bindings(usgs_metadata_listing = function(prefix, delimiter = "/") {
     prefixes <<- c(prefixes, prefix)
     if (prefix == root) return(list(keys=character(), folders=paste0(root,c("reports/","spatial_metadata/"))))
-    if (prefix == paste0(root,"reports/")) return(list(keys=character(),folders=paste0(prefix,"vendor_provided_xml/")))
+    if (prefix == paste0(root,"reports/")) return(list(keys=character(),folders=paste0(prefix,c("vendor_provided_xml/","Additional Reports/"))))
     list(keys=paste0(prefix,c("ClassifiedPointCloud.xml","DEM.xml")),folders=character())
   }, .package="ALSdownloadeR")
   result <- usgs_project_xml("https://rockyweb.usgs.gov/Projects/test/LAZ/t.laz")
   expect_match(result,"ClassifiedPointCloud.xml",fixed=TRUE)
   expect_length(result,1L)
-  expect_false(any(grepl("spatial_metadata",prefixes)))
+  expect_false(any(grepl("spatial_metadata|Additional Reports",prefixes)))
 })
 
 usgs_test_xml <- function(title, year=2021L) paste0('<metadata><idinfo><citation><citeinfo><title>',title,
