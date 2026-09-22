@@ -48,28 +48,106 @@ find_als_usgs <- function(aoi, max_items) {
   out<-do.call(rbind,rows); out[!duplicated(redact_url(out$url)),,drop=FALSE]
 }
 
-usgs_project_xml <- function(url) {
-  path<-sub("^.*/Projects/","",sub("/LAZ/.*$","",url,ignore.case=TRUE))
-  if(identical(path,url)) return(NA_character_)
-  prefix<-paste0("StagedProducts/Elevation/metadata/",path,"/")
-  keys<-character();token<-NULL;visited<-character()
-  repeat {
-    q<-list(`list-type`=2,prefix=prefix)
-    if(!is.null(token)) q[['continuation-token']]<-token
-    r<-httr::GET("https://prd-tnm.s3.amazonaws.com/",query=q,httr::timeout(20));httr::stop_for_status(r)
-    d<-xml2::read_xml(httr::content(r,"raw"),options="NONET")
-    keys<-c(keys,xml2::xml_text(xml2::xml_find_all(d,'//*[local-name()="Key"]')))
-    if(length(keys)>10000L) stop("Metadata inventory exceeds lookup limit.")
-    token<-xml2::xml_text(xml2::xml_find_first(d,'//*[local-name()="NextContinuationToken"]'))
-    if(is.na(token)||!nzchar(token)) break
-    if(token %in% visited) stop("Metadata inventory repeats a page.")
-    visited<-c(visited,token)
+# List only direct children, so large spatial indexes do not exhaust XML lookup.
+usgs_metadata_listing <- function(prefix, delimiter = "/") {
+  keys <- character(); folders <- character(); token <- NULL; visited <- character()
+  for (page in seq_len(20L)) {
+    q <- list(`list-type` = 2, prefix = prefix, delimiter = delimiter)
+    if (!is.null(token)) q[["continuation-token"]] <- token
+    r <- httr::GET("https://prd-tnm.s3.amazonaws.com/", query = q, httr::timeout(20))
+    httr::stop_for_status(r)
+    d <- xml2::read_xml(httr::content(r, "raw"), options = "NONET")
+    keys <- c(keys, xml2::xml_text(xml2::xml_find_all(d, '//*[local-name()="Contents"]/*[local-name()="Key"]')))
+    folders <- c(folders, xml2::xml_text(xml2::xml_find_all(d, '//*[local-name()="CommonPrefixes"]/*[local-name()="Prefix"]')))
+    token <- xml2::xml_text(xml2::xml_find_first(d, '//*[local-name()="NextContinuationToken"]'))
+    if (is.na(token) || !nzchar(token)) return(list(keys = unique(keys), folders = unique(folders)))
+    if (token %in% visited) stop("Metadata inventory repeats a page.")
+    visited <- c(visited, token)
   }
-  candidates<-keys[grepl("[.]xml$",keys,ignore.case=TRUE)&
-    grepl("ClassifiedPointCloud|point.?cloud",keys,ignore.case=TRUE)&!grepl("[.]shp[.]xml$",keys,ignore.case=TRUE)]
-  # Do not choose a document arbitrarily when several products are present.
-  if(!length(candidates)||length(candidates)>10L) return(NA_character_)
-  paste0("https://prd-tnm.s3.amazonaws.com/",gsub(" ","%20",candidates,fixed=TRUE))
+  stop("Metadata inventory exceeds lookup limit.")
+}
+
+usgs_project_xml <- function(url) {
+  if (!grepl("/Projects/.+/LAZ/", url, ignore.case = TRUE)) return(NA_character_)
+  path <- sub("^.*/Projects/", "", sub("/LAZ/.*$", "", url, ignore.case = TRUE))
+  prefix <- paste0("StagedProducts/Elevation/metadata/", path, "/")
+  root <- usgs_metadata_listing(prefix)
+  keys <- root$keys
+  # Reports contain vendor metadata. Never descend into spatial_metadata assets.
+  queue <- root$folders[grepl("/(reports?|metadata|xml)/$", root$folders, ignore.case = TRUE)]
+  visited <- character()
+  while (length(queue)) {
+    folder <- queue[1]; queue <- queue[-1]
+    if (folder %in% visited) next
+    if (length(visited) >= 30L) stop("Metadata directory lookup exceeds limit.")
+    visited <- c(visited, folder)
+    listing <- usgs_metadata_listing(folder)
+    keys <- c(keys, listing$keys)
+    queue <- c(queue, listing$folders)
+  }
+  candidates <- unique(keys[grepl("[.]xml$", keys, ignore.case = TRUE) &
+    !grepl("[.]shp[.]xml$|breakline|intensity|(^|[/_])dem([/_.]|$)", keys, ignore.case = TRUE)])
+  cloud <- candidates[grepl("ClassifiedPointCloud|point.?cloud", candidates, ignore.case = TRUE)]
+  if (length(cloud)) candidates <- cloud
+  if (!length(candidates) || length(candidates) > 10L) return(NA_character_)
+  paste0("https://prd-tnm.s3.amazonaws.com/", gsub(" ", "%20", candidates, fixed = TRUE))
+}
+
+# A legacy project folder can contain metadata for just one named LAS tile.
+usgs_document_period <- function(text, asset_url) {
+  doc <- xml2::read_xml(text, options = "NONET"); xml2::xml_ns_strip(doc)
+  title <- trimws(xml2::xml_text(xml2::xml_find_first(doc, "//idinfo/citation/citeinfo/title")))
+  if (is.na(title) || !nzchar(title)) return(NULL)
+  tile_title <- grepl("[.]la[sz]$", title, ignore.case = TRUE)
+  if (tile_title) {
+    identity <- function(x) tolower(sub("[.]la[sz]$", "", basename(x), ignore.case = TRUE))
+    if (!identical(identity(title), identity(redact_url(asset_url)))) return(NULL)
+  } else if (!grepl("classified.*point.?cloud|lidar.*point.?cloud", title, ignore.case = TRUE)) return(NULL)
+  result <- extract_als_dates_usgs(text)
+  if (!is.null(result)) result$scope <- if (tile_title) "tile" else "project"
+  result
+}
+
+usgs_asset_period <- function(asset, metadata, cache, deadline) {
+  failure <- function() structure(list(), class = "metadata_failure")
+  project <- sub("/LAZ/.*$", "", asset, ignore.case = TRUE)
+  key <- paste0("project:", project)
+  if (!exists(key, cache, inherits = FALSE)) {
+    if (Sys.time() >= deadline) return(structure(list(), class = "metadata_budget"))
+    assign(key, tryCatch(usgs_project_xml(asset), error = function(e) failure()), cache)
+  }
+  links <- get(key, cache, inherits = FALSE)
+  discovery_failed <- inherits(links, "metadata_failure")
+  if (discovery_failed) links <- character()
+  links <- links[!is.na(links)]
+  # Folder landing pages are not XML metadata. Use direct XML as a fallback only.
+  if (!length(links) && !is.na(metadata) && grepl("[.]xml($|[?])", metadata, ignore.case = TRUE)) links <- metadata
+  if (!length(links)) return(if (discovery_failed) failure() else NULL)
+  periods <- lapply(links, function(link) {
+    raw_key <- paste0("xml:", link)
+    if (!exists(raw_key, cache, inherits = FALSE)) {
+      if (Sys.time() >= deadline) return(structure(list(), class = "metadata_budget"))
+      assign(raw_key, tryCatch(als_metadata_text(link), error = function(e) failure()), cache)
+    }
+    raw <- get(raw_key, cache, inherits = FALSE)
+    if (inherits(raw, "metadata_failure")) return(raw)
+    value <- usgs_document_period(raw, asset)
+    if (!is.null(value)) value$source <- link
+    value
+  })
+  if (any(vapply(periods, inherits, logical(1), "metadata_failure"))) return(failure())
+  if (any(vapply(periods, inherits, logical(1), "metadata_budget"))) return(structure(list(), class = "metadata_budget"))
+  # Different tile-specific records may coexist in a legacy project folder.
+  periods <- Filter(Negate(is.null), periods)
+  if (!length(periods)) return(NULL)
+  if (any(vapply(periods, function(x) isTRUE(x$conflict), logical(1)))) return(list(conflict = TRUE))
+  signatures <- vapply(periods, function(x) paste(x$start, x$end, x$year), character(1))
+  if (length(unique(signatures)) == 1L) return(periods[[1]])
+  years <- vapply(periods, function(x) as.integer(x$year), integer(1))
+  if (length(unique(years)) != 1L) return(list(conflict = TRUE))
+  list(start = NA_character_, end = NA_character_, year = years[1], precision = "year",
+    scope = "project_year_consensus", source = periods[[1]]$source,
+    evidence = paste(vapply(periods, `[[`, character(1), "source"), collapse = "; "))
 }
 
 asset_access_url <- function(tile) {

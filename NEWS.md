@@ -1,5 +1,7 @@
 # ALSdownloadeR 0.2.0
 
+* Locate USGS acquisition XML without enumerating large spatial indexes; match legacy tile metadata and reuse cached evidence after the lookup time budget.
+
 * Add persistent country portal links with review dates, revision history and yellow map-layer integration.
 * Handle AHN's exhausted-page pagination sentinel when it links back to the first page.
 * Read original CanElevation project acquisition intervals from NRCan metadata, matched by province and project; retain project scope and exclude processing dates.

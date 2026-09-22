@@ -76,36 +76,13 @@ extract_als_dates <- function(tiles, lookup=TRUE, lookup_budget=60) {
       tiles$date_source[i]<-"provider_catalog"; tiles$date_status[i]<-"catalog_reported"
       tiles$date_precision[i]<-"day";tiles$date_scope[i]<-if(tiles$provider[i]=="opentopography") "dataset" else "tile"
     }
-    if(lookup&&Sys.time()<deadline&&tiles$provider[i]=="usgs3dep") {
-      u<-tiles$metadata_url[i]
-      if(is.na(u)) u<-"metadata_not_provided"
-      project<-sub("/LAZ/.*$","",tiles$url[i],ignore.case=TRUE)
-      result<-tryCatch({
-        project_key<-paste0("project:",project)
-        if(!exists(project_key,cache,inherits=FALSE)) assign(project_key,tryCatch(usgs_project_xml(tiles$url[i]),error=function(e) NA_character_),cache)
-        project_xml<-get(project_key,cache,inherits=FALSE)
-        if(length(project_xml)>1L) {
-          periods<-lapply(project_xml,function(link) {
-            if(!exists(link,cache,inherits=FALSE)) assign(link,tryCatch(extract_als_dates_usgs(als_metadata_text(link)),error=function(e) NULL),cache)
-            get(link,cache,inherits=FALSE)
-          })
-          signatures<-vapply(periods,function(x) if(is.null(x)||isTRUE(x$conflict)) "unresolved" else paste(x$start,x$end,x$year),character(1))
-          years<-vapply(periods,function(x) if(is.null(x)||isTRUE(x$conflict)) NA_integer_ else as.integer(x$year),integer(1))
-          if(!anyNA(years)&&length(unique(years))==1L&&length(unique(signatures))>1L) {
-            consensus<-list(start=NA_character_,end=NA_character_,year=years[1],precision="year",
-              scope="project_year_consensus",evidence=paste(project_xml,collapse="; "))
-            assign(project_xml[1],consensus,cache);project_xml<-project_xml[1]
-          } else if(length(unique(signatures))!=1L||signatures[1]=="unresolved") {
-            project_xml<-NA_character_
-            assign(u,list(conflict=TRUE),cache)
-          } else project_xml<-project_xml[1]
-        }
-        if(length(project_xml)==1L&&!is.na(project_xml)) {u<-project_xml;tiles$metadata_url[i]<-u}
-
-        if(!exists(u,cache,inherits=FALSE)) assign(u,if(identical(u,"metadata_not_provided")) NULL else tryCatch(extract_als_dates_usgs(als_metadata_text(u)),error=function(e) structure(list(),class="metadata_failure")),cache)
-        get(u,cache,inherits=FALSE)
-      },error=function(e) structure(list(),class="metadata_failure"))
+    if(lookup&&tiles$provider[i]=="usgs3dep") {
+      result <- tryCatch(usgs_asset_period(tiles$url[i], tiles$metadata_url[i], cache, deadline),
+        error=function(e) structure(list(),class="metadata_failure"))
+      u <- if (!is.null(result$source)) result$source else tiles$metadata_url[i]
+      if (!is.na(u)) tiles$metadata_url[i] <- u
       if(inherits(result,"metadata_failure")) tiles$date_status[i]<-"lookup_failed"
+      else if(inherits(result,"metadata_budget")) tiles$date_status[i]<-"lookup_budget_exceeded"
       else if(isTRUE(result$conflict)) {
         tiles$date_status[i]<-"conflict";tiles$acquisition_year[i]<-NA_integer_
         tiles$acquired_start[i]<-NA_character_;tiles$acquired_end[i]<-NA_character_
@@ -122,7 +99,7 @@ extract_als_dates <- function(tiles, lookup=TRUE, lookup_budget=60) {
       if(length(years)==1L) {
         tiles$acquisition_year[i]<-as.integer(years);tiles$date_source[i]<-"filename_reference"
         # Preserve a failed lookup separately from an unverified year reference.
-        if(tiles$date_status[i]!="lookup_failed") tiles$date_status[i]<-"filename_reference"
+        if(!tiles$date_status[i] %in% c("lookup_failed","lookup_budget_exceeded")) tiles$date_status[i]<-"filename_reference"
         tiles$date_precision[i]<-"year"; tiles$date_scope[i]<-"filename"
       } else if(length(years)>1L) tiles$date_status[i]<-"ambiguous"
     }
