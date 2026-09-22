@@ -4,6 +4,21 @@
 
 # README figure provenance
 
+## Concise README restoration (22 September 2026)
+
+The submitted 0.1.3 README is the structural baseline. `01-globe-complete.png`
+is one complete capture of the current app, with labels A-L for the globe,
+buttons, tabs and source/author links. It replaces the split captures below.
+`02-explorer-guide.png` restores the complete A-F Explorer view with the current
+acquisition-year table and download controls. A documentation-only app session
+replayed the previously retrieved original USGS California record (2018,
+39.69 MB); it did not invent records or repeat a provider search.
+`03-workflow-outputs.png` retains the composite layout: the current USGS table
+and PDF report excerpt replace the old panels A/D; the existing real AHN and
+Apalachicola point-cloud panels B/C are retained. Only screenshot framing,
+cropping, panel placement and annotation were applied. The application code
+was not changed. The older preparation notes below remain historical evidence.
+
 ## Complete globe control labels (22 September 2026)
 
 The README uses `workflow/01-globe-labelled.png` and

@@ -20,7 +20,7 @@ GitHub Actions run: https://github.com/Cesarito2021/als_downloader/actions/runs/
 All three remote jobs passed 751 test expectations with no failures or skips.
 Remote checks used --as-cran --no-manual; the PDF manual was checked on Windows.
 The checked code and tests are commit 998e3fe3ab818e5ec8cd0777d9f5f40b2774c9c0.
-The archive was then rebuilt only to update the README version badge and NEWS;
+The archive was then rebuilt only to restore the concise README and update NEWS;
 its R code, tests, Rd files, installed assets and vignette source were compared
 with the checked archive and found identical (147 files, excluding the generated
 DESCRIPTION packaging timestamp).

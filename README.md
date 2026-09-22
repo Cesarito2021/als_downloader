@@ -19,23 +19,19 @@ ALS Downloader links a user-defined area of interest (AOI) to available airborne
 Start with the globe, then open **Explore** to find tiles. **3D view** inspects a
 selected tile or local file; **3D comparison** brings overlapping clouds together.
 
-![ALS Downloader globe: A globe, C Submit ALS data, H Explore, I 3D view, J 3D comparison](docs/images/workflow/01-globe-labelled.png)
+![ALS Downloader: globe, access routes and entry points](docs/images/workflow/01-globe-complete.png)
 
-**A. Globe:** red indicates in-app ALS data access and yellow indicates external portals; survey coverage varies within each country. **C. Submit ALS data:** opens the Zenodo contribution form. **H. Explore:** selects the discovery tab. **I. 3D view:** opens the point-cloud viewer. **J. 3D comparison:** opens the comparison of overlapping acquisitions.
-
-![Globe controls: B Open map, D About the project, F Source catalogue, G Restart rotation, E GitHub, K Natural Earth](docs/images/workflow/01-globe-controls-labelled.png)
-
-**B. Open map:** opens the dataset explorer. **D. About the project:** explains the application and its purpose. **F. Source catalogue:** shows data providers and access information. **G. Restart rotation:** restarts the globe animation. **E. GitHub:** opens the source-code repository. **K. Natural Earth:** links to the source of the globe's country outlines. LOCAL MODE is a status indicator, not a button; the red/yellow legend explains access routes.
+**A.** Globe and access routes (red: in-app; yellow: external portals). **B.** Open map. **C.** Submit ALS data. **D.** About the project. **E.** GitHub. **F.** Source catalogue. **G.** Restart rotation. **H.** Explore. **I.** 3D view. **J.** 3D comparison. **K.** Natural Earth. **L.** Author website.
 
 ### Explorer
 
-![Current ALS results with acquisition year and aggregate download size](docs/images/workflow/02-explorer-current.png)
+![Explorer interface with annotated AOI, acquisition period, map, campaign selection, downloads and tile table](docs/images/workflow/02-explorer-guide.png)
 
-Define an AOI, set the acquisition period and click Find ALS data. Select years and campaigns, inspect source evidence with Product info, and export metadata or a report. This real example contains a documented 2018 USGS project and an independent OpenTopography survey ending in 2009; the selected original files total 89.28 MB.
+**A.** Define the AOI. **B.** Set the acquisition period and search. **C.** Inspect tile footprints on the map. **D.** Select years and campaigns. **E.** Configure downloads and export the PDF report. **F.** Inspect tiles and export metadata or an R download script.
 
 ## Get started
 
-The package is now named **ALSdownloadeR**. Version **0.2.0** is a candidate for a new CRAN submission; the previous submission was cancelled. Install the locally built source archive during review. The R-universe registry has been updated, but the installation command below requires a successful build to be available there.
+Install from **[R-universe](https://cesarito2021.r-universe.dev/ALSdownloadeR)** when available, or use GitHub below.
 
 ```r
 install.packages("ALSdownloadeR", repos = c(
@@ -70,7 +66,7 @@ The R package is named **`ALSdownloadeR`**. The repository remains `als_download
 
 | Integrated source | Access |
 |---|---|
-| **USGS 3DEP**, USA | Official USGS The National Map catalogue and original LAZ files |
+| **USGS 3DEP**, USA | Official USGS catalogue and original LAZ files |
 | **OpenTopography**, international | Audited hosted ALS catalogue; original tile indexes load automatically for the AOI |
 | **CanElevation**, Canada | Official spatial tile service and original point clouds |
 | **AHN6**, Netherlands | Spatial index and LAZ files |
@@ -100,65 +96,20 @@ Counts cover the audited OpenTopography collections, excluding federated 3DEP an
 - **Download folder and workers:** choose where to save files and how many transfers to run in parallel.
 - **Local point cloud (optional):** open a LAS/LAZ file for 3D viewing or comparison.
 
-## Country source links
-
-Use `country_links()` to inspect the external portals. Update an existing row by
-passing its `country` and `source_id` to `update_country_link()`, together with the
-new HTTPS `url` and `updated_on = "YYYY-MM-DD"`. The date records when the link
-was reviewed; it is not an acquisition date. A new `source_id` adds another source
-without removing the country's existing sources. Previous revisions remain
-available through `country_links(history = TRUE)`.
-
-The registry is stored outside the installed package, in its user configuration
-directory. Set `options(ALSdownloadeR.country_links = "/your/path/country-links.rds")`
-to use a chosen registry file. Restart the app to display updates in the yellow
-**External Access** layer and the source catalogue. A hosted app must use that
-same registry file on its server. Country portals do not imply nationwide LiDAR
-coverage or create an automatic download adapter. Red survey footprints can
-coexist with yellow portal links, for example for Brazil.
-
-USGS is the default US source. Planetary Computer is **off in the app's automatic
-search** and is available only through an explicit R request with
-`provider = "planetary"`; it is not used automatically to fill USGS date gaps.
-
 ## Outputs
 
-**Download ALS data** downloads the selected files directly from the app; no R script is required. In local mode, files go to your chosen folder. In hosted mode, the download is delivered through the browser.
-
-**Optional: download with R** contains **Download R script**. Use it to take a selection from the app (including a hosted session) and download it later on your own computer in R/RStudio. The script includes the selected source records, short comments, an editable output folder and parallel-transfer settings. Once exported, it runs independently of the app. `workers` requests simultaneous downloads; available cores and `provider_limit` cap the actual concurrency.
-
-Attaching the package with `library(ALSdownloadeR)` displays this greeting and suggested citation. The exported R script includes the same text as comments above the download instructions.
-
-```text
-##----------------------------------------------------------------##
-##                         ALSdownloadeR                           ##
-##----------------------------------------------------------------##
-An R package with a web-based Shiny app for airborne laser scanning data.
-Our mission is to make ALS data more accessible for research.
-Discover, visualize and download point clouds from multiple sources.
-Access acquisition information and prepare reproducible download scripts.
-Developed by César Alvites at the University of Florida.
-Thank you for using ALSdownloadeR.
-##---------------------- Suggested citation -----------------------##
-Alvites, C. (2026). ALS Downloader: a web-based Shiny application
-for the discovery, management, visualization, and download of
-airborne laser scanning (ALS) datasets worldwide.
-Manuscript in preparation.
-For the software reference, use citation("ALSdownloadeR").
-Please also cite the original datasets used in your research.
-##----------------------------------------------------------------##
-```
-
-* **Point clouds:** original LAS/LAZ files or provider ZIP archives.
+* **Point clouds:** download original LAS/LAZ files or provider ZIP archives directly with **Download ALS data**.
 * **Figures (PNG):** AOI and tile maps, point-cloud views, and available comparison profiles and distributions.
-* **Metadata and scripts:** tile metadata (CSV) and an R script to download the selected files.
-* **Download report (PDF):** a concise summary of the AOI, selected tiles, acquisition dates, reported download size (MB or GB), available figures and source credits.
+* **Metadata and scripts:** tile metadata (CSV) and an optional **Download R script** for running downloads locally in R/RStudio.
+* **Download report (PDF):** a concise summary of the AOI, selected tiles, acquisition dates, total download size (MB or GB; incomplete totals are labelled), available figures and source credits.
 
 **Recommendation:** review the PDF before downloading to check the selected tiles and reported storage requirements. File sizes may be unavailable from some providers.
 
+Acquisition year is the final year of acquisition; filename references are labelled, and unavailable years appear as **NA**. Viewing or comparing remote point clouds temporarily downloads the selected files.
+
 ![Real application outputs: tile table, point-cloud view, red-blue comparison with profile and elevation distribution, and PDF report](docs/images/workflow/03-workflow-outputs.png)
 
-**A.** Tile table (USGS, Utah). **B.** Point-cloud view (AHN6, Groningen). **C.** Overlapping USGS acquisitions in Apalachicola, with a profile and elevation histogram. **D.** PDF report excerpt (IGN France). Panels show separate real examples. [Sources and figure preparation](https://github.com/Cesarito2021/als_downloader/blob/main/docs/README_FIGURES.md).
+**A.** Tile table (USGS, California). **B.** Point-cloud view (AHN6, Groningen). **C.** Overlapping USGS acquisitions in Apalachicola, with a profile and elevation histogram. **D.** PDF report excerpt (USGS, California). Panels show separate real examples. [Sources and figure preparation](https://github.com/Cesarito2021/als_downloader/blob/main/docs/README_FIGURES.md).
 
 ## Point-cloud examples
 
@@ -208,6 +159,10 @@ Data remain on Zenodo. Catalogue entries retain the dataset DOI, authors and lic
 - Alvites, C., Marchetti, M., Lasserre, B., & Santopuoli, G. (2022). [LiDAR as a tool for assessing timber assortments: A systematic literature review](https://doi.org/10.3390/rs14184466). *Remote Sensing, 14*(18), 4466.
 - Alvites, C. (2026). *ALS Downloader: a web-based Shiny application for the discovery, management, visualization, and download of airborne laser scanning (ALS) datasets worldwide*. **Manuscript in preparation.**
 
+## Licensing and credits
+
+Software: **GPL-3**. Source datasets retain their own licences and citation requirements. Maps credit OpenStreetMap and Natural Earth; acknowledgement logos belong to their respective organizations. [Third-party notices](inst/NOTICE).
+
 ## Acknowledgements
 
 Developed at the **University of Florida** within [OpenForest4D](https://openforest4d.org),
@@ -223,16 +178,3 @@ Any opinions, findings and conclusions or recommendations expressed in this mate
 <td align="center" width="20%"><img src="docs/images/acknowledgements/silva-lab.png" alt="Silva Lab" width="120"></td>
 </tr>
 </table>
-
-## Licensing and credits
-
-Software: **GPL-3**. Source datasets retain their own licences and citation requirements. Maps credit OpenStreetMap and Natural Earth; acknowledgement logos belong to their respective organizations. [Third-party notices](inst/NOTICE).
-
-
-### Acquisition metadata and download planning
-
-Use `find_als_data()` to search original USGS 3DEP products and the supported providers. `planetary` is an explicit optional COPC mirror, not the USGS inventory. The established `find_tiles()` name remains available for existing scripts. `Acquisition year` reports the final acquisition year when documented; filename references are explicitly labelled. `NA` means no usable value is available in the checked sources. Retrieval failures and unverified references are retained in the evidence fields. Follow the linked source records and metadata before choosing a temporal comparison.
-
-The app allows users to visualize point clouds. Clicking **View selected tile in 3D** temporarily downloads the selected file and displays a preview. For comparison, **View overlapping clouds** temporarily downloads the selected remote files and displays their shared area; uploaded local files are read directly. Selecting a pair alone does not download the clouds. Either member of a valid temporal pair can be selected first; the second menu lists only its compatible overlapping partners. The default coverage requirement is 99% of the smaller tile, with a positive shared area inside the AOI.
-
-`get_als_file_sizes()` retrieves missing sizes using bounded HTTP requests. `summarize_als_download()` reports the aggregate for a selection. The report distinguishes a complete **total download size** from a known subtotal with missing sizes. GB means 10^9 bytes; download size does not include extra space required to decompress or process files. Search time depends on the number of records and provider response times; unfinished size lookups remain explicit.
