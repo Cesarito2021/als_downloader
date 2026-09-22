@@ -4,6 +4,9 @@ canelevation_fixture <- function(url) {
 }
 
 test_that("CanElevation repairs crossing rings in the official regional index", {
+  local_mocked_bindings(canada_date_index=function()data.frame(ID=character(),
+    TEMPORAL_EXTENT_DATE_MIN=character(),TEMPORAL_EXTENT_DATE_MAX=character()),
+    get_als_file_sizes=function(tiles,...)tiles,.package="ALSdownloadeR")
   # Natural Resources Canada / Government of Alberta, Athabasca_2018 tile
   # geometry; Open Government Licence Canada. Retrieved 2026-09-19 from the
   # official LiDAR Tiles ArcGIS service. Geometry only; no point data.
@@ -19,6 +22,9 @@ test_that("CanElevation repairs crossing rings in the official regional index", 
 })
 
 test_that("CanElevation local index selects public-bucket assets within the AOI", {
+  local_mocked_bindings(canada_date_index=function()data.frame(ID="AB_Athabasca_2018_PointCloud",
+    TEMPORAL_EXTENT_DATE_MIN="2018-10-06",TEMPORAL_EXTENT_DATE_MAX="2018-10-10"),
+    get_als_file_sizes=function(tiles,...)tiles,.package="ALSdownloadeR")
   folder <- tempfile(); dir.create(folder); on.exit(unlink(folder, recursive=TRUE))
   x <- canelevation_fixture("https://canelevation-lidar-point-clouds.s3.ca-central-1.amazonaws.com/pointclouds_nuagespoints/AB/Athabasca_2018/pc_083I11NE41NE_20181006.copc.laz")
   sf::st_write(x, file.path(folder, "Athabasca_2018.gpkg"), quiet=TRUE)
@@ -26,6 +32,8 @@ test_that("CanElevation local index selects public-bucket assets within the AOI"
   found <- find_tiles(aoi, "canelevation", tile_index_dir=folder)
   expect_equal(nrow(found), 1L)
   expect_equal(found$provider, "canelevation")
+  expect_equal(found$acquisition_year,2018L)
+  expect_equal(found$date_scope,"project")
   expect_equal(found$dataset, "Athabasca_2018")
   expect_match(found$url, "canelevation-lidar-point-clouds.s3.ca-central-1.amazonaws.com", fixed=TRUE)
   expect_match(found$license_url, "open.canada.ca", fixed=TRUE)
