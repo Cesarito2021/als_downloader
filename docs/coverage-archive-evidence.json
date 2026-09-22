@@ -1,0 +1,224 @@
+[
+  {
+    "record": "3633629",
+    "file": "GPSpoints_EPSG_32633.shp",
+    "url": "https://zenodo.org/api/records/3633629/files/GPSpoints_EPSG_32633.shp/content",
+    "shapefile_geometry_type": 1
+  },
+  {
+    "record": "17492219",
+    "file": "las_singletree_data.zip",
+    "url": "https://zenodo.org/api/records/17492219/files/las_singletree_data.zip/content",
+    "entries": 113,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "las_singletree_data/",
+      "las_singletree_data/DIR/",
+      "las_singletree_data/DIR/20240408/",
+      "las_singletree_data/DIR/20240408/DIR_20240408_t01.las",
+      "las_singletree_data/DIR/20240408/DIR_20240408_t02.las",
+      "las_singletree_data/DIR/20240408/DIR_20240408_t03.las",
+      "las_singletree_data/DIR/20240408/DIR_20240408_t04.las",
+      "las_singletree_data/DIR/20240408/DIR_20240408_t05.las"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos para p5.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20para%20p5.zip/content",
+    "entries": 9,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-1016_003.laz",
+      "NP_T-1016_004.laz",
+      "NP_T-1016_005.laz",
+      "NP_T-1016_006.laz",
+      "NP_T-1016_007.laz",
+      "NP_T-1016_008.laz",
+      "NP_T-1016_009.laz",
+      "NP_T-1016_001.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos para p1.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20para%20p1.zip/content",
+    "entries": 136,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-0504.laz",
+      "NP_T-0104.laz",
+      "NP_T-0105.laz",
+      "NP_T-0106.laz",
+      "NP_T-0107.laz",
+      "NP_T-0108.laz",
+      "NP_T-0109.laz",
+      "NP_T-0110.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos para p3.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20para%20p3.zip/content",
+    "entries": 56,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-0880.laz",
+      "NP_T-0889.laz",
+      "NP_T-0891.laz",
+      "NP_T-0892.laz",
+      "NP_T-0894.laz",
+      "NP_T-0897.laz",
+      "NP_T-0901.laz",
+      "NP_T-0903.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos para p2.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20para%20p2.zip/content",
+    "entries": 56,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-0712.laz",
+      "NP_T-0713.laz",
+      "NP_T-0742.laz",
+      "NP_T-0747.laz",
+      "NP_T-0751.laz",
+      "NP_T-0506.laz",
+      "NP_T-0511.laz",
+      "NP_T-0512.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos amazonas p2.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20amazonas%20p2.zip/content",
+    "entries": 144,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-2006.laz",
+      "NP_T-0390.laz",
+      "NP_T-0391.laz",
+      "NP_T-0394.laz",
+      "NP_T-0395.laz",
+      "NP_T-0396.laz",
+      "NP_T-0397.laz",
+      "NP_T-0398.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos mato grosso.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20mato%20grosso.zip/content",
+    "entries": 126,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-2005.laz",
+      "NP_T-0093.laz",
+      "NP_T-0094.laz",
+      "NP_T-0095.laz",
+      "NP_T-0096.laz",
+      "NP_T-0097.laz",
+      "NP_T-0098.laz",
+      "NP_T-0099.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos para p8.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20para%20p8.zip/content",
+    "entries": 8,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-1003.laz",
+      "NP_T-1006.laz",
+      "NP_T-1007.laz",
+      "NP_T-0989.laz",
+      "NP_T-0995.laz",
+      "NP_T-0997.laz",
+      "NP_T-0999.laz",
+      "NP_T-1002.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos para p7.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20para%20p7.zip/content",
+    "entries": 17,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-2001.laz",
+      "NP_T-1040_01.laz",
+      "NP_T-1040_02.laz",
+      "NP_T-1040_03.laz",
+      "NP_T-1040_04.laz",
+      "NP_T-1040_05.laz",
+      "NP_T-1040_06.laz",
+      "NP_T-1040_07.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos para p4.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20para%20p4.zip/content",
+    "entries": 9,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-0980.laz",
+      "NP_T-0986.laz",
+      "NP_T-0916.laz",
+      "NP_T-0917.laz",
+      "NP_T-0956.laz",
+      "NP_T-0961.laz",
+      "NP_T-0965.laz",
+      "NP_T-0967.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos amazonas p1.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20amazonas%20p1.zip/content",
+    "entries": 147,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-0387.laz",
+      "NP_T-0007.laz",
+      "NP_T-0013.laz",
+      "NP_T-0014.laz",
+      "NP_T-0015.laz",
+      "NP_T-0016.laz",
+      "NP_T-0017.laz",
+      "NP_T-0018.laz"
+    ]
+  },
+  {
+    "record": "7636454",
+    "file": "transectos para p6.zip",
+    "url": "https://zenodo.org/api/records/7636454/files/transectos%20para%20p6.zip/content",
+    "entries": 13,
+    "complete": true,
+    "spatial_files": [],
+    "sample": [
+      "NP_T-1034.laz",
+      "NP_T-1022.laz",
+      "NP_T-1023.laz",
+      "NP_T-1024.laz",
+      "NP_T-1025.laz",
+      "NP_T-1026.laz",
+      "NP_T-1027.laz",
+      "NP_T-1028.laz"
+    ]
+  }
+]

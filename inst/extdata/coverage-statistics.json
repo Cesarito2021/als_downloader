@@ -1,0 +1,15 @@
+{
+  "provider": "OpenTopography",
+  "scope": "Verified hosted airborne-LiDAR collections only; excludes federated 3DEP and external-only collections",
+  "reviewed_on": [
+    "2026-09-20"
+  ],
+  "collections": 428,
+  "tile_footprint_records": 1056156,
+  "unique_file_objects": 1056011,
+  "bytes": 42598350440697,
+  "terabytes_decimal": 42.598350440697,
+  "tebibytes": 38.742974030080404,
+  "method": "Sum positive object sizes from the verified public inventory, deduplicated by object key across collections. No point-cloud files are hosted by this package. Geographic overlap is not deduplicated; distinct files can cover the same ground.",
+  "audit_sha256": "1b5ab82807760212fe060cd1c00186fbf9a6b313ceb8ec9c2bcb76196cae38aa"
+}

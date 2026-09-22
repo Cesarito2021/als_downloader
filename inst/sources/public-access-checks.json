@@ -1,0 +1,1088 @@
+{
+  "scope": "Bounded anonymous access checks; not full point decoding or app integration",
+  "checks": [
+    {
+      "name": "spain-page",
+      "url": "https://centrodedescargas.cnig.es/CentroDescargas/detalleArchivo?sec=11970508",
+      "checked_at": "2026-09-17T23:58:09.874681+00:00",
+      "status": 200,
+      "final_url": "https://centrodedescargas.cnig.es/CentroDescargas/detalleArchivo?sec=11970508",
+      "bytes_read": 67609,
+      "headers": {
+        "Server": "nginx/1.31.5",
+        "Date": "Thu, 17 Sep 2026 23:58:10 GMT",
+        "Content-Type": "text/html;charset=UTF-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "close",
+        "Content-Language": "es-ES"
+      },
+      "sha256": "53eb9c772b980151cf609f9b68d8bd23787d951d5dce8234b13585db7bcecfa7",
+      "signature": "0d0a0d0a"
+    },
+    {
+      "name": "spain-init",
+      "url": "https://centrodedescargas.cnig.es/CentroDescargas/initDescargaDir?secuencial=11970508",
+      "checked_at": "2026-09-18T00:02:23.709008+00:00",
+      "error": "HTTP Error 403: Forbidden",
+      "headers": {}
+    },
+    {
+      "name": "spain-geometry",
+      "url": "https://centrodedescargas.cnig.es/CentroDescargas/localizarCoordsSec?secuencial=11970508",
+      "checked_at": "2026-09-18T00:02:25.407232+00:00",
+      "status": 200,
+      "final_url": "https://centrodedescargas.cnig.es/CentroDescargas/localizarCoordsSec?secuencial=11970508",
+      "bytes_read": 353,
+      "headers": {
+        "Server": "nginx/1.31.5",
+        "Date": "Fri, 18 Sep 2026 00:02:26 GMT",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Content-Length": "353",
+        "Connection": "close",
+        "Cache-Control": "no-cache",
+        "Expires": "0",
+        "Pragma": "No-cache",
+        "Content-Language": "es-ES"
+      },
+      "sha256": "26db3f9dcb6560dd02c34ea31c5b97d153ffaccd4c0c17e633500a00c0de7d33",
+      "signature": "7b22636f"
+    },
+    {
+      "name": "france-file",
+      "url": "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_OO_2025-03-14/LHD_FXX_0877_6382_PTS_LAMB93_IGN69.copc.laz",
+      "checked_at": "2026-09-17T23:59:39.131781+00:00",
+      "status": 206,
+      "final_url": "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_OO_2025-03-14/LHD_FXX_0877_6382_PTS_LAMB93_IGN69.copc.laz",
+      "bytes_read": 65536,
+      "headers": {
+        "date": "Thu, 17 Sep 2026 23:59:40 GMT",
+        "content-type": "application/octet-stream",
+        "content-length": "65536",
+        "x-ratelimit-limit-second": "1",
+        "ratelimit-limit": "10",
+        "www-authenticate": "Key realm=\"kong\"",
+        "cache-control": "private, max-age=1814400",
+        "vary": "Origin,Access-Control-Request-Method,Access-Control-Request-Headers",
+        "content-disposition": "attachment; filename=\"LHD_FXX_0877_6382_PTS_LAMB93_IGN69.copc.laz\"",
+        "content-range": "bytes 0-65535/229729892",
+        "accept-ranges": "bytes",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "access-control-allow-origin": "*",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET, PUT, POST, DELETE, PATCH, OPTIONS",
+        "access-control-allow-headers": "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Content-Disposition,Content-Length,X-Community",
+        "access-control-max-age": "1728000",
+        "x-iplb-request-id": "40EEA705:DB1D_91EFC1E7:01BB_6AAC7EEB_EDC7775D:38C2F7",
+        "x-iplb-instance": "61217",
+        "connection": "close"
+      },
+      "sha256": "d71ab0da8ecf667f67defef12a7c367f08f3fa4421f1bb1206c45798179a92a2",
+      "signature": "4c415346",
+      "las_version": "1.4",
+      "point_format": 6
+    },
+    {
+      "name": "france-wfs-complete",
+      "url": "https://data.geopf.fr/wfs/ows?SERVICE=WFS&REQUEST=GetCapabilities",
+      "checked_at": "2026-09-18T00:03:43.438868+00:00",
+      "status": 200,
+      "final_url": "https://data.geopf.fr/wfs/ows?SERVICE=WFS&REQUEST=GetCapabilities",
+      "bytes_read": 5192871,
+      "headers": {
+        "date": "Fri, 18 Sep 2026 00:03:44 GMT",
+        "content-type": "application/xml",
+        "content-length": "5192871",
+        "x-ratelimit-limit-second": "1",
+        "ratelimit-limit": "30",
+        "www-authenticate": "Key realm=\"kong\"",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "access-control-allow-origin": "*",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET, PUT, POST, DELETE, PATCH, OPTIONS",
+        "access-control-allow-headers": "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Content-Disposition,Content-Length,X-Community",
+        "access-control-max-age": "1728000",
+        "x-iplb-request-id": "40EEA705:F009_91EFC1E7:01BB_6AAC7FDF_EDCA3EDC:38C2F7",
+        "x-iplb-instance": "61217",
+        "connection": "close"
+      },
+      "sha256": "df730e8f612483c43b2891e9cd6c8e418a46e269b0fb54369cbd062ad32ef87b",
+      "signature": "3c3f786d"
+    },
+    {
+      "name": "france-feature",
+      "url": "https://data.geopf.fr/wfs/ows?SERVICE=WFS&REQUEST=GetFeature&VERSION=2.0.0&TYPENAMES=IGNF_NUAGES-DE-POINTS-LIDAR-HD:dalle&COUNT=1&outputFormat=application/json",
+      "checked_at": "2026-09-18T00:04:34.051441+00:00",
+      "error": "HTTP Error 400: Bad Request",
+      "headers": {}
+    },
+    {
+      "name": "france-atom",
+      "url": "https://data.geopf.fr/telechargement/resource/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_OO_2025-03-14?page=1&limit=1",
+      "checked_at": "2026-09-18T00:05:05.835556+00:00",
+      "status": 200,
+      "final_url": "https://data.geopf.fr/telechargement/resource/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_OO_2025-03-14?page=1&limit=1",
+      "bytes_read": 1900,
+      "headers": {
+        "date": "Fri, 18 Sep 2026 00:05:06 GMT",
+        "content-type": "application/atom+xml;charset=UTF-8",
+        "content-length": "1900",
+        "x-ratelimit-limit-second": "1",
+        "ratelimit-limit": "10",
+        "www-authenticate": "Key realm=\"kong\"",
+        "cache-control": "private, max-age=1814400",
+        "vary": "Origin,Access-Control-Request-Method,Access-Control-Request-Headers",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "access-control-allow-origin": "*",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET, PUT, POST, DELETE, PATCH, OPTIONS",
+        "access-control-allow-headers": "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Content-Disposition,Content-Length,X-Community",
+        "access-control-max-age": "1728000",
+        "x-iplb-request-id": "40EEA705:C068_91EFC1E7:01BB_6AAC8032_EDCB2904:38C2F7",
+        "x-iplb-instance": "61217",
+        "connection": "close"
+      },
+      "sha256": "1444bce376e3063fe3edcb453538a7f7b973c25c732d2d8d44a16e14178bf8ad",
+      "signature": "3c3f786d"
+    },
+    {
+      "name": "france-listed-file",
+      "url": "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_OO_2025-03-14/LHD_FXX_0836_6334_PTS_LAMB93_IGN69.copc.laz",
+      "checked_at": "2026-09-18T00:06:13.158269+00:00",
+      "status": 206,
+      "final_url": "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_OO_2025-03-14/LHD_FXX_0836_6334_PTS_LAMB93_IGN69.copc.laz",
+      "bytes_read": 65536,
+      "headers": {
+        "date": "Fri, 18 Sep 2026 00:06:13 GMT",
+        "content-type": "application/octet-stream",
+        "content-length": "65536",
+        "x-ratelimit-limit-second": "1",
+        "ratelimit-limit": "10",
+        "www-authenticate": "Key realm=\"kong\"",
+        "cache-control": "private, max-age=1814400",
+        "vary": "Origin,Access-Control-Request-Method,Access-Control-Request-Headers",
+        "content-disposition": "attachment; filename=\"LHD_FXX_0836_6334_PTS_LAMB93_IGN69.copc.laz\"",
+        "content-range": "bytes 0-65535/216630183",
+        "accept-ranges": "bytes",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "access-control-allow-origin": "*",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET, PUT, POST, DELETE, PATCH, OPTIONS",
+        "access-control-allow-headers": "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Content-Disposition,Content-Length,X-Community",
+        "access-control-max-age": "1728000",
+        "x-iplb-request-id": "40EEA705:E942_91EFC1E7:01BB_6AAC8075_EDDA1BFD:3DA25E",
+        "x-iplb-instance": "61218",
+        "connection": "close"
+      },
+      "sha256": "a93cea60bb36c6669230ec829e9816fac5103effffe10acff63c4dcaeb31f508",
+      "signature": "4c415346",
+      "las_version": "1.4",
+      "point_format": 6
+    },
+    {
+      "name": "france-stac",
+      "url": "https://api.stac.teledetection.fr/collections/lidarhd/items?bbox=5.72,45.11,5.721,45.111&limit=1",
+      "checked_at": "2026-09-18T00:06:11.349832+00:00",
+      "status": 200,
+      "final_url": "https://api.stac.teledetection.fr/collections/lidarhd/items?bbox=5.72,45.11,5.721,45.111&limit=1",
+      "bytes_read": 4966,
+      "headers": {
+        "Content-Length": "4966",
+        "Content-Type": "application/geo+json",
+        "Date": "Fri, 18 Sep 2026 00:06:11 GMT",
+        "Server": "uvicorn",
+        "Connection": "close"
+      },
+      "sha256": "acaf60fcd96cc9a312c0723915e8d66199ef62f8316d85a5b3481a9bfd54dbb9",
+      "signature": "7b227479"
+    },
+    {
+      "name": "france-spatial-file",
+      "url": "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_PM_2025-03-25/LHD_FXX_0913_6450_PTS_LAMB93_IGN69.copc.laz",
+      "checked_at": "2026-09-18T00:06:49.310935+00:00",
+      "status": 206,
+      "final_url": "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_PM_2025-03-25/LHD_FXX_0913_6450_PTS_LAMB93_IGN69.copc.laz",
+      "bytes_read": 65536,
+      "headers": {
+        "date": "Fri, 18 Sep 2026 00:06:49 GMT",
+        "content-type": "application/octet-stream",
+        "content-length": "65536",
+        "x-ratelimit-limit-second": "1",
+        "ratelimit-limit": "10",
+        "www-authenticate": "Key realm=\"kong\"",
+        "cache-control": "private, max-age=1814400",
+        "vary": "Origin,Access-Control-Request-Method,Access-Control-Request-Headers",
+        "content-disposition": "attachment; filename=\"LHD_FXX_0913_6450_PTS_LAMB93_IGN69.copc.laz\"",
+        "content-range": "bytes 0-65535/187069578",
+        "accept-ranges": "bytes",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "access-control-allow-origin": "*",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET, PUT, POST, DELETE, PATCH, OPTIONS",
+        "access-control-allow-headers": "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Content-Disposition,Content-Length,X-Community",
+        "access-control-max-age": "1728000",
+        "x-iplb-request-id": "40EEA705:FB4D_91EFC1E7:01BB_6AAC8099_EDDA8EB7:3DA25E",
+        "x-iplb-instance": "61218",
+        "connection": "close"
+      },
+      "sha256": "a0737b2436c163e66c3690fa96c79d62aedb0d8d73d69bd44d7ea4a556e3c47b",
+      "signature": "4c415346",
+      "las_version": "1.4",
+      "point_format": 6
+    },
+    {
+      "name": "france-stac-collection",
+      "url": "https://api.stac.teledetection.fr/collections/lidarhd",
+      "checked_at": "2026-09-18T00:06:51.131013+00:00",
+      "status": 200,
+      "final_url": "https://api.stac.teledetection.fr/collections/lidarhd",
+      "bytes_read": 1814,
+      "headers": {
+        "Content-Length": "1814",
+        "Content-Type": "application/json",
+        "Date": "Fri, 18 Sep 2026 00:06:51 GMT",
+        "Server": "uvicorn",
+        "Connection": "close"
+      },
+      "sha256": "6d29d42ddb6e4f8a55e780bc01c48fdf7f5b47ea0813f056c659430bb1fef4bd",
+      "signature": "7b226964"
+    },
+    {
+      "name": "lux-index",
+      "url": "https://download.data.public.lu/resources/lidar-2019-releve-3d-du-territoire-luxembourgeois/20201012-160144/tableau-assemblage-tuiles-laz-geojson.zip",
+      "checked_at": "2026-09-18T00:02:27.192715+00:00",
+      "status": 200,
+      "final_url": "https://download.data.public.lu/resources/lidar-2019-releve-3d-du-territoire-luxembourgeois/20201012-160144/tableau-assemblage-tuiles-laz-geojson.zip",
+      "bytes_read": 732215,
+      "headers": {
+        "Content-Type": "application/zip",
+        "Content-Length": "732215",
+        "Connection": "close",
+        "Date": "Fri, 18 Sep 2026 00:02:28 GMT",
+        "Last-Modified": "Mon, 12 Oct 2020 14:01:46 GMT",
+        "ETag": "\"fb05b4e2f59ef64e7e7197ec38bb02b6\"",
+        "x-amz-meta-mode": "33188",
+        "x-amz-meta-gid": "33",
+        "x-amz-meta-uid": "1001",
+        "x-amz-meta-mtime": "1602511305",
+        "x-amz-version-id": "nLtj78UPVJGuAC6WK01347X4fZM_EQuE",
+        "Accept-Ranges": "bytes",
+        "Server": "AmazonS3",
+        "X-Cache": "Miss from cloudfront",
+        "Via": "1.1 01e55a257e5690c34b2cb5cd713468ee.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Pop": "MIA3-P8",
+        "X-Amz-Cf-Id": "W61i9SkK9D4FHi-PNtvCaaSRVremy-9MkcHcsrSMnTe7hdH62D-_ig==",
+        "Vary": "Origin"
+      },
+      "sha256": "4c8433dc722975dc69bc3260ad84c11873098ece2ebf28145aa37f695b4dbaec",
+      "signature": "504b0304"
+    },
+    {
+      "name": "lux-file",
+      "url": "https://download.data.public.lu/resources/lidar-2019-releve-3d-du-territoire-luxembourgeois/20200221-113602/lidar2019-ndp-c9-r7-ll62000-67000-epsg2169.zip",
+      "checked_at": "2026-09-18T00:03:54.607945+00:00",
+      "status": 206,
+      "final_url": "https://download.data.public.lu/resources/lidar-2019-releve-3d-du-territoire-luxembourgeois/20200221-113602/lidar2019-ndp-c9-r7-ll62000-67000-epsg2169.zip",
+      "bytes_read": 65536,
+      "headers": {
+        "Content-Type": "application/zip",
+        "Content-Length": "65536",
+        "Connection": "close",
+        "Date": "Fri, 18 Sep 2026 00:03:56 GMT",
+        "Last-Modified": "Fri, 21 Feb 2020 10:36:13 GMT",
+        "ETag": "\"55d4fff104ce04218cc70a23aa7bcb99-35\"",
+        "x-amz-meta-mode": "33206",
+        "x-amz-meta-gid": "33",
+        "x-amz-meta-uid": "1001",
+        "x-amz-meta-mtime": "1582281372",
+        "x-amz-version-id": "jYAQOHMMKiAQjNLw0_2XqsgPZfglHqza",
+        "Accept-Ranges": "bytes",
+        "Server": "AmazonS3",
+        "X-Cache": "Miss from cloudfront",
+        "Via": "1.1 15167ef85a9fc2764e4d5ca36adfffde.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Pop": "MIA3-P8",
+        "X-Amz-Cf-Id": "i1I-zakgmPXyrX1MyVLObrLAELBAPhMKhp4W3-Vif6kXbpvsUbsypg==",
+        "Vary": "Origin",
+        "Content-Range": "bytes 0-65535/365677423"
+      },
+      "sha256": "a453191ebe5ed0c7cded257d02f84825b9eb9a506a02549a829ebc2d070ae110",
+      "signature": "504b0304"
+    },
+    {
+      "name": "wallonia-index",
+      "url": "https://geoservices.wallonie.be/arcgis/rest/services/RELIEF/LIDAR_MAILLES/MapServer?f=pjson",
+      "checked_at": "2026-09-18T00:03:56.525391+00:00",
+      "status": 200,
+      "final_url": "https://geoservices.wallonie.be/arcgis/rest/services/RELIEF/LIDAR_MAILLES/MapServer?f=pjson",
+      "bytes_read": 3335,
+      "headers": {
+        "Server": "nginx",
+        "Date": "Fri, 18 Sep 2026 00:03:57 GMT",
+        "Content-Type": "text/plain;charset=UTF-8",
+        "Content-Length": "3335",
+        "Connection": "close",
+        "Vary": "Origin",
+        "Cache-Control": "max-age=0,must-revalidate",
+        "Content-Security-Policy": "script-src 'self';",
+        "X-Content-Type-Options": "nosniff",
+        "ETag": "\"d1f8f818\""
+      },
+      "sha256": "a53e6f909b1f389aa6cf3c102658d8da57c87e43d4789d13fcc12c8cf4706ddd",
+      "signature": "7b0a2022"
+    },
+    {
+      "name": "wallonia-layer",
+      "url": "https://geoservices.wallonie.be/arcgis/rest/services/RELIEF/LIDAR_MAILLES/MapServer/0?f=pjson",
+      "checked_at": "2026-09-18T00:04:35.721669+00:00",
+      "status": 200,
+      "final_url": "https://geoservices.wallonie.be/arcgis/rest/services/RELIEF/LIDAR_MAILLES/MapServer/0?f=pjson",
+      "bytes_read": 7399,
+      "headers": {
+        "Server": "nginx",
+        "Date": "Fri, 18 Sep 2026 00:04:36 GMT",
+        "Content-Type": "text/plain;charset=UTF-8",
+        "Content-Length": "7399",
+        "Connection": "close",
+        "Vary": "Origin",
+        "Cache-Control": "max-age=0,must-revalidate",
+        "Content-Security-Policy": "script-src 'self';",
+        "X-Content-Type-Options": "nosniff",
+        "ETag": "\"d1f8f818\""
+      },
+      "sha256": "2c9b459beb9ff40340808c81398423311aca8c802ba861858eeea0670142672d",
+      "signature": "7b0a2022"
+    },
+    {
+      "name": "wallonia-feature",
+      "url": "https://geoservices.wallonie.be/arcgis/rest/services/RELIEF/LIDAR_MAILLES/MapServer/0/query?where=1%3D1&outFields=*&resultRecordCount=1&outSR=4326&f=geojson",
+      "checked_at": "2026-09-18T00:05:07.522130+00:00",
+      "status": 200,
+      "final_url": "https://geoservices.wallonie.be/arcgis/rest/services/RELIEF/LIDAR_MAILLES/MapServer/0/query?where=1%3D1&outFields=*&resultRecordCount=1&outSR=4326&f=geojson",
+      "bytes_read": 937,
+      "headers": {
+        "Server": "nginx",
+        "Date": "Fri, 18 Sep 2026 00:05:08 GMT",
+        "Content-Type": "application/geo+json;charset=UTF-8",
+        "Content-Length": "937",
+        "Connection": "close",
+        "Cache-Control": "max-age=0,must-revalidate",
+        "Content-Security-Policy": "script-src 'self';",
+        "X-Content-Type-Options": "nosniff",
+        "Vary": "Origin",
+        "ETag": "\"d2d87c8f\""
+      },
+      "sha256": "2798f4e7b513a87a7bede216ba18a563b1245c39796f95ee4656235b818483f5",
+      "signature": "7b227479"
+    }
+  ],
+  "france_spatial_sample": {
+    "id": "LHD_FXX_0913_6450_PTS_LAMB93_IGN69_PM",
+    "bbox": [
+      5.708789799461985,
+      45.10708146245711,
+      5.721935284082059,
+      45.11638971843799
+    ],
+    "type": "Feature",
+    "links": [
+      {
+        "rel": "collection",
+        "type": "application/json",
+        "href": "https://api.stac.teledetection.fr/collections/lidarhd"
+      },
+      {
+        "rel": "parent",
+        "type": "application/json",
+        "href": "https://api.stac.teledetection.fr/collections/lidarhd"
+      },
+      {
+        "rel": "root",
+        "type": "application/json",
+        "href": "https://api.stac.teledetection.fr/"
+      },
+      {
+        "rel": "self",
+        "type": "application/geo+json",
+        "href": "https://api.stac.teledetection.fr/collections/lidarhd/items/LHD_FXX_0913_6450_PTS_LAMB93_IGN69_PM"
+      }
+    ],
+    "assets": {
+      "data": {
+        "href": "https://data.geopf.fr/telechargement/download/LiDARHD-NUALID/NUALHD_1-0__LAZ_LAMB93_PM_2025-03-25/LHD_FXX_0913_6450_PTS_LAMB93_IGN69.copc.laz",
+        "type": "application/vnd.laszip+copc",
+        "roles": [
+          "data"
+        ]
+      }
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            5.721497077208942,
+            45.10708146245711
+          ],
+          [
+            5.721935284082059,
+            45.11608012421847
+          ],
+          [
+            5.709225963469159,
+            45.11638971843799
+          ],
+          [
+            5.708789799461985,
+            45.10739100616845
+          ],
+          [
+            5.721497077208942,
+            45.10708146245711
+          ]
+        ]
+      ]
+    },
+    "collection": "lidarhd",
+    "properties": {
+      "created": "2025-11-24T16:15:40.439596Z",
+      "pc:type": "lidar",
+      "pc:count": 32114206,
+      "grid:code": "LIDARHD-PM",
+      "proj:bbox": [
+        913000.0,
+        6449000.0,
+        247.62,
+        913999.99,
+        6449999.99,
+        437.2
+      ],
+      "proj:code": "EPSG:2154",
+      "proj:wkt2": "PROJCRS[\"RGF93 v1 / Lambert-93\",BASEGEOGCRS[\"RGF93 v1\",DATUM[\"Reseau Geodesique Francais 1993 v1\",ELLIPSOID[\"GRS 1980\",6378137,298.257222101,LENGTHUNIT[\"metre\",1]]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4171]],CONVERSION[\"unnamed\",METHOD[\"Lambert Conic Conformal (2SP)\",ID[\"EPSG\",9802]],PARAMETER[\"Latitude of false origin\",46.5,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8821]],PARAMETER[\"Longitude of false origin\",3,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8822]],PARAMETER[\"Latitude of 1st standard parallel\",49,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8823]],PARAMETER[\"Latitude of 2nd standard parallel\",44,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8824]],PARAMETER[\"Easting at false origin\",700000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8826]],PARAMETER[\"Northing at false origin\",6600000,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8827]]],CS[Cartesian,2],AXIS[\"easting\",east,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing\",north,ORDER[2],LENGTHUNIT[\"metre\",1]],ID[\"EPSG\",2154]]",
+      "pc:schemas": [
+        {
+          "name": "X",
+          "size": 4,
+          "type": "signed"
+        },
+        {
+          "name": "Y",
+          "size": 4,
+          "type": "signed"
+        },
+        {
+          "name": "Z",
+          "size": 4,
+          "type": "signed"
+        },
+        {
+          "name": "intensity",
+          "size": 2,
+          "type": "unsigned"
+        },
+        {
+          "name": "return_number",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "number_of_returns",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "synthetic",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "key_point",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "withheld",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "overlap",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "scanner_channel",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "scan_direction_flag",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "edge_of_flight_line",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "classification",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "user_data",
+          "size": 1,
+          "type": "unsigned"
+        },
+        {
+          "name": "scan_angle",
+          "size": 2,
+          "type": "signed"
+        },
+        {
+          "name": "point_source_id",
+          "size": 2,
+          "type": "unsigned"
+        },
+        {
+          "name": "gps_time",
+          "size": 8,
+          "type": "floating"
+        }
+      ],
+      "pc:encoding": "laz",
+      "end_datetime": "2021-08-06T15:26:32.204161Z",
+      "proj:geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              913999.99,
+              6449000.0
+            ],
+            [
+              913999.99,
+              6449999.99
+            ],
+            [
+              913000.0,
+              6449999.99
+            ],
+            [
+              913000.0,
+              6449000.0
+            ],
+            [
+              913999.99,
+              6449000.0
+            ]
+          ]
+        ]
+      },
+      "start_datetime": "2019-03-20T10:24:30.993763Z",
+      "lidarhd:capteur": [
+        "RIEGL VQ-780 II-S:H2223888"
+      ],
+      "lidarhd:code_mission": "21LHD6PM",
+      "lidarhd:date_edition": "2025-03-25",
+      "lidarhd:nombre_points": 32078758,
+      "lidarhd:coordonnees_NW": "0913-6450",
+      "lidarhd:moa_acquisition": "IGN",
+      "lidarhd:moe_acquisition": "Sintegra",
+      "lidarhd:procede_classement": "ST_AUTO_MANUEL_POST_EXP",
+      "lidarhd:date_fin_acquisition": "2021-08-06",
+      "lidarhd:systeme_altimetrique": "IGN69",
+      "lidarhd:moe_classement_manuel": "IGN",
+      "lidarhd:systeme_planimetrique": "LAMB93",
+      "lidarhd:date_debut_acquisition": "2021-08-06",
+      "lidarhd:moe_classement_automatique": "Avineon"
+    },
+    "stac_version": "1.1.0",
+    "stac_extensions": [
+      "https://stac-extensions.github.io/projection/v2.0.0/schema.json",
+      "https://stac-extensions.github.io/pointcloud/v1.0.0/schema.json",
+      "https://stac-extensions.github.io/grid/v1.1.0/schema.json",
+      "https://forge.inrae.fr/teledec/stac-extensions/schemas/-/raw/main/lidarhd/v0.0.1/schema.json"
+    ]
+  },
+  "spain_geometry": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "MultiPolygon",
+          "coordinates": [
+            [
+              [
+                [
+                  -7.546180207,
+                  39.670003009,
+                  242.4
+                ],
+                [
+                  -7.542630373,
+                  39.669958509,
+                  242.4
+                ],
+                [
+                  -7.542657222,
+                  39.668680882,
+                  209.81
+                ],
+                [
+                  -7.546206991,
+                  39.66872538,
+                  209.81
+                ],
+                [
+                  -7.546180207,
+                  39.670003009,
+                  242.4
+                ]
+              ]
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  "luxembourg": {
+    "polygon_count": 10908,
+    "sample_zip_matched_tiles": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.9332553222,
+                49.5374645112,
+                0
+              ],
+              [
+                5.940163086,
+                49.5374782717,
+                0
+              ],
+              [
+                5.9401422561,
+                49.5419737917,
+                0
+              ],
+              [
+                5.9332338585,
+                49.541960029,
+                0
+              ],
+              [
+                5.9332553222,
+                49.5374645112,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "tile_id": "tile_63000_67500",
+          "parent_id": "parent_C9_R7_LL62000_67000",
+          "laz_file": "LIDAR2019_NdP_63000_67500_EPSG2169.laz",
+          "zip_file": "LIDAR2019_NdP_C9_R7_LL62000_67000_EPSG2169.zip"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.9332338585,
+                49.541960029,
+                0
+              ],
+              [
+                5.9401422561,
+                49.5419737917,
+                0
+              ],
+              [
+                5.9401214209,
+                49.5464693082,
+                0
+              ],
+              [
+                5.9332123895,
+                49.5464555434,
+                0
+              ],
+              [
+                5.9332338585,
+                49.541960029,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "tile_id": "tile_63000_68000",
+          "parent_id": "parent_C9_R7_LL62000_67000",
+          "laz_file": "LIDAR2019_NdP_63000_68000_EPSG2169.laz",
+          "zip_file": "LIDAR2019_NdP_C9_R7_LL62000_67000_EPSG2169.zip"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.9263475638,
+                49.5374503384,
+                0
+              ],
+              [
+                5.9332553222,
+                49.5374645112,
+                0
+              ],
+              [
+                5.9332338585,
+                49.541960029,
+                0
+              ],
+              [
+                5.9263254664,
+                49.541945854,
+                0
+              ],
+              [
+                5.9263475638,
+                49.5374503384,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "tile_id": "tile_62500_67500",
+          "parent_id": "parent_C9_R7_LL62000_67000",
+          "laz_file": "LIDAR2019_NdP_62500_67500_EPSG2169.laz",
+          "zip_file": "LIDAR2019_NdP_C9_R7_LL62000_67000_EPSG2169.zip"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.9332123895,
+                49.5464555434,
+                0
+              ],
+              [
+                5.9401214209,
+                49.5464693082,
+                0
+              ],
+              [
+                5.9401005805,
+                49.5509648212,
+                0
+              ],
+              [
+                5.9331909151,
+                49.5509510542,
+                0
+              ],
+              [
+                5.9332123895,
+                49.5464555434,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "tile_id": "tile_63000_68500",
+          "parent_id": "parent_C9_R7_LL62000_67000",
+          "laz_file": "LIDAR2019_NdP_63000_68500_EPSG2169.laz",
+          "zip_file": "LIDAR2019_NdP_C9_R7_LL62000_67000_EPSG2169.zip"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.919394343,
+                49.5464267763,
+                0
+              ],
+              [
+                5.9263033635,
+                49.5464413661,
+                0
+              ],
+              [
+                5.926281255,
+                49.5509368746,
+                0
+              ],
+              [
+                5.9193716006,
+                49.5509222825,
+                0
+              ],
+              [
+                5.919394343,
+                49.5464267763,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "tile_id": "tile_62000_68500",
+          "parent_id": "parent_C9_R7_LL62000_67000",
+          "laz_file": "LIDAR2019_NdP_62000_68500_EPSG2169.laz",
+          "zip_file": "LIDAR2019_NdP_C9_R7_LL62000_67000_EPSG2169.zip"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.9263033635,
+                49.5464413661,
+                0
+              ],
+              [
+                5.9332123895,
+                49.5464555434,
+                0
+              ],
+              [
+                5.9331909151,
+                49.5509510542,
+                0
+              ],
+              [
+                5.926281255,
+                49.5509368746,
+                0
+              ],
+              [
+                5.9263033635,
+                49.5464413661,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "tile_id": "tile_62500_68500",
+          "parent_id": "parent_C9_R7_LL62000_67000",
+          "laz_file": "LIDAR2019_NdP_62500_68500_EPSG2169.laz",
+          "zip_file": "LIDAR2019_NdP_C9_R7_LL62000_67000_EPSG2169.zip"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.9194170798,
+                49.5419312665,
+                0
+              ],
+              [
+                5.9263254664,
+                49.541945854,
+                0
+              ],
+              [
+                5.9263033635,
+                49.5464413661,
+                0
+              ],
+              [
+                5.919394343,
+                49.5464267763,
+                0
+              ],
+              [
+                5.9194170798,
+                49.5419312665,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "tile_id": "tile_62000_68000",
+          "parent_id": "parent_C9_R7_LL62000_67000",
+          "laz_file": "LIDAR2019_NdP_62000_68000_EPSG2169.laz",
+          "zip_file": "LIDAR2019_NdP_C9_R7_LL62000_67000_EPSG2169.zip"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.9194398109,
+                49.5374357532,
+                0
+              ],
+              [
+                5.9263475638,
+                49.5374503384,
+                0
+              ],
+              [
+                5.9263254664,
+                49.541945854,
+                0
+              ],
+              [
+                5.9194170798,
+                49.5419312665,
+                0
+              ],
+              [
+                5.9194398109,
+                49.5374357532,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "tile_id": "tile_62000_67500",
+          "parent_id": "parent_C9_R7_LL62000_67000",
+          "laz_file": "LIDAR2019_NdP_62000_67500_EPSG2169.laz",
+          "zip_file": "LIDAR2019_NdP_C9_R7_LL62000_67000_EPSG2169.zip"
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.9263254664,
+                49.541945854,
+                0
+              ],
+              [
+                5.9332338585,
+                49.541960029,
+                0
+              ],
+              [
+                5.9332123895,
+                49.5464555434,
+                0
+              ],
+              [
+                5.9263033635,
+                49.5464413661,
+                0
+              ],
+              [
+                5.9263254664,
+                49.541945854,
+                0
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "tile_id": "tile_62500_68000",
+          "parent_id": "parent_C9_R7_LL62000_67000",
+          "laz_file": "LIDAR2019_NdP_62500_68000_EPSG2169.laz",
+          "zip_file": "LIDAR2019_NdP_C9_R7_LL62000_67000_EPSG2169.zip"
+        }
+      }
+    ]
+  },
+  "wallonia_sample": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "id": 1,
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                5.309338550017583,
+                49.60926312029323
+              ],
+              [
+                5.316255618629998,
+                49.60920539084896
+              ],
+              [
+                5.316344786705983,
+                49.613700314224275
+              ],
+              [
+                5.3094270737666145,
+                49.61375804907137
+              ],
+              [
+                5.309338550017583,
+                49.60926312029323
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "OBJECTID": 1,
+          "LAS_NAME": "LIDAR_2021_2022_500mN5335E7180",
+          "MAPSHEET": "20kmN52E70",
+          "NBR_POINTS": 1139730,
+          "DATE_PROD": 1629244800000,
+          "DATE_FIRST": 1614603484000,
+          "DATE_LAST": 1614603709000,
+          "FILE_SIZE": 3.85,
+          "LOW_LEFT_X": 718112.65,
+          "LOW_LEFT_Y": 533612.34,
+          "Z_MIN": 183.79,
+          "Z_MAX": 236.62,
+          "COORDSYS": "ETRS89 / Belgian Lambert 2008",
+          "EPSG": 3812,
+          "VERT_CS": "Ostend height",
+          "VERT_CS_EPSG": 5710,
+          "CLASSIF": 1,
+          "CLASSES": "0,1,2,4",
+          "RGB": 0,
+          "FORMAT": "laz",
+          "GRID_CELL_CODE": "500mN5335E7180",
+          "GEOM.AREA": 0,
+          "GEOM.LEN": 0
+        }
+      }
+    ],
+    "exceededTransferLimit": true,
+    "properties": {
+      "exceededTransferLimit": true
+    }
+  }
+}

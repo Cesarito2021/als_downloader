@@ -1,0 +1,4 @@
+# These files form a byte-verified catalogue snapshot on all platforms.
+inst/extdata/opentopography-registry.rds -text
+inst/extdata/opentopography-access-audit.csv -text
+inst/extdata/opentopography-verification.json -text

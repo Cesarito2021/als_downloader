@@ -1,0 +1,230 @@
+---
+title: "ALS Downloader Report"
+output:
+  html_document:
+    self_contained: true
+params:
+  tiles: NULL
+  aoi_area_km2: NA
+  aoi: NULL
+  figures: NULL
+  figure_captions: NULL
+  map_image: NULL
+  map_credits: ""
+  details: false
+  software_citation: ""
+geometry: margin=0.65in
+fontsize: 10pt
+header-includes:
+  - \usepackage{helvet}
+  - \renewcommand{\familydefault}{\sfdefault}
+  - \usepackage{xcolor}
+  - \definecolor{alsaccent}{HTML}{176B68}
+  - \makeatletter
+  - \renewcommand\section{\@startsection{section}{1}{\z@}{-2ex plus -1ex minus -.2ex}{1ex plus .2ex}{\normalfont\large\bfseries\color{alsaccent}}}
+  - \def\@maketitle{}
+  - \renewcommand\subsection[1]{\par\vspace{1.4em}{\large\bfseries\color{alsaccent}#1\par}\vspace{.3em}{\color{alsaccent}\hrule}\vspace{.7em}}
+  - \makeatother
+---
+
+<style>
+body{max-width:900px;margin:auto;padding:32px 32px 60px;font-family:Arial,Helvetica,sans-serif;color:#263a40;line-height:1.5}
+h1.title{color:#176b68;font-size:32px;font-weight:700}
+h2{color:#176b68;border-bottom:2px solid #176b68;padding-bottom:6px;margin-top:26px;font-size:21px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0 18px;background:#f2f5f5}
+td,th{padding:9px 12px;border-bottom:3px solid white;text-align:left;overflow-wrap:anywhere}
+img{max-width:100%} .report-note{background:#f2f5f5;padding:16px}
+@media print{h2{break-after:avoid}img,table{break-inside:avoid}}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, results = "asis")
+tiles <- params$tiles
+aoi_area_km2 <- params$aoi_area_km2
+aoi <- params$aoi
+has_tiles <- !is.null(tiles) && is.data.frame(tiles) && nrow(tiles) > 0
+has_aoi <- inherits(aoi, "sf") && nrow(aoi) > 0
+has_map <- has_tiles && has_aoi && inherits(tiles, "sf")
+tiles_df <- if (has_tiles && inherits(tiles, "sf")) sf::st_drop_geometry(tiles) else tiles
+bytes <- if (has_tiles) suppressWarnings(as.numeric(tiles_df$size_bytes)) else numeric()
+known <- is.finite(bytes) & bytes > 0
+total_gb <- sum(bytes[known]) / 1e9
+providers <- if (has_tiles) sort(unique(tiles_df$provider)) else character()
+dates <- if (has_tiles) sort(unique(na.omit(c(as.character(tiles_df$acquired_start), as.character(tiles_df$acquired_end))))) else character()
+dates <- dates[nzchar(dates)]
+area_label <- if (length(aoi_area_km2) == 1 && is.finite(aoi_area_km2)) sprintf("%.4f km2", aoi_area_km2) else "Not recorded"
+date_label <- ALSdownloadeR:::report_date_label(tiles_df$acquired_start, tiles_df$acquired_end)
+storage_label <- ALSdownloadeR:::report_storage_label(bytes)
+if(has_tiles && "acquisition_year" %in% names(tiles_df)) {
+  labels <- ALSdownloadeR:::acquisition_year_label(tiles_df)
+  date_label <- paste(sort(unique(labels)),collapse=", ")
+  if(any(labels=="NA")) date_label <- paste0(date_label,"; ",sum(labels=="NA")," file(s) with unavailable year")
+}
+has_map_figure <- length(params$map_image) > 0 || has_map
+figure_number <- if (has_map_figure) 1L else 0L
+```
+
+```{r report-banner}
+if (knitr::is_latex_output()) {
+  banner <- normalizePath(system.file("report", "banner.png", package = "ALSdownloadeR"), winslash = "/", mustWork = TRUE)
+  cat(paste0("```{=latex}\n\\noindent\\begin{minipage}[c]{0.50\\linewidth}\n",
+    "\\includegraphics[width=\\linewidth,height=2cm,keepaspectratio]{\\detokenize{", banner, "}}\n",
+    "\\end{minipage}\\hfill\\begin{minipage}[c]{0.45\\linewidth}\\raggedleft\n",
+    "{\\color{alsaccent}\\Large\\bfseries ALS Downloader Report}\\par\n",
+    "\\end{minipage}\\par\\vspace{0.8em}\n```\n\n"))
+}
+```
+
+Discover, inspect and download airborne LiDAR. A summary of the selected tiles, acquisition dates, storage and data sources.
+
+## Key information
+
+```{r}
+key <- data.frame(
+  Information = c("Report date", "Area of interest (AOI)", "Selected data", "Acquisition year(s)", "Total download size"),
+  Value = c(format(Sys.time(), "%Y-%m-%d %H:%M"), area_label,
+    sprintf("Tiles: %d | Providers: %d", if (has_tiles) nrow(tiles) else 0, length(providers)),
+    date_label, storage_label))
+if (knitr::is_latex_output()) {
+  cat("```{=latex}\n\\colorbox{black!4}{\\parbox{\\dimexpr\\linewidth-2\\fboxsep}{\n")
+  panel <- knitr::kable(key, format = "latex", row.names = FALSE, col.names = NULL, vline = "")
+  cat("\\renewcommand{\\arraystretch}{1.5}\n")
+  cat(gsub("\\hline", "", panel, fixed = TRUE))
+  cat("}}\n```\n\n")
+} else print(knitr::kable(key, row.names = FALSE, col.names = c("", "")))
+if (length(providers)) cat("\nProviders:", paste(providers, collapse = ", "), "\n\n")
+if (!has_tiles) cat("No tiles in this selection.\n\n")
+```
+
+```{r fig.width=7.2, fig.height=4.1, fig.align="center"}
+if (length(params$map_image)) {
+  if (knitr::is_latex_output()) cat(sprintf("\\begin{center}\n\\includegraphics[width=\\linewidth,height=0.45\\textheight,keepaspectratio]{%s}\n\\end{center}\n\n", params$map_image))
+  else cat(sprintf("![](%s)\n\n", params$map_image))
+  cat("**Figure 1.** Study area (gold outline) and selected tile footprints.\n\n")
+  cat(params$map_credits, "\n\n")
+} else if (has_map) {
+  aoi_geo <- sf::st_transform(aoi, 4326)
+  tiles_geo <- sf::st_transform(tiles, 4326)
+  reported <- ifelse(is.na(tiles_geo$acquired_end), tiles_geo$acquired_start, tiles_geo$acquired_end)
+  year <- suppressWarnings(as.integer(substr(reported, 1, 4)))
+  if ("acquisition_year" %in% names(tiles_geo)) year <- tiles_geo$acquisition_year
+  years <- sort(unique(stats::na.omit(year)))
+  n_year <- length(years)
+  cols <- grDevices::hcl.colors(max(n_year, 2), "Set 2")
+  fill <- if (n_year > 0) cols[match(year, years)] else rep(NA_character_, nrow(tiles_geo))
+  fill[is.na(fill)] <- "#8a97a1"
+  combined <- c(sf::st_geometry(aoi_geo), sf::st_geometry(tiles_geo))
+  bb <- sf::st_bbox(combined)
+  graphics::par(mar = c(3.5, 5.5, 1, 1), family = "sans")
+  plot(sf::st_geometry(tiles_geo), col = fill, border = "#1c2b35",
+    xlim = bb[c("xmin", "xmax")], ylim = bb[c("ymin", "ymax")], main = "", axes = FALSE)
+  graphics::axis(1, cex.axis = .8)
+  graphics::axis(2, las = 1, cex.axis = .8)
+  graphics::mtext("Longitude (WGS84)", side = 1, line = 2.2, cex = .8)
+  graphics::mtext("Latitude (WGS84)", side = 2, line = 4.2, cex = .8)
+  graphics::box()
+  plot(sf::st_geometry(aoi_geo), add = TRUE, border = "#dc2626", lwd = 2, col = NA)
+  if (n_year > 0) legend("topright", legend = c(as.character(years), "NA"),
+    fill = c(cols[seq_len(n_year)], "#8a97a1"), bty = "n", cex = .8, title = "Acquisition year")
+  cat("\n\n**Figure 1.** Study area (red outline) and selected tile footprints, coloured by acquisition year.\n\n")
+} else if (has_tiles) {
+  # No map section when no map was generated.
+  invisible(NULL)
+}
+```
+
+```{r attached-figures, out.width="100%", out.height="7in", fig.align="center"}
+if (length(params$figures)) {
+  for (i in seq_along(params$figures)) {
+    if (knitr::is_latex_output()) cat("\\newpage\n")
+    figure_number <- figure_number + 1L
+    if (knitr::is_latex_output()) cat(sprintf("\\includegraphics[width=\\linewidth,height=0.72\\textheight,keepaspectratio]{%s}\n", params$figures[i]))
+    else cat(sprintf("![](%s)\n\n", params$figures[i]))
+    cat(sprintf("\n\n**Figure %d.** %s\n\n", figure_number, params$figure_captions[i]))
+  }
+}
+```
+
+```{r}
+if (knitr::is_latex_output() && (has_map_figure || length(params$figures))) cat("\\newpage\n")
+```
+
+## Summary
+
+```{r}
+if (has_tiles) {
+  cat(sprintf("Selected tiles: **%d**. Data providers: **%d**.\n\n", nrow(tiles), length(providers)))
+  cat("Acquisition year(s): **", date_label, "**.\n\n", sep="")
+  cat("Total download size: **", storage_label, "**.\n\n", sep="")
+} else cat("No tiles in this selection.\n\n")
+```
+
+Downloaded point clouds are original files from their providers. ALS Downloader applies no additional pre- or post-processing to these downloads. Figures show sampled point clouds for visual inspection.
+
+## Data source licences and policies
+
+```{r}
+if (has_tiles) {
+  cols <- intersect(c("citation", "license_url"), names(tiles_df))
+  if (length(cols) == 2) {
+    pairs <- unique(tiles_df[, cols, drop = FALSE])
+    for (i in seq_len(nrow(pairs))) {
+      credit <- if (is.na(pairs$citation[i]) || !nzchar(pairs$citation[i])) "Source credit not supplied" else pairs$citation[i]
+      link <- pairs$license_url[i]
+      terms <- if (!is.na(link) && grepl("^https?://", link)) paste0("[Licence and source terms](<", link, ">)") else "Licence link not supplied"
+      cat("-", credit, "-", terms, "\n\n")
+    }
+  }
+}
+```
+
+
+Source datasets retain their own licences. Cite the original data producers and dataset DOIs when using these files or figures.
+
+```{r}
+if (isTRUE(params$details)) {
+  if (knitr::is_latex_output()) cat("\\newpage\n")
+  cat(knitr::knit_child(system.file("report", "technical-appendix.Rmd", package = "ALSdownloadeR"), quiet = TRUE), sep = "\n")
+}
+```
+
+## Software citation
+
+```{r}
+cat(params$software_citation, "\n\n")
+```
+
+## Acknowledgements
+
+The development of ALS Downloader at the **University of Florida**, within [OpenForest4D](https://openforest4d.org), was supported by the **U.S. National Science Foundation** under awards **2409885, 2409886 and 2409887**. We thank the data producers and repositories cited in this report.
+
+Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
+
+
+```{r}
+if (knitr::is_latex_output()) cat("\\newpage\n")
+```
+
+## Acquisition evidence and source records
+
+NA denotes an unavailable value in the checked sources. A filename reference is not a verified acquisition year. Lookup failures are distinct from absent metadata. Download size excludes additional space for decompression and processing.
+
+```{r}
+if(has_tiles) {
+  fields <- intersect(c("provider","dataset","date_status","date_scope","date_source","source_url","metadata_url"),names(tiles_df))
+  if(length(fields)) {
+    records <- unique(tiles_df[fields])
+    for(i in seq_len(nrow(records))) {
+      cat("\n\n**", records$dataset[i], "** (", records$provider[i], ")\n\n", sep="")
+      for(field in intersect(c("date_status","date_scope"),fields))
+        cat(gsub("_"," ",field), ": ", records[[field]][i], ". ",sep="")
+      for(field in intersect(c("source_url","metadata_url"),fields)) {
+        link <- records[[field]][i]
+        if(!is.na(link) && grepl("^https://",link))
+          cat("\n\n[",gsub("_"," ",field),"](",link,")",sep="")
+      }
+      cat("\n\n")
+    }
+  }
+}
+```

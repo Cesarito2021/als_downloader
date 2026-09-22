@@ -1,0 +1,35 @@
+# ALSdownloadeR implementation review — 22 September 2026
+
+The maintainer authorized implementation after CRAN cancelled the previous submission, then explicitly approved the local package name ALSdownloadeR. Work is on `codex/provider-metadata-review`. The previously submitted archive is preserved. No publication or new submission has been made.
+
+## Implemented
+
+* Brief standard package-startup greeting (on `library()`, suppressible), shared with the exported R script. The direct Download ALS data action remains primary; Download R script is an optional local-R alternative with concise comments for package loading, output directory, selected sources and transfer concurrency. The script does not need a running app and does not repeat discovery.
+
+* Official USGS TNM original LAZ discovery, explicit pagination checks, original asset access for download and preview. Planetary Computer remains an explicit optional provider, not an automatic second inventory. OpenTopography searches its audited hosted collections, not a duplicate USGS federation.
+* Public `find_als_data()`, `extract_als_dates()`, `download_als_data()`, `summarize_als_data()`, `get_als_file_sizes()`, `summarize_als_download()` and `create_als_report()`. Existing function names remain compatible aliases/entry points. Provider-specific discovery adapters isolate USGS, AHN, IGN France, swisstopo, CanElevation and OpenTopography transports.
+* Deterministic USGS FGDC XML parsing of acquisition/ground-condition periods, excluding publication and processing dates. Original metadata takes precedence over catalog values; filename years are explicitly unverified references. Ambiguous records remain flagged. Project XML documents with different exact periods but the same final year yield year precision, without invented day/month values.
+* AHN6 2025 flight-strip dates from the official auxiliary index; Swiss tile-version metadata with a guard against attaching the current record to an older file; existing IGN named acquisition fields and OpenTopography dataset periods retained with their provenance.
+* Harmonized final acquisition year, provenance, precision, scope, status and source links. Visible table excludes individual byte counts and start/end columns; detailed exports retain supporting metadata. Missing values use NA, with lookup failures, unchecked records and conflicts distinguished.
+* Provider sizes plus bounded parallel HEAD / one-byte-range requests for missing sizes. Total compressed download size is shown in MB/GB; partial known subtotals explicitly remain incomplete. No full point cloud is downloaded just to estimate its size. Additional extraction/processing disk space is not included. Resource-query parameters remain part of file identity; access tokens do not create a second file.
+* Either eligible member may be chosen first for comparison, then only its eligible overlapping partners. The existing 99% overlap criterion relative to the smaller footprint is retained. Remote viewing/comparison downloads complete source files into temporary storage before reading; README states this.
+* Globe rotation increased by 25%, red/yellow legend aligned, original author photo retained. New real UI screenshots replace the outdated table illustration.
+* Local package namespace, installation references, R project, citations, tests and R-universe configuration now use ALSdownloadeR. GitHub remains `Cesarito2021/als_downloader`.
+
+## Evidence and limits
+
+* Full R CMD check passed with Status: OK on Windows/R 4.4.0: 719 passing expectations, zero failures or skips. Two test warnings concern installed Shiny/future packages built under R 4.4.3. Final report-template changes also passed targeted report tests. The final archive was rebuilt and checked separately without rerunning unchanged tests. HTML and all three PDF pages of the real USGS report were visually inspected; pagination preserves the source links.
+* Replayed saved official TNM responses through the new discovery function for all 40 user AOIs: all 40 returned intersecting assets, with positive catalogue sizes and no repeated canonical URLs. The 16 sites previously missing from the PC query are included. Evidence: workspace `review/implementation-40-sites.json`. This is a reproducible reconciliation, not proof of nationwide catalogue completeness or complete laser coverage within tile bounding boxes.
+* Live USGS test: SoCal original `USGS_LPC_CA_SoCAL_Wildfires_2018_D18_w2080n1482.laz`, documented final year 2018, 39,685,660 bytes. Multiple project metadata records agree on the year but not the exact period; the output therefore keeps only year precision.
+* Live app search over the public SoCal test area returned USGS 2018 and an independent OpenTopography 2009 survey. AHN's empty `next=self` sentinel was identified and handled specifically, without weakening generic pagination checks.
+* Swiss original ZIP size was obtained from HTTP headers (11,225 bytes). Automated tests cover year/version matching, AHN flight-strip extraction, XML date validation, identity/deduplication and partial size replies.
+* No universal promise that every country publishes acquisition dates or HTTP file lengths. Canada and other missing metadata remain explicitly unavailable/unverified until an authoritative provider-specific record is found. The app does not reinterpret LAS header creation dates or product edition dates as acquisition dates.
+* The optional Planetary catalogue is retained but not automatically queried to fill original-USGS date gaps: matching a converted asset to its original survey needs evidence. Filename fallback never becomes verified acquisition evidence merely because it contains a year.
+* Temporal comparison still requires known, non-overlapping acquisition intervals. A final-year-only value is useful for discovery but does not establish a complete acquisition interval; the app does not invent dates to enable comparison.
+* Metadata and size lookups have bounded request budgets. NA can mean not checked within that budget, not provided or lookup failed; the status distinguishes these cases. Search latency is network/provider dependent, not guaranteed to finish within two minutes.
+* Updating source links from a user table remains a future manual workflow, as requested. It will not generate a new country's adapter automatically.
+* Publication, actual R-universe deployment, hosted app deployment, fresh national-scale completeness audits and a new CRAN submission remain separate release steps. Personal download workers and their installed old namespace have not been migrated or restarted by this implementation.
+
+## Scientific timing
+
+Use measured wall-clock time, total transferred bytes, completed/failed/resumed file counts, worker count, connection type and machine details for the paper. The earlier short transfer-rate sample is not a benchmark for the revised package or an entire 40-site download. No elapsed-time claim has been fabricated from the number of CPU cores.

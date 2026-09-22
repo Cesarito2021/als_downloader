@@ -1,0 +1,28 @@
+Package: ALSdownloadeR
+Title: Discover, Inspect and Download Airborne Laser Scanning Data
+Version: 0.1.3.9000
+Authors@R: person("Cesar Ivan", "Alvites Diaz", role = c("aut", "cre"),
+    email = "calvites1990@gmail.com")
+Description: Discover, visualize and download airborne laser scanning data
+    from an international catalogue through R functions and a 'Shiny'
+    application. Spatial searches identify point-cloud tiles intersecting
+    an area of interest and retain acquisition metadata, source citations
+    and licence links. Supports three-dimensional visualization, visual
+    comparison, download planning reports and transfers of original files.
+    Integrates supported provider services and configured spatial indexes,
+    including approved community contributions. Distinguishes integrated
+    access from external portals; availability depends on provider coverage.
+License: GPL-3
+Contact: Cesar Ivan Alvites Diaz <calvites1990@gmail.com>
+URL: https://cesarito2021.r-universe.dev/ALSdownloadeR,
+    https://github.com/Cesarito2021/als_downloader
+BugReports: https://github.com/Cesarito2021/als_downloader/issues
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: xml2, sf, s2, httr, curl, jsonlite, digest, parallelly, future, future.apply,
+    shiny (>= 1.8.0), leaflet, leaflet.extras, DT, callr, zip, stats, tools, utils
+Suggests: lidR, testthat (>= 3.0.0), knitr, rmarkdown, tinytex, pkgload,
+    openssl
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+RoxygenNote: 7.3.1

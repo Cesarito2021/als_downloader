@@ -1,0 +1,75 @@
+The package's R functions and interface were developed for ALS Downloader.
+Treetop was consulted as an architectural reference; no Treetop source code is
+included in the new package.
+
+world-countries.geojson is generated from world-atlas 2.0.2 countries-110m.json,
+https://github.com/topojson/world-atlas, derived from Natural Earth public-domain
+map data (https://www.naturalearthdata.com/about/terms-of-use/).
+World Atlas code is Copyright 2013-2019 Michael Bostock under the ISC license:
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT,
+OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.
+
+The interactive basemap uses OpenStreetMap Standard tiles:
+https://tile.openstreetmap.org/{z}/{x}/{y}.png
+Map data: (c) OpenStreetMap contributors, Open Database License (ODbL).
+https://www.openstreetmap.org/copyright
+Visible credit is retained on maps, PNGs and PDF map figures. Tiles are loaded
+by the browser for the user's current view; its HTTP cache is respected.
+No bulk tile download, offline map archive or server tile proxy is provided.
+https://operations.osmfoundation.org/policies/tiles/
+The service is best-effort, with no availability guarantee. The bundled country
+outlines remain usable without remote tiles. No Esri basemap service is used.
+
+The welcome globe is an original canvas rendering of the bundled Natural Earth /
+World Atlas country outlines. It uses no Apple imagery or proprietary globe tiles.
+The welcome globe colours countries by access route for illustration only.
+Explorer separately shows source survey footprints in red (In-App Access),
+and country-level external links in yellow (External Access). Point markers are
+not used as a substitute for survey boundaries. The footprint snapshot sources,
+licences and generalization are documented in sources/DISCOVERY_COVERAGE.md.
+Atmospheric glow, ocean highlights, decorative cloud wisps and stars are original
+procedural effects. The clouds are illustrative, not meteorological observations.
+No studio artwork, film frames or satellite cloud imagery is incorporated.
+
+html2canvas 1.4.1 (MIT), Copyright Niklas von Hertzen and contributors.
+Bundled unminified distribution: https://github.com/niklasvh/html2canvas/tree/v1.4.1
+Licence: app/www/html2canvas-LICENSE.txt. Used for local map image exports.
+
+Interactive maps use Leaflet (BSD-2-Clause; Volodymyr Agafonkin, CloudMade and
+contributors) through the leaflet R package (MIT; Posit and contributors).
+These dependencies retain their own licences and notices in their distributions.
+https://github.com/Leaflet/Leaflet/blob/v1.3.1/LICENSE
+https://github.com/rstudio/leaflet/tree/v2.2.2
+ALS Downloader's compatibility code in app.js is original application code.
+
+The author portrait is supplied from Cesar Alvites' own public website repository,
+with his authorization for this application. It is not provider imagery.
+
+The banner includes a cropped Groningen AHN6 point-cloud view, with a dark
+overlay for legibility. Source: AHN, https://www.ahn.nl/dataroom.
+Data licence: CC BY 4.0, https://creativecommons.org/licenses/by/4.0/.
+Its editable SVG and figure provenance are retained in the repository under
+docs/images/banner.svg and docs/README_FIGURES.md. The R symbol identifies the
+R language; it is not the application logo or an endorsement by the R project.
+R logo: Copyright 2016 The R Foundation, https://www.r-project.org/logo/.
+Used under CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/.
+The logo is scaled and placed in the banner; its colours and geometry are
+unchanged. Its official editable source is included as report/Rlogo.svg.
+
+The README acknowledgement logos (OpenForest4D, U.S. National Science Foundation,
+University of Florida and Silva Lab) were supplied by the maintainer for credit
+and affiliation. They identify their respective organizations and are not
+relicensed under the software's GPL-3 licence. Their display does not imply
+endorsement of the software or of user-generated results. These image files
+are in docs/images/acknowledgements, outside the R source package.
+NSF support acknowledgement and brand guidance:
+https://www.nsf.gov/policies/brand
+https://www.nsf.gov/policies/pappg/24-1/ch-11-other-post-award-requirements

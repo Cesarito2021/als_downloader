@@ -1,0 +1,13 @@
+{
+  "captured": "2026-09-17T14:12:52.487Z",
+  "viewport": {
+    "width": 1560,
+    "height": 1220
+  },
+  "source": "Live local Shiny app; real USGS AOI and downloaded sample; HTML annotation overlays only",
+  "errors": [],
+  "annotations": "Red HTML overlays identifying controls; application data and controls are unmodified. Example directory inputs set through the UI.",
+  "files": [
+    "interface-explore.png"
+  ]
+}

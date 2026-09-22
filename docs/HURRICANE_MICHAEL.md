@@ -1,0 +1,102 @@
+# Coastal tile date check: Hurricane Michael
+
+Checked 17 September 2026 near Mexico Beach, Florida, at longitude -85.418, latitude 29.948.
+
+This is a historical, one-off investigation. The application uses provider dates unchanged and does not independently verify or correct years or block comparison because of date inconsistencies.
+
+## Verified post-event aerial tile
+
+The [NOAA / USACE source record](https://www.fisheries.noaa.gov/inport/item/54682) identifies an airborne CZMIL topobathymetric survey acquired **24 October–4 November 2018**. This is laser scanning, including land and seabed points.
+
+The source record's old GEOID12B bulk link returned 404. The current [GEOID18 distribution](https://noaa-nos-coastal-lidar-pds.s3.amazonaws.com/laz/geoid18/8625/index.html) provides a working spatial index and files, in NAD83(2011) / UTM 16N with NAVD88/GEOID18 elevations.
+
+The index intersects the coastal test location in two blocks. We checked **Blk_861**, file `20181024_FEMA_PostMichael_FL_16rfu5214.copc.laz`:
+
+| Evidence | Result |
+|---|---|
+| Complete file transfer | 45,866,026 bytes; matched HTTP size |
+| LAS header point count | 7,983,156 |
+| Decoded sample | 159,663 points, one in every 50 |
+| Sample GPS date | **24 October 2018**, 13:43:59.638500–15:00:44.116400 in GPS calendar time |
+| File creation date | **3 November 2018** (header year 2018, day 307) |
+| Sample classes | 1: 120,694; 2: 37,095; 29: 1,874 |
+
+The header sets the adjusted-standard-GPS flag. The check restores the 1 billion-second offset before converting to GPS calendar time, following the [LAS specification](https://www.asprs.org/wp-content/uploads/2019/07/LAS_1_4_r15.pdf). Times shown are not UTC. Sampling does not establish the full flight interval; the local MD5 is a fingerprint, not a comparison against a published checksum. [Machine-readable evidence and exact tile link](michael-tile-check.json).
+
+This check confirms a post-event point sample. It does not measure hurricane damage, establish a matched pre-event survey, or add a NOAA AOI adapter to the app.
+
+## Separate USGS catalog finding
+
+At the same point, the application's Planetary Computer search returned a tile named
+`USGS_LPC_FL_Lower_Choctawhatchee_2017_16RFU525135_LAS_2019.copc.laz`, with both catalog dates set to **2019-01-01**.
+Neither the project-name year nor this single-day catalog value has been independently verified as its acquisition interval.
+Do not label this tile pre-/post-Michael from its filename or catalog timestamp alone. This is a different survey from the NOAA tile above; no date correction was inferred or applied.
+[Recorded catalog response](michael-stac-check.json).
+
+The app displays provider-reported dates. This historical investigation does not create an acquisition-date verification requirement in the app; interpretation of the selected campaigns remains with the user.
+
+## Open lead: a usable pre/post pair may already exist in USGS 3DEP alone
+
+Not yet checked, and requires a live search this session could not run (no outbound
+network access beyond GitHub). The FEMA post-Michael survey above
+(`20181024_FEMA_PostMichael_FL_...`) is exactly the kind of disaster-response
+LiDAR that USGS periodically ingests into 3DEP under its own project name,
+separate from the raw NOAA/GEOID18 distribution. If a 2018-or-later FEMA/USGS
+project covering the Mexico Beach - Panama City, FL area is indexed in the
+Planetary Computer `3dep-lidar-copc` collection alongside an earlier project
+(`Lower_Choctawhatchee_2017` is a candidate, though its catalog dates are
+unverified per above), **that pair would work entirely through the app's
+existing, already-implemented `usgs3dep` adapter** - no NOAA integration
+needed. This has not been confirmed to exist; it is a plausible lead based on
+project-naming conventions, not a verified finding.
+
+To check: launch the app and draw a small AOI (roughly 1-2 km square) over a
+**forested** area, where canopy loss would actually be visible in a height
+profile - coastal/urban tiles like Mexico Beach itself are a weaker choice
+for that. The maintainer's own guidance points northwest of Apalachicola, FL
+(Franklin County), toward the Apalachicola National Forest / Tate's Hell
+State Forest area: heavily timbered land that took severe wind damage from
+Hurricane Michael (Category 5, October 2018) as the storm crossed the
+Florida Panhandle, with damage extending into parts of Georgia and Alabama.
+Search provider `usgs3dep` with no date filter over that area, and look at
+the grouped campaign list under **Compare campaigns** for two distinct
+projects whose collection intervals straddle October 2018. If a real pair
+turns up,
+record its exact campaign labels, AOI and a screenshot here.
+
+The README's compare-campaigns screenshot (`docs/images/interface-compare-campaigns.png`)
+currently uses a synthetic stand-in shaped like this scenario - a thinned,
+shortened canopy in half of a synthetic 100 m tile, red vs. blue - clearly
+labeled as synthetic in the README caption, not real Apalachicola data.
+Replace it with a real render once a verified pair from this area is found.
+
+## Candidate site found by the maintainer, 18 September 2026
+
+Located in Google Earth (screenshot: a placemark near "Abe Springs")
+and reported as UTM Zone 16N, Easting 679558.79 m E, Northing 3357161.09
+m N. Converted in this session (`pyproj`, EPSG:32616 -> EPSG:4326, since
+this sandbox has no network access to a live USGS/Planetary Computer
+endpoint to check the point any other way):
+
+**Latitude 30.332975, Longitude -85.132174** (WGS84).
+
+This falls in the Calhoun/Liberty County area of the Florida Panhandle,
+between Blountstown and Wewahitchka, near the Apalachicola River -
+forested, and within Hurricane Michael's Category 5 eyewall track
+(the storm crossed the Panhandle on 10 October 2018 on a path that
+includes this area), consistent with the "northwest of Apalachicola"
+guidance above, though it is west of the river rather than inside the
+Apalachicola National Forest boundary itself (which lies mostly east of
+the river) - still a physically reasonable candidate for wind-driven
+canopy loss.
+
+**Not yet verified against the actual catalog.** This sandbox can reach
+`github.com` and package registries (confirmed: `pypi.org`,
+`registry.npmjs.org`) but not `planetarycomputer.microsoft.com`,
+`index.nationalmap.gov`, `www.usgs.gov`, or even `cran.r-project.org` -
+all returned connection failures when checked directly. The next step
+still has to happen in the running app (or any session with real
+network access): search provider `usgs3dep` with no date filter over a
+small AOI centered near 30.332975, -85.132174, and check the grouped
+campaign list under **Compare campaigns** for two distinct projects
+whose collection intervals straddle October 2018.

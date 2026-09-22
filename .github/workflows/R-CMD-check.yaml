@@ -1,0 +1,56 @@
+name: R package checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: windows-latest, r: release}
+          - {os: macos-latest, r: release}
+          - {os: ubuntu-latest, r: release}
+          - {os: ubuntu-latest, r: devel}
+    runs-on: ${{ matrix.config.os }}
+    env:
+      R_KEEP_PKG_SOURCE: 'yes'
+      _R_CHECK_LIMIT_CORES_: 'true'
+      NOT_CRAN: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check incremental catalogue preservation
+        run: python -m unittest discover -s tools -p test_ot_update.py
+      - name: Check visual profile geometry
+        run: |
+          node tools/test-profile.cjs
+          node tools/test-comparison-view.cjs
+      - uses: r-lib/actions/setup-pandoc@v2
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          use-public-rspm: true
+      - name: Install GDAL for macOS source dependencies
+        if: runner.os == 'macOS'
+        run: brew install gdal
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          # Some current arm64 CRAN binaries use zstd, which the dependency
+          # installer's archive detector does not yet recognize. Build these
+          # dependencies from CRAN sources; keep the package checks unchanged.
+          extra-packages: |
+            any::rcmdcheck
+            ${{ runner.os == 'macOS' && 'knitr=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'leaflet.extras=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'xfun=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'lidR=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'sf=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'terra=?source' || '' }}
+            ${{ runner.os == 'macOS' && 'RcppArmadillo=?source' || '' }}
+          needs: check
+      - name: Check incremental catalogue merge
+        run: Rscript tools/test_ot_merge.R
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          args: 'c("--no-manual", "--as-cran")'
+          error-on: '"warning"'

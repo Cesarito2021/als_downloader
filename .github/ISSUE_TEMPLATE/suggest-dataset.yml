@@ -1,0 +1,14 @@
+name: Dataset integration follow-up
+description: Public metadata only. Submit private contact information through the app email draft.
+title: "Dataset suggestion: "
+body:
+  - type: markdown
+    attributes:
+      value: "Use the app: complete ten short fields, Check compatibility, then Submit your request. Email is required there and is kept out of public issues. This public form is for follow-up metadata only."
+  - type: textarea
+    id: request
+    attributes:
+      label: Public dataset information
+      description: "Dataset name, DOI, aerial platform, collection year, short description, data link and license link. Do not include your contact email, passwords or signed private URLs."
+    validations:
+      required: true

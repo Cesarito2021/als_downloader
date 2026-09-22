@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"copc": "0.0.8",
+		"esbuild": "0.25.9"
+	}
+}

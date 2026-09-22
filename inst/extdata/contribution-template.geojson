@@ -1,0 +1,18 @@
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "properties": {
+      "tile_id": "REPLACE-tile-001",
+      "dataset": "EXAMPLE ONLY - replace with your dataset",
+      "url": "https://example.org/REPLACE-tile-001.laz",
+      "acquired_start": null,
+      "acquired_end": null,
+      "platform": "ALS",
+      "size_bytes": null,
+      "license_url": "https://example.org/REPLACE-license",
+      "citation": "REPLACE with producer, dataset title, DOI and required attribution"
+    },
+    "geometry": {"type": "Polygon", "coordinates": [[[-75,-10],[-74.999,-10],[-74.999,-9.999],[-75,-9.999],[-75,-10]]]}
+  }]
+}

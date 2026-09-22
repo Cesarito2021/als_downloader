@@ -1,0 +1,28 @@
+## Technical appendix
+
+### Download planning
+
+Storage covers original compressed source tiles, including points outside the AOI. Allow additional space for temporary downloads, extraction, decompressed LAS and derived products; their sizes are not estimated here. 1 GiB = 1,024 MiB.
+
+```{r, eval=params$details}
+if (has_tiles && any(known)) {
+  speed <- c(5, 20, 50)
+  minutes <- sum(bytes[known]) / 1024^2 / speed / 60
+  scenario <- data.frame(`Aggregate transfer (MiB/s)` = speed,
+    `Time for known bytes (minutes)` = ifelse(minutes < 0.1, "<0.1", sprintf("%.1f", minutes)), check.names = FALSE)
+  print(knitr::kable(scenario, row.names = FALSE))
+} else cat("No usable file sizes: storage and transfer time cannot be estimated.\n\n")
+```
+
+Illustrative ideal transfer times, **not measured speeds or completion promises**. Unknown sizes, retries, throttling, disk writes and processing are excluded. Four workers share the connection and provider limits; four CPU cores do not imply four times the download speed.
+
+### Metadata and source evidence
+
+Export selected metadata for file identifiers, acquisition evidence and source links. Per-file sizes are retained internally; the report presents aggregate download size. NA marks unavailable information, with lookup status retained separately.
+
+```{r, eval=params$details}
+if(has_tiles) {
+  fields<-intersect(c("filename","acquisition_year","date_status"),names(tiles_df))
+  print(knitr::kable(utils::head(tiles_df[fields],5),row.names=FALSE))
+}
+```

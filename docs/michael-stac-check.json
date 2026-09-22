@@ -1,0 +1,29 @@
+{
+  "point": [-85.418, 29.948],
+  "tiles": [
+    {
+      "tile_id": "USGS_LPC_FL_Lower_Choctawhatchee_2017_16RFU525135_LAS_2019",
+      "provider": "usgs3dep",
+      "dataset": "3dep-lidar-copc",
+      "filename": "USGS_LPC_FL_Lower_Choctawhatchee_2017_16RFU525135_LAS_2019.copc.laz",
+      "url": "https://usgslidareuwest.blob.core.windows.net/usgs-3dep-copc/usgs-copc/USGS_LPC_FL_Lower_Choctawhatchee_2017_LAS_2019/copc/USGS_LPC_FL_Lower_Choctawhatchee_2017_16RFU525135_LAS_2019.copc.laz",
+      "acquired_start": "2019-01-01",
+      "acquired_end": "2019-01-01",
+      "size_bytes": null,
+      "license_url": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
+      "citation": "USGS 3DEP; USGS_LPC_FL_Lower_Choctawhatchee_2017_16RFU525135_LAS_2019 ; distributed through Microsoft Planetary Computer. Consult survey metadata for acquisition and producer credits."
+    },
+    {
+      "tile_id": "FL_Bayd5_2007_000732",
+      "provider": "usgs3dep",
+      "dataset": "3dep-lidar-copc",
+      "filename": "FL_Bayd5_2007_000732.copc.laz",
+      "url": "https://usgslidareuwest.blob.core.windows.net/usgs-3dep-copc/usgs-copc/FL_Bayd5_2007/copc/FL_Bayd5_2007_000732.copc.laz",
+      "acquired_start": "2007-07-12",
+      "acquired_end": "2007-07-23",
+      "size_bytes": null,
+      "license_url": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
+      "citation": "USGS 3DEP; FL_Bayd5_2007_000732 ; distributed through Microsoft Planetary Computer. Consult survey metadata for acquisition and producer credits."
+    }
+  ]
+}
