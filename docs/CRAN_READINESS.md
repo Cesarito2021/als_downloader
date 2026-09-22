@@ -113,7 +113,7 @@ further change; a passing run today does not cover commits made after it.
 
 ### Review on 19 September 2026
 
-The reviewed Claude head `aeebd87` had failing CI. The subsequent Codex review
+The reviewed revision `aeebd87` had failing CI. The subsequent review
 fixes signed URL redaction and background package loading. A fresh local
 R 4.4.0 `R CMD check --as-cran` (including PDF manual, vignettes, report tests
 and installed-package subprocess tests) completed with zero errors and zero
