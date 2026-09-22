@@ -1,7 +1,7 @@
 # Private review from an email invitation
 
 Contributors use **Submit ALS data - Zenodo**, without signing in or opening a
-mail client. Their contact email is optional. The ALS Downloader team reviews
+mail client. Their contact email is optional. The ALSdownloadeR team reviews
 submissions; publication always requires an explicit decision. No review deadline is promised.
 
 The configured maintainer receives a summary and a private link. On the PC running

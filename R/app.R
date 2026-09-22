@@ -1,4 +1,4 @@
-#' Launch the ALS Downloader Shiny application
+#' Launch the ALSdownloadeR Shiny application
 #' @param mode `"local"` for configurable transfers or `"hosted"` for a serial
 #'   download service. Set by the administrator, not by browser input.
 #' @param tile_index_dir Optional administrator-supplied OpenTopography or contributed index
@@ -77,7 +77,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
       shiny::tags$script(src = "als-assets/profile.js"),
       shiny::tags$script(src = "als-assets/preview.js"),
       shiny::tags$script(src = "als-assets/globe.js")),
-    shiny::div(class = "als-header", shiny::div(shiny::h1("ALS DOWNLOADER"),
+    shiny::div(class = "als-header", shiny::div(shiny::h1("ALSdownloadeR"),
       shiny::span("Discover, inspect and download airborne LiDAR")),
       shiny::div(class = "als-header-actions",
         shiny::actionButton("suggest_source", "Submit ALS data - Zenodo"),
@@ -141,7 +141,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
                 shiny::p(id = "globe_status", class = "als-globe-caption", "Country colours represent access routes. Open Explorer to see survey coverage."),
                 shiny::p(class = "als-globe-mission",
                   "Find airborne LiDAR (Light Detection and Ranging) by area of interest, view point clouds and download original LAS/LAZ files from their providers."),
-                shiny::div(class = "als-welcome-buttons", role = "group", `aria-label` = "Explore ALS Downloader",
+                shiny::div(class = "als-welcome-buttons", role = "group", `aria-label` = "Explore ALSdownloadeR",
                   shiny::actionButton("enter_map", "Open map", icon = shiny::icon("map"), class = "als-welcome-button als-welcome-map"),
                   shiny::actionButton("welcome_about", "About the project", icon = shiny::icon("book-open"), class = "als-welcome-button als-welcome-guide"),
                   shiny::actionButton("welcome_catalogue", "Source catalogue", icon = shiny::icon("layer-group"), class = "als-welcome-button als-welcome-sources")),
@@ -240,7 +240,7 @@ als_app <- function(mode = "local", tile_index_dir = NULL, provider_limit = 2L, 
           shiny::h2(id = "welcome_information_title", tabindex = "-1", if(section == "about") "About the project" else "Source catalogue"),
           shiny::actionButton("close_information", "Close")),
         if(section == "about") shiny::tagList(
-          shiny::p("ALS Downloader connects existing airborne LiDAR catalogues: define an AOI, find surveys, view point clouds and download original files from their providers."),
+          shiny::p("ALSdownloadeR connects existing airborne LiDAR catalogues: define an AOI, find surveys, view point clouds and download original files from their providers."),
         shiny::p("Coverage, acquisition dates and classifications depend on source metadata. Visual comparisons support inspection; they do not measure change."),
           shiny::p("Developed by Cesar Alvites. Software: GPL-3. Data and basemaps retain their own licences and credits."),
           shiny::p("Interactive maps use Leaflet and the leaflet R package. Geographic outlines: Natural Earth / World Atlas. We acknowledge the data producers and access services identified in the source catalogue and exported metadata."),

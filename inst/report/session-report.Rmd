@@ -1,5 +1,5 @@
 ---
-title: "ALS Downloader Report"
+title: "ALSdownloadeR Report"
 output:
   html_document:
     self_contained: true
@@ -70,7 +70,7 @@ if (knitr::is_latex_output()) {
   cat(paste0("```{=latex}\n\\noindent\\begin{minipage}[c]{0.50\\linewidth}\n",
     "\\includegraphics[width=\\linewidth,height=2cm,keepaspectratio]{\\detokenize{", banner, "}}\n",
     "\\end{minipage}\\hfill\\begin{minipage}[c]{0.45\\linewidth}\\raggedleft\n",
-    "{\\color{alsaccent}\\Large\\bfseries ALS Downloader Report}\\par\n",
+    "{\\color{alsaccent}\\Large\\bfseries ALSdownloadeR Report}\\par\n",
     "\\end{minipage}\\par\\vspace{0.8em}\n```\n\n"))
 }
 ```
@@ -159,7 +159,7 @@ if (has_tiles) {
 } else cat("No tiles in this selection.\n\n")
 ```
 
-Downloaded point clouds are original files from their providers. ALS Downloader applies no additional pre- or post-processing to these downloads. Figures show sampled point clouds for visual inspection.
+Downloaded point clouds are original files from their providers. ALSdownloadeR applies no additional pre- or post-processing to these downloads. Figures show sampled point clouds for visual inspection.
 
 ## Data source licences and policies
 
@@ -196,7 +196,7 @@ cat(params$software_citation, "\n\n")
 
 ## Acknowledgements
 
-The development of ALS Downloader at the **University of Florida**, within [OpenForest4D](https://openforest4d.org), was supported by the **U.S. National Science Foundation** under awards **2409885, 2409886 and 2409887**. We thank the data producers and repositories cited in this report.
+The development of ALSdownloadeR at the **University of Florida**, within [OpenForest4D](https://openforest4d.org), was supported by the **U.S. National Science Foundation** under awards **2409885, 2409886 and 2409887**. We thank the data producers and repositories cited in this report.
 
 Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
 

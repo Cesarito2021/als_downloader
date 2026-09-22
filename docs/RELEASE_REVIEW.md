@@ -1,4 +1,4 @@
-# ALS Downloader 0.1.2 — release review
+# ALSdownloadeR 0.1.2 — release review
 
 Prepared for maintainer review on 20 September 2026. No CRAN submission or Zenodo
 software deposit has been made. The maintainer has authorized public GitHub and R-universe publication.

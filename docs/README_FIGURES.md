@@ -45,7 +45,7 @@ outputs, not an AI-generated illustration. Panels intentionally use different
 sites: (A) the same Utah search table; (B) the existing Groningen AHN6 elevation
 view, under CC BY 4.0; (C) recorded USGS Florida Panhandle 2018 and Hurricane
 Michael 2019-2020 acquisitions over a 100 x 100 m Apalachicola area; (D) the
-current PDF report for one IGN France tile. The report title is ALS Downloader
+current PDF report for one IGN France tile. The report title is ALSdownloadeR
 Report. Its displayed missing-size message is retained.
 
 For panel C, the unmodified application comparison UI and canvas renderer were

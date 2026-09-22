@@ -1,4 +1,4 @@
-The package's R functions and interface were developed for ALS Downloader.
+The package's R functions and interface were developed for ALSdownloadeR.
 Treetop was consulted as an architectural reference; no Treetop source code is
 included in the new package.
 
@@ -48,7 +48,7 @@ contributors) through the leaflet R package (MIT; Posit and contributors).
 These dependencies retain their own licences and notices in their distributions.
 https://github.com/Leaflet/Leaflet/blob/v1.3.1/LICENSE
 https://github.com/rstudio/leaflet/tree/v2.2.2
-ALS Downloader's compatibility code in app.js is original application code.
+ALSdownloadeR's compatibility code in app.js is original application code.
 
 The author portrait is supplied from Cesar Alvites' own public website repository,
 with his authorization for this application. It is not provider imagery.

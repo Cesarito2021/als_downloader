@@ -71,7 +71,7 @@
           }});
         const credit=map.querySelector('.leaflet-control-attribution')?.textContent||'';
         await save(canvas,'als-aoi-tiles.png',[
-          'ALS Downloader | Area of interest and visible tile footprints',
+          'ALSdownloadeR | Area of interest and visible tile footprints',
           document.getElementById('search_status')?.textContent||'',
           include?credit+' | https://www.openstreetmap.org/copyright':'Basemap omitted. '+credit,
           'Dashed gold outline: area of interest. Tile colours: reported acquisition years. Green outlines: configured regional indexes; no national coverage implied.',

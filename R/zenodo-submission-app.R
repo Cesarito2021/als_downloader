@@ -28,7 +28,7 @@ zenodo_submission_ui <- function() shiny::tagList(
   shiny::textInput("zenodo_email","4. Contact email (required, private)"),
   shiny::helpText("Your email is shared with the review service and maintainer; it stays out of the public catalogue."),
   shiny::actionButton("zenodo_prepare","Validate submission"),shiny::textOutput("zenodo_status"),shiny::uiOutput("zenodo_actions"),
-  shiny::helpText("Validate the completed form to enable Submit. The ALS Downloader team will review your submission."),
+  shiny::helpText("Validate the completed form to enable Submit. The ALSdownloadeR team will review your submission."),
   shiny::tags$a(href="https://github.com/Cesarito2021/als_downloader",target="_blank",rel="noopener noreferrer","See details on GitHub"))
 
 zenodo_boundary_download <- function(meta,key) {
@@ -145,7 +145,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     proposal_source(if(identical(input$zenodo_has_boundary,"no")) list(kind="approximate") else
       if(identical(input$zenodo_boundary_source,"upload")) list(kind="upload") else
         list(kind="zenodo",key=input$zenodo_boundary_source,mapping="",id_column=input$zenodo_id_column,id_mapping=mapping_values()))
-    proposal(p);message("Validated. You can now submit for ALS Downloader team review.")
+    proposal(p);message("Validated. You can now submit for ALSdownloadeR team review.")
   },error=fail))
   output$zenodo_status<-shiny::renderText(message())
   output$zenodo_actions<-shiny::renderUI({shiny::req(proposal());
@@ -160,7 +160,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     if(!is.null(zenodo_formspree_config(default=is.null(queue))))stop("Use the Formspree submission button.")
     if(is.null(queue))stop("The review queue is not configured.")
     p<-proposal();if(is.null(p))stop("Validate the submission first.")
-    id<-submit_zenodo(p,queue);message(paste("Proposal received. Reference:",id,"| DOI:",p$metadata$doi,"| The ALS Downloader team will review your submission."))
+    id<-submit_zenodo(p,queue);message(paste("Proposal received. Reference:",id,"| DOI:",p$metadata$doi,"| The ALSdownloadeR team will review your submission."))
 
   },error=fail))
   if(is.null(reviewer))return(invisible(NULL))
@@ -211,7 +211,7 @@ zenodo_submission_server <- function(input,output,session,queue=NULL,reviewer=NU
     requested(selected)
     if(!access$valid(token())) {show_login();return(invisible(NULL))}
     shiny::showModal(shiny::modalDialog(title="Review submissions",size="l",
-      shiny::p("ALS Downloader team | Private maintainer panel. Proposals remain inactive until approved. No point-cloud analysis is performed."),
+      shiny::p("ALSdownloadeR team | Private maintainer panel. Proposals remain inactive until approved. No point-cloud analysis is performed."),
       shiny::actionButton("review_logout","Sign out"),
       shiny::selectInput("zenodo_review_id","Pending proposal",choices=character()),
       shiny::actionButton("zenodo_review_refresh","Refresh queue"),shiny::textOutput("zenodo_queue_status"),

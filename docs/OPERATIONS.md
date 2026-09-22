@@ -1,4 +1,4 @@
-# Running and hosting ALS Downloader
+# Running and hosting ALSdownloadeR
 
 ```r
 ALSdownloadeR::launch_app(mode = "hosted", tile_index_dir = "/srv/als/indexes")

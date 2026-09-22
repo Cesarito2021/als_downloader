@@ -18,7 +18,7 @@ zenodo_formspree_config <- function(default = TRUE) {
 }
 
 zenodo_formspree_fields <- function(p, source, config) {
-  fields <- list(subject = paste("[ALS Downloader] Zenodo submission", p$metadata$doi),
+  fields <- list(subject = paste("[ALSdownloadeR] Zenodo submission", p$metadata$doi),
     reference = p$id, doi = p$metadata$doi,
     record = paste0("https://zenodo.org/records/", p$metadata$id),
     acquisition = p$acquired, platform = p$platform,
@@ -55,7 +55,7 @@ zenodo_formspree_ui <- function(p, source, config) {
   if (!is.null(attachment) && nchar(attachment, type = "bytes") > 8*1024^2)
     stop("The proposal attachment exceeds 8 MiB. Simplify the coverage polygons.")
   shiny::tagList(
-    shiny::helpText("Submit sends your dataset information and private email to the ALS Downloader review team through Formspree."),
+    shiny::helpText("Submit sends your dataset information and private email to the ALSdownloadeR review team through Formspree."),
     shiny::tags$form(class = "als-formspree", action = config$endpoint,
       method = "POST", target = "_blank", rel = "noopener noreferrer",
       enctype = "multipart/form-data",

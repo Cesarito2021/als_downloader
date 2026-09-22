@@ -28,7 +28,7 @@ requires explicit file selection and maintainer review.
 
 **Validate submission** checks structure and mapping. **Submit for maintainer
 review** stores a pending proposal on configured instances; otherwise save the
-proposal JSON and share it privately. The ALS Downloader team reviews submissions;
+proposal JSON and share it privately. The ALSdownloadeR team reviews submissions;
 publication requires explicit approval. No review deadline is promised.
 
 Approved coverage appears automatically in Explorer and its files become available

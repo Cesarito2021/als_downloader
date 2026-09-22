@@ -2,7 +2,7 @@
 % Please edit documentation in R/app.R
 \name{launch_app}
 \alias{launch_app}
-\title{Launch the ALS Downloader Shiny application}
+\title{Launch the ALSdownloadeR Shiny application}
 \usage{
 launch_app(
   mode = c("local", "hosted"),
@@ -40,7 +40,7 @@ only in local mode with email-link authentication configured by
 Invisibly, the return value of [shiny::runApp()]. Runs until stopped.
 }
 \description{
-Launch the ALS Downloader Shiny application
+Launch the ALSdownloadeR Shiny application
 }
 \details{
 Launch is explicit: loading the package does not start a browser,

@@ -90,7 +90,7 @@
       const g=out.getContext('2d');g.fillStyle='#05080c';g.fillRect(0,0,out.width,out.height);let y=0;
       for(const item of scaled){g.drawImage(item.c,0,y,width,item.h);y+=item.h;}
       g.fillStyle='#e0eaf0';g.font='18px sans-serif';
-      const lines=['ALS Downloader | Visual overlay of sampled points; no calculated change.',
+      const lines=['ALSdownloadeR | Visual overlay of sampled points; no calculated change.',
         'A: '+(s.labels[0]||'Source A')+' | '+s.palette+(s.showA?'':' (hidden)'),
         'B: '+(s.labels[1]||'Source B')+' | '+s.paletteB+(s.showB?'':' (hidden)'),
         'Cloud views: '+(s.cloudMode==='shared'?s.sharedPalette+' | shared source elevation scale':'source colours')+'. Profile colours identify A and B.',

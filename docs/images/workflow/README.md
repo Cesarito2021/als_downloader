@@ -1,6 +1,6 @@
 # Interface figures
 
-Captured from the local ALS Downloader 0.1.3 candidate on 20 September 2026.
+Captured from the local ALSdownloadeR 0.1.3 candidate on 20 September 2026.
 SVG files are editable layouts with embedded, unaltered interface screenshots;
 PNG files are rendered copies for README. Each screenshot retains its full
 width. The complete welcome page has red outline annotations A–E identifying

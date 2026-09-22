@@ -87,9 +87,9 @@ proposal into a private local queue. Hosted email approval and central catalogue
 publication (including a possible GitHub commit) remain separate deployment work.
 There is no automatic acceptance, deadline, or public exposure of contact details.
 
-For Gmail organization, notifications use the subject prefix `[ALS Downloader]`.
+For Gmail organization, notifications use the subject prefix `[ALSdownloadeR]`.
 After a live message arrives, verify its sender and subject before creating a
-Gmail filter that applies the `ALS Downloader` label. No Gmail rules are changed
+Gmail filter that applies the `ALSdownloadeR` label. No Gmail rules are changed
 by this package.
 
 ## Activation checklist

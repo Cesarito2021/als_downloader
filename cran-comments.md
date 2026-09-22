@@ -18,9 +18,12 @@ Testthat reports two internal warnings on Windows and one in each remote run;
 these are retained in the logs and are distinct from R CMD check warnings.
 
 Final source archive SHA256:
-43FCE84D0AE12D66B326EE7E77BC2D82C2F5AD080241782351C1F6C61E67891F
+1AC6D9BB4E7D5D19E94B25AF6433A3AFC4D601764009E53BE2D87BA7D216E67D
 Its 146 comparable source files match the checked working tree, normalizing
-line endings. Only submission notes were updated after this checked code.
+line endings. After this checked code, display strings were standardized to ALSdownloadeR
+and README screenshots were regenerated without changing application logic.
+All 93 targeted report, script and form checks passed; the archive and manual
+were rebuilt. The full platform checks above predate these display-only edits.
 
 The revision uses original USGS discovery and acquisition XML, including
 bounded metadata-directory lookup and valid alternative XML handling. Legacy

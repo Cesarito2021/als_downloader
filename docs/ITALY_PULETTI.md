@@ -54,4 +54,4 @@ Puletti, N. (2020). *Sila National Park – 3D Point cloud data* (Version 1) [Da
 
 Credit Nicola Puletti / CREA and the dataset DOI, link the CC BY 4.0 license and identify modifications when reusing the data.
 The record acknowledges the AGRIDIGIT Selvicoltura project for data collection.
-Dataset attribution is distinct from software authorship or endorsement of ALS Downloader.
+Dataset attribution is distinct from software authorship or endorsement of ALSdownloadeR.

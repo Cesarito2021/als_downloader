@@ -1,7 +1,7 @@
 # Coverage and storage statistics
 
 Snapshot: **20 September 2026**. These numbers describe catalogue access, not
-data owned or hosted by ALS Downloader, unique ground coverage, or a guarantee
+data owned or hosted by ALSdownloadeR, unique ground coverage, or a guarantee
 that every provider link will remain available indefinitely.
 
 ## Verified OpenTopography access

@@ -147,7 +147,7 @@
     if(saveButton)saveButton.onclick=()=>{
       if(!points.length)return;
       window.ALSFigures.save(c,'als-point-cloud.png',[
-        'ALS Downloader | '+sourceLabel,
+        'ALSdownloadeR | '+sourceLabel,
         'Colour: '+activeMode+(colourBy==='auto'?' (automatic)':'')+(activeMode==='classification'?' | Source class colours':' | '+palette)+' | Vertical scale factor '+exag+'x',
         activeMode==='classification'?'Source classification keys shown above.':classLegend.textContent,
         points.length.toLocaleString()+' sampled points. No new classification or height normalization.',unitNote,...attribution
@@ -194,7 +194,7 @@
     // cloud sits at each elevation, not a fitted or modeled distribution.
     function renderDensity(){
       const densityButton=document.getElementById('export_density_png');
-      if(densityButton){densityButton.disabled=!points.length;densityButton.onclick=()=>window.ALSFigures.save(dc,'als-elevation-distribution.png',['ALS Downloader | Elevation distribution',...labels,'Sampled source elevations; not a calculated difference.',...attribution]);}
+      if(densityButton){densityButton.disabled=!points.length;densityButton.onclick=()=>window.ALSFigures.save(dc,'als-elevation-distribution.png',['ALSdownloadeR | Elevation distribution',...labels,'Sampled source elevations; not a calculated difference.',...attribution]);}
       if(!dc||!dc.clientWidth)return;
       const w=dc.clientWidth,h=220,dpr=Math.min(devicePixelRatio||1,2);
       dc.width=w*dpr;dc.height=h*dpr;const g=dc.getContext('2d');g.scale(dpr,dpr);

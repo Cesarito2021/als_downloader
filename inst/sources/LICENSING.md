@@ -1,6 +1,6 @@
 # Software, data and figure licences
 
-ALS Downloader's original software is licensed under **GPL-3**, as declared
+ALSdownloadeR's original software is licensed under **GPL-3**, as declared
 in DESCRIPTION. This licence does not grant rights over downloaded datasets,
 uploaded files, basemaps, provider logos or third-party website content.
 

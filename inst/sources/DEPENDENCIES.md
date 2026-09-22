@@ -2,7 +2,7 @@
 
 Generated from DESCRIPTION. Package records link to their own authors, licences and documentation.
 Use `citation("packageName")` and `packageDescription("packageName")` for the installed version.
-Dependencies retain their own licences; ALS Downloader does not claim authorship of them.
+Dependencies retain their own licences; ALSdownloadeR does not claim authorship of them.
 
 | Dependency | Role | Version requirement |
 |---|---|---|

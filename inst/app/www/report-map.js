@@ -62,7 +62,7 @@
         onclone:doc=>doc.getElementById(container.id).querySelectorAll('img.leaflet-tile').forEach(img=>{img.src=copies.get(img.src);})});
       const out=document.createElement('canvas'),ctx=out.getContext('2d');ctx.font='18px Arial';
       const lines=[];
-      for(const note of ['ALS Downloader | Basemap: (c) OpenStreetMap contributors, https://www.openstreetmap.org/copyright | Cartographic context, not LiDAR acquisition conditions.',...(payload.sources || [])]) {
+      for(const note of ['ALSdownloadeR | Basemap: (c) OpenStreetMap contributors, https://www.openstreetmap.org/copyright | Cartographic context, not LiDAR acquisition conditions.',...(payload.sources || [])]) {
         let line='';
         for(const ch of String(note)) {
           if(ctx.measureText(line+ch).width>canvas.width-40){lines.push(line);line='';}

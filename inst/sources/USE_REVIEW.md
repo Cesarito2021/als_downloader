@@ -62,7 +62,7 @@ does not add an unused API acknowledgement or claim a partnership.
 
 The software's funding credit remains **OpenForest4D, NSF awards 2409885, 2409886
 and 2409887**. OpenTopography's facility funding is separate and must never be
-presented as funding received by ALS Downloader.
+presented as funding received by ALSdownloadeR.
 
 Source credits and licence links travel in exported tile metadata and report
 citations. Point-cloud figures retain source notices and display transformations.

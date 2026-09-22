@@ -1,4 +1,4 @@
-![ALS Downloader — airborne LiDAR discovery and visualization](docs/images/banner.png)
+![ALSdownloadeR — airborne LiDAR discovery and visualization](docs/images/banner.png?v=20260922-name)
 
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](NEWS.md)
@@ -7,25 +7,25 @@
 [![GitHub release downloads](https://img.shields.io/github/downloads/Cesarito2021/als_downloader/total?label=release%20downloads)](https://github.com/Cesarito2021/als_downloader/releases)
 [![GitHub source ZIP](https://img.shields.io/badge/GitHub-source_ZIP-181717?logo=github&logoColor=white)](https://github.com/Cesarito2021/als_downloader/archive/refs/heads/main.zip)
 
-### ALS Downloader: a web-based Shiny application for the discovery, management, visualization, and download of airborne laser scanning (ALS) datasets worldwide
+### ALSdownloadeR: a web-based Shiny application for the discovery, management, visualization, and download of airborne laser scanning (ALS) datasets worldwide
 
 **Developed by Cesar Alvites**<br>
 School of Forest, Fisheries, and Geomatics Sciences, University of Florida
 
-ALS Downloader links a user-defined area of interest (AOI) to available airborne LiDAR surveys. Users can identify and select tiles, download the original point cloud files in parallel, inspect point clouds interactively, and compare overlapping acquisitions. All data remain hosted by the originating providers. The catalogue combines direct data access with links to national portals, and spatial coverage varies by source.
+ALSdownloadeR links a user-defined area of interest (AOI) to available airborne LiDAR surveys. Users can identify and select tiles, download the original point cloud files in parallel, inspect point clouds interactively, and compare overlapping acquisitions. All data remain hosted by the originating providers. The catalogue combines direct data access with links to national portals, and spatial coverage varies by source.
 
 ## User interface
 
 Start with the globe, then open **Explore** to find tiles. **3D view** inspects a
 selected tile or local file; **3D comparison** brings overlapping clouds together.
 
-![ALS Downloader: globe, access routes and entry points](docs/images/workflow/01-globe-complete.png)
+![ALSdownloadeR: globe, access routes and entry points](docs/images/workflow/01-globe-complete.png?v=20260922-name)
 
 **A.** Globe and access routes (red: in-app; yellow: external portals). **B.** Open map. **C.** Submit ALS data. **D.** About the project. **E.** GitHub. **F.** Source catalogue. **G.** Restart rotation. **H.** Explore. **I.** 3D view. **J.** 3D comparison. **K.** Natural Earth. **L.** Author website.
 
 ### Explorer
 
-![Explorer interface with annotated AOI, acquisition period, map, campaign selection, downloads and tile table](docs/images/workflow/02-explorer-guide.png)
+![Explorer interface with annotated AOI, acquisition period, map, campaign selection, downloads and tile table](docs/images/workflow/02-explorer-guide.png?v=20260922-name)
 
 **A.** Define the AOI. **B.** Set the acquisition period and search. **C.** Inspect tile footprints on the map. **D.** Select years and campaigns. **E.** Configure downloads and export the PDF report. **F.** Inspect tiles and export metadata or an R download script.
 
@@ -76,9 +76,9 @@ The R package is named **`ALSdownloadeR`**. The repository remains `als_download
 
 Other countries link to their official download portals. [Full source catalogue](inst/sources/SOURCES.md).
 
-## ALS Downloader Stats
+## ALSdownloadeR Stats
 
-The audited OpenTopography portion of ALS Downloader connects users to over **1.05 million files (42.6 TB)** hosted by the original providers.
+The audited OpenTopography portion of ALSdownloadeR connects users to over **1.05 million files (42.6 TB)** hosted by the original providers.
 
 | OpenTopography snapshot · 20 September 2026 | Verified count |
 |---|---:|
@@ -107,7 +107,7 @@ Counts cover the audited OpenTopography collections, excluding federated 3DEP an
 
 Acquisition year is the final year of acquisition; filename references are labelled, and unavailable years appear as **NA**. Viewing or comparing remote point clouds temporarily downloads the selected files.
 
-![Real application outputs: tile table, point-cloud view, red-blue comparison with profile and elevation distribution, and PDF report](docs/images/workflow/03-workflow-outputs.png)
+![Real application outputs: tile table, point-cloud view, red-blue comparison with profile and elevation distribution, and PDF report](docs/images/workflow/03-workflow-outputs.png?v=20260922-name)
 
 **A.** Tile table (USGS, California). **B.** Point-cloud view (AHN6, Groningen). **C.** Overlapping USGS acquisitions in Apalachicola, with a profile and elevation histogram. **D.** PDF report excerpt (USGS, California). Panels show separate real examples. [Sources and figure preparation](https://github.com/Cesarito2021/als_downloader/blob/main/docs/README_FIGURES.md).
 
@@ -157,7 +157,7 @@ Data remain on Zenodo. Catalogue entries retain the dataset DOI, authors and lic
 
 - Alvites, C., Santopuoli, G., Maesano, M., Chirici, G., Moresi, F. V., Tognetti, R., Marchetti, M., & Lasserre, B. (2021). [Unsupervised algorithms to detect single trees in a mixed-species and multilayered Mediterranean forest using LiDAR data](https://flore.unifi.it/handle/2158/1259181). *Canadian Journal of Forest Research, 51*(12), 1766–1780.
 - Alvites, C., Marchetti, M., Lasserre, B., & Santopuoli, G. (2022). [LiDAR as a tool for assessing timber assortments: A systematic literature review](https://doi.org/10.3390/rs14184466). *Remote Sensing, 14*(18), 4466.
-- Alvites, C. (2026). *ALS Downloader: a web-based Shiny application for the discovery, management, visualization, and download of airborne laser scanning (ALS) datasets worldwide*. **Manuscript in preparation.**
+- Alvites, C. (2026). *ALSdownloadeR: a web-based Shiny application for the discovery, management, visualization, and download of airborne laser scanning (ALS) datasets worldwide*. **Manuscript in preparation.**
 
 ## Licensing and credits
 

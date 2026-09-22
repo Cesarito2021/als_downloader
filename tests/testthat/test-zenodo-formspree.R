@@ -30,7 +30,7 @@ test_that("link submissions preserve coverage mapping without contact or geometr
   expect_identical(fields$boundary,"https://zenodo.org/records/12345/files/coverage.geojson")
   expect_identical(fields$file_mapping,"survey.laz")
   expect_null(fields$email)
-  expect_match(fields$subject,"[ALS Downloader]",fixed=TRUE)
+  expect_match(fields$subject,"[ALSdownloadeR]",fixed=TRUE)
   expect_error(zenodo_formspree_fields(p,list(kind="upload"),config),"enable proposal attachments")
   expect_error(zenodo_formspree_fields(p,list(kind="zenodo",key="absent.geojson"),config),"Coverage")
   html <- as.character(zenodo_formspree_ui(p,source,config))

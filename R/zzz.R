@@ -9,7 +9,7 @@ als_welcome_message <- function() {
     "Developed by C\u00e9sar Alvites at the University of Florida.",
     "Thank you for using ALSdownloadeR.",
     "##---------------------- Suggested citation -----------------------##",
-    "Alvites, C. (2026). ALS Downloader: a web-based Shiny application",
+    "Alvites, C. (2026). ALSdownloadeR: a web-based Shiny application",
     "for the discovery, management, visualization, and download of",
     "airborne laser scanning (ALS) datasets worldwide.",
     "Manuscript in preparation.",

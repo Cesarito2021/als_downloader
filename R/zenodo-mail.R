@@ -17,11 +17,11 @@ zenodo_mail_message <- function(p, config) {
     paste("Platform:",clean(p$platform)), paste("Mapped assets:",length(p$index$features)),
     paste("Coverage:",zenodo_coverage_label(p)),
     paste("Review:",paste0(base,"?zenodo_review=",p$id,if(!is.null(config$review_secret))paste0("#review_key=",config$review_secret) else "")),
-    "Open ALS Downloader on your PC, follow this private link, then choose Open private review. The link expires in 30 days and can be used once.",
+    "Open ALSdownloadeR on your PC, follow this private link, then choose Open private review. The link expires in 30 days and can be used once.",
     "Review the proposal and choose Approve and add to catalogue, or Reject. Do not forward this private link.",
     "Opening this link does not approve or download anything.",sep="\r\n")
   paste0("From: ",config$from,"\r\nTo: ",config$to,
-    "\r\nSubject: ALS Downloader - new source ",substr(p$id,1,8),
+    "\r\nSubject: ALSdownloadeR - new source ",substr(p$id,1,8),
     "\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8",
     "\r\nContent-Transfer-Encoding: base64\r\n\r\n",
     gsub("(.{76})","\\1\r\n",gsub("[\r\n]","",jsonlite::base64_enc(charToRaw(enc2utf8(body))))),"\r\n")

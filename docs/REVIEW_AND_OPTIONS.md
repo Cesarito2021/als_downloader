@@ -1,4 +1,4 @@
-# ALS Downloader review and development options
+# ALSdownloadeR review and development options
 
 Historical design notes from the first development review. For current source identity, access and implementation status,
 use [SOURCE_AUDIT.md](SOURCE_AUDIT.md) and the [README](../README.md). The Taiwan/China ALS assumptions below were corrected:
@@ -71,7 +71,7 @@ For hosted deployment, use one shared download slot per instance, or a centrally
 
 Suggested English interface text:
 
-> Hosted mode uses one download worker. Run ALS Downloader locally to configure parallel downloads. Local mode recommends leaving four CPU cores available and using up to ten download workers initially. Transfer concurrency may be reduced to respect provider limits.
+> Hosted mode uses one download worker. Run ALSdownloadeR locally to configure parallel downloads. Local mode recommends leaving four CPU cores available and using up to ten download workers initially. Transfer concurrency may be reduced to respect provider limits.
 
 `R/download_policy.R` implements the numeric planning rule. Validate it with `Rscript tests/test_download_policy.R` from the repository directory. Deployment detection, the queue, the UI and resumable execution remain to be integrated.
 
@@ -148,7 +148,7 @@ Do not claim a universal five-kilometre limit or claim that dividing an AOI auto
 
 Proposed English copy:
 
-> ALS Downloader identifies source tiles intersecting your study area and retrieves them through provider-supported access methods. Large areas may require multiple transfers. Each transfer and the overall request schedule follow the applicable provider limits. Dataset licenses, attribution requirements and source citations are included with the download manifest.
+> ALSdownloadeR identifies source tiles intersecting your study area and retrieves them through provider-supported access methods. Large areas may require multiple transfers. Each transfer and the overall request schedule follow the applicable provider limits. Dataset licenses, attribution requirements and source citations are included with the download manifest.
 
 Only ship that statement once the corresponding controls and manifest exist. The app may plan AOIs larger than 5,000 km², but successful download depends on actual coverage, provider terms, transfer volume and deployment resources. Tile retrieval and local processing should have separately configurable chunk sizes.
 
@@ -164,7 +164,7 @@ For downloads, test HTTP failures after a successful HEAD, unsupported HEAD, exp
 
 For 3D, clip/sample before materializing large clouds. COPC/EPT range access should be preferred when supported by the actual provider and client. Plain LAZ does not automatically provide efficient spatial random access. Start around 100,000 preview points as a tunable engineering target, benchmark on modest hardware, enforce a total cap across all tiles and progressively refine when appropriate. Use a local coordinate origin to retain rendering precision. Decimation affects visualization only, not the downloaded scientific data or analysis inputs.
 
-Export `manifest.csv`, a machine-readable metadata file, `CITATIONS.bib`/plain text, the AOI and processing settings. Cite source datasets and the application separately. Do not invent a DOI for ALS Downloader; assign one through a release process later if desired.
+Export `manifest.csv`, a machine-readable metadata file, `CITATIONS.bib`/plain text, the AOI and processing settings. Cite source datasets and the application separately. Do not invent a DOI for ALSdownloadeR; assign one through a release process later if desired.
 
 ## Completed checks
 

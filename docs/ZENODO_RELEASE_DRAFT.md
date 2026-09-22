@@ -2,7 +2,7 @@
 
 **Status:** prepared only; no deposit, DOI reservation or publication performed.
 
-- **Title:** ALS Downloader: discover, inspect and download airborne LiDAR
+- **Title:** ALSdownloadeR: discover, inspect and download airborne LiDAR
 - **Resource:** Software
 - **Version:** 0.1.0
 - **Creator:** Cesar Ivan Alvites Diaz
@@ -12,7 +12,7 @@
 
 ## Description
 
-ALS Downloader is an R package and Shiny application for finding airborne and
+ALSdownloadeR is an R package and Shiny application for finding airborne and
 UAV LiDAR data by study area, inspecting source metadata and downloading original
 files. It includes bounded point-cloud previews, visual comparisons between
 source campaigns or a source and a local LAS/LAZ file, figure exports and PDF
